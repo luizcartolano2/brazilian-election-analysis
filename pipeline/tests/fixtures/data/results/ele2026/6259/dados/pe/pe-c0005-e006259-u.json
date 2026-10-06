@@ -1,0 +1,224 @@
+{
+ "ele": "6259",
+ "carg": [
+  {
+   "cd": "5",
+   "nmn": "Senador",
+   "nv": "2",
+   "agr": [
+    {
+     "par": [
+      {
+       "n": "80",
+       "sg": "UP",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "801",
+         "nmu": "GORETT BITU",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "13"
+        },
+        {
+         "n": "800",
+         "nmu": "SAMUEL TIMOTEO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "30",
+       "sg": "NOVO",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "300",
+         "nmu": "CARLOS SANT'ANNA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "522"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "16",
+       "sg": "PSTU",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "161",
+         "nmu": "MARIANO MACEDO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "3"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "11",
+       "sg": "PP",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "111",
+         "nmu": "EDUARDO DA FONTE",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "677"
+        }
+       ]
+      },
+      {
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "555",
+         "nmu": "TÚLIO GADÊLHA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "290"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "35",
+       "sg": "DEMOCRATA",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "355",
+         "nmu": "PASTOR GILVAN COSTA",
+         "dvt": "Anulado sub judice",
+         "st": "Não eleito",
+         "vap": "20"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "12",
+       "sg": "PDT",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "123",
+         "nmu": "MARÍLIA ARRAES",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "1006"
+        }
+       ]
+      },
+      {
+       "n": "13",
+       "sg": "PT",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "130",
+         "nmu": "HUMBERTO COSTA",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "1039"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "18",
+       "sg": "REDE",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "180",
+         "nmu": "PAULO RUBEM SANTIAGO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "35"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "22",
+       "sg": "PL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "222",
+         "nmu": "MENDONÇA FILHO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "1122"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "29",
+       "sg": "PCO",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "290",
+         "nmu": "MAILSON DA SILVA NETO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "v": {
+  "vnom": "4709",
+  "vl": "0",
+  "vb": "710",
+  "vn": "637",
+  "vnt": "0",
+  "van": "0",
+  "vansj": "20",
+  "tv": "6076",
+  "vv": "4709"
+ },
+ "e": {
+  "c": "3038",
+  "te": "4352"
+ }
+}

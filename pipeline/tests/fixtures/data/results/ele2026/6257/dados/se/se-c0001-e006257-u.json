@@ -1,0 +1,117 @@
+{
+ "ele": "6257",
+ "carg": [
+  {
+   "cd": "1",
+   "nmn": "Presidente",
+   "nv": "1",
+   "agr": [
+    {
+     "par": [
+      {
+       "n": "22",
+       "sg": "PL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "22",
+         "nmu": "FLAVIO BOLSONARO",
+         "dvt": "Válido",
+         "st": "2º turno",
+         "vap": "105"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "55",
+         "nmu": "RONALDO CAIADO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "6"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "13",
+       "sg": "PT",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "13",
+         "nmu": "LULA",
+         "dvt": "Válido",
+         "st": "2º turno",
+         "vap": "175"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "70",
+       "sg": "AVANTE",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "70",
+         "nmu": "ESCRITOR AUGUSTO CURY",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "5"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "14",
+       "sg": "MISSÃO",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "14",
+         "nmu": "RENAN SANTOS",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "2"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "v": {
+  "vnom": "293",
+  "vl": "0",
+  "vb": "4",
+  "vn": "15",
+  "vnt": "0",
+  "van": "0",
+  "vansj": "0",
+  "tv": "312",
+  "vv": "293"
+ },
+ "e": {
+  "c": "312",
+  "te": "390"
+ }
+}

@@ -1,0 +1,163 @@
+{
+ "ele": "6259",
+ "carg": [
+  {
+   "cd": "5",
+   "nmn": "Senador",
+   "nv": "2",
+   "agr": [
+    {
+     "par": [
+      {
+       "n": "27",
+       "sg": "DC",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "277",
+         "nmu": "DR. JUNIOR FEITOSA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "6"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "11",
+       "sg": "PP",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "111",
+         "nmu": "GLADSON CAMELÍ",
+         "dvt": "Anulado sub judice",
+         "st": "Não eleito",
+         "vap": "167"
+        }
+       ]
+      },
+      {
+       "n": "22",
+       "sg": "PL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "222",
+         "nmu": "MARCIO BITTAR",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "434"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "500",
+         "nmu": "PROFESSOR INACIO MOREIRA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "4"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "77",
+       "sg": "SOLIDARIEDADE",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "777",
+         "nmu": "EDUARDO VELLOSO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "219"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "100",
+         "nmu": "MARA ROCHA",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "378"
+        }
+       ]
+      },
+      {
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "555",
+         "nmu": "PETECÃO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "221"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "13",
+       "sg": "PT",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "131",
+         "nmu": "JORGE VIANA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "143"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "v": {
+  "vnom": "1405",
+  "vl": "0",
+  "vb": "39",
+  "vn": "103",
+  "vnt": "0",
+  "van": "0",
+  "vansj": "167",
+  "tv": "1714",
+  "vv": "1405"
+ },
+ "e": {
+  "c": "857",
+  "te": "1041"
+ }
+}

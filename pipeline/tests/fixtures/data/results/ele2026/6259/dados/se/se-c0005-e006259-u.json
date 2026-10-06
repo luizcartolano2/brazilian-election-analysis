@@ -1,0 +1,181 @@
+{
+ "ele": "6259",
+ "carg": [
+  {
+   "cd": "5",
+   "nmn": "Senador",
+   "nv": "2",
+   "agr": [
+    {
+     "par": [
+      {
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "101",
+         "nmu": "DELEGADO ANDRÉ DAVID",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "57"
+        },
+        {
+         "n": "100",
+         "nmu": "EDUARDO AMORIM",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "99"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "15",
+       "sg": "MDB",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "155",
+         "nmu": "DELEGADO ALESSANDRO",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "50"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "12",
+       "sg": "PDT",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "123",
+         "nmu": "EDVALDO",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "12"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "22",
+       "sg": "PL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "222",
+         "nmu": "RODRIGO VALADARES",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "17"
+        },
+        {
+         "n": "221",
+         "nmu": "CORONEL ROCHA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "11"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "27",
+       "sg": "DC",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "277",
+         "nmu": "RENATINHA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "8"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "13",
+       "sg": "PT",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "131",
+         "nmu": "ROGERIO CARVALHO",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "130"
+        }
+       ]
+      },
+      {
+       "n": "44",
+       "sg": "UNIÃO",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "444",
+         "nmu": "ANDRÉ MOURA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "138"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "500",
+         "nmu": "IRAN BARBOSA",
+         "dvt": "Anulado sub judice",
+         "st": "Não eleito",
+         "vap": "16"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "v": {
+  "vnom": "522",
+  "vl": "0",
+  "vb": "21",
+  "vn": "65",
+  "vnt": "0",
+  "van": "0",
+  "vansj": "16",
+  "tv": "624",
+  "vv": "522"
+ },
+ "e": {
+  "c": "312",
+  "te": "390"
+ }
+}

@@ -1,0 +1,135 @@
+{
+ "ele": "6259",
+ "carg": [
+  {
+   "cd": "3",
+   "nmn": "Governador",
+   "nv": "1",
+   "agr": [
+    {
+     "par": [
+      {
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "55",
+         "nmu": "RAQUEL LYRA",
+         "dvt": "Válido",
+         "st": "Eleito",
+         "vap": "1548"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "50",
+         "nmu": "IVAN MORAES",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "69"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "16",
+       "sg": "PSTU",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "16",
+         "nmu": "GUILHERME FONSECA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "3"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "80",
+       "sg": "UP",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "80",
+         "nmu": "PROFESSORA CAMILA",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "6"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "14",
+       "sg": "MISSÃO",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "14",
+         "nmu": "RENAN",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "8"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "n": "40",
+       "sg": "PSB",
+       "tval": "0",
+       "cand": [
+        {
+         "n": "40",
+         "nmu": "JOÃO CAMPOS",
+         "dvt": "Válido",
+         "st": "Não eleito",
+         "vap": "1100"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "v": {
+  "vnom": "2734",
+  "vl": "0",
+  "vb": "105",
+  "vn": "199",
+  "vnt": "0",
+  "van": "0",
+  "vansj": "0",
+  "tv": "3038",
+  "vv": "2734"
+ },
+ "e": {
+  "c": "3038",
+  "te": "4352"
+ }
+}

@@ -1,0 +1,29 @@
+[project]
+name = "eleicoes-pipeline"
+version = "0.1.0"
+description = "Builds the reconciled 2026 election dataset from TSE's open data."
+requires-python = ">=3.12,<3.13"
+dependencies = ["duckdb==1.5.6"]
+
+[project.scripts]
+eleicoes = "eleicoes.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.8"]
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "eleicoes"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
