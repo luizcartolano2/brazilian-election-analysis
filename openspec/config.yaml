@@ -1,0 +1,34 @@
+schema: spec-driven
+
+context: |
+  Project: analysis of Brazil's election results from official TSE open data, starting
+  with the 2026 general election. Public but unpromoted. Portuguese first, English second.
+  Read docs/decisions.md for the agreed decisions (D1 to D22) and CLAUDE.md for the
+  invariants. Cite a decision by number when a proposal depends on it.
+
+  Layout: pipeline/ (Python 3.12, uv, DuckDB, numpy, scipy, pytest, ruff),
+  web/ (Next.js 16 static export, Tailwind 4, TypeScript, npm, Node 22, Vitest,
+  Playwright), worker/ (Cloudflare Worker in front of R2, wrangler), docs/.
+  research/ holds prototypes and is never imported.
+
+  Data flow: TSE files are downloaded by a GitHub Actions workflow, validated, written as
+  narrow Parquet, and published to Cloudflare R2 under an immutable version with a
+  manifest. The static app pins one version and queries it in the browser with
+  DuckDB-WASM, through the Worker. There is no database and no application server.
+
+  Domain: a seção (polling station) is the smallest unit with published results. Cross-race
+  combinations cannot be counted, because each machine's ballot record (RDV) is sorted
+  within each race. They are estimated by ecological inference and always shown with
+  their guaranteed range. The second round is on 2026-10-25.
+
+rules:
+  proposal:
+    - Include a "Non-goals" section.
+    - Name every invariant in CLAUDE.md that the change touches, and say how it is kept.
+    - If the change shows any estimate, state how the range and the estimate label appear in the chart itself.
+    - If the change adds user-facing text, state that it ships in Portuguese and English.
+  design:
+    - If the change alters the Parquet or JSON schema between pipeline and app, show the schema before and after.
+  tasks:
+    - Every task that changes behavior includes the test that proves it.
+    - Keep pipeline, web and worker tasks separate, so each can be reviewed alone.
