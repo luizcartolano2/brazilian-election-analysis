@@ -22,7 +22,7 @@
 - [x] 2.11 Write `manifest.json`; test that it lists every data file with size and SHA-256 and every source with URL, SHA-512 and time
 - [x] 2.12 Add the export of web fixtures from the pipeline's fixtures, and the CI check that fails when regenerating them changes anything
 - [x] 2.13 Add the candidate-identifier invariant to `CLAUDE.md`
-- [ ] 2.14 Run a full local build for Acre, Roraima and Pernambuco, record sizes and timings in the PR, and open the PR
+- [x] 2.14 Run a full local build for Acre, Roraima and Pernambuco, record sizes and timings in the PR, and open the PR
 
 ## 3. Worker (one PR)
 
