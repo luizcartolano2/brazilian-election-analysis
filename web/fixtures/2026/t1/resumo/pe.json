@@ -1,0 +1,3108 @@
+{
+ "ano": 2026,
+ "area": "PE",
+ "corridas": [
+  {
+   "abstencoes": 1317,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 4362,
+   "brancos": 67,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "2º turno",
+     "votos": 1493
+    },
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "2º turno",
+     "votos": 1199
+    },
+    {
+     "destino": "Válido",
+     "nome": "ESCRITOR AUGUSTO CURY",
+     "numero": 70,
+     "partido": "AVANTE",
+     "resultado": "Não eleito",
+     "votos": 106
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENAN SANTOS",
+     "numero": 14,
+     "partido": "MISSÃO",
+     "resultado": "Não eleito",
+     "votos": 44
+    },
+    {
+     "destino": "Válido",
+     "nome": "RONALDO CAIADO",
+     "numero": 55,
+     "partido": "PSD",
+     "resultado": "Não eleito",
+     "votos": 36
+    },
+    {
+     "destino": "Válido",
+     "nome": "ZEMA",
+     "numero": 30,
+     "partido": "NOVO",
+     "resultado": "Não eleito",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "HERTZ DIAS",
+     "numero": 16,
+     "partido": "PSTU",
+     "resultado": "Não eleito",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "SAMARA",
+     "numero": 80,
+     "partido": "UP",
+     "resultado": "Não eleito",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "RUI COSTA PIMENTA",
+     "numero": 29,
+     "partido": "PCO",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 3045,
+   "eleicao": 6257,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 2890,
+   "nulos": 88,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 2890
+  },
+  {
+   "abstencoes": 1314,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 4352,
+   "brancos": 105,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "RAQUEL LYRA",
+     "numero": 55,
+     "partido": "PSD",
+     "resultado": "Eleito",
+     "votos": 1548
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOÃO CAMPOS",
+     "numero": 40,
+     "partido": "PSB",
+     "resultado": "Não eleito",
+     "votos": 1100
+    },
+    {
+     "destino": "Válido",
+     "nome": "IVAN MORAES",
+     "numero": 50,
+     "partido": "PSOL",
+     "resultado": "Não eleito",
+     "votos": 69
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENAN",
+     "numero": 14,
+     "partido": "MISSÃO",
+     "resultado": "Não eleito",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSORA CAMILA",
+     "numero": 80,
+     "partido": "UP",
+     "resultado": "Não eleito",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUILHERME FONSECA",
+     "numero": 16,
+     "partido": "PSTU",
+     "resultado": "Não eleito",
+     "votos": 3
+    }
+   ],
+   "cargo": 3,
+   "comparecimento": 3038,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Governador",
+   "nominais": 2734,
+   "nulos": 199,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 2734
+  },
+  {
+   "abstencoes": 1314,
+   "anulados": 0,
+   "anulados_sub_judice": 20,
+   "aptos": 4352,
+   "brancos": 710,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "MENDONÇA FILHO",
+     "numero": 222,
+     "partido": "PL",
+     "resultado": "Não eleito",
+     "votos": 1122
+    },
+    {
+     "destino": "Válido",
+     "nome": "HUMBERTO COSTA",
+     "numero": 130,
+     "partido": "PT",
+     "resultado": "Eleito",
+     "votos": 1039
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARÍLIA ARRAES",
+     "numero": 123,
+     "partido": "PDT",
+     "resultado": "Eleito",
+     "votos": 1006
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDUARDO DA FONTE",
+     "numero": 111,
+     "partido": "PP",
+     "resultado": "Não eleito",
+     "votos": 677
+    },
+    {
+     "destino": "Válido",
+     "nome": "CARLOS SANT'ANNA",
+     "numero": 300,
+     "partido": "NOVO",
+     "resultado": "Não eleito",
+     "votos": 522
+    },
+    {
+     "destino": "Válido",
+     "nome": "TÚLIO GADÊLHA",
+     "numero": 555,
+     "partido": "PSD",
+     "resultado": "Não eleito",
+     "votos": 290
+    },
+    {
+     "destino": "Válido",
+     "nome": "PAULO RUBEM SANTIAGO",
+     "numero": 180,
+     "partido": "REDE",
+     "resultado": "Não eleito",
+     "votos": 35
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "PASTOR GILVAN COSTA",
+     "numero": 355,
+     "partido": "DEMOCRATA",
+     "resultado": "Não eleito",
+     "votos": 20
+    },
+    {
+     "destino": "Válido",
+     "nome": "GORETT BITU",
+     "numero": 801,
+     "partido": "UP",
+     "resultado": "Não eleito",
+     "votos": 13
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARIANO MACEDO",
+     "numero": 161,
+     "partido": "PSTU",
+     "resultado": "Não eleito",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "MAILSON DA SILVA NETO",
+     "numero": 290,
+     "partido": "PCO",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "SAMUEL TIMOTEO",
+     "numero": 800,
+     "partido": "UP",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 5,
+   "comparecimento": 3038,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 2,
+   "legenda": 0,
+   "nome": "Senador",
+   "nominais": 4709,
+   "nulos": 637,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 2,
+   "validos": 4709
+  },
+  {
+   "abstencoes": 1314,
+   "anulados": 0,
+   "anulados_sub_judice": 13,
+   "aptos": 4352,
+   "brancos": 228,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "WALDEMAR OLIVEIRA",
+     "numero": 7070,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 352
+    },
+    {
+     "destino": "Válido",
+     "nome": "GILSON MACHADO",
+     "numero": 2022,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 225
+    },
+    {
+     "destino": "Válido",
+     "nome": "JONES MANOEL",
+     "numero": 5050,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 173
+    },
+    {
+     "destino": "Válido",
+     "nome": "FELIPE CARRERAS",
+     "numero": 4004,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 134
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDERSON FERREIRA",
+     "numero": 2222,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 117
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROSA AMORIM",
+     "numero": 1303,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 114
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUILHERME UCHOA JUNIOR",
+     "numero": 5500,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 93
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDUARDO MOURA",
+     "numero": 3030,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 87
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCINHA MOTA",
+     "numero": 4445,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 83
+    },
+    {
+     "destino": "Válido",
+     "nome": "PEDRO CAMPOS",
+     "numero": 4040,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 76
+    },
+    {
+     "destino": "Válido",
+     "nome": "THIAGO MEDINA",
+     "numero": 2288,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 59
+    },
+    {
+     "destino": "Válido",
+     "nome": "JULIANA DE CHAPARRAL",
+     "numero": 4444,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 56
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLARISSA TÉRCIO",
+     "numero": 1122,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 54
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANIEL COELHO",
+     "numero": 5555,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 42
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCELO GOUVEIA",
+     "numero": 2020,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 41
+    },
+    {
+     "destino": "Válido",
+     "nome": "SAMUEL SALAZAR",
+     "numero": 1555,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 40
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCAS RAMOS",
+     "numero": 4011,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 37
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL MEIRA",
+     "numero": 2201,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 31
+    },
+    {
+     "destino": "Válido",
+     "nome": "LULA DA FONTE",
+     "numero": 1111,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 30
+    },
+    {
+     "destino": "Válido",
+     "nome": "MISSIONÁRIA MICHELE COLLINS",
+     "numero": 1161,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 29
+    },
+    {
+     "destino": "Válido",
+     "nome": "KARI SANTOS",
+     "numero": 1331,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 27
+    },
+    {
+     "destino": "Válido",
+     "nome": "LIANA CIRNE",
+     "numero": 1310,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 26
+    },
+    {
+     "destino": "Válido",
+     "nome": "IZA ARRUDA",
+     "numero": 1515,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 24
+    },
+    {
+     "destino": "Válido",
+     "nome": "CARLOS VERAS",
+     "numero": 1314,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 23
+    },
+    {
+     "destino": "Válido",
+     "nome": "GABRIEL PORTO",
+     "numero": 4010,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 21
+    },
+    {
+     "destino": "Válido",
+     "nome": "ESDRAS CABRAL",
+     "numero": 1120,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 19
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR GILBERTO",
+     "numero": 3020,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 18
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADO LESSA",
+     "numero": 1090,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "FERNANDO FERRO",
+     "numero": 1313,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 15
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDINHO",
+     "numero": 4404,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 15
+    },
+    {
+     "destino": "Válido",
+     "nome": "FERNANDO MONTEIRO",
+     "numero": 5590,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 15
+    },
+    {
+     "destino": "Válido",
+     "nome": "AUGUSTO COUTINHO",
+     "numero": 1000,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 14
+    },
+    {
+     "destino": "Válido",
+     "nome": "BRUNA KARINA",
+     "numero": 7005,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 14
+    },
+    {
+     "destino": "Válido",
+     "nome": "ADRIANA SAMICO",
+     "numero": 1301,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 13
+    },
+    {
+     "destino": "Válido",
+     "nome": "MÁRCIA AZEVEDO",
+     "numero": 5030,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 13
+    },
+    {
+     "destino": "Válido",
+     "nome": "SILVIO COSTA FILHO",
+     "numero": 1010,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "NATALIA COSTA",
+     "numero": 2021,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "BRUNA AMBIENTAL",
+     "numero": 5024,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "MAURÍCIO RANDS",
+     "numero": 7010,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL FABIO MENEZES",
+     "numero": 2202,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "FELIPE ALECRIM",
+     "numero": 3000,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "DILSON BATISTA BLITZ",
+     "numero": 3033,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANIEL UCHOA",
+     "numero": 1044,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDILSON TAVARES",
+     "numero": 1100,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "MIGUEL KAZAN",
+     "numero": 1414,
+     "partido": "MISSÃO",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "VITINHO MAIA",
+     "numero": 4012,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDREZA ROMERO",
+     "numero": 4020,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL DENIZE",
+     "numero": 5546,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "IZA CARNEIRO",
+     "numero": 7020,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "TACISIO DA ENFERMAGEM",
+     "numero": 1234,
+     "partido": "PDT",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "ELIANE SOARES",
+     "numero": 4000,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "CRIS QUERALVARES",
+     "numero": 5544,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "FABIO GOMES",
+     "numero": 7011,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "LETÍCIA BORBA",
+     "numero": 1055,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDUARDO HONÓRIO",
+     "numero": 1144,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOÃO ALFREDO",
+     "numero": 1300,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "TADEU CALHEIROS",
+     "numero": 1505,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "FERNANDO RODOLFO",
+     "numero": 2555,
+     "partido": "PRD",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUSTOSA DA FEDERAL",
+     "numero": 3022,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "IRMÃO BOB DO TAXI",
+     "numero": 4055,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR EURICO",
+     "numero": 4522,
+     "partido": "PSDB",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "OSSESIO SILVA",
+     "numero": 1012,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "BERGUE JÚNIOR",
+     "numero": 1500,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "CHARLLES DE TIRINGA",
+     "numero": 4088,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "TOINHO DA UNIÃO",
+     "numero": 1156,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOSIAS DA SAÚDE",
+     "numero": 2099,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "BECINHA",
+     "numero": 4054,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "MIGUEL COELHO",
+     "numero": 4400,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "DR MAURO",
+     "numero": 4577,
+     "partido": "PSDB",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "FRANCIS HERBERT",
+     "numero": 6500,
+     "partido": "PCDOB",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENILDO CALHEIROS",
+     "numero": 6513,
+     "partido": "PCDOB",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "BETINHO GOMES",
+     "numero": 1045,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "ADRIANA ROCHA",
+     "numero": 1088,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "FLÁVIO CAÇA RATO",
+     "numero": 1507,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCIANO PACHECO",
+     "numero": 1511,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "CARLOS BRITTO",
+     "numero": 2210,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "SUBOFICIAL SANTIAGO",
+     "numero": 2220,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "GEORGE BOMBEIRO",
+     "numero": 2293,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "SAULO SEM FILTRO",
+     "numero": 3060,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "RINALDO JÚNIOR",
+     "numero": 4013,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROF ADA HELENA",
+     "numero": 4017,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLODOALDO MAGALHÃES",
+     "numero": 4333,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLARISSA LIMA",
+     "numero": 5505,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "AILSON DO IP",
+     "numero": 7012,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "MILTON",
+     "numero": 1333,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "IRMÃO JEAN CARLOS",
+     "numero": 1433,
+     "partido": "MISSÃO",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSOR MIRINHO",
+     "numero": 1517,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCIANO JUNIOR",
+     "numero": 2088,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "DERLEY CHAGAS",
+     "numero": 4007,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANCHIETA PATRIOTA",
+     "numero": 4066,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "MC LEOZINHO",
+     "numero": 4501,
+     "partido": "PSDB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "JULIANA GOUVEIA",
+     "numero": 5508,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "SOCORRO PIMENTEL",
+     "numero": 5511,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "RICARDO SOUSA",
+     "numero": 7099,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "DR. PARCELINO MENEZES",
+     "numero": 1026,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "QUINHO FENELON",
+     "numero": 1080,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOAQUIM LAPA",
+     "numero": 1510,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "RAFAEL NUNES",
+     "numero": 1525,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOYCE REIS",
+     "numero": 1533,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "CÁSSIA DO MOINHO",
+     "numero": 1566,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "JORGE ALEXANDRE",
+     "numero": 2026,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUIGA",
+     "numero": 2044,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "NANDA DA SAÚDE",
+     "numero": 2065,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "IZABEL URQUIZA",
+     "numero": 2215,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "GEORGE BASTOS",
+     "numero": 3003,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "DÉBORAH LEITE",
+     "numero": 3055,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "DAVI LIRA",
+     "numero": 4044,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "CÉLIA SALES",
+     "numero": 5514,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "SARGENTO ALMEIDA",
+     "numero": 5566,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "PAULO ALVES",
+     "numero": 7000,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANUBIO VIEIRA",
+     "numero": 7045,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "VAVA RUFINO",
+     "numero": 7788,
+     "partido": "SOLIDARIEDADE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "GLEICE KELLY",
+     "numero": 1018,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCELLY DA AQUARELA",
+     "numero": 1020,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ISRAEL GUERRA",
+     "numero": 1130,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "LEANDRO DO PAGODE",
+     "numero": 1222,
+     "partido": "PDT",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DR. WARTON",
+     "numero": 1244,
+     "partido": "PDT",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PATRICK CAMPOS",
+     "numero": 1311,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDRESSA SABER",
+     "numero": 1455,
+     "partido": "MISSÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CRISTIANE MONETA",
+     "numero": 1540,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "POLLY DA AMAR",
+     "numero": 2001,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RICARDO TEOBALDO",
+     "numero": 2055,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "JULIO DE MAINHA",
+     "numero": 2080,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "IGOR A VOZ DO POVO",
+     "numero": 2244,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOABE DO MERCADINHO",
+     "numero": 2260,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "EVERTON FELIPE",
+     "numero": 2297,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "JUIZ LUIZ ROCHA",
+     "numero": 3010,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARILIA VIANA",
+     "numero": 4065,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RAFAEL PREQUÉ",
+     "numero": 4343,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "FERNANDO FILHO",
+     "numero": 4401,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANIEL PALUCA",
+     "numero": 4411,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANIEL ALVES",
+     "numero": 4455,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "GABI BRITO",
+     "numero": 4533,
+     "partido": "PSDB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RICARDO DE GULU",
+     "numero": 4555,
+     "partido": "PSDB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MAGUARI",
+     "numero": 5577,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "JUDITE BOTAFOGO",
+     "numero": 5585,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DODUEL VARELA",
+     "numero": 5599,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PERPETUA DANTAS",
+     "numero": 7007,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "THALLYNE NUTRICIONISTA",
+     "numero": 7015,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR PEDRO",
+     "numero": 7722,
+     "partido": "SOLIDARIEDADE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "TITIO",
+     "numero": 7777,
+     "partido": "SOLIDARIEDADE",
+     "resultado": "",
+     "votos": 1
+    }
+   ],
+   "cargo": 6,
+   "comparecimento": 3038,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 1,
+   "legenda": 88,
+   "nome": "Deputado Federal",
+   "nominais": 2581,
+   "nulos": 128,
+   "nulos_tecnicos": 0,
+   "partidos": [
+    {
+     "destino": "Válido (legenda)",
+     "numero": 70,
+     "sigla": "AVANTE",
+     "votos_candidatos": 408,
+     "votos_legenda": 4
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 40,
+     "sigla": "PSB",
+     "votos_candidatos": 329,
+     "votos_legenda": 19
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 20,
+     "sigla": "PODE",
+     "votos_candidatos": 295,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 13,
+     "sigla": "PT",
+     "votos_candidatos": 229,
+     "votos_legenda": 15
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 22,
+     "sigla": "PL",
+     "votos_candidatos": 235,
+     "votos_legenda": 9
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 50,
+     "sigla": "PSOL",
+     "votos_candidatos": 198,
+     "votos_legenda": 8
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 55,
+     "sigla": "PSD",
+     "votos_candidatos": 184,
+     "votos_legenda": 11
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 44,
+     "sigla": "UNIÃO",
+     "votos_candidatos": 162,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 11,
+     "sigla": "PP",
+     "votos_candidatos": 155,
+     "votos_legenda": 4
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 30,
+     "sigla": "NOVO",
+     "votos_candidatos": 143,
+     "votos_legenda": 2
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 15,
+     "sigla": "MDB",
+     "votos_candidatos": 97,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 10,
+     "sigla": "REPUBLICANOS",
+     "votos_candidatos": 79,
+     "votos_legenda": 3
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 45,
+     "sigla": "PSDB",
+     "votos_candidatos": 17,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 12,
+     "sigla": "PDT",
+     "votos_candidatos": 10,
+     "votos_legenda": 7
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 14,
+     "sigla": "MISSÃO",
+     "votos_candidatos": 14,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 65,
+     "sigla": "PCDOB",
+     "votos_candidatos": 10,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 25,
+     "sigla": "PRD",
+     "votos_candidatos": 7,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 43,
+     "sigla": "PV",
+     "votos_candidatos": 5,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 77,
+     "sigla": "SOLIDARIEDADE",
+     "votos_candidatos": 4,
+     "votos_legenda": 0
+    }
+   ],
+   "vagas": 25,
+   "validos": 2669
+  },
+  {
+   "abstencoes": 1314,
+   "anulados": 0,
+   "anulados_sub_judice": 12,
+   "aptos": 4352,
+   "brancos": 253,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "ABIMAEL SANTOS",
+     "numero": 22622,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 229
+    },
+    {
+     "destino": "Válido",
+     "nome": "SEBASTIÃO OLIVEIRA",
+     "numero": 70123,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 219
+    },
+    {
+     "destino": "Válido",
+     "nome": "GILSON MACHADO FILHO",
+     "numero": 20222,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 148
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANI PORTELA",
+     "numero": 13000,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 121
+    },
+    {
+     "destino": "Válido",
+     "nome": "CAYO ALBINO",
+     "numero": 40400,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 98
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARIA ARRAES",
+     "numero": 40140,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 92
+    },
+    {
+     "destino": "Válido",
+     "nome": "WILLIAM BRÍGIDO",
+     "numero": 55123,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 81
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOÃO PAULO COSTA",
+     "numero": 13444,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 78
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARIA DO CÉU",
+     "numero": 40500,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 63
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL FEITOSA",
+     "numero": 22022,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 53
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOÃO DE NADEGI",
+     "numero": 43643,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 53
+    },
+    {
+     "destino": "Válido",
+     "nome": "BATISTA CABRAL",
+     "numero": 40640,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 51
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOÃOZINHO TENÓRIO",
+     "numero": 55555,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 47
+    },
+    {
+     "destino": "Válido",
+     "nome": "GLEIDE ÂNGELO",
+     "numero": 11111,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 45
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDRÉ FERREIRA",
+     "numero": 22222,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 43
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR JÚNIOR TÉRCIO",
+     "numero": 11222,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 40
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOÃO PAULO DO PT",
+     "numero": 13113,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 40
+    },
+    {
+     "destino": "Válido",
+     "nome": "REBECA LUCENA",
+     "numero": 20300,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 40
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENATO ANTUNES",
+     "numero": 30630,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 36
+    },
+    {
+     "destino": "Válido",
+     "nome": "FRANCISMAR",
+     "numero": 40654,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 35
+    },
+    {
+     "destino": "Válido",
+     "nome": "YASMIM ALVES",
+     "numero": 50999,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 34
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR CLEITON COLLINS",
+     "numero": 11611,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 29
+    },
+    {
+     "destino": "Válido",
+     "nome": "PH NORONHA",
+     "numero": 70077,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 29
+    },
+    {
+     "destino": "Válido",
+     "nome": "LÍVIA ÁLVARO",
+     "numero": 22100,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 28
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDRÉA MEDEIROS",
+     "numero": 55655,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 24
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADA NATASHA DOLCI",
+     "numero": 15190,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 22
+    },
+    {
+     "destino": "Válido",
+     "nome": "CIDA PEDROSA",
+     "numero": 65113,
+     "partido": "PCDOB",
+     "resultado": "",
+     "votos": 20
+    },
+    {
+     "destino": "Válido",
+     "nome": "RODRIGO FARIAS",
+     "numero": 40123,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 18
+    },
+    {
+     "destino": "Válido",
+     "nome": "TÚLIO ARRUDA",
+     "numero": 40015,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 17
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOBSON ALMEIDA",
+     "numero": 10000,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "ADERALDO PINTO",
+     "numero": 40888,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "VINI CASTELLO",
+     "numero": 65013,
+     "partido": "PCDOB",
+     "resultado": "",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUGA DA SAÚDE",
+     "numero": 70500,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "GILMAR JÚNIOR",
+     "numero": 43333,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 15
+    },
+    {
+     "destino": "Válido",
+     "nome": "DÉBORA ALMEIDA",
+     "numero": 55888,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 15
+    },
+    {
+     "destino": "Válido",
+     "nome": "BRENO ARAÚJO",
+     "numero": 13333,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 14
+    },
+    {
+     "destino": "Válido",
+     "nome": "SILENO",
+     "numero": 40040,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 14
+    },
+    {
+     "destino": "Válido",
+     "nome": "LARA SANTANA",
+     "numero": 43456,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 13
+    },
+    {
+     "destino": "Válido",
+     "nome": "NI DO BADOQUE",
+     "numero": 55789,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 13
+    },
+    {
+     "destino": "Válido",
+     "nome": "WANDERSON FLORENCIO",
+     "numero": 20555,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROMERO ALBUQUERQUE",
+     "numero": 40000,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANTONIO MORAES",
+     "numero": 55100,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSORA IVETE CAETANO",
+     "numero": 13613,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "FLÁVIO GADELHA FILHO",
+     "numero": 15015,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUSTAVO GOUVEIA",
+     "numero": 20200,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "CRISTIANO DO IBURA",
+     "numero": 20900,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "TECIO TELES",
+     "numero": 30000,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADA TEREZA NOGUEIRA",
+     "numero": 30190,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "DAVI MUNIZ",
+     "numero": 55122,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "SOCORRINHO DA APAMI",
+     "numero": 70111,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "ADALTO SANTOS",
+     "numero": 11000,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "KAIO MANIÇOBA",
+     "numero": 11444,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "EMERSON FREITAS",
+     "numero": 15001,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "FABRIZIO FERRAZ",
+     "numero": 20111,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "SARMENTO",
+     "numero": 22122,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "JÔ CAVALCANTI",
+     "numero": 50000,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "AGLAILSON VICTOR",
+     "numero": 55444,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "CESAR RAMOS",
+     "numero": 55455,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADO VICTOR LEITE",
+     "numero": 30874,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "PASTOR LUIZ EDUARDO",
+     "numero": 33133,
+     "partido": "MOBILIZA",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "ZÉ DE IRMÃ TECA",
+     "numero": 55333,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "JEFERSON TIMÓTEO",
+     "numero": 20000,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDSON VIEIRA",
+     "numero": 20620,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "CABO AÊNIA",
+     "numero": 22190,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "IVAN GUEDES",
+     "numero": 30222,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "MANOEL MEDEIROS",
+     "numero": 30678,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "LILY DA SAÚDE",
+     "numero": 44844,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "CARLOS BRAGA",
+     "numero": 55133,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOSUEL SANTOS",
+     "numero": 13456,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "ZÉ QUEIROZ",
+     "numero": 15123,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "NENECA DO PISTON",
+     "numero": 22612,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOAQUIM LIRA",
+     "numero": 43555,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSOR LUPÉRCIO",
+     "numero": 55055,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "AMANDA RAMOS",
+     "numero": 55255,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "ALCIDES TEIXEIRA NETO",
+     "numero": 70000,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOEL DA HARPA",
+     "numero": 11300,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "EUGÊNIA LIMA",
+     "numero": 13013,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "NINO DE ENOQUE",
+     "numero": 22700,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "SYER RODRIGUES",
+     "numero": 30777,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "DIOGO MORAES",
+     "numero": 40100,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "BRUNO MARQUES",
+     "numero": 40111,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADO ROMERO LEAL",
+     "numero": 55999,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "SERGIO DE NALVA",
+     "numero": 70055,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "THIERRY CUPERTINO",
+     "numero": 11411,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "DORIEL",
+     "numero": 13123,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "LENO DE CABROBÓ",
+     "numero": 15013,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARI LESSA",
+     "numero": 18000,
+     "partido": "REDE",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOSENILDO",
+     "numero": 22000,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROF. EDIVANIA ARCANJO",
+     "numero": 40340,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "ERIBERTO FILHO",
+     "numero": 40444,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDERSON LUIZ",
+     "numero": 55456,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSORA ANA LÚCIA",
+     "numero": 55500,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSOR GEORGE",
+     "numero": 10010,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDERSON CORREIA",
+     "numero": 11232,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "HENRIQUE FILHO",
+     "numero": 11777,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "FRANCE HACKER",
+     "numero": 11789,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "GEORGE ARRAES",
+     "numero": 12345,
+     "partido": "PDT",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARIO RICARDO",
+     "numero": 20610,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR CAPELAO JORGE",
+     "numero": 22345,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "RAFFIE DELLON",
+     "numero": 22555,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "FERNANDO ANGELIM",
+     "numero": 30133,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "NELSINHO EVANGELISTA",
+     "numero": 40120,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "NETO DA SAÚDE",
+     "numero": 40155,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "STE VILELA",
+     "numero": 40180,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDNALDO MOURA",
+     "numero": 40190,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCONI SANTANA",
+     "numero": 55155,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "JARBAS FILHO",
+     "numero": 55232,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "CABO CARDOSO",
+     "numero": 70190,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "IRMÃ IOLANDA",
+     "numero": 10444,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "GABRIEL ASAFE",
+     "numero": 14000,
+     "partido": "MISSÃO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "CABO TRAJANO",
+     "numero": 20004,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "MÁRCIO BOTELHO",
+     "numero": 20020,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROSE NEIDSON",
+     "numero": 20110,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCIANO DUQUE",
+     "numero": 20120,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "REGINA DA SAÚDE",
+     "numero": 20123,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "FELLYPE MARTINS",
+     "numero": 20999,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDREZZA ASSIS",
+     "numero": 22522,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "RODOLFO SILVA",
+     "numero": 30123,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "VIVY DE PAULA",
+     "numero": 30130,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDUARDO INOJOSA",
+     "numero": 30300,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "TÂMARA DANTAS",
+     "numero": 30333,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "FELIPE DANTAS",
+     "numero": 40222,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROMERINHO JATOBÁ",
+     "numero": 40555,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "BRUNO LINS",
+     "numero": 40600,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "MISSIONÁRIA LALA",
+     "numero": 40877,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANTONIO COELHO",
+     "numero": 44000,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "TEN. CORONEL LÚCIA HELENA",
+     "numero": 44244,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "NEGÃO ACESSÓRIOS",
+     "numero": 44344,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANIEL VALENÇA",
+     "numero": 50100,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ALDA ARANTES",
+     "numero": 50300,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROMERO SALES FILHO",
+     "numero": 55000,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL LINALDO",
+     "numero": 55190,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "JANJÃO",
+     "numero": 55222,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "CHEF NEGRALINDA",
+     "numero": 55700,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "FÁBIO ARAGÃO",
+     "numero": 55777,
+     "partido": "PSD",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANTONIO JUNIOR",
+     "numero": 70707,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "ALMIR GOUVEIA",
+     "numero": 10100,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "JUNIOR MATUTO",
+     "numero": 10123,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "BOTAFOGO",
+     "numero": 10140,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "LÉO QUEBRADÕES",
+     "numero": 10232,
+     "partido": "REPUBLICANOS",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RONALDO LOPES",
+     "numero": 11011,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROBERTA ARRAES",
+     "numero": 11511,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLAUDIANO FILHO",
+     "numero": 11555,
+     "partido": "PP",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSOR GILMAR",
+     "numero": 13100,
+     "partido": "PT",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ADRIANO ANDREWS",
+     "numero": 14114,
+     "partido": "MISSÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "IONE NASCIMENTO",
+     "numero": 14214,
+     "partido": "MISSÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ÁLVARO PORTO",
+     "numero": 15000,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "FAGNER RUSSO",
+     "numero": 15555,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "VICTOR ANDRÉ GOMES",
+     "numero": 15615,
+     "partido": "MDB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RICARDO GADÊLHA",
+     "numero": 18123,
+     "partido": "REDE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUILHERME QUEIROZ",
+     "numero": 20033,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CASSIANO DO MEIO AMBIENTE",
+     "numero": 20100,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "FILLIP DA FARMACIA",
+     "numero": 20500,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "BETO ACCIOLY",
+     "numero": 20777,
+     "partido": "PODE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "UILMA LOPES",
+     "numero": 22656,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DONA VAL DOS DIREITOS HUMANOS",
+     "numero": 22755,
+     "partido": "PL",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CACAU",
+     "numero": 30022,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "LEONARDO MOURA",
+     "numero": 30567,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DÉBORA MOURA",
+     "numero": 30888,
+     "partido": "NOVO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "CARLOS PREGUIÇA",
+     "numero": 33333,
+     "partido": "MOBILIZA",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DRA VERA LOPES",
+     "numero": 40192,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DANY MYLER",
+     "numero": 40440,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "JUIZ FERNANDO SANTOS",
+     "numero": 43123,
+     "partido": "PV",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADO MENESES",
+     "numero": 44111,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANA KEITE INCLUSÃO",
+     "numero": 44365,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MERCIO VIEIRA",
+     "numero": 44444,
+     "partido": "UNIÃO",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLEIDE ANDRADE",
+     "numero": 50050,
+     "partido": "PSOL",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MAKOY",
+     "numero": 65111,
+     "partido": "PCDOB",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "VICTOR FLORES",
+     "numero": 70007,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RAFAEL LOURENCO",
+     "numero": 70072,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "LETICIA GALINDO",
+     "numero": 70770,
+     "partido": "AVANTE",
+     "resultado": "",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CARLOS ANDRÉ",
+     "numero": 77777,
+     "partido": "SOLIDARIEDADE",
+     "resultado": "",
+     "votos": 1
+    }
+   ],
+   "cargo": 7,
+   "comparecimento": 3038,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 1,
+   "legenda": 157,
+   "nome": "Deputado Estadual",
+   "nominais": 2494,
+   "nulos": 122,
+   "nulos_tecnicos": 0,
+   "partidos": [
+    {
+     "destino": "Válido (legenda)",
+     "numero": 40,
+     "sigla": "PSB",
+     "votos_candidatos": 456,
+     "votos_legenda": 19
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 22,
+     "sigla": "PL",
+     "votos_candidatos": 394,
+     "votos_legenda": 12
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 13,
+     "sigla": "PT",
+     "votos_candidatos": 280,
+     "votos_legenda": 50
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 70,
+     "sigla": "AVANTE",
+     "votos_candidatos": 293,
+     "votos_legenda": 6
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 55,
+     "sigla": "PSD",
+     "votos_candidatos": 276,
+     "votos_legenda": 15
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 20,
+     "sigla": "PODE",
+     "votos_candidatos": 264,
+     "votos_legenda": 6
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 11,
+     "sigla": "PP",
+     "votos_candidatos": 153,
+     "votos_legenda": 11
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 30,
+     "sigla": "NOVO",
+     "votos_candidatos": 97,
+     "votos_legenda": 3
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 43,
+     "sigla": "PV",
+     "votos_candidatos": 88,
+     "votos_legenda": 2
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 15,
+     "sigla": "MDB",
+     "votos_candidatos": 55,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 50,
+     "sigla": "PSOL",
+     "votos_candidatos": 48,
+     "votos_legenda": 3
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 65,
+     "sigla": "PCDOB",
+     "votos_candidatos": 37,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 10,
+     "sigla": "REPUBLICANOS",
+     "votos_candidatos": 25,
+     "votos_legenda": 4
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 12,
+     "sigla": "PDT",
+     "votos_candidatos": 3,
+     "votos_legenda": 19
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 44,
+     "sigla": "UNIÃO",
+     "votos_candidatos": 16,
+     "votos_legenda": 5
+    },
+    {
+     "destino": "Anulado sub judice",
+     "numero": 33,
+     "sigla": "MOBILIZA",
+     "votos_candidatos": 9,
+     "votos_legenda": 2
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 18,
+     "sigla": "REDE",
+     "votos_candidatos": 5,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 14,
+     "sigla": "MISSÃO",
+     "votos_candidatos": 4,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 16,
+     "sigla": "PSTU",
+     "votos_candidatos": 0,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 77,
+     "sigla": "SOLIDARIEDADE",
+     "votos_candidatos": 1,
+     "votos_legenda": 0
+    }
+   ],
+   "vagas": 49,
+   "validos": 2651
+  }
+ ],
+ "turno": 1,
+ "versao_esquema": 1
+}
