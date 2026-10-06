@@ -44,6 +44,10 @@ Breaking one of these is a bug even when the screen looks right.
 - **Analytics loads only after consent.**
 - **Never commit TSE downloads or pipeline outputs.** Small test fixtures are the only
   exception.
+- **Candidates' personal identifiers never leave the pipeline.** TSE publishes CPF and
+  voter-ID numbers unmasked in `consulta_cand`. The pipeline reads an allowlist of columns,
+  refuses to write a CPF, voter-ID, email or birth-date column, and never prints a raw row
+  in an error, because CI logs are public. Fixtures hold synthetic identifiers only.
 
 ## Domain
 
@@ -62,6 +66,16 @@ Breaking one of these is a bug even when the screen looks right.
   choices per voter are total votes divided by attendance: 2 for the Senate in 2026, 1
   for every other race.
 - TSE's CSV files are Latin-1, separated by `;`. Text is quoted and numbers are not.
+- A vote's type comes from TSE's own destination field (`dvt`), never from a rule of our
+  own. Three cases broke simpler rules on real data:
+  - TSE can annul a whole party list sub judice. Its list votes then count as annulled
+    sub judice, not as party-list votes.
+  - A candidate under appeal can be missing from the aggregate's candidate list. Its
+    destination is then in `votacao_candidato_munzona`, and only a number missing from
+    both is a technical null.
+  - The turnout file (`detalhe_votacao_secao`) counts any two-digit number typed in a
+    proportional race as a party-list vote, even for a party with no list in that state,
+    which the totals call a technical null.
 
 ## Structure
 

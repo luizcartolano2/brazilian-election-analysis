@@ -26,8 +26,8 @@ why.
 
 ## Status
 
-Nothing is built yet. The repository holds the decisions and the research that preceded
-the first change.
+The pipeline builds and checks the whole first round: every polling station in Brazil
+and abroad matches TSE's own totals. Publishing, the Worker and the app come next.
 
 | Milestone | Target |
 |---|---|
@@ -54,8 +54,8 @@ TSE open data ──> pipeline (GitHub Actions) ──> Parquet on Cloudflare R2
 
 | Path | Contents |
 |---|---|
-| `pipeline/` | Python: download, validation, Parquet, estimates. Not created yet |
-| `web/` | The Next.js app. Not created yet |
+| `pipeline/` | Python: download, checks against TSE, Parquet. See [`pipeline/README.md`](pipeline/README.md) |
+| `web/` | The Next.js app. Only its sample data (`web/fixtures/`) exists so far |
 | `worker/` | The Cloudflare Worker in front of R2. Not created yet |
 | `docs/` | Decisions and, later, the methodology |
 | `research/` | The prototypes from the exploration on 2026-10-06. Not part of the pipeline |

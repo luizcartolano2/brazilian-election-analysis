@@ -65,17 +65,27 @@ A number can be on the ballot while TSE does not count its votes as valid. The d
 SHALL classify every vote with the destination that TSE's aggregate results give it, and
 SHALL take each candidate's outcome from the same aggregate, not from the older candidate
 registry. The vote types are: candidate, party list, blank, null, technical null,
-annulled, and annulled sub judice. A number that TSE's aggregate does not list for that
-race and area is a technical null. In the 2026 presidential race, number 28 received
-5,246 such votes. A destination value that the pipeline does not know SHALL fail the run.
+annulled, and annulled sub judice. A number missing from the aggregate's list can still
+have a destination in TSE's candidate totals per municipality and zone, and then that
+destination applies. A number that neither source lists for that race and area is a
+technical null. In the 2026 presidential race, number 28 received 5,246 such votes. A
+destination value that the pipeline does not know SHALL fail the run.
 
-#### Scenario: A number TSE does not list
-- **WHEN** a polling station has votes for a number that TSE's aggregate does not list for that race and area
+#### Scenario: A number TSE does not list anywhere
+- **WHEN** a polling station has votes for a number that neither TSE's aggregate nor its municipality-and-zone totals list for that race and area
 - **THEN** the dataset records them as technical nulls, not as votes for a candidate
 
 #### Scenario: A candidacy under appeal
 - **WHEN** TSE's aggregate gives a candidate the destination "Anulado sub judice"
 - **THEN** that candidate's votes are recorded as annulled sub judice, and do not count as valid
+
+#### Scenario: A candidacy under appeal that the aggregate omits
+- **WHEN** a number is missing from TSE's aggregate list but its municipality-and-zone totals give it the destination "Anulado sub judice"
+- **THEN** its votes are recorded as annulled sub judice, not as technical nulls
+
+#### Scenario: A party list under appeal
+- **WHEN** TSE's aggregate gives a party the destination "Anulado sub judice" in a deputy race
+- **THEN** that party's list votes are recorded as annulled sub judice, and do not count as valid
 
 #### Scenario: An unknown destination
 - **WHEN** TSE's aggregate gives a candidate or a party a destination the pipeline does not know
@@ -117,7 +127,9 @@ NOT drop or adjust rows to make a check pass, and on failure it SHALL report eve
 mismatch, not only the first.
 
 - Per polling station and race, the votes equal the attendance multiplied by the choices
-  each voter makes, and the counts per vote type equal the station's turnout counts. The
+  each voter makes, and the nominal, party-list, blank and null counts equal the
+  station's turnout counts. The turnout file sorts votes by what was typed: any two-digit
+  number in a deputy race is a party-list vote there, whatever its destination. The
   choices per voter are TSE's total votes for that race and area divided by its
   attendance. They are not the number of seats.
 - Per municipality and zone, each candidate's votes equal TSE's published candidate
@@ -137,6 +149,10 @@ figures that passed the station checks.
 #### Scenario: Two senate seats, two choices
 - **WHEN** TSE's senate totals equal twice the attendance, because each voter chose two senators
 - **THEN** a station's senate votes are checked against twice its attendance
+
+#### Scenario: A party with no list in the state
+- **WHEN** voters type the number of a party that has no deputy list in that state
+- **THEN** the totals count those votes as technical nulls, and the station check counts them as party-list votes, as TSE's turnout file does
 
 #### Scenario: Seven council seats, one choice
 - **WHEN** the Conselheiro Distrital race fills seven seats but each voter makes one choice
