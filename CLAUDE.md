@@ -56,7 +56,11 @@ Breaking one of these is a bug even when the screen looks right.
 - **BU** (boletim de urna) is a machine's signed tally. **RDV** (registro digital do voto)
   is its ballot record, sorted within each race. Both are ASN.1 DER files.
 - Election codes for 2026: President `6257`, round two `6258`. State races `6259`, round
-  two `6260`. The pleito for the first round is `3220`.
+  two `6260`. Fernando de Noronha's Conselheiro Distrital `6261`, a municipal-type race
+  with no second round. The pleito for the first round is `3220`.
+- In TSE's aggregates, `nv` is the number of seats, not the choices per voter. The
+  choices per voter are total votes divided by attendance: 2 for the Senate in 2026, 1
+  for every other race.
 - TSE's CSV files are Latin-1, separated by `;`. Text is quoted and numbers are not.
 
 ## Structure

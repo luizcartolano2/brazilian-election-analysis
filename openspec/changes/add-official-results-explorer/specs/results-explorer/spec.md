@@ -26,10 +26,13 @@ language's format.
 ### Requirement: Results for every race at every level
 For a chosen race and area, the app SHALL show every candidate's votes and share of valid
 votes, ordered by votes, together with blank votes, null votes, technical nulls,
-attendance and abstention. Levels are Brazil, state, municipality, zone and polling
-station. President is available at every level, including votes cast abroad. Governor,
-Senate and the deputy races are available from the state level down. The Federal District
-shows its district deputy race in place of a state deputy race.
+attendance and abstention. It SHALL also show annulled and annulled sub judice votes
+whenever they are not zero, as TSE does. Levels are Brazil, state, municipality, zone and
+polling station. President is available at every level, including votes cast abroad.
+Governor, Senate and the deputy races are available from the state level down. The
+Federal District shows its district deputy race in place of a state deputy race.
+Fernando de Noronha also shows its Conselheiro Distrital race, from the municipality
+level down.
 
 #### Scenario: Governor in one municipality
 - **WHEN** a visitor opens the governor race for a municipality
@@ -38,6 +41,18 @@ shows its district deputy race in place of a state deputy race.
 #### Scenario: Two senate seats
 - **WHEN** a visitor opens the senate race
 - **THEN** the page states that each voter chose two candidates, and shares are of all valid votes in the race
+
+#### Scenario: The Federal District's races
+- **WHEN** a visitor opens the Federal District
+- **THEN** the race list offers district deputy and no state deputy race
+
+#### Scenario: The Conselheiro Distrital race
+- **WHEN** a visitor opens Fernando de Noronha
+- **THEN** the Conselheiro Distrital race is offered, and the page states that it fills seven seats with one choice per voter
+
+#### Scenario: Votes under appeal
+- **WHEN** a race in an area has votes that TSE classifies as annulled sub judice
+- **THEN** the page shows them on their own line, apart from valid votes
 
 #### Scenario: A race that does not exist at that level
 - **WHEN** a visitor opens the governor race for Brazil as a whole
@@ -58,6 +73,25 @@ own address, so a link opens the same race and area.
 #### Scenario: Sharing a polling station
 - **WHEN** a visitor copies the address of a polling station's page and opens it elsewhere
 - **THEN** the same station and race are shown
+
+### Requirement: Addresses accept only valid values
+The app SHALL accept a state code only from the 27 states and `zz`, a race only from the
+races of the election, and municipality, zone and station numbers only as whole numbers
+within their ranges. For any other value it SHALL show the error state. No value from the
+address or from the search box SHALL reach a query or a file path except as a validated
+value passed as a bound parameter.
+
+#### Scenario: A query injected in the address
+- **WHEN** a visitor opens a station address whose municipality value contains SQL text
+- **THEN** the page shows the error state and runs no query
+
+#### Scenario: A path in the state code
+- **WHEN** a visitor opens an address whose state code contains a slash or `..`
+- **THEN** the page shows the error state and requests no file
+
+#### Scenario: Quotes in the search box
+- **WHEN** a visitor searches for a place name that contains quote characters
+- **THEN** the search treats them as text and returns matching places or none
 
 ### Requirement: Headline numbers without JavaScript
 The pages for Brazil and for each state SHALL contain their headline results in the
@@ -96,13 +130,31 @@ link to TSE's own page for that station.
 - **WHEN** a visitor opens the sources page
 - **THEN** it shows the pinned data version and links to its manifest
 
-### Requirement: One pinned data version
-The app SHALL read data only from the single data version it is built with, and only
-through the Worker.
+### Requirement: One pinned and verified data version
+The app SHALL be built against one data version, named together with the SHA-256 of its
+manifest. The build SHALL fail when that manifest is missing, when its checksum differs,
+or when any summary file it reads differs from the manifest. At run time the app SHALL
+read data only from that version, and only through the Worker.
 
 #### Scenario: A newer version exists
 - **WHEN** a newer data version is published but the app is not rebuilt with it
 - **THEN** the app keeps showing the pinned version
+
+#### Scenario: The pinned version has no manifest
+- **WHEN** the app is built against a version whose manifest is missing
+- **THEN** the build fails
+
+#### Scenario: A tampered summary
+- **WHEN** a summary file's SHA-256 differs from the pinned manifest's entry
+- **THEN** the build fails
+
+### Requirement: Works under its own security policy
+Every page SHALL load, and every query SHALL run, under the production security headers.
+The browser SHALL be allowed to fetch data only from the app's own origin and the Worker.
+
+#### Scenario: A station view with the production headers
+- **WHEN** a polling station view is opened with JavaScript enabled and the production headers applied
+- **THEN** the results appear and the browser reports no security-policy violation
 
 ### Requirement: No partial numbers on failure
 If data cannot be loaded, the app SHALL say so in the visitor's language and SHALL NOT show
