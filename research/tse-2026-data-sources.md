@@ -34,7 +34,7 @@ The app reads the `.jws`. I did not locate the public key, so the signatures are
 Field codes in the payload: `s` sections, `e` electorate and turnout, `v` vote totals, `carg[].agr[].par[].cand[]` candidates with `vap` (votes) and `st` (status).
 National check on 2026-10-05 12:51: the candidate `vap` values sum to `vv` (valid votes), 119,300,788.
 
-## Layer 2: raw files from each voting machine (arquivo-urna)
+## Layer 2: raw voting-machine files, per polling station (arquivo-urna)
 
 Base: `https://resultados.tse.jus.br/oficial/ele2026/arquivo-urna/3220/`
 

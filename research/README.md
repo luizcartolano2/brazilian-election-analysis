@@ -13,14 +13,14 @@ maintained. The first OpenSpec change ports what is worth keeping into `pipeline
 ## What the exploration established
 
 - Every layer of the results is public and needs no login: aggregates per country, state
-  and municipality, the files of each of the 499,248 voting machines, and bulk CSVs per
-  polling station.
+  and municipality, the voting-machine files for each of the 499,248 polling stations, and
+  bulk CSVs per polling station.
 - For one polling station in Acre, the machine's tally, a recount of its ballot record and
   the bulk CSV gave identical numbers.
 - The ballot record (RDV) sorts each race's ballots independently. All 285 race lists in
   57 random stations were sorted. No public file links one voter's choices across races,
   so any "voted for Y and Z" figure is an estimate. This is why the project shows ranges.
-- On synthetic data, a single state-wide fit can miss by 13 to 17 points when voter
+- On synthetic data, a single state-wide fit can miss by 13 to 15 points when voter
   behavior varies by region. Fitting per municipality cut the worst error to 2 to 10
   points. The tables are in `tse-2026-data-sources.md`.
 
