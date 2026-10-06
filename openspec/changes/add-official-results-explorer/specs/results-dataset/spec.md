@@ -24,16 +24,17 @@ SHALL record the URL, the SHA-512 of the bytes it read, and the time of the down
 - **THEN** the run fails with a message naming that source, and writes no output
 
 ### Requirement: Candidate personal identifiers never leave the pipeline
-The pipeline SHALL keep only an allowlist of candidate fields: election, round, race,
-state, candidate number, ballot name, party, federation, coalition and candidacy status.
-It SHALL NOT output CPF, voter-ID number, email, birth date or any other personal
+The pipeline SHALL keep only an allowlist of candidate fields from TSE's candidate
+registry: election, round, race, state, candidate number, ballot name, party, federation,
+coalition and candidacy status. To these it SHALL add only the destination and outcome
+that TSE's aggregate gives each candidate. It SHALL NOT output CPF, voter-ID number, email, birth date or any other personal
 identifier, even though TSE publishes some of them unmasked. Personal identifiers SHALL
 NOT appear in committed fixtures or in error messages either, because the repository and
 its CI logs are public.
 
 #### Scenario: Output is restricted to the allowlist
 - **WHEN** the candidate output is written
-- **THEN** its columns are exactly the allowlisted fields
+- **THEN** its columns are exactly the allowlisted registry fields plus the destination and outcome from TSE's aggregate
 
 #### Scenario: A forbidden field is about to be written
 - **WHEN** any output would contain a column named for CPF, voter ID, email or birth date
@@ -122,9 +123,9 @@ mismatch, not only the first.
 - Per municipality and zone, each candidate's votes equal TSE's published candidate
   totals for that municipality and zone.
 - For each area that TSE publishes an aggregate for (Brazil and each state, and the
-  municipality for a municipal election), each candidate's votes equal the aggregate,
-  and so do the totals of blank, null, technical-null, annulled and annulled sub judice
-  votes.
+  municipality for a municipal election), each candidate's votes and each party's list
+  votes equal the aggregate. So do the totals of valid, party-list, blank, null,
+  technical-null, annulled and annulled sub judice votes.
 
 Where TSE publishes no total to compare with, the figure SHALL be the sum of station
 figures that passed the station checks.
@@ -149,9 +150,13 @@ figures that passed the station checks.
 - **WHEN** a candidate's summed votes for a state differ from TSE's aggregate
 - **THEN** the run fails and reports the candidate, the state and both numbers
 
-#### Scenario: Invalid votes reconcile on their own
+#### Scenario: A party-list vote assigned to the wrong party
+- **WHEN** a party's summed list votes for a state differ from TSE's aggregate for that party
+- **THEN** the run fails and reports the party, the state and both numbers
+
+#### Scenario: Each kind of vote reconciles on its own
 - **WHEN** the totals for an area with a TSE aggregate are checked
-- **THEN** blank, null, technical-null, annulled and annulled sub judice votes each equal TSE's total for that kind of vote
+- **THEN** valid, party-list, blank, null, technical-null, annulled and annulled sub judice votes each equal TSE's total for that kind of vote
 
 ### Requirement: Data for one state and race stands alone
 The dataset SHALL be organized so that one race in one state can be read without

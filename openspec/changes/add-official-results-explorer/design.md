@@ -44,7 +44,9 @@ Facts checked against real 2026 data on 2026-10-06 that shape the approach:
 - One publish run on clean GitHub runners builds and publishes the whole first round.
 - A visitor on a phone sees a state's headline results without downloading Parquet.
 - Drilling down to a station reads only the bytes for that state and race.
-- No credential is ever available to code that the project did not write.
+- Storage write credentials are never available to the pipeline, its dependencies, or
+  anything installed during a build. Only the runner's preinstalled AWS CLI and a short
+  upload script from this repository receive them.
 
 **Non-Goals:**
 
@@ -95,9 +97,10 @@ The schemas below are new, because no schema exists before this change.
 `secao_principal`, `nome_local`, `endereco`, `bairro`, `latitude`, `longitude`,
 `eleitores`.
 
-`candidatos`: `eleicao`, `cargo`, `uf`, `numero`, `nome_urna`, `partido_numero`,
-`partido_sigla`, `federacao`, `coligacao`, `situacao` (from the registry), `destino` and
-`resultado` (both from the aggregate).
+`candidatos`: the allowlisted registry fields `eleicao`, `turno`, `cargo`, `uf`,
+`numero`, `nome_urna`, `partido_numero`, `partido_sigla`, `federacao`, `coligacao` and
+`situacao`, plus `destino` and `resultado`, both from the aggregate. The allowlist test
+checks exactly this column list.
 
 `municipios`: `municipio` (TSE code), `ibge` (from the results config `cdi` field),
 `nome`, `uf`, `capital` (bool).
@@ -159,9 +162,11 @@ Reconciliation runs inside every build, because it checks TSE's data, not our co
 2. **Per municipality and zone**: each candidate's sum equals
    `votacao_candidato_munzona_2026`.
 3. **Per aggregate area** (Brazil and each state, and Fernando de Noronha for the
-   council): each candidate's sum equals the aggregate's `vap`, and blank, null,
-   technical-null, annulled and annulled sub judice sums equal `vb`, `vn`, `vnt`, `van`
-   and `vansj`.
+   council): each candidate's sum equals the aggregate's `vap`, and each party's list
+   votes equal that party's `tval`. The valid, party-list, blank, null, technical-null,
+   annulled and annulled sub judice sums equal `vv`, `vl`, `vb`, `vn`, `vnt`, `van` and
+   `vansj`. `tval` and `tvtl` held the same value in the one party checked so far. The
+   first full build confirms that `tval` is the right field for every race.
 
 The aggregates come from
 `resultados.tse.jus.br/oficial/ele2026/<eleicao>/dados/<uf>/<area>-c<cargo:4>-e<eleicao:6>-u.json`,
@@ -185,11 +190,13 @@ those pins current.
    a workflow artifact with one day of retention. For the WebAssembly target, it runs
    `npm ci` in `web/` and copies the `.wasm` file out of the locked package.
 2. **upload** uses the `data-publish` environment. That environment allows `main` only,
-   requires Luiz as reviewer, and holds the R2 credentials. The job runs no project code
-   and no package installs. It downloads the artifact, checks each file's SHA-256 against
-   the manifest, lists `v/<id>/` with the S3 API against R2's endpoint and fails if
-   anything is there, uploads the data files with `aws s3 cp`, and uploads
-   `manifest.json` last.
+   requires Luiz as reviewer, and holds the R2 credentials. The job installs nothing and
+   runs no pipeline code. It runs only the runner's preinstalled AWS CLI and
+   `.github/scripts/upload-version.sh`, a short script from this repository. The script
+   downloads the artifact's files, checks each file's SHA-256 against the manifest, lists
+   `v/<id>/` with the S3 API against R2's endpoint and fails if anything is there,
+   uploads the data files with `aws s3 cp`, and uploads `manifest.json` last. The
+   pipeline CI job tests the script against a local S3 server.
 
 If the account's R2 plan offers bucket locks, a lock rule on `v/` and `assets/` makes
 immutability hold even against a stolen token.
@@ -222,7 +229,9 @@ bucket, with traversal and look-alike-origin payloads.
 The Worker deploys from `.github/workflows/deploy-worker.yml` on pushes to `main` that
 touch `worker/`. It runs through the `worker-deploy` environment, which requires Luiz as
 reviewer and holds a custom Cloudflare token limited to Workers Scripts edit. A template
-token might also grant R2 access, which would open a second way to write data.
+token might also grant R2 access, which would open a second way to write data. Wrangler
+is third-party code and receives that token. The lockfile in `worker/`, the narrow token
+scope and the approval gate are what protect it.
 
 ### D-F. Web: static export, two route trees, strict addresses
 
@@ -239,7 +248,10 @@ token might also grant R2 access, which would open a second way to write data.
 - Pre-rendered pages are `/2026/` and `/2026/<uf>/` for each state and `zz`, in both
   languages, 58 pages in all.
 - `web/src/data-version.ts` holds the pinned version name, its manifest's SHA-256 and the
-  Worker's base URL, and is the only place they appear. The build-time loader fetches the
+  Worker's base URL. The Worker's origin also appears in the `connect-src` directive of
+  `vercel.json`, because Vercel reads that file before any build step runs, so a build
+  cannot generate it. A Vitest test fails when the two origins differ. The build-time
+  loader fetches the
   manifest, checks its SHA-256, then checks each `resumo/*.json` it reads against the
   manifest, and fails the build on any difference.
 - Municipality, zone and station views are one static page each. Each reads its location
@@ -293,7 +305,7 @@ token might also grant R2 access, which would open a second way to write data.
   request count in Cloudflare, and moves the account to Workers Paid ($5 a month,
   10 million requests included) on the first day it is abused.
 - [A compromised dependency or action steals a token] → The build job holds no secrets,
-  the upload job runs no installed code, actions are pinned by SHA, both environments wait
+  the upload job installs nothing, actions are pinned by SHA, both environments wait
   for Luiz's approval, and the app pins the manifest's checksum. A bucket lock closes the
   rest if the plan offers one.
 - [Runner disk space for unzipped CSVs] → One state at a time (D-B). The first publish
@@ -326,10 +338,12 @@ This is a new system. The first deployment goes in this order:
 1. Luiz creates the R2 bucket, the two tokens and the two GitHub environments with himself
    as reviewer, and adds a bucket lock if the plan offers one.
 2. Merge the Worker, and approve its deployment.
-3. Run the publish workflow for `duckdb-wasm`, then for `data`, approving each upload.
-   Note the data version and its manifest's SHA-256.
-4. Pin both in `web/`, then create the Vercel project on `web/`, add the CNAME at GoDaddy,
-   and set the team slug in the Worker's CORS pattern.
+3. Run the publish workflow for `data`, approving the upload. Note the data version and
+   its manifest's SHA-256.
+4. Merge the web app's first PR, which adds the `duckdb-wasm` target, and publish that
+   target, approving the upload.
+5. Pin the data version and its checksum in `web/`, then create the Vercel project on
+   `web/`, add the CNAME at GoDaddy, and set the team slug in the Worker's CORS pattern.
 
 Rollback for data is a PR that pins the previous version and its checksum. Rollback for
 the Worker is redeploying the previous commit.

@@ -32,7 +32,9 @@ polling station. President is available at every level, including votes cast abr
 Governor, Senate and the deputy races are available from the state level down. The
 Federal District shows its district deputy race in place of a state deputy race.
 Fernando de Noronha also shows its Conselheiro Distrital race, from the municipality
-level down.
+level down. In the deputy races, the page SHALL also show each party's list votes and its
+total of candidate and list votes, so every vote counted in the valid-vote denominator
+is visible.
 
 #### Scenario: Governor in one municipality
 - **WHEN** a visitor opens the governor race for a municipality
@@ -49,6 +51,10 @@ level down.
 #### Scenario: The Conselheiro Distrital race
 - **WHEN** a visitor opens Fernando de Noronha
 - **THEN** the Conselheiro Distrital race is offered, and the page states that it fills seven seats with one choice per voter
+
+#### Scenario: Party-list votes in a deputy race
+- **WHEN** a visitor opens a deputy race for a state
+- **THEN** each party's list votes and its party total appear, and candidate votes plus list votes equal the valid votes shown
 
 #### Scenario: Votes under appeal
 - **WHEN** a race in an area has votes that TSE classifies as annulled sub judice
