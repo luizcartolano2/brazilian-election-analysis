@@ -1,7 +1,10 @@
 # TSE downloads and pipeline outputs are rebuilt from source, never committed.
 /data/
 /pipeline/data/
+/pipeline/dist/
 *.zip
+*.csv
+!**/fixtures/**/*.csv
 *.parquet
 !**/fixtures/**/*.parquet
 
