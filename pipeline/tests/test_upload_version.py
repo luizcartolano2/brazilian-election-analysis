@@ -231,6 +231,32 @@ def test_refuses_a_malformed_file_entry(tmp_path, endpoint, bucket, dist, change
     assert calls == []
 
 
+def path_for_key_length(length: int) -> str:
+    """A manifest path whose key `v/<version>/<path>` has exactly `length` characters."""
+    remaining = length - len(PREFIX) - len(".json")
+    segments = []
+    while remaining > 200:
+        segments.append("a" * 199)
+        remaining -= 200
+    segments.append("a" * remaining)
+    return "/".join(segments) + ".json"
+
+
+@pytest.mark.parametrize("length", [1024, 1025])
+def test_refuses_a_key_longer_than_r2_allows(tmp_path, endpoint, bucket, dist, length):
+    # The file is never created: macOS limits a whole path to 1,024 characters, and the
+    # length check runs before the folder is read.
+    path = path_for_key_length(length)
+    assert len(PREFIX + path) == length
+    edit_first_entry(dist, path=path)
+
+    result, calls = run_script(tmp_path, endpoint, dist)
+
+    assert result.returncode != 0
+    assert ("longer than R2's 1024 characters" in result.stderr) == (length > 1024)
+    assert calls == []
+
+
 def test_refuses_a_manifest_that_is_not_json(tmp_path, endpoint, bucket, dist):
     (dist / "manifest.json").write_text("{not json")
 

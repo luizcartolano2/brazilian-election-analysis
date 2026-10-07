@@ -60,9 +60,10 @@ Only the "Publish data" workflow writes to storage, and only from `main`:
    last. Its summary shows the version and the manifest's SHA-256, which the app pins.
 
 A version is never overwritten. If an upload stops halfway, its version has no manifest,
-and the app never pins it. If the upload job failed before it wrote anything, for
-example because the approval came too late, re-run that job. Otherwise start a new run.
-A re-run keeps the run's ID, so it tries the same version path and stops.
+and the app never pins it. If the upload job failed before it wrote anything and the
+build's files have not expired, re-run only that job, which keeps the same version path.
+Otherwise start a new run, which builds again and writes a new version. A late approval
+is one such case, because the upload then finds the build's files expired.
 
 `.github/scripts/upload-version.sh` does the upload. Its tests in
 `tests/test_upload_version.py` need the AWS CLI and the `upload-tests` dependency group,

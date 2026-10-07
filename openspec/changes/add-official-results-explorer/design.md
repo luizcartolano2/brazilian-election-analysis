@@ -241,9 +241,9 @@ those pins current.
       and the size is a whole number. The manifest comes from the job that runs
       third-party code, and bash runs code hidden in a value that reaches its arithmetic,
       so no manifest value is ever compared as a number.
-   2. It checks that the folder holds exactly the files the manifest lists, each with
-      the listed size and SHA-256, that every path passes the Worker's segment check, and
-      that nothing in the folder is a symlink or another special file.
+   2. It checks that every listed path passes the Worker's segment check and gives a key
+      within R2's 1,024 characters. It then checks that the folder holds exactly the
+      listed files, each with its size and SHA-256, and no symlink or other special file.
    3. It lists `v/<id>/` with the S3 API against R2's endpoint, and fails if anything is
       there.
    4. It uploads the data files with `aws s3 cp --recursive`.
@@ -264,9 +264,11 @@ those pins current.
 
    The build job also records its duration and its peak disk use in the run's summary.
    The artifact lasts one day, so an upload that waits longer for approval fails, and
-   the publish runs again from the start. A GitHub re-run keeps the run's ID, so it
-   reuses the version path. It works only for an upload that wrote nothing, and any
-   other retry is a new run.
+   the publish runs again from the start. Re-running only the upload job reuses the
+   build's version id and artifact. That works for an upload that failed before writing
+   anything, while the artifact lasts. Re-running all jobs builds again, and after
+   midnight UTC it gets a new date and so a new version path. Neither retry overwrites
+   anything, because the script refuses a path that holds files.
 
 If the account's R2 plan offers bucket locks, a lock rule on `v/` and `assets/` makes
 immutability hold even against a stolen token.

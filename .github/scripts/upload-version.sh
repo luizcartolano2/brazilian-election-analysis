@@ -24,11 +24,13 @@ fail() {
   exit 1
 }
 
-# The Worker serves only keys whose segments use these characters.
+# The Worker serves only keys whose segments use these characters, up to R2's key limit.
 safe_path='^[A-Za-z0-9_.=-]+(/[A-Za-z0-9_.=-]+)*$'
+max_key_length=1024
 
 [[ $version =~ ^[0-9]{8}-[0-9a-f]{7,40}-[0-9]+$ ]] ||
   fail "the version id '$version' is not <YYYYMMDD>-<commit>-<run id>"
+prefix="v/$version"
 manifest="$dist/manifest.json"
 [[ -f $manifest ]] || fail "$dist has no manifest.json"
 jq -e 'type == "object"' "$manifest" >/dev/null 2>&1 || fail "manifest.json is not a JSON object"
@@ -49,6 +51,13 @@ entries='.arquivos
 listed=$(jq -r "$entries" "$manifest" 2>/dev/null | LC_ALL=C sort) ||
   fail "the manifest's file list is missing, empty or has a malformed entry"
 
+while read -r path _; do
+  [[ $path =~ $safe_path && /$path/ != */../* && /$path/ != */./* ]] ||
+    fail "the manifest lists '$path', which the Worker does not serve"
+  ((${#prefix} + 1 + ${#path} <= max_key_length)) ||
+    fail "the key for $path is longer than R2's $max_key_length characters"
+done <<<"$listed"
+
 # Checks that <dir> holds exactly the manifest's data files, with their sizes and SHA-256.
 check_files() {
   local dir=$1 what=$2 present path size sha256 actual
@@ -58,8 +67,6 @@ check_files() {
   [[ $present == "$(cut -d' ' -f1 <<<"$listed")" ]] ||
     fail "$what differ from the files the manifest lists"
   while read -r path size sha256; do
-    [[ $path =~ $safe_path && /$path/ != */../* && /$path/ != */./* ]] ||
-      fail "the manifest lists '$path', which the Worker does not serve"
     [[ $size =~ ^[0-9]+$ && $sha256 =~ ^[0-9a-f]{64}$ ]] ||
       fail "the manifest entry for $path has a malformed size or SHA-256"
     actual=$(wc -c <"$dir/$path" | tr -d ' ')
@@ -71,7 +78,6 @@ check_files() {
 
 check_files "$dist" "the built files"
 
-prefix="v/$version"
 # The backticks are JMESPath's literal syntax, not a shell expansion.
 # shellcheck disable=SC2016
 count_query='length(Contents || `[]`)'
