@@ -25,6 +25,23 @@ build time. It takes the data from one of two places:
   against their manifest. Every page then shows a test-build banner, and the step refuses
   to run on Vercel, where the `VERCEL` variable is set.
 
+## Municipality, zone and station views
+
+These views query the Parquet files in the browser with DuckDB-WASM. `prepare-data.ts`
+also copies DuckDB's worker script into `public/duckdb/`, and downloads DuckDB's signed
+Parquet extension into `.cache/` once, checked against the SHA-256 in
+`scripts/duckdb-assets.ts`. That download needs network access to `extensions.duckdb.org`.
+
+- A fixtures build copies the fixtures, DuckDB's `.wasm` module and the extension into
+  `public/_fixtures/`, so the views run against the same origin.
+- A production build reads both DuckDB assets through the Worker and fails unless they
+  match the lockfile and the pin. Publish the `duckdb-wasm` target before the first one,
+  and again after any update of `@duckdb/duckdb-wasm`.
+
+After that update, run DuckDB's `SELECT version()` and, if the version changed, download
+the extension for it and update `PARQUET_EXTENSION` in `scripts/duckdb-assets.ts`. The data
+step fails until the two agree.
+
 ## Test it
 
 ```bash

@@ -5,7 +5,16 @@ import nextTs from 'eslint-config-next/typescript'
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores(['.next/**', 'out/**', '.data/**', 'next-env.d.ts', 'playwright-report/**']),
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    '.data/**',
+    '.cache/**',
+    'public/duckdb/**',
+    'public/_fixtures/**',
+    'next-env.d.ts',
+    'playwright-report/**',
+  ]),
   {
     rules: {
       // TSE's names and addresses reach the page as text. React escapes text, and this rule

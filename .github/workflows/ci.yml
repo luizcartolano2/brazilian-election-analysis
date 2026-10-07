@@ -48,8 +48,8 @@ jobs:
       - name: Format check
         run: uv run ruff format --check src tests
 
-      - name: Lint the upload script
-        run: shellcheck ../.github/scripts/upload-version.sh
+      - name: Lint the upload scripts
+        run: shellcheck ../.github/scripts/upload-version.sh ../.github/scripts/upload-asset.sh
 
       - name: Test
         run: uv run pytest -q
