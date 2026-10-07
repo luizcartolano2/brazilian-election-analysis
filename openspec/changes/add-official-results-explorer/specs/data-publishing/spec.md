@@ -65,7 +65,7 @@ any file in an existing version. Only one publish SHALL run at a time.
 ### Requirement: The manifest completes a version
 Each version SHALL contain a `manifest.json` that lists every data file with its size and
 SHA-256, every TSE source with its URL, SHA-512 and download time, the pipeline commit,
-the publish time and the TSE credit line. The manifest SHALL be uploaded last, so a
+the time the publish run built the data, and the TSE credit line. The manifest SHALL be uploaded last, so a
 version without a manifest is incomplete and SHALL NOT be pinned by the app.
 
 #### Scenario: Verifying a published version

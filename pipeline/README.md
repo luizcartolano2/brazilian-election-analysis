@@ -45,3 +45,32 @@ uv run python tests/fixtures/export_web_fixtures.py
 
 The second command refreshes `web/fixtures/`, the web app's sample data. CI fails when
 that folder differs from what the pipeline produces.
+
+## Publish it
+
+Only the "Publish data" workflow writes to storage, and only from `main`:
+
+1. In GitHub, open Actions, then "Publish data", then "Run workflow" on `main`, with
+   target `data`.
+2. The build job runs the tests and a complete build against TSE's files, with no
+   secret. Its summary shows the duration, the peak disk use and the output size.
+3. The upload job waits for Luiz's approval in the `data-publish` environment. Approve
+   it within a day, because the build's files expire after that.
+4. The upload writes `v/<YYYYMMDD>-<commit>-<run id>/` to R2, with `manifest.json`
+   last. Its summary shows the version and the manifest's SHA-256, which the app pins.
+
+A version is never overwritten. If an upload stops halfway, its version has no manifest,
+and the app never pins it. If the upload job failed before it wrote anything and the
+build's files have not expired, re-run only that job, which keeps the same version path.
+Otherwise start a new run, which builds again and writes a new version. A late approval
+is one such case, because the upload then finds the build's files expired.
+
+`.github/scripts/upload-version.sh` does the upload. Its tests in
+`tests/test_upload_version.py` need the AWS CLI and the `upload-tests` dependency group,
+which the publish build job leaves out:
+
+```bash
+uv run --group upload-tests pytest tests/test_upload_version.py
+```
+
+They skip on a machine without those tools, but never in CI.

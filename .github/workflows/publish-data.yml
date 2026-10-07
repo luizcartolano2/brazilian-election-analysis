@@ -1,0 +1,103 @@
+name: Publish data
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: What to publish
+        type: choice
+        options:
+          - data
+        default: data
+
+# Publishes wait for each other, and one in progress is never cut off. The branch is in the
+# name, so a run started on another branch cannot replace a publish waiting on main.
+concurrency:
+  group: publish-data-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs the pipeline and its dependencies, so it gets no environment and no secret.
+  build:
+    if: github.ref == 'refs/heads/main' && inputs.target == 'data'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: pipeline
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # No cache: every publish installs and downloads from the source.
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: false
+
+      # Without the upload-tests group, so the local S3 server and its packages stay out of
+      # the job that writes the data. CI runs the upload script's tests instead.
+      - name: Install from the lockfile
+        run: uv sync --locked
+
+      - name: Test
+        run: uv run pytest -q
+
+      - name: Name the version
+        id: version
+        run: echo "version=$(date -u +%Y%m%d)-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and reconcile against TSE
+        run: |
+          baseline=$(df --output=used -B1M / | tail -1)
+          (while sleep 5; do df --output=used -B1M / | tail -1; done) > "$RUNNER_TEMP/disk.log" &
+          SECONDS=0
+          uv run eleicoes build --round 1 --out dist --commit "$GITHUB_SHA"
+          peak=$(sort -n "$RUNNER_TEMP/disk.log" | tail -1)
+          {
+            echo "### Build"
+            echo
+            echo "- Duration: $((SECONDS / 60)) min $((SECONDS % 60)) s"
+            echo "- Peak disk use above the start: $(( ${peak:-$baseline} - baseline )) MB"
+            echo "- Output: $(du -sm dist | cut -f1) MB in $(find dist -type f | wc -l) files"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dataset
+          path: pipeline/dist/
+          retention-days: 1
+          if-no-files-found: error
+
+  # Holds the R2 credentials. It installs nothing and runs only the runner's AWS CLI and
+  # the upload script from this repository.
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: data-publish
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dataset
+          path: dist
+
+      - name: Upload the version
+        run: bash .github/scripts/upload-version.sh dist "$VERSION"
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          R2_ENDPOINT: https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: eleicoes-data # the bucket in worker/wrangler.jsonc
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

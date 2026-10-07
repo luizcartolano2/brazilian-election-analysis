@@ -111,6 +111,11 @@ The pipeline uses Python 3.12 with uv, DuckDB, numpy, scipy, pytest and ruff. Th
 uses Vitest and one Playwright smoke test. The Worker uses `wrangler` as a local
 dependency. GitHub Actions runs the checks on every PR.
 
+Test-only tools are allowed when a test cannot run without them, and they stay in their
+own dependency group. The upload script's tests use `moto` and `boto3` as a local S3
+server, in the pipeline's `upload-tests` group, so the publish build job never installs
+them. Changed on 2026-10-07, when the publishing workflow needed a tested upload.
+
 **Why:** DuckDB reads TSE's Latin-1 CSV files directly and writes Parquet. It is also the
 engine that runs in the browser, so one query can be tested on both sides.
 
