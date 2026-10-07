@@ -28,9 +28,9 @@ why.
 
 The pipeline builds and checks the whole first round: every polling station in Brazil
 and abroad matches TSE's own totals. The Worker that serves the data to browsers is
-live, and a workflow publishes each data version. The app's static pages for Brazil,
-each state and each state race are built. The drill-downs to municipality, zone and
-polling station come next.
+live, and a workflow publishes each data version. The app is built: static pages for
+Brazil, each state and each state race, and views for each municipality, zone and polling
+station that query the data in the browser. Launch comes next.
 
 | Milestone | Target |
 |---|---|
