@@ -23,7 +23,8 @@ Facts checked against real 2026 data on 2026-10-06 that shape the approach:
   voter. The national presidential sums match TSE's aggregate exactly for all 12
   candidates and for blank votes.
 - The aggregate classifies votes in a `dvt` field. Candidate values seen are
-  `Válido` and `Anulado sub judice`, and party lists carry `Válido (legenda)`. Acre's
+  `Válido` and `Anulado sub judice`. Party lists carry `Válido (legenda)` or, for a whole
+  list under appeal, `Anulado sub judice`. Acre's
   federal deputy race has 6,127 votes annulled sub judice (`vansj`). Number 28 for
   President has 5,246 votes in the station data, is absent from the aggregate, and those
   votes are counted as technical nulls (`vnt`). The turnout file counts them as nominal
@@ -69,7 +70,9 @@ manifest.json
 2026/t1/comparecimento/uf=<UF>.parquet          turnout, every race in the state
 2026/t1/secoes/uf=<UF>.parquet                  stations and polling places
 2026/t1/totais/municipio/cargo=<c>/uf=<UF>.parquet
+2026/t1/totais/municipio/comparecimento/uf=<UF>.parquet   turnout per municipality and race
 2026/t1/totais/zona/cargo=<c>/uf=<UF>.parquet
+2026/t1/totais/zona/comparecimento/uf=<UF>.parquet        turnout per zone and race
 2026/t1/resumo/br.json
 2026/t1/resumo/<uf>.json                        one per state, plus zz
 ```
@@ -87,7 +90,7 @@ The schemas below are new, because no schema exists before this change.
 | `zona` | int16 | Electoral zone |
 | `secao` | int16 | Polling station number |
 | `tipo` | int8 | 1 candidate, 2 party list, 3 blank, 4 null, 5 technical null, 6 annulled, 7 annulled sub judice |
-| `numero` | int32 | Number typed. 0 for blank and null |
+| `numero` | int32 | TSE's number: the candidate or party typed, 95 for blank, 96 for null, so rows compare one to one with TSE's CSV |
 | `votos` | int32 | Votes |
 
 `comparecimento`: `municipio`, `zona`, `secao`, `cargo`, `aptos`, `comparecimento`,
@@ -150,6 +153,21 @@ manifest.
 - **Fixtures**: small CSVs cut from real files, except that every personal identifier
   column holds a synthetic value with invalid check digits. A test scans every fixture
   and output for an 11-digit number with valid CPF check digits.
+- **Candidates**: a registry row matches the aggregate on election, race, state and
+  number. The registry drops apostrophes, quotes and ordinal marks that the aggregate
+  keeps, so the name decides only among several candidacies on one number. A number the
+  aggregate omits takes its destination from `votacao_candidato_munzona`, matched the same
+  way. The build fails if a number ends with two classified rows. The registry is read
+  with `DISTINCT`, because TSE lists some candidacies twice.
+- **Inputs it refuses**: a state code that is not two letters, since codes reach SQL and
+  output paths; a municipality the two municipality lists describe differently; a number
+  the aggregate and `votacao_candidato_munzona` classify differently. TSE's empty-text
+  markers (`#NULO#`, `#NULO`, `#NE#`, `#NE`) become empty values, and a `-1` coordinate
+  becomes empty.
+- **Cache**: a cached download is reused only if its bytes still hash to the recorded
+  SHA-512, so the manifest always describes the bytes the build read. The manifest's
+  `fontes_tse` is false when the build read anything other than TSE's own URLs, and the
+  publish workflow refuses such a build and any `parcial` one.
 - Outputs go to `pipeline/dist/`, which `.gitignore` covers.
 
 Alternative rejected for the whole stage: pandas, as in the prototype. It loads a 1 GB CSV
@@ -181,8 +199,16 @@ Reconciliation runs inside every build, because it checks TSE's data, not our co
 The aggregates come from
 `resultados.tse.jus.br/oficial/ele2026/<eleicao>/dados/<uf>/<area>-c<cargo:4>-e<eleicao:6>-u.json`,
 where the area is the state code or, for a municipal election, the state code followed
-by the municipality code. A failure prints every mismatch, not only the first, and exits
-non-zero.
+by the municipality code. The checks also compare attendance and eligible voters with the
+aggregate's `e.c` and `e.te`, and require `QT_VOTOS_ANULADOS_APU_SEP` to be 0 at every
+station, because no rule here handles votes annulled and counted apart. A failure prints
+the first 50 mismatches, writes every one to `reconciliation-report.txt` in the work
+directory, and exits non-zero.
+
+President and the council have no municipality-and-zone check yet. TSE's presidential
+`votacao_candidato_munzona` file was published empty (header only) on 2026-10-06, and
+there is none for the council. The manifest lists the races checked at each level, so a
+missing check is visible.
 
 Party-list and turnout totals per municipality and zone have no independent TSE file
 yet. They are sums of station figures that passed check 1, grouped by the same code that
@@ -300,6 +326,10 @@ scope and the approval gate are what protect it.
 
 - **pipeline**: `uv sync --locked`, ruff and pytest. This covers the CPF scan, the
   determinism test and the check that regenerated web fixtures match the committed ones.
+  The fixture builder recomputes TSE's totals with the pipeline's own classification, so
+  on fixtures the municipality and aggregate checks prove only self-consistency. The
+  independent check is the full build against TSE's real files, which every publish run
+  performs before it uploads anything.
 - **worker**: typecheck and Vitest.
 - **web**: typecheck, lint, Vitest, a build against `web/fixtures/`, and two Playwright
   tests. The first loads a state page with JavaScript disabled. The second serves the

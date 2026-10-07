@@ -18,6 +18,10 @@ presidential check, and its manifest says `parcial: true`, so it can never be pu
 uv run eleicoes build --round 1 --out dist/ac --states AC
 ```
 
+`--cdn-base` and `--results-base` point the build at other copies of TSE's files, which the
+tests use. Such a build's manifest says `fontes_tse: false`, so it can never be published
+either.
+
 If a check fails, the build writes nothing. It prints the first 50 mismatches and lists
 every one in `data/work/reconciliation-report.txt`.
 

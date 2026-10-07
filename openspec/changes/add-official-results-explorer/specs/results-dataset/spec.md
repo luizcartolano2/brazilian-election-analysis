@@ -27,7 +27,14 @@ SHALL record the URL, the SHA-512 of the bytes it read, and the time of the down
 The pipeline SHALL keep only an allowlist of candidate fields from TSE's candidate
 registry: election, round, race, state, candidate number, ballot name, party, federation,
 coalition and candidacy status. To these it SHALL add only the destination and outcome
-that TSE's aggregate gives each candidate. It SHALL NOT output CPF, voter-ID number, email, birth date or any other personal
+that TSE gives each candidate. A registry row SHALL match TSE's aggregate on election,
+race, state and number, because the two files spell some ballot names differently. The
+name SHALL decide only among several candidacies that share a number. A candidate that
+only the aggregate lists, such as the council's, SHALL carry the aggregate's ballot name
+and party and no registry fields. TSE's file of 2026-10-05 leaves the candidacy status
+unstated (`#NE`) for every candidate, so that field stays empty until TSE publishes it.
+TSE's markers for an empty text field SHALL become empty values, never text. The pipeline
+SHALL NOT output CPF, voter-ID number, email, birth date or any other personal
 identifier, even though TSE publishes some of them unmasked. Personal identifiers SHALL
 NOT appear in committed fixtures or in error messages either, because the repository and
 its CI logs are public.
@@ -45,8 +52,12 @@ its CI logs are public.
 - **THEN** the message names the file, the line and the column, and contains no field values from that line
 
 #### Scenario: A real CPF in a fixture or an output
-- **WHEN** any committed fixture or any output file contains an 11-digit number whose CPF check digits are valid
+- **WHEN** any committed fixture or any output file contains an 11-digit number whose CPF check digits are valid, outside TSE's own sequence identifiers (`SQ_*` columns), which identify a candidacy rather than a person and pass the check by chance about once in a hundred
 - **THEN** the test suite fails
+
+#### Scenario: A name spelled differently in the two files
+- **WHEN** the registry spells a ballot name without the apostrophe, quote or ordinal mark that the aggregate keeps
+- **THEN** the candidate has one row, with both its registry fields and its destination
 
 ### Requirement: Votes per polling station
 The dataset SHALL contain, for every polling station with results and every race, the
@@ -69,7 +80,8 @@ annulled, and annulled sub judice. A number missing from the aggregate's list ca
 have a destination in TSE's candidate totals per municipality and zone, and then that
 destination applies. A number that neither source lists for that race and area is a
 technical null. In the 2026 presidential race, number 28 received 5,246 such votes. A
-destination value that the pipeline does not know SHALL fail the run.
+destination value that the pipeline does not know SHALL fail the run, and so SHALL a
+number that the two sources classify differently.
 
 #### Scenario: A number TSE does not list anywhere
 - **WHEN** a polling station has votes for a number that neither TSE's aggregate nor its municipality-and-zone totals list for that race and area
@@ -115,7 +127,8 @@ votes, and SHALL NOT invent results rows for an aggregated station.
 
 ### Requirement: Polling places with location
 The dataset SHALL contain, for every polling station, its polling place's name, address,
-neighborhood, and the latitude and longitude that TSE publishes.
+neighborhood, and the latitude and longitude that TSE publishes. A coordinate TSE marks
+as unknown (`-1`) SHALL be empty.
 
 #### Scenario: A station's place is looked up
 - **WHEN** a polling station is looked up
@@ -186,7 +199,8 @@ as a whole, including votes cast abroad.
 ### Requirement: Summaries for fast first display
 The pipeline SHALL write small summary files with each race's totals for Brazil and for
 each state, so those pages can show headline numbers without querying polling-station
-data. It SHALL also write totals per municipality and per zone for each race and state.
+data. It SHALL also write totals per municipality and per zone for each race and state,
+including eligible voters, attendance, abstentions and each vote count.
 
 #### Scenario: A state summary is read
 - **WHEN** a consumer reads the summary for one state
@@ -194,7 +208,7 @@ data. It SHALL also write totals per municipality and per zone for each race and
 
 #### Scenario: Municipality totals are read
 - **WHEN** a consumer reads the municipality totals for one state and race
-- **THEN** it gets every municipality's totals without reading polling-station data
+- **THEN** it gets every municipality's vote totals and turnout without reading polling-station data
 
 ### Requirement: Same inputs, same data
 Two runs over source files with the same checksums, using the same locked dependency
