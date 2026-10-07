@@ -10,9 +10,10 @@ on:
           - data
         default: data
 
-# Publishes wait for each other, and one in progress is never cut off.
+# Publishes wait for each other, and one in progress is never cut off. The branch is in the
+# name, so a run started on another branch cannot replace a publish waiting on main.
 concurrency:
-  group: publish-data
+  group: publish-data-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -40,6 +41,8 @@ jobs:
           version: "0.12.23"
           enable-cache: false
 
+      # Without the upload-tests group, so the local S3 server and its packages stay out of
+      # the job that writes the data. CI runs the upload script's tests instead.
       - name: Install from the lockfile
         run: uv sync --locked
 
@@ -95,6 +98,6 @@ jobs:
         env:
           VERSION: ${{ needs.build.outputs.version }}
           R2_ENDPOINT: https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
-          R2_BUCKET: ${{ vars.R2_BUCKET }}
+          R2_BUCKET: eleicoes-data # the bucket in worker/wrangler.jsonc
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

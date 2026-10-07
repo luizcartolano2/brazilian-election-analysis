@@ -4,7 +4,7 @@
 - [x] 1.2 Create an R2 API token with write access to that bucket only
 - [x] 1.3 Create a custom Cloudflare API token limited to Workers Scripts edit, not the "Edit Cloudflare Workers" template
 - [x] 1.4 Create the GitHub environments `data-publish` and `worker-deploy`, each limited to `main` with Luiz as required reviewer, add each token to its environment, and add the repository variable `CLOUDFLARE_ACCOUNT_ID`
-- [ ] 1.5 Check whether the account's R2 plan offers bucket locks, and if it does, add a lock rule with no expiry on `v/` and `assets/`
+- [x] 1.5 Check whether the account's R2 plan offers bucket locks, and if it does, add a lock rule with no expiry on `v/` and `assets/`
 - [x] 1.6 Install uv locally (`brew install uv`)
 
 ## 2. Pipeline: dataset (one PR)

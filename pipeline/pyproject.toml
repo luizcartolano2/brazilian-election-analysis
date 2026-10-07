@@ -10,9 +10,12 @@ eleicoes = "eleicoes.cli:main"
 
 [dependency-groups]
 dev = [
-    "moto[server]>=5.2.3",
     "pytest>=8",
     "ruff>=0.8",
+]
+upload-tests = [
+    "boto3>=1.43",
+    "moto[server]>=5.2.3",
 ]
 
 [build-system]

@@ -276,9 +276,12 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "moto", extra = ["server"] },
     { name = "pytest" },
     { name = "ruff" },
+]
+upload-tests = [
+    { name = "boto3" },
+    { name = "moto", extra = ["server"] },
 ]
 
 [package.metadata]
@@ -286,9 +289,12 @@ requires-dist = [{ name = "duckdb", specifier = "==1.5.6" }]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "moto", extras = ["server"], specifier = ">=5.2.3" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.8" },
+]
+upload-tests = [
+    { name = "boto3", specifier = ">=1.43" },
+    { name = "moto", extras = ["server"], specifier = ">=5.2.3" },
 ]
 
 [[package]]

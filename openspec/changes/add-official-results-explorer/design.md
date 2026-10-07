@@ -217,13 +217,17 @@ check 2 tests.
 ### D-D. Publishing: a build job without secrets, an upload job behind approval
 
 `.github/workflows/publish-data.yml` runs on `workflow_dispatch` only, with input
-`target: data | duckdb-wasm`. It has a `concurrency` group without cancellation, so two
-publishes never overlap. Every action is pinned to a commit SHA, and Dependabot keeps
+`target: data | duckdb-wasm`. It has a `concurrency` group per branch without
+cancellation, so two publishes never overlap, and a run on another branch cannot replace
+one waiting on `main`. Every action is pinned to a commit SHA, and Dependabot keeps
 those pins current.
 
 1. **build** runs with `permissions: contents: read` and no environment. It runs
-   `uv sync --locked`, the tests and the full build, then hands `dist/` to the next job as
-   a workflow artifact with one day of retention. For the WebAssembly target, it runs
+   `uv sync --locked` without the `upload-tests` dependency group, the tests and the full
+   build. That group holds `moto` and `boto3`, about 60 packages that only the upload
+   script's tests need, so they stay out of the job that writes the data. The build job
+   then hands `dist/` to the next job as a workflow artifact with one day of retention.
+   For the WebAssembly target, it runs
    `npm ci` in `web/` and copies the `.wasm` file out of the locked package.
 2. **upload** uses the `data-publish` environment. That environment allows `main` only,
    requires Luiz as reviewer, and holds the R2 credentials. The job installs nothing and
@@ -231,28 +235,38 @@ those pins current.
    `.github/scripts/upload-version.sh`, a short script from this repository. The
    `download-artifact` action fetches the build's files. The script then works in this
    order:
-   1. It refuses a manifest that does not say `parcial: false` and `fontes_tse: true`,
-      and a version id that is not `<YYYYMMDD>-<commit>-<run id>`.
+   1. It refuses a manifest that is not a JSON object or does not say `parcial: false`
+      and `fontes_tse: true`, and a version id that is not `<YYYYMMDD>-<commit>-<run id>`.
+      `jq` checks the type of every file entry: the path and the SHA-256 are strings,
+      and the size is a whole number. The manifest comes from the job that runs
+      third-party code, and bash runs code hidden in a value that reaches its arithmetic,
+      so no manifest value is ever compared as a number.
    2. It checks that the folder holds exactly the files the manifest lists, each with
-      the listed size and SHA-256, and that every path passes the Worker's segment check.
+      the listed size and SHA-256, that every path passes the Worker's segment check, and
+      that nothing in the folder is a symlink or another special file.
    3. It lists `v/<id>/` with the S3 API against R2's endpoint, and fails if anything is
       there.
    4. It uploads the data files with `aws s3 cp --recursive`.
    5. It downloads them back and repeats the check from step 2. A file that R2 stored
       wrongly therefore stops the version before it is complete.
-   6. It uploads `manifest.json`, and writes the version and the manifest's SHA-256 to
-      the run's summary.
+   6. It uploads `manifest.json`, reads it back, compares its SHA-256, and writes the
+      version and that SHA-256 to the run's summary.
 
    The script asks the AWS CLI for checksum headers only when the S3 API requires them,
    because R2 has rejected the headers that newer CLI versions send by default. Steps 2
    and 5 check integrity instead. The pipeline CI job runs the script with the real AWS
-   CLI against a local S3 server from `moto`. An `aws` shim on `PATH` records the order of
-   calls, interrupts an upload, and alters a stored file, so the tests prove that the
-   manifest goes last and that a failed check withholds it.
+   CLI against a local S3 server from `moto`, with the `upload-tests` group. An `aws` shim
+   on `PATH` records the order of calls, makes the data upload or the read-back fail, and
+   alters a stored file, so the tests prove that the manifest goes last and that a failed
+   step withholds it. Another test puts a command in a manifest field and checks that it
+   never runs. The R2 bucket name is written in the workflow, as it is in
+   `worker/wrangler.jsonc`.
 
    The build job also records its duration and its peak disk use in the run's summary.
    The artifact lasts one day, so an upload that waits longer for approval fails, and
-   the publish runs again from the start.
+   the publish runs again from the start. A GitHub re-run keeps the run's ID, so it
+   reuses the version path. It works only for an upload that wrote nothing, and any
+   other retry is a new run.
 
 If the account's R2 plan offers bucket locks, a lock rule on `v/` and `assets/` makes
 immutability hold even against a stolen token.
@@ -378,7 +392,8 @@ rights on top, so it stays out.
 
 `ci.yml` gains three jobs next to `openspec`, with every action pinned to a commit SHA:
 
-- **pipeline**: `uv sync --locked`, ruff and pytest. This covers the CPF scan, the
+- **pipeline**: `uv sync --locked --group upload-tests`, ruff, `shellcheck` on the
+  upload script, and pytest with the upload script's tests required. This covers the CPF scan, the
   determinism test and the check that regenerated web fixtures match the committed ones.
   The fixture builder recomputes TSE's totals with the pipeline's own classification, so
   on fixtures the municipality and aggregate checks prove only self-consistency. The

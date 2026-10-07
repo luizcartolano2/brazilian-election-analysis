@@ -7,9 +7,17 @@ import socket
 import subprocess
 from pathlib import Path
 
-import boto3
 import pytest
-from moto.server import ThreadedMotoServer
+
+# The CI job sets REQUIRE_UPLOAD_TESTS, so these tests skip only on a machine without the
+# tools, and in the publish build job, which leaves the upload-tests group out on purpose.
+if os.environ.get("REQUIRE_UPLOAD_TESTS") != "1":
+    pytest.importorskip("moto.server", reason="needs `uv sync --group upload-tests`")
+    if shutil.which("aws") is None:
+        pytest.skip("needs the AWS CLI", allow_module_level=True)
+
+import boto3  # noqa: E402
+from moto.server import ThreadedMotoServer  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / ".github" / "scripts" / "upload-version.sh"
@@ -18,11 +26,6 @@ BUCKET = "eleicoes-data"
 VERSION = "20261007-abc1234-42"
 PREFIX = f"v/{VERSION}/"
 REAL_AWS = shutil.which("aws")
-
-# CI must run these, so only a local machine without the AWS CLI skips them.
-pytestmark = pytest.mark.skipif(
-    REAL_AWS is None and not os.environ.get("CI"), reason="needs the AWS CLI"
-)
 
 
 @pytest.fixture(scope="module")
@@ -61,14 +64,19 @@ def dist(tmp_path) -> Path:
     return folder
 
 
-def edit_manifest(folder: Path, **changes) -> None:
+def edit_manifest(folder: Path, remove: tuple[str, ...] = (), **changes) -> None:
     path = folder / "manifest.json"
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    for key, value in changes.items():
-        if value is ...:
-            manifest.pop(key)
-        else:
-            manifest[key] = value
+    for key in remove:
+        manifest.pop(key)
+    manifest.update(changes)
+    path.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def edit_first_entry(folder: Path, **changes) -> None:
+    path = folder / "manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["arquivos"][0].update(changes)
     path.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
@@ -82,7 +90,7 @@ def listed_files(folder: Path) -> list[str]:
 
 
 # Records each call. FAIL_CALL makes a matching call fail without running, like an interrupted
-# upload. TAMPER_KEY overwrites that object right after the data upload.
+# upload. TAMPER_KEY overwrites that object right after the call that matches TAMPER_AFTER.
 SHIM = """#!/bin/sh
 printf '%s\\n' "$*" >> "$AWS_CALL_LOG"
 if [ -n "$FAIL_CALL" ]; then
@@ -90,7 +98,7 @@ if [ -n "$FAIL_CALL" ]; then
 fi
 "$REAL_AWS" "$@" || exit
 if [ -n "$TAMPER_KEY" ]; then
-  case "$*" in *"--exclude manifest.json"*)
+  case "$*" in *"$TAMPER_AFTER"*)
     printf tampered | "$REAL_AWS" s3 cp - "s3://$R2_BUCKET/$TAMPER_KEY" \\
       --endpoint-url "$R2_ENDPOINT" --only-show-errors ;;
   esac
@@ -136,17 +144,24 @@ def test_uploads_every_file_then_the_manifest_last(tmp_path, endpoint, bucket, d
     assert result.returncode == 0, result.stderr
     expected = sorted(PREFIX + path for path in [*listed_files(dist), "manifest.json"])
     assert keys(bucket) == expected
-    uploads = [call for call in calls if call.startswith("s3 cp") and f"s3://{BUCKET}" in call]
-    assert uploads[-1].startswith(f"s3 cp {dist}/manifest.json s3://{BUCKET}/{PREFIX}manifest.json")
-    assert calls[-1] == uploads[-1]
-    # Data first, then the read-back, then the manifest.
-    assert [call.split()[2].startswith("s3://") for call in uploads] == [False, True, False]
+    copies = [call.split()[2:4] for call in calls if call.startswith("s3 cp")]
+    # Data up, data read back, manifest up, manifest read back.
+    assert [source.startswith("s3://") for source, _ in copies] == [False, True, False, True]
+    writes = [(source, target) for source, target in copies if target.startswith("s3://")]
+    assert writes[-1] == (f"{dist}/manifest.json", f"s3://{BUCKET}/{PREFIX}manifest.json")
     stored = bucket.get_object(Bucket=BUCKET, Key=PREFIX + "manifest.json")["Body"].read()
     assert stored == (dist / "manifest.json").read_bytes()
     assert "manifest.json SHA-256: " in result.stdout
 
 
-def test_an_interrupted_upload_leaves_no_manifest(tmp_path, endpoint, bucket, dist):
+def test_a_failed_data_upload_leaves_no_manifest(tmp_path, endpoint, bucket, dist):
+    result, _ = run_script(tmp_path, endpoint, dist, FAIL_CALL="--exclude manifest.json")
+
+    assert result.returncode != 0
+    assert PREFIX + "manifest.json" not in keys(bucket)
+
+
+def test_a_failed_read_back_leaves_no_manifest(tmp_path, endpoint, bucket, dist):
     result, _ = run_script(tmp_path, endpoint, dist, FAIL_CALL=f"s3 cp s3://{BUCKET}/")
 
     assert result.returncode != 0
@@ -156,11 +171,84 @@ def test_an_interrupted_upload_leaves_no_manifest(tmp_path, endpoint, bucket, di
 def test_withholds_the_manifest_when_a_stored_file_differs(tmp_path, endpoint, bucket, dist):
     tampered = listed_files(dist)[0]
 
-    result, _ = run_script(tmp_path, endpoint, dist, TAMPER_KEY=PREFIX + tampered)
+    result, _ = run_script(
+        tmp_path,
+        endpoint,
+        dist,
+        TAMPER_KEY=PREFIX + tampered,
+        TAMPER_AFTER="--exclude manifest.json",
+    )
 
     assert result.returncode != 0
     assert f"the files in R2: {tampered}" in result.stderr
     assert PREFIX + "manifest.json" not in keys(bucket)
+
+
+def test_fails_when_the_stored_manifest_differs(tmp_path, endpoint, bucket, dist):
+    result, _ = run_script(
+        tmp_path,
+        endpoint,
+        dist,
+        TAMPER_KEY=PREFIX + "manifest.json",
+        TAMPER_AFTER=f"{dist}/manifest.json s3://",
+    )
+
+    assert result.returncode != 0
+    assert "the manifest stored in R2 differs" in result.stderr
+    assert "manifest.json SHA-256" not in result.stdout
+
+
+def test_never_runs_code_from_a_manifest_field(tmp_path, endpoint, bucket, dist):
+    marker = tmp_path / "ran"
+    edit_first_entry(dist, size=f"BASH_VERSINFO[$(touch${{IFS}}{marker})]")
+
+    result, calls = run_script(tmp_path, endpoint, dist)
+
+    assert result.returncode != 0
+    assert not marker.exists()
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"size": "870"},
+        {"size": -1},
+        {"size": 1.5},
+        {"sha256": "ABC"},
+        {"sha256": None},
+        {"path": 7},
+    ],
+    ids=["size as text", "negative size", "fractional size", "short hash", "no hash", "path"],
+)
+def test_refuses_a_malformed_file_entry(tmp_path, endpoint, bucket, dist, changes):
+    edit_first_entry(dist, **changes)
+
+    result, calls = run_script(tmp_path, endpoint, dist)
+
+    assert result.returncode != 0
+    assert "malformed entry" in result.stderr
+    assert calls == []
+
+
+def test_refuses_a_manifest_that_is_not_json(tmp_path, endpoint, bucket, dist):
+    (dist / "manifest.json").write_text("{not json")
+
+    result, calls = run_script(tmp_path, endpoint, dist)
+
+    assert result.returncode != 0
+    assert "not a JSON object" in result.stderr
+    assert calls == []
+
+
+def test_refuses_a_symlink(tmp_path, endpoint, bucket, dist):
+    (dist / "2026" / "link.json").symlink_to(tmp_path / "no-aws-credentials")
+
+    result, calls = run_script(tmp_path, endpoint, dist)
+
+    assert result.returncode != 0
+    assert "neither a file nor a folder" in result.stderr
+    assert calls == []
 
 
 def test_refuses_a_version_path_that_holds_files(tmp_path, endpoint, bucket, dist):
@@ -203,9 +291,9 @@ def test_refuses_same_size_corruption(tmp_path, endpoint, bucket, dist):
     "changes",
     [
         {"parcial": True},
-        {"parcial": ...},
+        {"remove": ("parcial",)},
         {"fontes_tse": False},
-        {"fontes_tse": ...},
+        {"remove": ("fontes_tse",)},
     ],
     ids=["partial", "partial missing", "other sources", "sources missing"],
 )

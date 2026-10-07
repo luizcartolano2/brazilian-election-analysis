@@ -31,25 +31,39 @@ safe_path='^[A-Za-z0-9_.=-]+(/[A-Za-z0-9_.=-]+)*$'
   fail "the version id '$version' is not <YYYYMMDD>-<commit>-<run id>"
 manifest="$dist/manifest.json"
 [[ -f $manifest ]] || fail "$dist has no manifest.json"
+jq -e 'type == "object"' "$manifest" >/dev/null 2>&1 || fail "manifest.json is not a JSON object"
 [[ $(jq '.parcial' "$manifest") == false ]] ||
   fail "the manifest must say parcial: false, which means that the build covered every state"
 [[ $(jq '.fontes_tse' "$manifest") == true ]] ||
   fail "the manifest must say fontes_tse: true, which means that every source came from TSE"
 
-listed=$(jq -r '.arquivos[] | "\(.path) \(.size) \(.sha256)"' "$manifest" | LC_ALL=C sort)
-[[ -n $listed ]] || fail "the manifest lists no files"
+# The manifest comes from the build job, which runs third-party code, so every field is
+# checked for its type here and none ever reaches bash arithmetic.
+entries='.arquivos
+  | if type == "array" and length > 0 then .[] else error("no file list") end
+  | if (.path | type) == "string"
+      and (.size | type) == "number" and .size >= 0 and .size == (.size | floor)
+      and (.sha256 | type) == "string" and (.sha256 | test("^[0-9a-f]{64}$"))
+    then "\(.path) \(.size) \(.sha256)"
+    else error("a malformed file entry") end'
+listed=$(jq -r "$entries" "$manifest" 2>/dev/null | LC_ALL=C sort) ||
+  fail "the manifest's file list is missing, empty or has a malformed entry"
 
 # Checks that <dir> holds exactly the manifest's data files, with their sizes and SHA-256.
 check_files() {
   local dir=$1 what=$2 present path size sha256 actual
+  [[ -z $(find "$dir" ! -type f ! -type d) ]] ||
+    fail "$what include an entry that is neither a file nor a folder"
   present=$(cd "$dir" && find . -type f ! -path ./manifest.json | sed 's|^\./||' | LC_ALL=C sort)
   [[ $present == "$(cut -d' ' -f1 <<<"$listed")" ]] ||
     fail "$what differ from the files the manifest lists"
   while read -r path size sha256; do
     [[ $path =~ $safe_path && /$path/ != */../* && /$path/ != */./* ]] ||
       fail "the manifest lists '$path', which the Worker does not serve"
-    actual=$(wc -c <"$dir/$path")
-    [[ $((actual)) -eq $size ]] || fail "$what: $path has $((actual)) bytes, the manifest says $size"
+    [[ $size =~ ^[0-9]+$ && $sha256 =~ ^[0-9a-f]{64}$ ]] ||
+      fail "the manifest entry for $path has a malformed size or SHA-256"
+    actual=$(wc -c <"$dir/$path" | tr -d ' ')
+    [[ $actual == "$size" ]] || fail "$what: $path has $actual bytes, the manifest says $size"
     actual=$(sha256sum "$dir/$path" | cut -d' ' -f1)
     [[ $actual == "$sha256" ]] || fail "$what: the SHA-256 of $path differs from the manifest"
   done <<<"$listed"
@@ -66,7 +80,7 @@ existing=$(aws s3api list-objects-v2 --endpoint-url "$R2_ENDPOINT" --bucket "$R2
 [[ $existing == 0 ]] || fail "$prefix/ already holds files, and a version is never overwritten"
 
 aws s3 cp "$dist" "s3://$R2_BUCKET/$prefix/" --recursive --exclude manifest.json \
-  --endpoint-url "$R2_ENDPOINT" --only-show-errors
+  --no-follow-symlinks --endpoint-url "$R2_ENDPOINT" --only-show-errors
 
 # Read the data back before the manifest makes the version complete.
 readback=$(mktemp -d)
@@ -75,10 +89,13 @@ aws s3 cp "s3://$R2_BUCKET/$prefix/" "$readback" --recursive \
   --endpoint-url "$R2_ENDPOINT" --only-show-errors
 check_files "$readback" "the files in R2"
 
+manifest_sha256=$(sha256sum "$manifest" | cut -d' ' -f1)
 aws s3 cp "$manifest" "s3://$R2_BUCKET/$prefix/manifest.json" \
   --endpoint-url "$R2_ENDPOINT" --only-show-errors
-
-manifest_sha256=$(sha256sum "$manifest" | cut -d' ' -f1)
+aws s3 cp "s3://$R2_BUCKET/$prefix/manifest.json" "$readback/manifest.json" \
+  --endpoint-url "$R2_ENDPOINT" --only-show-errors
+[[ $(sha256sum "$readback/manifest.json" | cut -d' ' -f1) == "$manifest_sha256" ]] ||
+  fail "the manifest stored in R2 differs from the built one, so do not pin $version"
 echo "Published $prefix/ with $(wc -l <<<"$listed" | tr -d ' ') data files."
 echo "manifest.json SHA-256: $manifest_sha256"
 if [[ -n ${GITHUB_STEP_SUMMARY:-} ]]; then

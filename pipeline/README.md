@@ -60,8 +60,16 @@ Only the "Publish data" workflow writes to storage, and only from `main`:
    last. Its summary shows the version and the manifest's SHA-256, which the app pins.
 
 A version is never overwritten. If an upload stops halfway, its version has no manifest,
-and the app never pins it. Run the workflow again, which writes a new version.
+and the app never pins it. If the upload job failed before it wrote anything, for
+example because the approval came too late, re-run that job. Otherwise start a new run.
+A re-run keeps the run's ID, so it tries the same version path and stops.
 
 `.github/scripts/upload-version.sh` does the upload. Its tests in
-`tests/test_upload_version.py` need the AWS CLI. They skip on a machine without it, but
-never in CI.
+`tests/test_upload_version.py` need the AWS CLI and the `upload-tests` dependency group,
+which the publish build job leaves out:
+
+```bash
+uv run --group upload-tests pytest tests/test_upload_version.py
+```
+
+They skip on a machine without those tools, but never in CI.
