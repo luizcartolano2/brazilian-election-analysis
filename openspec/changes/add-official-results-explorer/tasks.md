@@ -31,7 +31,7 @@
 - [x] 3.3 Honor single byte ranges; test `bytes=a-b`, `bytes=a-` and `bytes=-n` with exact bytes and `Content-Range`, 416 past the end, and 200 with the whole file for several ranges or a malformed header
 - [x] 3.4 Add CORS; test the production origin, a preview of this project, a look-alike preview from another team scope, localhost, a foreign origin, a preflight for `GET` with `Range`, the exposed headers, and `Vary: Origin` on every response
 - [x] 3.5 Set immutable cache headers on version and asset files; test the header
-- [ ] 3.6 Add `deploy-worker.yml` through the `worker-deploy` environment with SHA-pinned actions, and open the PR
+- [x] 3.6 Add `deploy-worker.yml` through the `worker-deploy` environment with SHA-pinned actions, and open the PR
 
 ## 4. Publishing (one PR)
 
