@@ -100,8 +100,12 @@ segment uses safe characters, with no `..` segment and no encoded slash. It SHAL
 - **THEN** the Worker returns 404 and no listing
 
 #### Scenario: A path traversal attempt
-- **WHEN** a request path contains a `..` segment, an encoded slash, or a key outside the allowed prefixes
+- **WHEN** the path the Worker receives contains a `..` segment, an encoded slash, or a key outside the allowed prefixes
 - **THEN** the Worker returns 404 without reading storage
+
+#### Scenario: A `..` segment the runtime resolves
+- **WHEN** a request line holds `..` segments that the Workers runtime resolves before the Worker runs
+- **THEN** the Worker applies the same checks to the resolved path
 
 #### Scenario: A write method
 - **WHEN** a request uses `PUT`, `POST` or `DELETE`
@@ -129,7 +133,7 @@ The Worker SHALL honor a single byte range in the forms `bytes=a-b`, `bytes=a-` 
 - **THEN** the Worker returns 200 with the whole file
 
 ### Requirement: CORS for the app's origins only
-The Worker SHALL send CORS headers only to the exact production origin, the preview
+The Worker SHALL send CORS headers only to the exact production origin, the commit preview
 origins of this Vercel project under Luiz's team scope, and local development origins.
 Every response SHALL carry `Vary: Origin`. A preflight SHALL allow `GET` and `HEAD` and
 the `Range` header. Responses SHALL expose `Content-Range`, `Content-Length`,
@@ -140,11 +144,15 @@ the `Range` header. Responses SHALL expose `Content-Range`, `Content-Length`,
 - **THEN** the response allows that origin and exposes `Content-Range`, `Content-Length`, `Accept-Ranges` and `ETag`
 
 #### Scenario: A preview deployment of this project
-- **WHEN** a request comes from a preview origin of this Vercel project under Luiz's team scope
+- **WHEN** a request comes from a commit preview origin of this Vercel project under Luiz's team scope
 - **THEN** the response allows that origin
 
 #### Scenario: A look-alike preview from another account
-- **WHEN** a request comes from a Vercel origin whose project name starts the same but whose team scope differs
+- **WHEN** a request comes from a Vercel origin whose project name starts the same but whose team scope differs, including a scope that ends in Luiz's slug
+- **THEN** the response carries no CORS allow header
+
+#### Scenario: A branch preview
+- **WHEN** a request comes from a branch preview origin, which another team can imitate
 - **THEN** the response carries no CORS allow header
 
 #### Scenario: A preflight for a range read

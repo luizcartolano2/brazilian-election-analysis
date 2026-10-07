@@ -26,11 +26,11 @@
 
 ## 3. Worker (one PR)
 
-- [ ] 3.1 Create the Worker project in `worker/` with wrangler, the R2 binding and Vitest on Miniflare, and add the `worker` CI job
-- [ ] 3.2 Validate keys and methods; test 404 for the root, a version path, a missing file, a `..` segment, an encoded slash and a key outside the allowed prefixes, and 405 for write methods
-- [ ] 3.3 Honor single byte ranges; test `bytes=a-b`, `bytes=a-` and `bytes=-n` with exact bytes and `Content-Range`, 416 past the end, and 200 with the whole file for several ranges or a malformed header
-- [ ] 3.4 Add CORS; test the production origin, a preview of this project, a look-alike preview from another team scope, localhost, a foreign origin, a preflight for `GET` with `Range`, the exposed headers, and `Vary: Origin` on every response
-- [ ] 3.5 Set immutable cache headers on version and asset files; test the header
+- [x] 3.1 Create the Worker project in `worker/` with wrangler, the R2 binding and Vitest on Miniflare, and add the `worker` CI job
+- [x] 3.2 Validate keys and methods; test 404 for the root, a version path, a missing file, a `..` segment, an encoded slash and a key outside the allowed prefixes, and 405 for write methods
+- [x] 3.3 Honor single byte ranges; test `bytes=a-b`, `bytes=a-` and `bytes=-n` with exact bytes and `Content-Range`, 416 past the end, and 200 with the whole file for several ranges or a malformed header
+- [x] 3.4 Add CORS; test the production origin, a preview of this project, a look-alike preview from another team scope, localhost, a foreign origin, a preflight for `GET` with `Range`, the exposed headers, and `Vary: Origin` on every response
+- [x] 3.5 Set immutable cache headers on version and asset files; test the header
 - [ ] 3.6 Add `deploy-worker.yml` through the `worker-deploy` environment with SHA-pinned actions, and open the PR
 
 ## 4. Publishing (one PR)

@@ -243,31 +243,56 @@ and cannot list for the existence check.
 
 ### D-E. Worker
 
-The Worker is a TypeScript module with one R2 binding:
+The Worker is a TypeScript module named `eleicoes-data`, with one R2 binding:
 
 - It accepts a key only when it matches `v/<version id>/...` or
   `assets/duckdb-wasm/<version>/...`, every segment uses `[A-Za-z0-9_.=-]`, no segment
-  is `..`, and the raw path holds no encoded slash. It checks this before touching
-  storage.
+  is `.` or `..`, and the raw path holds no encoded slash. It reads the path from the raw
+  request URL, because `new URL()` resolves `..` first. It checks this before
+  touching storage. The runtime itself resolves `..` and `%2e%2e` segments before the
+  Worker runs, as `wrangler dev` with `curl --path-as-is` showed on 2026-10-07. So a
+  request with `..` reaches the Worker as the resolved path, and the same checks apply.
 - `HEAD` uses `bucket.head()`. `GET` uses `bucket.get(key, { range })` for `bytes=a-b`,
-  `bytes=a-` and `bytes=-n`. A start beyond the end gets 416. A malformed header or
-  several ranges are ignored, and the whole file is returned with 200, as the HTTP range
-  standard allows.
-- CORS allows the exact production origin, `http://localhost:3000`, and preview origins
-  matching `^https://eleicoes-[a-z0-9-]+-<team slug>\.vercel\.app$`, where the team slug
-  is set once the Vercel project exists. Every response carries `Vary: Origin`. The
-  preflight allows `GET`, `HEAD` and the `Range` header. Responses expose
-  `Content-Range`, `Content-Length`, `Accept-Ranges` and `ETag`.
+  `bytes=a-` and `bytes=-n`. A start beyond the end, or `bytes=-0`, gets 416. A malformed
+  header or several ranges are ignored, and the whole file is returned with 200, as the
+  HTTP range standard allows. A request with a `Range` header reads the file's size with
+  `head()` first, because the size decides between 206, 200 and 416. That is two R2 reads
+  for a range. Alternative rejected: one `get()` with the range, which leaves 416 to R2's
+  error behavior.
+- The content type comes from the file extension: `.json`, `.parquet` and `.wasm`. R2
+  keeps whatever type the uploader guessed, and a browser compiles WebAssembly while
+  streaming only when the type is `application/wasm`. Every response carries
+  `X-Content-Type-Options: nosniff`.
+- CORS allows the exact production origin, `http://localhost:3000`, and commit preview
+  origins `https://eleicoes-<hash>-<team slug>.vercel.app`, where the hash is exactly 9
+  lowercase letters or digits, as Vercel documents. The team slug is the variable
+  `VERCEL_TEAM_SLUG` in `wrangler.jsonc`. It stays empty, which allows no preview, until
+  the Vercel project exists. The Vercel project must be named `eleicoes`. Every response
+  carries `Vary: Origin`. The preflight allows `GET`, `HEAD` and the `Range` header, and
+  browsers can keep it for a day, because every preflight counts against the free quota.
+  Responses expose `Content-Range`, `Content-Length`, `Accept-Ranges` and `ETag`.
 
-Tests run in Miniflare through `@cloudflare/vitest-pool-workers`, against a local R2
-bucket, with traversal and look-alike-origin payloads.
+  Alternative rejected: the pattern `^https://eleicoes-[a-z0-9-]+-<team slug>\.vercel\.app$`
+  from the first draft. Vercel team slugs contain hyphens. Another team with the slug
+  `evil-<team slug>` gets preview URLs that end in `-<team slug>.vercel.app` and match.
+  The same holds for a branch preview, `eleicoes-git-<branch>-<scope>`, because the branch
+  and scope can split the slug at a hyphen. A fixed-length hash with no hyphen leaves no
+  such split. Branch previews are therefore refused, and a preview is opened at its
+  commit URL.
+
+Tests run in the Workers runtime through `@cloudflare/vitest-plugin`, which replaced
+`@cloudflare/vitest-pool-workers` for Vitest 4, against a local R2 bucket, with traversal
+and look-alike-origin payloads. A test that must not read storage passes a bucket that
+throws on any call.
 
 The Worker deploys from `.github/workflows/deploy-worker.yml` on pushes to `main` that
-touch `worker/`. It runs through the `worker-deploy` environment, which requires Luiz as
-reviewer and holds a custom Cloudflare token limited to Workers Scripts edit. A template
-token might also grant R2 access, which would open a second way to write data. Wrangler
-is third-party code and receives that token. The lockfile in `worker/`, the narrow token
-scope and the approval gate are what protect it.
+touch `worker/`. A test job runs first with no secret. The deploy job runs through the
+`worker-deploy` environment, which requires Luiz as reviewer and holds a custom
+Cloudflare token limited to Workers Scripts edit. A template token might also grant R2
+access, which would open a second way to write data. Wrangler is third-party code and
+receives that token. The lockfile in `worker/`, `npm ci --ignore-scripts`, the narrow
+token scope and the approval gate are what protect it. The deploy job runs no other
+package code.
 
 ### D-F. Web: static export, two route trees, strict addresses
 
@@ -330,7 +355,7 @@ scope and the approval gate are what protect it.
   on fixtures the municipality and aggregate checks prove only self-consistency. The
   independent check is the full build against TSE's real files, which every publish run
   performs before it uploads anything.
-- **worker**: typecheck and Vitest.
+- **worker**: typecheck, Vitest, and a Wrangler dry-run bundle that needs no credentials.
 - **web**: typecheck, lint, Vitest, a build against `web/fixtures/`, and two Playwright
   tests. The first loads a state page with JavaScript disabled. The second serves the
   build with the headers from `vercel.json`, opens a station view with JavaScript on, and
