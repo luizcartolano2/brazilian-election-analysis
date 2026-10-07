@@ -1,0 +1,117 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "11",
+         "nmu": "MAILZA ASSIS",
+         "st": "2º turno",
+         "vap": "350"
+        }
+       ],
+       "n": "11",
+       "sg": "PP",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "36",
+         "nmu": "DR.LUISINHO",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "n": "36",
+       "sg": "AGIR",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "10",
+         "nmu": "ALAN RICK",
+         "st": "2º turno",
+         "vap": "273"
+        }
+       ],
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "40",
+         "nmu": "THOR DANTAS",
+         "st": "Não eleito",
+         "vap": "26"
+        }
+       ],
+       "n": "40",
+       "sg": "PSB",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "45",
+         "nmu": "TIÃO BOCALOM",
+         "st": "Não eleito",
+         "vap": "131"
+        }
+       ],
+       "n": "45",
+       "sg": "PSDB",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "3",
+   "nmn": "Governador",
+   "nv": "1"
+  }
+ ],
+ "e": {
+  "c": "857",
+  "te": "1041"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "857",
+  "van": "0",
+  "vansj": "0",
+  "vb": "5",
+  "vl": "0",
+  "vn": "71",
+  "vnom": "781",
+  "vnt": "0",
+  "vv": "781"
+ }
+}

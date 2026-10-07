@@ -10,16 +10,51 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   openspec:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
 
       # Same version as the generated skills, so CI and local validation agree.
       - name: Validate specs and changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict --no-interactive
+
+  pipeline:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+
+      - name: Install from the lockfile
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Format check
+        run: uv run ruff format --check src tests
+
+      - name: Test
+        run: uv run pytest -q
+
+      # The app's sample data comes from the pipeline, so a schema change cannot reach one
+      # side only.
+      - name: Web fixtures match the pipeline
+        run: |
+          uv run python tests/fixtures/export_web_fixtures.py
+          git diff --exit-code -- ../web/fixtures
+          test -z "$(git status --porcelain -- ../web/fixtures)"

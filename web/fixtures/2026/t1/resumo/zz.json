@@ -1,0 +1,53 @@
+{
+ "ano": 2026,
+ "area": "ZZ",
+ "corridas": [
+  {
+   "abstencoes": 19,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 32,
+   "brancos": 0,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "2º turno",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "2º turno",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ESCRITOR AUGUSTO CURY",
+     "numero": 70,
+     "partido": "AVANTE",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 13,
+   "eleicao": 6257,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 13,
+   "nulos": 0,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 13
+  }
+ ],
+ "turno": 1,
+ "versao_esquema": 1
+}

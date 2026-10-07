@@ -1,0 +1,81 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "22",
+         "nmu": "FLAVIO BOLSONARO",
+         "st": "2º turno",
+         "vap": "11"
+        }
+       ],
+       "n": "22",
+       "sg": "PL",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "13",
+         "nmu": "LULA",
+         "st": "2º turno",
+         "vap": "1"
+        }
+       ],
+       "n": "13",
+       "sg": "PT",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "70",
+         "nmu": "ESCRITOR AUGUSTO CURY",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "n": "70",
+       "sg": "AVANTE",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "1",
+   "nmn": "Presidente",
+   "nv": "1"
+  }
+ ],
+ "e": {
+  "c": "13",
+  "te": "32"
+ },
+ "ele": "6257",
+ "v": {
+  "tv": "13",
+  "van": "0",
+  "vansj": "0",
+  "vb": "0",
+  "vl": "0",
+  "vn": "0",
+  "vnom": "13",
+  "vnt": "0",
+  "vv": "13"
+ }
+}

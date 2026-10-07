@@ -1,0 +1,687 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "44333",
+         "nmu": "TIO PABLO BREGENSE",
+         "st": "Eleito por QP",
+         "vap": "11"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44555",
+         "nmu": "WHENDY LIMA",
+         "st": "Suplente",
+         "vap": "11"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44777",
+         "nmu": "FAGNER CALEGARIO",
+         "st": "Eleito por QP",
+         "vap": "9"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44800",
+         "nmu": "RUTÊNIO SÁ",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44444",
+         "nmu": "GILBERTO LIRA",
+         "st": "Suplente",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44000",
+         "nmu": "DRA. MICHELLE MELO",
+         "st": "Suplente",
+         "vap": "5"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44123",
+         "nmu": "AFONSO FERNANDES",
+         "st": "Eleito por média",
+         "vap": "12"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44222",
+         "nmu": "ADAILTON CRUZ",
+         "st": "Eleito por QP",
+         "vap": "5"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "44",
+       "sg": "UNIÃO",
+       "tval": "3"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "11555",
+         "nmu": "CLODOALDO RODRIGUES",
+         "st": "Eleito por QP",
+         "vap": "13"
+        },
+        {
+         "dvt": "Válido",
+         "n": "11133",
+         "nmu": "MARIA ANTONIA",
+         "st": "Suplente",
+         "vap": "51"
+        },
+        {
+         "dvt": "Válido",
+         "n": "11444",
+         "nmu": "ANDRÉ DA DROGA VALE",
+         "st": "Eleito por QP",
+         "vap": "40"
+        },
+        {
+         "dvt": "Válido",
+         "n": "11122",
+         "nmu": "NICOLAU JÚNIOR",
+         "st": "Eleito por QP",
+         "vap": "32"
+        },
+        {
+         "dvt": "Válido",
+         "n": "11106",
+         "nmu": "SAMIR BESTENE",
+         "st": "Eleito por QP",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "11234",
+         "nmu": "MANOEL MORAES",
+         "st": "Eleito por QP",
+         "vap": "14"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "11",
+       "sg": "PP",
+       "tval": "5"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "15122",
+         "nmu": "ANTONIA SALES",
+         "st": "Suplente",
+         "vap": "8"
+        },
+        {
+         "dvt": "Válido",
+         "n": "15777",
+         "nmu": "MARCUS ALEXANDRE",
+         "st": "Eleito por QP",
+         "vap": "7"
+        },
+        {
+         "dvt": "Válido",
+         "n": "15555",
+         "nmu": "TANIZIO SÁ",
+         "st": "Eleito por média",
+         "vap": "4"
+        },
+        {
+         "dvt": "Válido",
+         "n": "15150",
+         "nmu": "PASTOR PEDRO ABREU",
+         "st": "Suplente",
+         "vap": "19"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "15",
+       "sg": "MDB",
+       "tval": "3"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "55789",
+         "nmu": "YARGO RODRIGUES",
+         "st": "Suplente",
+         "vap": "8"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55611",
+         "nmu": "DANIEL DORZILA",
+         "st": "Suplente",
+         "vap": "5"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55234",
+         "nmu": "JOELSO PONTES",
+         "st": "Suplente",
+         "vap": "12"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55422",
+         "nmu": "PAULO XIMENES",
+         "st": "Suplente",
+         "vap": "10"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55456",
+         "nmu": "ANTONIO PEDRO",
+         "st": "Eleito por QP",
+         "vap": "14"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55055",
+         "nmu": "JAMYL ASFURY",
+         "st": "Suplente",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55777",
+         "nmu": "WAGNER FELIPE",
+         "st": "Suplente",
+         "vap": "5"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55012",
+         "nmu": "MOISÉS DINIZ",
+         "st": "Suplente",
+         "vap": "10"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55888",
+         "nmu": "JUNIOR TOMAZ",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55123",
+         "nmu": "JEFRSON MENDONÇA",
+         "st": "Suplente",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55222",
+         "nmu": "MARILETE VITORINO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55555",
+         "nmu": "JAILSON AMORIM",
+         "st": "Eleito por QP",
+         "vap": "71"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "55",
+       "sg": "PSD",
+       "tval": "5"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "12123",
+         "nmu": "TCHÊ",
+         "st": "Eleito por QP",
+         "vap": "32"
+        },
+        {
+         "dvt": "Válido",
+         "n": "12666",
+         "nmu": "VALÉRIO DA SAÚDE",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "12",
+       "sg": "PDT",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "22333",
+         "nmu": "ARLENILSON CUNHA",
+         "st": "Eleito por QP",
+         "vap": "44"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22222",
+         "nmu": "CHARLENE LIMA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22190",
+         "nmu": "SGT CADMIEL BOMFIM",
+         "st": "Suplente",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22344",
+         "nmu": "GLÁUCIO PEDROSA",
+         "st": "Eleito por média",
+         "vap": "33"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22789",
+         "nmu": "DELEGADO SÉRGIO LOPES",
+         "st": "Suplente",
+         "vap": "14"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22133",
+         "nmu": "CHIQUINHO DO DUDA",
+         "st": "Eleito por QP",
+         "vap": "12"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22444",
+         "nmu": "KIEFER CAVALCANTE",
+         "st": "Suplente",
+         "vap": "27"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22555",
+         "nmu": "RAIMUNDO NENÉM",
+         "st": "Eleito por QP",
+         "vap": "86"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "22",
+       "sg": "PL",
+       "tval": "13"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "43444",
+         "nmu": "CHINHA DUARTE",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "43",
+       "sg": "PV",
+       "tval": "0"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "65123",
+         "nmu": "EDVALDO MAGALHÃES",
+         "st": "Eleito por QP",
+         "vap": "7"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "65",
+       "sg": "PCDOB",
+       "tval": "0"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "13000",
+         "nmu": "EDU QUEIROZ",
+         "st": "Suplente",
+         "vap": "7"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13131",
+         "nmu": "IWLLY CAVALCANTE",
+         "st": "Suplente",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13111",
+         "nmu": "ISAAC PIYÃKO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13013",
+         "nmu": "CESÁRIO BRAGA",
+         "st": "Suplente",
+         "vap": "6"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13777",
+         "nmu": "PADRE ANTONIO MENEZES",
+         "st": "Suplente",
+         "vap": "5"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13133",
+         "nmu": "TIAGO MOURÃO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13690",
+         "nmu": "PROFESSOR MANOEL",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "13",
+       "sg": "PT",
+       "tval": "3"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "23000",
+         "nmu": "ANTÔNIO MARAZONA",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "23",
+       "sg": "CIDADANIA",
+       "tval": "0"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "45333",
+         "nmu": "EMERSON LEÃO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "45380",
+         "nmu": "NONATO VIGILANTE",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "45000",
+         "nmu": "PATTY PARENTE",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "45022",
+         "nmu": "AMARAL DO GELO",
+         "st": "Suplente",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "45222",
+         "nmu": "SIDA DO MERCANTIL SÃO PAULO",
+         "st": "Suplente",
+         "vap": "6"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "45",
+       "sg": "PSDB",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [],
+       "dvt": "Válido (legenda)",
+       "n": "77",
+       "sg": "SOLIDARIEDADE",
+       "tval": "4"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "30111",
+         "nmu": "ZÉ FILHO",
+         "st": "Suplente",
+         "vap": "8"
+        },
+        {
+         "dvt": "Válido",
+         "n": "30000",
+         "nmu": "EMERSON JARUDE",
+         "st": "Eleito por QP",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "30999",
+         "nmu": "DR. MARCELO LOPES",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "30123",
+         "nmu": "ZÉ MARIA",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "30",
+       "sg": "NOVO",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "20020",
+         "nmu": "MARKINHOS BARBOSA",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "20",
+       "sg": "PODE",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "10101",
+         "nmu": "PAULINHA CORAÇÃO",
+         "st": "Suplente",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10500",
+         "nmu": "JÚNIOR MAROMBA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10222",
+         "nmu": "EDUARDO GOMES",
+         "st": "Suplente",
+         "vap": "16"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10000",
+         "nmu": "DR. JÚNIOR NASCIMENTO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10022",
+         "nmu": "DEUSIMAR ALBUQUERQUE",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10300",
+         "nmu": "ZÉ LOPES",
+         "st": "Suplente",
+         "vap": "15"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10789",
+         "nmu": "OSÉIAS SILVA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10888",
+         "nmu": "EDUARDO RIBEIRO",
+         "st": "Eleito por QP",
+         "vap": "12"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10555",
+         "nmu": "OLAVINHO BOIADEIRO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10456",
+         "nmu": "TADEU HASSEM",
+         "st": "Eleito por QP",
+         "vap": "41"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10100",
+         "nmu": "MARCIO OLIVEIRA",
+         "st": "Suplente",
+         "vap": "3"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "15"
+      }
+     ]
+    }
+   ],
+   "cd": "7",
+   "nmn": "Deputado Estadual",
+   "nv": "24"
+  }
+ ],
+ "e": {
+  "c": "857",
+  "te": "1041"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "857",
+  "van": "0",
+  "vansj": "0",
+  "vb": "6",
+  "vl": "53",
+  "vn": "5",
+  "vnom": "793",
+  "vnt": "0",
+  "vv": "846"
+ }
+}

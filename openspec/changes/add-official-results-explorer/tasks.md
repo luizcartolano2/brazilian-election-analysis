@@ -9,20 +9,20 @@
 
 ## 2. Pipeline: dataset (one PR)
 
-- [ ] 2.1 Create the uv project in `pipeline/` with DuckDB, numpy, scipy, pytest and ruff, add the `pipeline` CI job with `uv sync --locked`, and pin every action in `ci.yml` to a commit SHA
-- [ ] 2.2 Add the source list for elections 6257, 6259 and 6261, including `votacao_candidato_munzona_2026` and the per-municipality council aggregate, and the downloader that caches under `pipeline/data/cache/` and records SHA-512 and download time; test that a failed or truncated download stops the run with no output
-- [ ] 2.3 Add the candidate allowlist, the deny-list guard and the sanitized candidate-stage errors; test that the output columns equal the allowlisted registry fields plus `destino` and `resultado`, that a forbidden column fails the run, and that a parse error message contains no field value
-- [ ] 2.4 Build the fixtures from real Acre and Pernambuco files with synthetic, invalid-check-digit identifiers, and add the test that fails on any valid CPF in fixtures or outputs
-- [ ] 2.5 Normalize votes, turnout, stations and municipalities with DuckDB, one state at a time; test against the fixtures
-- [ ] 2.6 Classify votes from the aggregate's destinations and take outcomes from it; test number 28 as a technical null, a sub judice candidate, a party list in a deputy race, an aggregate outcome that differs from the registry, and that an unknown destination fails the run
-- [ ] 2.7 Record aggregated stations with their principal; test that an aggregated station gets no results rows
-- [ ] 2.8 Add the station check: choices per voter from the aggregate's total votes over attendance, and type counts against the turnout file; test a one-vote mismatch, the Senate's two choices, the council's seven seats with one choice, and a non-whole ratio
-- [ ] 2.9 Add the totals checks against `votacao_candidato_munzona_2026` and the aggregates, including each party's list votes and the valid, party-list, blank, null, technical-null, annulled and sub judice totals; test a municipality mismatch, a state mismatch, a list vote assigned to the wrong party, a wrong valid total, and that every mismatch is reported
-- [ ] 2.10 Write the Parquet layout and the totals and summary files from design D-A with DuckDB; test that two runs on the fixtures give byte-identical data files
-- [ ] 2.11 Write `manifest.json`; test that it lists every data file with size and SHA-256 and every source with URL, SHA-512 and time
-- [ ] 2.12 Add the export of web fixtures from the pipeline's fixtures, and the CI check that fails when regenerating them changes anything
-- [ ] 2.13 Add the candidate-identifier invariant to `CLAUDE.md`
-- [ ] 2.14 Run a full local build for Acre, Roraima and Pernambuco, record sizes and timings in the PR, and open the PR
+- [x] 2.1 Create the uv project in `pipeline/` with DuckDB, pytest and ruff (numpy and scipy arrive with the estimates change, which is the first to use them), add the `pipeline` CI job with `uv sync --locked`, and pin every action in `ci.yml` to a commit SHA
+- [x] 2.2 Add the source list for elections 6257, 6259 and 6261, including `votacao_candidato_munzona_2026` and the per-municipality council aggregate, and the downloader that caches under `pipeline/data/cache/` and records SHA-512 and download time; test that a failed or truncated download stops the run with no output
+- [x] 2.3 Add the candidate allowlist, the deny-list guard and the sanitized candidate-stage errors; test that the output columns equal the allowlisted registry fields plus `destino` and `resultado`, that a forbidden column fails the run, and that a parse error message contains no field value
+- [x] 2.4 Build the fixtures from real Acre, Pernambuco and Sergipe files with synthetic, invalid-check-digit identifiers, and add the test that fails on any valid CPF in fixtures or outputs
+- [x] 2.5 Normalize votes, turnout, stations and municipalities with DuckDB, one state at a time; test against the fixtures
+- [x] 2.6 Classify votes from the aggregate's destinations, then from `votacao_candidato_munzona` for numbers the aggregate omits, and take outcomes from the aggregate; test number 28 as a technical null, a sub judice candidate, a sub judice candidate the aggregate omits, a party list under appeal, a party with no list in the state, a party list in a deputy race, an aggregate outcome that differs from the registry, and that an unknown destination fails the run
+- [x] 2.7 Record aggregated stations with their principal; test that an aggregated station gets no results rows
+- [x] 2.8 Add the station check: choices per voter from the aggregate's total votes over attendance, and type counts against the turnout file; test a one-vote mismatch, the Senate's two choices, the council's seven seats with one choice, and a non-whole ratio
+- [x] 2.9 Add the totals checks against `votacao_candidato_munzona_2026` and the aggregates, including each party's list votes and the valid, party-list, blank, null, technical-null, annulled and sub judice totals; test a municipality mismatch, a state mismatch, a list vote assigned to the wrong party, a wrong valid total, and that every mismatch is reported
+- [x] 2.10 Write the Parquet layout and the totals and summary files from design D-A with DuckDB; test that two runs on the fixtures give byte-identical data files
+- [x] 2.11 Write `manifest.json`; test that it lists every data file with size and SHA-256 and every source with URL, SHA-512 and time
+- [x] 2.12 Add the export of web fixtures from the pipeline's fixtures, and the CI check that fails when regenerating them changes anything
+- [x] 2.13 Add the candidate-identifier invariant to `CLAUDE.md`
+- [x] 2.14 Run a full local build for Acre, Roraima and Pernambuco, record sizes and timings in the PR, and open the PR
 
 ## 3. Worker (one PR)
 
@@ -37,7 +37,7 @@
 
 - [ ] 4.1 Add `publish-data.yml`: manual trigger, `main` only, a non-cancelling concurrency group, a `target` input with `data` as its only value, and SHA-pinned actions
 - [ ] 4.2 Add the build job with `contents: read`, no environment, `uv sync --locked`, no cache, and `dist/` handed over as a one-day artifact
-- [ ] 4.3 Add the upload job in `data-publish`, which installs nothing and runs only the preinstalled AWS CLI and `.github/scripts/upload-version.sh`: verify checksums against the manifest, fail when the version path holds files, upload data files, then `manifest.json`; test the script in the pipeline CI job against a local S3 server for an existing path, a checksum mismatch, and the manifest going last
+- [ ] 4.3 Add the upload job in `data-publish`, which installs nothing and runs only the preinstalled AWS CLI and `.github/scripts/upload-version.sh`: refuse a manifest marked `parcial` or with `fontes_tse` false, verify checksums against the manifest, fail when the version path holds files, upload data files, then `manifest.json`; test the script in the pipeline CI job against a local S3 server for an existing path, a checksum mismatch, and the manifest going last
 - [ ] 4.4 Open the PR, merge it, run the `data` target with Luiz's approval, and record the version, its manifest SHA-256, peak disk use and duration in the PR
 - [ ] 4.5 Download the published manifest and two data files through the Worker, and check their SHA-256 against the manifest
 

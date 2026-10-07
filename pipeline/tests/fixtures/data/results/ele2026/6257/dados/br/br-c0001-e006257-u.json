@@ -1,0 +1,207 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "22",
+         "nmu": "FLAVIO BOLSONARO",
+         "st": "2º turno",
+         "vap": "1918"
+        }
+       ],
+       "n": "22",
+       "sg": "PL",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "55",
+         "nmu": "RONALDO CAIADO",
+         "st": "Não eleito",
+         "vap": "60"
+        }
+       ],
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "13",
+         "nmu": "LULA",
+         "st": "2º turno",
+         "vap": "1851"
+        }
+       ],
+       "n": "13",
+       "sg": "PT",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "21",
+         "nmu": "EDMILSON COSTA",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "n": "21",
+       "sg": "PCB",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "16",
+         "nmu": "HERTZ DIAS",
+         "st": "Não eleito",
+         "vap": "2"
+        }
+       ],
+       "n": "16",
+       "sg": "PSTU",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "70",
+         "nmu": "ESCRITOR AUGUSTO CURY",
+         "st": "Não eleito",
+         "vap": "128"
+        }
+       ],
+       "n": "70",
+       "sg": "AVANTE",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "30",
+         "nmu": "ZEMA",
+         "st": "Não eleito",
+         "vap": "7"
+        }
+       ],
+       "n": "30",
+       "sg": "NOVO",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "80",
+         "nmu": "SAMARA",
+         "st": "Não eleito",
+         "vap": "2"
+        }
+       ],
+       "n": "80",
+       "sg": "UP",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "14",
+         "nmu": "RENAN SANTOS",
+         "st": "Não eleito",
+         "vap": "60"
+        }
+       ],
+       "n": "14",
+       "sg": "MISSÃO",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "29",
+         "nmu": "RUI COSTA PIMENTA",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "n": "29",
+       "sg": "PCO",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "1",
+   "nmn": "Presidente",
+   "nv": "1"
+  }
+ ],
+ "e": {
+  "c": "4227",
+  "te": "5825"
+ },
+ "ele": "6257",
+ "v": {
+  "tv": "4227",
+  "van": "0",
+  "vansj": "0",
+  "vb": "75",
+  "vl": "0",
+  "vn": "119",
+  "vnom": "4030",
+  "vnt": "3",
+  "vv": "4030"
+ }
+}

@@ -1,0 +1,746 @@
+{
+ "ano": 2026,
+ "arquivos": [
+  {
+   "path": "2026/municipios.parquet",
+   "sha256": "82d455489f04e0e93dfe01d6af64076f7bfd99bd9ff4a93969b5ff236a1a8ec1",
+   "size": 870
+  },
+  {
+   "path": "2026/t1/candidatos.parquet",
+   "sha256": "0c4be093efd00efb622928ef2c122e6ba2b45642429827a03b0e7a6b1c778460",
+   "size": 10593
+  },
+  {
+   "path": "2026/t1/comparecimento/uf=AC.parquet",
+   "sha256": "fde0e78b18298ef991027ceb726ccb5f77f1d3a8342519896141c7126dc3706b",
+   "size": 2174
+  },
+  {
+   "path": "2026/t1/comparecimento/uf=PE.parquet",
+   "sha256": "939efbe8a64743829d0200f6bdfa6c570b7fc7bb5f0ed3a4e8f3f55a39d79cc6",
+   "size": 2646
+  },
+  {
+   "path": "2026/t1/comparecimento/uf=SE.parquet",
+   "sha256": "0710dfe63075154e4e3fcf998136e3e2d5d9834046c280e87bf971185a026b7a",
+   "size": 1943
+  },
+  {
+   "path": "2026/t1/comparecimento/uf=ZZ.parquet",
+   "sha256": "8f6e99de998e1e906fb21183d6cde4c47e3ef0e26e213ca3432aca6d2b019e44",
+   "size": 1376
+  },
+  {
+   "path": "2026/t1/resumo/ac.json",
+   "sha256": "2b983834871e84d5942f02291e81736f36a71b347e6a0602d4e806c60a98266c",
+   "size": 29255
+  },
+  {
+   "path": "2026/t1/resumo/br.json",
+   "sha256": "f51a58cae3df06702a266e861f62bf68c0eb402b003ce4c7eb82f894ce33ce3b",
+   "size": 2083
+  },
+  {
+   "path": "2026/t1/resumo/pe.json",
+   "sha256": "990fb721f0bc5757376f053016067c66800ff2ace0e537305b63330e9fa31cd1",
+   "size": 60828
+  },
+  {
+   "path": "2026/t1/resumo/se.json",
+   "sha256": "2e104ab0d65f0f0e465e77960b63864e6a32a2885404ada67d9fc4d49d56e64f",
+   "size": 19190
+  },
+  {
+   "path": "2026/t1/resumo/zz.json",
+   "sha256": "2300e4c9ba9d79a92f116f45fa63f84eb73ee98bbaf92d8056790ded6c99d03a",
+   "size": 943
+  },
+  {
+   "path": "2026/t1/secoes/uf=AC.parquet",
+   "sha256": "2b5a60a1091ce5e4f4efca6fa1ee7b16d669ec0bd7d7c33de85d19accf828c9c",
+   "size": 2317
+  },
+  {
+   "path": "2026/t1/secoes/uf=PE.parquet",
+   "sha256": "3e2cb7fd448b472600803fe6378fd5a481092506c40930d544dc769acb0df5a1",
+   "size": 2399
+  },
+  {
+   "path": "2026/t1/secoes/uf=SE.parquet",
+   "sha256": "26bf11f92522ee8c5ec075f9fe88290292027bf0995a093e4aa6fd23977978f5",
+   "size": 1857
+  },
+  {
+   "path": "2026/t1/secoes/uf=ZZ.parquet",
+   "sha256": "36645da6779d30f08ff6574f078611e138c5de9692477302c752938d429ccfca",
+   "size": 1884
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=1/uf=AC.parquet",
+   "sha256": "3ed7fcfb8c28995d340e31bb3082124cf54bc59c146b89d2e80fac31a4d87e36",
+   "size": 887
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=1/uf=PE.parquet",
+   "sha256": "c516d23e9c9fcc2221bc22c52695257a4d1ccd956d7c5b7319188f5067f372f0",
+   "size": 863
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=1/uf=SE.parquet",
+   "sha256": "435ca9fb218c4c7c1effa378de5bd4aba5474112a8b39d9321398e0818ec12be",
+   "size": 696
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=1/uf=ZZ.parquet",
+   "sha256": "4668103fec4df351b0225588d4e1b7a74007b29353ca2f44e9b4649137c494a9",
+   "size": 584
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=25/uf=PE.parquet",
+   "sha256": "d067af80c3c99434f3e3d2ca9988b87308588ab0edc0910f9d3920b4760d658b",
+   "size": 855
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=3/uf=AC.parquet",
+   "sha256": "d0dc156d73d93591f97e50e94f1ed94b7ccc6f2f503ec7beee24239c0f10089d",
+   "size": 850
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=3/uf=PE.parquet",
+   "sha256": "77da81a0851cf73c28384ea0c9008a4d3ee66b883723dda948250ce422a35a12",
+   "size": 827
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=3/uf=SE.parquet",
+   "sha256": "819da6021624d0be9f420486fffa26f665fed8288c60b903f753a8a75b037c6a",
+   "size": 706
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=5/uf=AC.parquet",
+   "sha256": "fc1ec5af8fa5cebd4ab2e14b8217e9f9a8603bcb71bbe6fd904e4538cc74b435",
+   "size": 898
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=5/uf=PE.parquet",
+   "sha256": "1df5046251e793f5c0f2b104d7836cf3786c4664a4150a21477c9e02f614753d",
+   "size": 902
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=5/uf=SE.parquet",
+   "sha256": "a57d635b0ac687ffc9fbe78206d513631b80558acb8c2a12fe38252b21bc4881",
+   "size": 745
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=6/uf=AC.parquet",
+   "sha256": "2930a69c3125bc4c122aa376c9c1de7fd7dd8b6fb9aae537d4028280cb462723",
+   "size": 1170
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=6/uf=PE.parquet",
+   "sha256": "063dadd54a954d14c0391d952da15d28f3fb7bae51eedf0d6d3f73050b4d1104",
+   "size": 1669
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=6/uf=SE.parquet",
+   "sha256": "6377752ab27c1006a9756682d224ef9f6c601b5d08afa91e698792430a6b612b",
+   "size": 926
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=7/uf=AC.parquet",
+   "sha256": "6cc9f09ce1b53a3b8ecdf159f577efefca201eb8b1f28a38801d96e1668854e7",
+   "size": 1357
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=7/uf=PE.parquet",
+   "sha256": "b726a179714912b10679cc5edcff21f499e26f50efb81ee9f8e27cb0efc3ce5f",
+   "size": 1844
+  },
+  {
+   "path": "2026/t1/totais/municipio/cargo=7/uf=SE.parquet",
+   "sha256": "06ba139537284ee73593227d223a61c57fc5f819f84fbaaebd6a502b63173890",
+   "size": 968
+  },
+  {
+   "path": "2026/t1/totais/municipio/comparecimento/uf=AC.parquet",
+   "sha256": "c9844af6f6e17d4e48ac636ff9baf6280bb3bbcb2c3f84099474cdf0c774926f",
+   "size": 1750
+  },
+  {
+   "path": "2026/t1/totais/municipio/comparecimento/uf=PE.parquet",
+   "sha256": "25d421712617aeeb190dbad2f39ae6767b78659313ca91c3b10ad901c035d5df",
+   "size": 1529
+  },
+  {
+   "path": "2026/t1/totais/municipio/comparecimento/uf=SE.parquet",
+   "sha256": "61a99bff484f82f1c3ceae7b5a30ac605e498e959232bd18d7e493f10469f903",
+   "size": 1557
+  },
+  {
+   "path": "2026/t1/totais/municipio/comparecimento/uf=ZZ.parquet",
+   "sha256": "df918d9edbb6061a35b6dfd2da441b0eaff7c7aed0954bd5c240fe97728358a0",
+   "size": 1154
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=1/uf=AC.parquet",
+   "sha256": "1179ba56c9287e8f7bd1157b31bc6f761914aa3f6689d385a649d66edb8e9fcb",
+   "size": 1098
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=1/uf=PE.parquet",
+   "sha256": "a243b24417edcbf94df6822b115c5554602ace8301c02eb8badb866e36c4fdfa",
+   "size": 1068
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=1/uf=SE.parquet",
+   "sha256": "e24e610a26d1b73aa3007d154adfe3dd19f199a2be1e7abbd323677824bec82d",
+   "size": 888
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=1/uf=ZZ.parquet",
+   "sha256": "d094b03c1e3e6278acbc17c04f4e54dbc4249a33e2866831a3b40061e6218465",
+   "size": 702
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=25/uf=PE.parquet",
+   "sha256": "b45a5d20c764723b678d8b6c3622bfd04a35d7043845d44fd1898dde58662951",
+   "size": 1047
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=3/uf=AC.parquet",
+   "sha256": "eb2ae284d484de3713a13ea92a1f6f66c4be1b2cf35a625191835f95effb1886",
+   "size": 1061
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=3/uf=PE.parquet",
+   "sha256": "8675d9a620c0c87e20341fe07343964e66268a3b7f4e23b55210d11d3ccf104a",
+   "size": 1032
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=3/uf=SE.parquet",
+   "sha256": "3c05e01c422f5093a991c7ee24710cae1c468061a9dadd08900276b7575b181c",
+   "size": 898
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=5/uf=AC.parquet",
+   "sha256": "51420ad151098e8a111cec382f9113fab8a7d23b3bd370c904ba1bfbbdb0ae40",
+   "size": 1109
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=5/uf=PE.parquet",
+   "sha256": "4ab9abb4ead98795b3bf5b632e6daba1737354a2ca2d3b4e953072991809a96d",
+   "size": 1107
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=5/uf=SE.parquet",
+   "sha256": "749378a0c56c5549cbde039315c2e2f0b98f27849f92424f0323c71c25d5f544",
+   "size": 937
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=6/uf=AC.parquet",
+   "sha256": "062e9e77f03387f0e8548529155ae060e273f75a07b3e025fe9f4fb29fc04b0a",
+   "size": 1384
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=6/uf=PE.parquet",
+   "sha256": "40c175c4715d8d0249eb7bf6fe28cc7b2d3655b0912a0b74b586d0f6214ce20a",
+   "size": 1879
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=6/uf=SE.parquet",
+   "sha256": "0da5e6f9718689543c2db810c2f3c46319fd85c1e63e82d15159096474676662",
+   "size": 1118
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=7/uf=AC.parquet",
+   "sha256": "869305f12b3fa780d4972cd495302923e08ff5b2de801c0ee135ed741ab06d08",
+   "size": 1571
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=7/uf=PE.parquet",
+   "sha256": "2b829e3e0bf9f6e5e06cf11bf9fddfb32a022a78a6096a7fea1b7cf8f74655ec",
+   "size": 2054
+  },
+  {
+   "path": "2026/t1/totais/zona/cargo=7/uf=SE.parquet",
+   "sha256": "cfde4944b53976f6b8274975feb7ddf5ec2fb645f9f3d776ba9c9b98fae00d9d",
+   "size": 1160
+  },
+  {
+   "path": "2026/t1/totais/zona/comparecimento/uf=AC.parquet",
+   "sha256": "148e5b6fa443bd1aecb976bd88ffb763200124b15dd65e613370532154ccb9dc",
+   "size": 1961
+  },
+  {
+   "path": "2026/t1/totais/zona/comparecimento/uf=PE.parquet",
+   "sha256": "addca47e45b6b8a5ac4b73f917edfb226c1ca274a7827aadd5d676d884fa93f4",
+   "size": 1734
+  },
+  {
+   "path": "2026/t1/totais/zona/comparecimento/uf=SE.parquet",
+   "sha256": "d3e600d9417e9935f09dff8b010060c07ef12590eedf5648fca11673eff836a3",
+   "size": 1749
+  },
+  {
+   "path": "2026/t1/totais/zona/comparecimento/uf=ZZ.parquet",
+   "sha256": "bf20c842eb41769bdb108fb830cbd1239f418c60002f8a930739813625345c04",
+   "size": 1264
+  },
+  {
+   "path": "2026/t1/votos/cargo=1/uf=AC.parquet",
+   "sha256": "b753a6247de811a1038a60c382ab5d57238c8c89488b12f0e79af6fa525f4066",
+   "size": 1311
+  },
+  {
+   "path": "2026/t1/votos/cargo=1/uf=PE.parquet",
+   "sha256": "3c356af09e559f95bc90940f5ec3a95c358110b8b039fd6070410181345f6d50",
+   "size": 1556
+  },
+  {
+   "path": "2026/t1/votos/cargo=1/uf=SE.parquet",
+   "sha256": "8be3cc8c9f8c76d3dff89b1475af2a1255ec4a00e9765ccd2af4e005f79ec059",
+   "size": 1082
+  },
+  {
+   "path": "2026/t1/votos/cargo=1/uf=ZZ.parquet",
+   "sha256": "6b78ad1daf196ee4ac1f83ecdf952598c127f5f150b2885547185f7697ec3fa3",
+   "size": 822
+  },
+  {
+   "path": "2026/t1/votos/cargo=25/uf=PE.parquet",
+   "sha256": "105ab5187729b67fa6e4268b79f8ab0cc7ecc638bad1a9ef2ffb7b9d401a3878",
+   "size": 1843
+  },
+  {
+   "path": "2026/t1/votos/cargo=3/uf=AC.parquet",
+   "sha256": "7d0f8d408a39ccc466d9bbecbf4ec298af12e050f50ebe1f9c0115ccc5667ce8",
+   "size": 1274
+  },
+  {
+   "path": "2026/t1/votos/cargo=3/uf=PE.parquet",
+   "sha256": "846b8198af57edae8cb7af5a4871e9d6bfc51d5dc1cd91a2702745125e26cf2d",
+   "size": 1531
+  },
+  {
+   "path": "2026/t1/votos/cargo=3/uf=SE.parquet",
+   "sha256": "b0d8db53da7b1cbdf0cbd78abea40f6f6f8f47e0908653383390d2bec4086b2f",
+   "size": 1092
+  },
+  {
+   "path": "2026/t1/votos/cargo=5/uf=AC.parquet",
+   "sha256": "d3e61b4b4fb0d99061168e5bc5c5fe304036cb16ae92ddf493199a3d9b0c20ac",
+   "size": 1322
+  },
+  {
+   "path": "2026/t1/votos/cargo=5/uf=PE.parquet",
+   "sha256": "df59f2ecd66073632013f8a1b760cfdc11a1e0e12b8b6fcc762fca45cb2ff119",
+   "size": 1672
+  },
+  {
+   "path": "2026/t1/votos/cargo=5/uf=SE.parquet",
+   "sha256": "bf8a66d817e4a25c722ffe8c3487b5e5475caae5437ccbb4cb36be603aa15cfc",
+   "size": 1131
+  },
+  {
+   "path": "2026/t1/votos/cargo=6/uf=AC.parquet",
+   "sha256": "65bf0c790276993a97bb6a254952efcd4515e690615227209e1c3e93de75098b",
+   "size": 1600
+  },
+  {
+   "path": "2026/t1/votos/cargo=6/uf=PE.parquet",
+   "sha256": "7dabf5062c4f235e405830de42d6cc811e9510cca45248349e75c75eb5a2d053",
+   "size": 2732
+  },
+  {
+   "path": "2026/t1/votos/cargo=6/uf=SE.parquet",
+   "sha256": "240acb4c1242665a73ea82ac828916a9e8122aff1af3481e5d28d1e1b3c4eddb",
+   "size": 1312
+  },
+  {
+   "path": "2026/t1/votos/cargo=7/uf=AC.parquet",
+   "sha256": "89ec8706f43751fa2ad92b81013a188a2c4daf8b061886569fabdfe090d64c31",
+   "size": 1787
+  },
+  {
+   "path": "2026/t1/votos/cargo=7/uf=PE.parquet",
+   "sha256": "c9af6e13953ce6e97427ef4462a941c411b3139e08e4d2cd595996f851219f99",
+   "size": 3064
+  },
+  {
+   "path": "2026/t1/votos/cargo=7/uf=SE.parquet",
+   "sha256": "02621e48451ec85beb7fdb8976da0884292e66306e7dbc60b8c965fcf22194c7",
+   "size": 1354
+  }
+ ],
+ "commit": "fixtures",
+ "credito": {
+  "en": "Source: Brazil's Superior Electoral Court (TSE), Open Data Portal. Processing: Brazilian Election Analysis (github.com/luizcartolano2/brazilian-election-analysis).",
+  "pt": "Fonte: Tribunal Superior Eleitoral (TSE), Portal de Dados Abertos. Processamento: Brazilian Election Analysis (github.com/luizcartolano2/brazilian-election-analysis)."
+ },
+ "estados": [
+  "AC",
+  "PE",
+  "SE",
+  "ZZ"
+ ],
+ "fontes": [
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6257_1_ac",
+   "sha512": "5a50427d268a3286363a6b343f72e21d983917bbb477e8c5059d28ac86b40450c4f8f7da1f7cc7d17276febe75f3cacaac4bd04b66240e17325ce160fc7b20c2",
+   "size": 2008,
+   "url": "fixture://results/ele2026/6257/dados/ac/ac-c0001-e006257-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6257_1_br",
+   "sha512": "6fe9bfacb23ca517c28093f375659a42e0f0d18bb5c5ecd1e3f3ffe9ca72b734efc35cffd239b1ba6b4cc44bc6ea386e177ece730e573e67459c4b7156b5ac5b",
+   "size": 3139,
+   "url": "fixture://results/ele2026/6257/dados/br/br-c0001-e006257-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6257_1_pe",
+   "sha512": "d15360b5ebc9cfc017d57702273f8fdb66ba3cc54803351491be86848e4a75668ec26be2b565a417821699d91cb58ca8bc3955cc2b87c9e0e14b528fd66ee773",
+   "size": 2853,
+   "url": "fixture://results/ele2026/6257/dados/pe/pe-c0001-e006257-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6257_1_se",
+   "sha512": "b251795be6ea37098af4247532eb72fb1faf050931b668c28959a5cabda59812303cc684aea311a6ae96d8c03255c62ffbd7860b0c56cd1a1e6ff11fb4d69a06",
+   "size": 1719,
+   "url": "fixture://results/ele2026/6257/dados/se/se-c0001-e006257-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6257_1_zz",
+   "sha512": "465fe5129c6428e23428e3f00c56f7f8b4814063c6b5b0a05a0f41e93190592a7bd5e21c7e98ddf0569b722d8127fa485acfe32f6fb0135c826bdac51b49763b",
+   "size": 1138,
+   "url": "fixture://results/ele2026/6257/dados/zz/zz-c0001-e006257-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_3_ac",
+   "sha512": "632a23d4448e482d9c24c846afd855a22b1a8124bd8d5850329bc59167cf361e4a33dd84dbd6ba72999b450bfb1aa3f25a4753074107461150f552d9f34c4632",
+   "size": 1717,
+   "url": "fixture://results/ele2026/6259/dados/ac/ac-c0003-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_3_pe",
+   "sha512": "ec63b902ee3355657ef74b9a52c1a055c5f246d1679c3796a4298c2cd323d3f1ef02f5d09bcd45f0007d3f5c9a05d3e8bcadd5fa53fae566fab63e72eb5f866c",
+   "size": 2006,
+   "url": "fixture://results/ele2026/6259/dados/pe/pe-c0003-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_3_se",
+   "sha512": "36211a989609ec5ce55158dc9490253b79c62edac23a06d083b09ff4aa5404fd5cd45e13ad3eecb33c01c4dc7d58fba7b1e557d0a16c3185e87cecc9bcdf0b9c",
+   "size": 1457,
+   "url": "fixture://results/ele2026/6259/dados/se/se-c0003-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_5_ac",
+   "sha512": "b4208a2012e8c103c1058b5f687710f7862606a784ed83ecc3bbfd280d3da893416584e2162508b6ebf14b98b24b0e024cf358dfd63ec2938452fbcb754164ee",
+   "size": 2550,
+   "url": "fixture://results/ele2026/6259/dados/ac/ac-c0005-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_5_pe",
+   "sha512": "f5536cd6d49e3db64e340ce189ed8001ab51c9309ad817beb4150b43424c1e2c673bac78d7c0fb3b282f8b664c7c50bd89205539904284a2b2988490a0348e94",
+   "size": 3577,
+   "url": "fixture://results/ele2026/6259/dados/pe/pe-c0005-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_5_se",
+   "sha512": "ddae504f0c3f84253caf0a7746b19f564d745c7d22e33046e4c86f70bda848629694a47a8f76bedccfa7e09f88b8ae1c72fcca7323d2f17cf88647c0f5eeb158",
+   "size": 2874,
+   "url": "fixture://results/ele2026/6259/dados/se/se-c0005-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_6_ac",
+   "sha512": "7980aa52713196b208781e87447e777853e1fb89cfadbacf8d6724cd19037de1e5d5489811e4efe8bd38058c8c690f37e5650d0fc738c1fb447e394a8acfa4b4",
+   "size": 10059,
+   "url": "fixture://results/ele2026/6259/dados/ac/ac-c0006-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_6_pe",
+   "sha512": "d1cb6512f230887b6b09ec2f0697a782ed31778526d0808d00b3b79b1c9d60c3359ed358d6152195eb96aa6bd894f1514a073e30b28cc13cd74e874dfa320ddf",
+   "size": 23644,
+   "url": "fixture://results/ele2026/6259/dados/pe/pe-c0006-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_6_se",
+   "sha512": "9a96678979d8eca1160cc11eec1f575e385d3d1cd184cac5ad162e362bec3da019ba819815bbf2c3660ab8a94fc82a09393846bb0f8277182057ac39eb80e954",
+   "size": 6172,
+   "url": "fixture://results/ele2026/6259/dados/se/se-c0006-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_7_ac",
+   "sha512": "159e29440fb339f7aa5386568a9bc7ed5d0c71faf1ba970646e50f60cbb232ed1c9cb574b2ae78979ec71ab99013eb50f049553dd3e475ba67f5530d6ff0a199",
+   "size": 13724,
+   "url": "fixture://results/ele2026/6259/dados/ac/ac-c0007-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_7_pe",
+   "sha512": "0f21797075ada5ae06ffcf792856fd9c0bf9f54488f6b664158e36eb630220779081d67442ac3d816f3ee834152ea2104e96cdf76e923a14f8fa095c691b9745",
+   "size": 28540,
+   "url": "fixture://results/ele2026/6259/dados/pe/pe-c0007-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6259_7_se",
+   "sha512": "2056a8605a54e0d7ce28959d6d01b4c3ec4f3a6e7a8c49740395dd6294b41c171c52df579d7cff08dde189ad5d31285b3b9ab89d92882f10ab98f9b835390c0a",
+   "size": 8206,
+   "url": "fixture://results/ele2026/6259/dados/se/se-c0007-e006259-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6261_25_pe30015",
+   "sha512": "99ab37b3192814b32d754cd62c811b5242127fdd061173cce3b579072cc94c25d68276e5c776e9d66f376a5e28371b0c1e7d626be690558cc5aadaa67df5430b",
+   "size": 4918,
+   "url": "fixture://results/ele2026/6261/dados/pe/pe30015-c0025-e006261-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "candidates",
+   "sha512": "6e12c34542d4e6f14e907d4fd8f0846f4dd49039e97992acf98abeeb11cbd2110262ae60b7f49453a16eb98d131109d0f773b0d386e8f9c42b549e5266c6355f",
+   "size": 30492,
+   "url": "fixture://cdn/consulta_cand/consulta_cand_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "municipalities_6257",
+   "sha512": "04722c603ea526854c9128659560a65a3b99ec101fc7b5161e1febeb0f2c99eaba6cbaf094f5af8704142d1f94f9956a80e76d6956164e1f87514e5222f40799",
+   "size": 1629,
+   "url": "fixture://results/ele2026/6257/config/mun-e006257-cm.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "municipalities_6261",
+   "sha512": "c0446e7a326b81cce2ee8b1bf4b4f995ffa9cbe0fdd1d448a090c8bad2379c7c39bbc0c81300057078c9e50219a559608c18f2b6d9474b1511f96428e9fd6e0d",
+   "size": 284,
+   "url": "fixture://results/ele2026/6261/config/mun-e006261-cm.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "munzona",
+   "sha512": "24f4580e28a9389b79cea92625efa9f630a4dab041b8acd78d0cbf72d83ddea56885b325da373f060f45eb37d71519ce17542b84d4e43df2c2ca5b2252e7c830",
+   "size": 9654,
+   "url": "fixture://cdn/votacao_candidato_munzona/votacao_candidato_munzona_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "places",
+   "sha512": "656e3239b4d8bf29feebe52c6959de0398b65e2ba25c1629ff67a13244e8e8e0790a1de8452bf05717d8ba838acb64a5adacb8e1d55efd751acfe4765f30c14e",
+   "size": 2017,
+   "url": "fixture://cdn/eleitorado_locais_votacao/eleitorado_local_votacao_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "turnout",
+   "sha512": "30911a0611093eddec8c946172ed7eb1fc42950379f2b727b8b39b893fb80729aae6d05e71108a49129e7d282746e53748d274d52ed91ab4fffe9417f35c9c58",
+   "size": 3404,
+   "url": "fixture://cdn/detalhe_votacao_secao/detalhe_votacao_secao_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_AC",
+   "sha512": "e7230f307dab55e841e3adb7215d4c731300ac854e3d52540c0cbd1db07a160401c92985d0c3402b2ef9b2482fc5259726768cd6528e7be0c9ad36cafbbcec01",
+   "size": 7807,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_AC.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_PE",
+   "sha512": "fd83d28b08b89a80262e4383c994e84d3df2796fa073b46ffb4d99829a8469953eafe4dc6613fe2de7910fdac49680b98dc72f810a533e1a0db55e10fb34c752",
+   "size": 36023,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_PE.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_SE",
+   "sha512": "1d77269a6c31352d4ce4ae3660fa6c8adadd8ffa557210d6269236c885b52cfe371fbd795b29cf3f83fd63321af6258736e1a90ee3e5720bf03d389c7ed1e1c6",
+   "size": 2912,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_SE.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_president",
+   "sha512": "6c16a2cfa548b34f00c9666048403b5174912a95204ef2b1e44ce259abf2f6a0a3ff9de807a40b65cbb58e82a58d53f7413f8ae89ff656d60dc2ee7d779e9028",
+   "size": 2499,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_BR.zip"
+  }
+ ],
+ "fontes_tse": false,
+ "gerado_em": "2026-10-06T00:00:00Z",
+ "parcial": false,
+ "turno": 1,
+ "verificacoes": {
+  "agregado": [
+   [
+    "ac",
+    6257,
+    1
+   ],
+   [
+    "ac",
+    6259,
+    3
+   ],
+   [
+    "ac",
+    6259,
+    5
+   ],
+   [
+    "ac",
+    6259,
+    6
+   ],
+   [
+    "ac",
+    6259,
+    7
+   ],
+   [
+    "br",
+    6257,
+    1
+   ],
+   [
+    "pe",
+    6257,
+    1
+   ],
+   [
+    "pe",
+    6259,
+    3
+   ],
+   [
+    "pe",
+    6259,
+    5
+   ],
+   [
+    "pe",
+    6259,
+    6
+   ],
+   [
+    "pe",
+    6259,
+    7
+   ],
+   [
+    "pe30015",
+    6261,
+    25
+   ],
+   [
+    "se",
+    6257,
+    1
+   ],
+   [
+    "se",
+    6259,
+    3
+   ],
+   [
+    "se",
+    6259,
+    5
+   ],
+   [
+    "se",
+    6259,
+    6
+   ],
+   [
+    "se",
+    6259,
+    7
+   ],
+   [
+    "zz",
+    6257,
+    1
+   ]
+  ],
+  "municipio_zona": [
+   [
+    "AC",
+    6259,
+    3
+   ],
+   [
+    "AC",
+    6259,
+    5
+   ],
+   [
+    "AC",
+    6259,
+    6
+   ],
+   [
+    "AC",
+    6259,
+    7
+   ],
+   [
+    "PE",
+    6259,
+    3
+   ],
+   [
+    "PE",
+    6259,
+    5
+   ],
+   [
+    "PE",
+    6259,
+    6
+   ],
+   [
+    "PE",
+    6259,
+    7
+   ],
+   [
+    "SE",
+    6259,
+    3
+   ],
+   [
+    "SE",
+    6259,
+    5
+   ],
+   [
+    "SE",
+    6259,
+    6
+   ],
+   [
+    "SE",
+    6259,
+    7
+   ]
+  ],
+  "secao": "todas as seções e cargos"
+ },
+ "versao_esquema": 1
+}

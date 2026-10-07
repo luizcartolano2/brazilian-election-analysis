@@ -1,0 +1,336 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "5588",
+         "nmu": "NETO BATALHA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "5515",
+         "nmu": "ANDERSON DE ZÉ DAS CANAS",
+         "st": "Suplente",
+         "vap": "8"
+        },
+        {
+         "dvt": "Válido",
+         "n": "5577",
+         "nmu": "NITINHO",
+         "st": "Suplente",
+         "vap": "4"
+        },
+        {
+         "dvt": "Válido",
+         "n": "5505",
+         "nmu": "DELEGADA KATARINA",
+         "st": "Eleito por média",
+         "vap": "8"
+        },
+        {
+         "dvt": "Válido",
+         "n": "5555",
+         "nmu": "FÁBIO REIS",
+         "st": "Eleito por QP",
+         "vap": "2"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "55",
+       "sg": "PSD",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "4004",
+         "nmu": "BRENO GARIBALDE",
+         "st": "Suplente",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "4056",
+         "nmu": "ROBSON VIANA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "4015",
+         "nmu": "MARCOS FRANCO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "4040",
+         "nmu": "CLAUDIO MITIDIERI",
+         "st": "Eleito por QP",
+         "vap": "35"
+        },
+        {
+         "dvt": "Válido",
+         "n": "4011",
+         "nmu": "ANGELA MIRANDA",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "40",
+       "sg": "PSB",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "1313",
+         "nmu": "MARCIO MACEDO",
+         "st": "Suplente",
+         "vap": "13"
+        },
+        {
+         "dvt": "Válido",
+         "n": "1311",
+         "nmu": "JOAO DANIEL",
+         "st": "Eleito por QP",
+         "vap": "28"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "13",
+       "sg": "PT",
+       "tval": "2"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Anulado sub judice",
+         "n": "5050",
+         "nmu": "DELEGADO MÁRIO LEONY",
+         "st": "Não eleito",
+         "vap": "3"
+        }
+       ],
+       "dvt": "Anulado sub judice",
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "1011",
+         "nmu": "THIAGO DE JOALDO",
+         "st": "Suplente",
+         "vap": "11"
+        },
+        {
+         "dvt": "Válido",
+         "n": "1010",
+         "nmu": "PASTOR HELENO",
+         "st": "Suplente",
+         "vap": "7"
+        },
+        {
+         "dvt": "Válido",
+         "n": "1000",
+         "nmu": "ICARO DE VALMIR",
+         "st": "Eleito por QP",
+         "vap": "36"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [],
+       "dvt": "Válido (legenda)",
+       "n": "20",
+       "sg": "PODE",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "7000",
+         "nmu": "ALESSANDRA DA ONG PET AJU",
+         "st": "Não eleito",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "7070",
+         "nmu": "CLAUDIO LUIS APRESENTADOR",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "70",
+       "sg": "AVANTE",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "1111",
+         "nmu": "LEVI OLIVEIRA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "1177",
+         "nmu": "GUSTINHO RIBEIRO",
+         "st": "Eleito por média",
+         "vap": "9"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "11",
+       "sg": "PP",
+       "tval": "1"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "4422",
+         "nmu": "CAPITÃO SAMUEL",
+         "st": "Eleito por média",
+         "vap": "5"
+        },
+        {
+         "dvt": "Válido",
+         "n": "4444",
+         "nmu": "YANDRA MOURA",
+         "st": "Eleito por QP",
+         "vap": "92"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "44",
+       "sg": "UNIÃO",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "1211",
+         "nmu": "NALLDO AMARO",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "12",
+       "sg": "PDT",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "2200",
+         "nmu": "LUIZÃO DONA TRAMPI",
+         "st": "Não eleito",
+         "vap": "10"
+        },
+        {
+         "dvt": "Válido",
+         "n": "2210",
+         "nmu": "MENDONÇA PRADO",
+         "st": "Não eleito",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "2222",
+         "nmu": "MOANA VALADARES",
+         "st": "Não eleito",
+         "vap": "6"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "22",
+       "sg": "PL",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "6",
+   "nmn": "Deputado Federal",
+   "nv": "8"
+  }
+ ],
+ "e": {
+  "c": "312",
+  "te": "390"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "312",
+  "van": "0",
+  "vansj": "3",
+  "vb": "7",
+  "vl": "6",
+  "vn": "9",
+  "vnom": "285",
+  "vnt": "2",
+  "vv": "291"
+ }
+}

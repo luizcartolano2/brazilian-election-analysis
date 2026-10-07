@@ -37,6 +37,10 @@ every file against the checksums in the manifest.
 - **WHEN** the pipeline reports a mismatch with TSE's totals
 - **THEN** the workflow fails and storage is unchanged
 
+#### Scenario: A partial build or one from other URLs
+- **WHEN** the manifest says the build covered only some states, or read files from anywhere other than TSE's own URLs
+- **THEN** the upload stops before writing anything
+
 #### Scenario: A file changed between build and upload
 - **WHEN** a file's SHA-256 at upload time differs from the manifest
 - **THEN** the upload stops before writing anything

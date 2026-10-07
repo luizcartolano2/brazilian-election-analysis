@@ -1,0 +1,940 @@
+{
+ "ano": 2026,
+ "area": "SE",
+ "corridas": [
+  {
+   "abstencoes": 78,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 390,
+   "brancos": 4,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "2º turno",
+     "votos": 175
+    },
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "2º turno",
+     "votos": 105
+    },
+    {
+     "destino": "Válido",
+     "nome": "RONALDO CAIADO",
+     "numero": 55,
+     "partido": "PSD",
+     "resultado": "Não eleito",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "ESCRITOR AUGUSTO CURY",
+     "numero": 70,
+     "partido": "AVANTE",
+     "resultado": "Não eleito",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENAN SANTOS",
+     "numero": 14,
+     "partido": "MISSÃO",
+     "resultado": "Não eleito",
+     "votos": 2
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 312,
+   "eleicao": 6257,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 293,
+   "nulos": 15,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 293
+  },
+  {
+   "abstencoes": 78,
+   "anulados": 0,
+   "anulados_sub_judice": 5,
+   "aptos": 390,
+   "brancos": 3,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "FÁBIO",
+     "numero": 55,
+     "partido": "PSD",
+     "resultado": "Eleito",
+     "votos": 178
+    },
+    {
+     "destino": "Válido",
+     "nome": "VALMIR DE FRANCISQUINHO",
+     "numero": 10,
+     "partido": "REPUBLICANOS",
+     "resultado": "Não eleito",
+     "votos": 90
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "DR. HELTON",
+     "numero": 50,
+     "partido": "PSOL",
+     "resultado": "Não eleito",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "TATY  CRISTINA DE JESUS",
+     "numero": 27,
+     "partido": "DC",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 3,
+   "comparecimento": 312,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Governador",
+   "nominais": 269,
+   "nulos": 21,
+   "nulos_tecnicos": 14,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 269
+  },
+  {
+   "abstencoes": 78,
+   "anulados": 0,
+   "anulados_sub_judice": 16,
+   "aptos": 390,
+   "brancos": 21,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "ANDRÉ MOURA",
+     "numero": 444,
+     "partido": "UNIÃO",
+     "resultado": "Não eleito",
+     "votos": 138
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROGERIO CARVALHO",
+     "numero": 131,
+     "partido": "PT",
+     "resultado": "Eleito",
+     "votos": 130
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDUARDO AMORIM",
+     "numero": 100,
+     "partido": "REPUBLICANOS",
+     "resultado": "Não eleito",
+     "votos": 99
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADO ANDRÉ DAVID",
+     "numero": 101,
+     "partido": "REPUBLICANOS",
+     "resultado": "Não eleito",
+     "votos": 57
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADO ALESSANDRO",
+     "numero": 155,
+     "partido": "MDB",
+     "resultado": "Eleito",
+     "votos": 50
+    },
+    {
+     "destino": "Válido",
+     "nome": "RODRIGO VALADARES",
+     "numero": 222,
+     "partido": "PL",
+     "resultado": "Não eleito",
+     "votos": 17
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "IRAN BARBOSA",
+     "numero": 500,
+     "partido": "PSOL",
+     "resultado": "Não eleito",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDVALDO",
+     "numero": 123,
+     "partido": "PDT",
+     "resultado": "Não eleito",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL ROCHA",
+     "numero": 221,
+     "partido": "PL",
+     "resultado": "Não eleito",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENATINHA",
+     "numero": 277,
+     "partido": "DC",
+     "resultado": "Não eleito",
+     "votos": 8
+    }
+   ],
+   "cargo": 5,
+   "comparecimento": 312,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 2,
+   "legenda": 0,
+   "nome": "Senador",
+   "nominais": 522,
+   "nulos": 65,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 2,
+   "validos": 522
+  },
+  {
+   "abstencoes": 78,
+   "anulados": 0,
+   "anulados_sub_judice": 3,
+   "aptos": 390,
+   "brancos": 7,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "YANDRA MOURA",
+     "numero": 4444,
+     "partido": "UNIÃO",
+     "resultado": "Eleito por QP",
+     "votos": 92
+    },
+    {
+     "destino": "Válido",
+     "nome": "ICARO DE VALMIR",
+     "numero": 1000,
+     "partido": "REPUBLICANOS",
+     "resultado": "Eleito por QP",
+     "votos": 36
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLAUDIO MITIDIERI",
+     "numero": 4040,
+     "partido": "PSB",
+     "resultado": "Eleito por QP",
+     "votos": 35
+    },
+    {
+     "destino": "Válido",
+     "nome": "JOAO DANIEL",
+     "numero": 1311,
+     "partido": "PT",
+     "resultado": "Eleito por QP",
+     "votos": 28
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCIO MACEDO",
+     "numero": 1313,
+     "partido": "PT",
+     "resultado": "Suplente",
+     "votos": 13
+    },
+    {
+     "destino": "Válido",
+     "nome": "THIAGO DE JOALDO",
+     "numero": 1011,
+     "partido": "REPUBLICANOS",
+     "resultado": "Suplente",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUIZÃO DONA TRAMPI",
+     "numero": 2200,
+     "partido": "PL",
+     "resultado": "Não eleito",
+     "votos": 10
+    },
+    {
+     "destino": "Válido",
+     "nome": "GUSTINHO RIBEIRO",
+     "numero": 1177,
+     "partido": "PP",
+     "resultado": "Eleito por média",
+     "votos": 9
+    },
+    {
+     "destino": "Válido",
+     "nome": "DELEGADA KATARINA",
+     "numero": 5505,
+     "partido": "PSD",
+     "resultado": "Eleito por média",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANDERSON DE ZÉ DAS CANAS",
+     "numero": 5515,
+     "partido": "PSD",
+     "resultado": "Suplente",
+     "votos": 8
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR HELENO",
+     "numero": 1010,
+     "partido": "REPUBLICANOS",
+     "resultado": "Suplente",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "MOANA VALADARES",
+     "numero": 2222,
+     "partido": "PL",
+     "resultado": "Não eleito",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "CAPITÃO SAMUEL",
+     "numero": 4422,
+     "partido": "UNIÃO",
+     "resultado": "Eleito por média",
+     "votos": 5
+    },
+    {
+     "destino": "Válido",
+     "nome": "NITINHO",
+     "numero": 5577,
+     "partido": "PSD",
+     "resultado": "Suplente",
+     "votos": 4
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "DELEGADO MÁRIO LEONY",
+     "numero": 5050,
+     "partido": "PSOL",
+     "resultado": "Não eleito",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "BRENO GARIBALDE",
+     "numero": 4004,
+     "partido": "PSB",
+     "resultado": "Suplente",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "FÁBIO REIS",
+     "numero": 5555,
+     "partido": "PSD",
+     "resultado": "Eleito por QP",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "LEVI OLIVEIRA",
+     "numero": 1111,
+     "partido": "PP",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "NALLDO AMARO",
+     "numero": 1211,
+     "partido": "PDT",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MENDONÇA PRADO",
+     "numero": 2210,
+     "partido": "PL",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANGELA MIRANDA",
+     "numero": 4011,
+     "partido": "PSB",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCOS FRANCO",
+     "numero": 4015,
+     "partido": "PSB",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ROBSON VIANA",
+     "numero": 4056,
+     "partido": "PSB",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "NETO BATALHA",
+     "numero": 5588,
+     "partido": "PSD",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "ALESSANDRA DA ONG PET AJU",
+     "numero": 7000,
+     "partido": "AVANTE",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CLAUDIO LUIS APRESENTADOR",
+     "numero": 7070,
+     "partido": "AVANTE",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 6,
+   "comparecimento": 312,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 1,
+   "legenda": 6,
+   "nome": "Deputado Federal",
+   "nominais": 285,
+   "nulos": 9,
+   "nulos_tecnicos": 2,
+   "partidos": [
+    {
+     "destino": "Válido (legenda)",
+     "numero": 44,
+     "sigla": "UNIÃO",
+     "votos_candidatos": 97,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 10,
+     "sigla": "REPUBLICANOS",
+     "votos_candidatos": 54,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 13,
+     "sigla": "PT",
+     "votos_candidatos": 41,
+     "votos_legenda": 2
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 40,
+     "sigla": "PSB",
+     "votos_candidatos": 40,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 55,
+     "sigla": "PSD",
+     "votos_candidatos": 23,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 22,
+     "sigla": "PL",
+     "votos_candidatos": 17,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 11,
+     "sigla": "PP",
+     "votos_candidatos": 10,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Anulado sub judice",
+     "numero": 50,
+     "sigla": "PSOL",
+     "votos_candidatos": 3,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 70,
+     "sigla": "AVANTE",
+     "votos_candidatos": 2,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 12,
+     "sigla": "PDT",
+     "votos_candidatos": 1,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 20,
+     "sigla": "PODE",
+     "votos_candidatos": 0,
+     "votos_legenda": 1
+    }
+   ],
+   "vagas": 8,
+   "validos": 291
+  },
+  {
+   "abstencoes": 78,
+   "anulados": 0,
+   "anulados_sub_judice": 5,
+   "aptos": 390,
+   "brancos": 4,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "BRENO SILVEIRA",
+     "numero": 10123,
+     "partido": "REPUBLICANOS",
+     "resultado": "Suplente",
+     "votos": 88
+    },
+    {
+     "destino": "Válido",
+     "nome": "MAISA MITIDIERI",
+     "numero": 55555,
+     "partido": "PSD",
+     "resultado": "Eleito por QP",
+     "votos": 22
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANTÔNIO BALA",
+     "numero": 15555,
+     "partido": "MDB",
+     "resultado": "Eleito por QP",
+     "votos": 19
+    },
+    {
+     "destino": "Válido",
+     "nome": "CRISTIANO CAVALCANTE",
+     "numero": 44444,
+     "partido": "UNIÃO",
+     "resultado": "Eleito por QP",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "JORGINHO ARAUJO",
+     "numero": 55777,
+     "partido": "PSD",
+     "resultado": "Eleito por QP",
+     "votos": 16
+    },
+    {
+     "destino": "Válido",
+     "nome": "GARIBALDE",
+     "numero": 15000,
+     "partido": "MDB",
+     "resultado": "Suplente",
+     "votos": 14
+    },
+    {
+     "destino": "Válido",
+     "nome": "CHICO DO CORREIO",
+     "numero": 13333,
+     "partido": "PT",
+     "resultado": "Suplente",
+     "votos": 12
+    },
+    {
+     "destino": "Válido",
+     "nome": "VENÂNCIO FONSECA",
+     "numero": 40111,
+     "partido": "PSB",
+     "resultado": "Suplente",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "ADAILTON MARTINS",
+     "numero": 55123,
+     "partido": "PSD",
+     "resultado": "Eleito por QP",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCELO SOBRAL",
+     "numero": 44111,
+     "partido": "UNIÃO",
+     "resultado": "Eleito por QP",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "CORONEL RIBEIRO",
+     "numero": 55190,
+     "partido": "PSD",
+     "resultado": "Eleito por média",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "ANA LUIZA",
+     "numero": 10111,
+     "partido": "REPUBLICANOS",
+     "resultado": "Eleito por média",
+     "votos": 6
+    },
+    {
+     "destino": "Válido",
+     "nome": "NORBERTO PINTO",
+     "numero": 70456,
+     "partido": "AVANTE",
+     "resultado": "Eleito por média",
+     "votos": 5
+    },
+    {
+     "destino": "Anulado sub judice",
+     "nome": "LINDA BRASIL",
+     "numero": 50180,
+     "partido": "PSOL",
+     "resultado": "Não eleito",
+     "votos": 4
+    },
+    {
+     "destino": "Válido",
+     "nome": "DR. GILSON ANDRADE",
+     "numero": 15111,
+     "partido": "MDB",
+     "resultado": "Suplente",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "ZEZINHO SOBRAL",
+     "numero": 40000,
+     "partido": "PSB",
+     "resultado": "Eleito por QP",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "DRA LIDIANE LUCENA",
+     "numero": 44000,
+     "partido": "UNIÃO",
+     "resultado": "Eleito por QP",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "GILSON DOS ANJOS",
+     "numero": 44333,
+     "partido": "UNIÃO",
+     "resultado": "Suplente",
+     "votos": 3
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCOS OLIVEIRA",
+     "numero": 10000,
+     "partido": "REPUBLICANOS",
+     "resultado": "Eleito por QP",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDUARDO DO TÊNIS",
+     "numero": 10222,
+     "partido": "REPUBLICANOS",
+     "resultado": "Suplente",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "CAMILO DANIEL",
+     "numero": 13000,
+     "partido": "PT",
+     "resultado": "Eleito por QP",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "KITTY LIMA",
+     "numero": 40400,
+     "partido": "PSB",
+     "resultado": "Eleito por média",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCIANO BISPO",
+     "numero": 55015,
+     "partido": "PSD",
+     "resultado": "Eleito por QP",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "GLEITON MEDEIROS",
+     "numero": 10456,
+     "partido": "REPUBLICANOS",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "NEGO DO MATUTO",
+     "numero": 10888,
+     "partido": "REPUBLICANOS",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "HILDA RIBEIRO",
+     "numero": 11777,
+     "partido": "PP",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PADRE INALDO",
+     "numero": 13555,
+     "partido": "PT",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PROFESSOR LUCIANO",
+     "numero": 15777,
+     "partido": "MDB",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "TIAGO RANGEL",
+     "numero": 20111,
+     "partido": "PODE",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "DRA. TERESA NEUMA",
+     "numero": 20555,
+     "partido": "PODE",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "TARCÍSIO DA NCT",
+     "numero": 22000,
+     "partido": "PL",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "FLÁVIO DA DIREITA SERGIPANA",
+     "numero": 22100,
+     "partido": "PL",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "LUCIANO PIMENTEL",
+     "numero": 22123,
+     "partido": "PL",
+     "resultado": "Eleito por QP",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "IBRAIN DE VALMIR",
+     "numero": 43000,
+     "partido": "PV",
+     "resultado": "Eleito por QP",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PAULO JR",
+     "numero": 43777,
+     "partido": "PV",
+     "resultado": "Eleito por QP",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "PASTOR DIEGO",
+     "numero": 44744,
+     "partido": "UNIÃO",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "MARCELL DE MAIM",
+     "numero": 55111,
+     "partido": "PSD",
+     "resultado": "Suplente",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "CARLINHOS FERREIRA",
+     "numero": 55255,
+     "partido": "PSD",
+     "resultado": "Suplente",
+     "votos": 1
+    }
+   ],
+   "cargo": 7,
+   "comparecimento": 312,
+   "eleicao": 6259,
+   "escolhas_por_eleitor": 1,
+   "legenda": 24,
+   "nome": "Deputado Estadual",
+   "nominais": 271,
+   "nulos": 8,
+   "nulos_tecnicos": 0,
+   "partidos": [
+    {
+     "destino": "Válido (legenda)",
+     "numero": 10,
+     "sigla": "REPUBLICANOS",
+     "votos_candidatos": 100,
+     "votos_legenda": 8
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 55,
+     "sigla": "PSD",
+     "votos_candidatos": 60,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 15,
+     "sigla": "MDB",
+     "votos_candidatos": 37,
+     "votos_legenda": 4
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 44,
+     "sigla": "UNIÃO",
+     "votos_candidatos": 30,
+     "votos_legenda": 4
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 13,
+     "sigla": "PT",
+     "votos_candidatos": 15,
+     "votos_legenda": 4
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 40,
+     "sigla": "PSB",
+     "votos_candidatos": 16,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Anulado sub judice",
+     "numero": 50,
+     "sigla": "PSOL",
+     "votos_candidatos": 4,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 70,
+     "sigla": "AVANTE",
+     "votos_candidatos": 5,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 22,
+     "sigla": "PL",
+     "votos_candidatos": 3,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 11,
+     "sigla": "PP",
+     "votos_candidatos": 1,
+     "votos_legenda": 1
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 20,
+     "sigla": "PODE",
+     "votos_candidatos": 2,
+     "votos_legenda": 0
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 43,
+     "sigla": "PV",
+     "votos_candidatos": 2,
+     "votos_legenda": 0
+    }
+   ],
+   "vagas": 24,
+   "validos": 295
+  }
+ ],
+ "turno": 1,
+ "versao_esquema": 1
+}

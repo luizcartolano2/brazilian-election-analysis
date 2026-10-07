@@ -1,0 +1,135 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "55",
+         "nmu": "RAQUEL LYRA",
+         "st": "Eleito",
+         "vap": "1548"
+        }
+       ],
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "50",
+         "nmu": "IVAN MORAES",
+         "st": "Não eleito",
+         "vap": "69"
+        }
+       ],
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "16",
+         "nmu": "GUILHERME FONSECA",
+         "st": "Não eleito",
+         "vap": "3"
+        }
+       ],
+       "n": "16",
+       "sg": "PSTU",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "80",
+         "nmu": "PROFESSORA CAMILA",
+         "st": "Não eleito",
+         "vap": "6"
+        }
+       ],
+       "n": "80",
+       "sg": "UP",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "14",
+         "nmu": "RENAN",
+         "st": "Não eleito",
+         "vap": "8"
+        }
+       ],
+       "n": "14",
+       "sg": "MISSÃO",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "40",
+         "nmu": "JOÃO CAMPOS",
+         "st": "Não eleito",
+         "vap": "1100"
+        }
+       ],
+       "n": "40",
+       "sg": "PSB",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "3",
+   "nmn": "Governador",
+   "nv": "1"
+  }
+ ],
+ "e": {
+  "c": "3038",
+  "te": "4352"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "3038",
+  "van": "0",
+  "vansj": "0",
+  "vb": "105",
+  "vl": "0",
+  "vn": "199",
+  "vnom": "2734",
+  "vnt": "0",
+  "vv": "2734"
+ }
+}

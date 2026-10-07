@@ -1,0 +1,291 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "898",
+         "nmu": "VEIA",
+         "st": "Eleito",
+         "vap": "188"
+        },
+        {
+         "dvt": "Válido",
+         "n": "899",
+         "nmu": "BETO FAUSTINO",
+         "st": "Não eleito",
+         "vap": "36"
+        }
+       ],
+       "n": "89",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "600",
+         "nmu": "MILTON LUNA",
+         "st": "Eleito",
+         "vap": "246"
+        },
+        {
+         "dvt": "Válido",
+         "n": "603",
+         "nmu": "SOUZA",
+         "st": "Não eleito",
+         "vap": "20"
+        }
+       ],
+       "n": "60",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "326",
+         "nmu": "AILTON FLOR",
+         "st": "Não eleito",
+         "vap": "66"
+        }
+       ],
+       "n": "32",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "488",
+         "nmu": "DANIEL ALEXANDRE",
+         "st": "Eleito",
+         "vap": "233"
+        }
+       ],
+       "n": "48",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "193",
+         "nmu": "NICINHA SALVIANO",
+         "st": "Eleito",
+         "vap": "156"
+        },
+        {
+         "dvt": "Válido",
+         "n": "190",
+         "nmu": "DR. FLEXA",
+         "st": "Não eleito",
+         "vap": "50"
+        },
+        {
+         "dvt": "Válido",
+         "n": "199",
+         "nmu": "CACO VALENÇA",
+         "st": "Não eleito",
+         "vap": "50"
+        },
+        {
+         "dvt": "Válido",
+         "n": "192",
+         "nmu": "PÉPE",
+         "st": "Não eleito",
+         "vap": "41"
+        },
+        {
+         "dvt": "Válido",
+         "n": "198",
+         "nmu": "LIDIANE NASCIMENTO",
+         "st": "Não eleito",
+         "vap": "38"
+        },
+        {
+         "dvt": "Válido",
+         "n": "195",
+         "nmu": "GILIARDE",
+         "st": "Não eleito",
+         "vap": "6"
+        }
+       ],
+       "n": "19",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "241",
+         "nmu": "AILTON JUNIOR",
+         "st": "Eleito",
+         "vap": "173"
+        },
+        {
+         "dvt": "Válido",
+         "n": "244",
+         "nmu": "JOBSON FLOR",
+         "st": "Não eleito",
+         "vap": "48"
+        }
+       ],
+       "n": "24",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "170",
+         "nmu": "VERÔNICA MODESTO",
+         "st": "Não eleito",
+         "vap": "114"
+        },
+        {
+         "dvt": "Válido",
+         "n": "177",
+         "nmu": "SILVANO SANTOS",
+         "st": "Não eleito",
+         "vap": "87"
+        },
+        {
+         "dvt": "Válido",
+         "n": "172",
+         "nmu": "PAULA DA COREIA",
+         "st": "Não eleito",
+         "vap": "68"
+        },
+        {
+         "dvt": "Válido",
+         "n": "171",
+         "nmu": "GUIA REI",
+         "st": "Não eleito",
+         "vap": "14"
+        }
+       ],
+       "n": "17",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "789",
+         "nmu": "CARINE DINO",
+         "st": "Eleito",
+         "vap": "446"
+        }
+       ],
+       "n": "78",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "510",
+         "nmu": "ARTUR CÂNDIDO",
+         "st": "Eleito",
+         "vap": "117"
+        }
+       ],
+       "n": "51",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "266",
+         "nmu": "MINERVINO",
+         "st": "Não eleito",
+         "vap": "92"
+        },
+        {
+         "dvt": "Válido",
+         "n": "260",
+         "nmu": "CASSIANA BARROS",
+         "st": "Não eleito",
+         "vap": "50"
+        }
+       ],
+       "n": "26",
+       "sg": "",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "25",
+   "nmn": "Conselheiro Distrital",
+   "nv": "7"
+  }
+ ],
+ "e": {
+  "c": "2445",
+  "te": "3634"
+ },
+ "ele": "6261",
+ "v": {
+  "tv": "2445",
+  "van": "0",
+  "vansj": "0",
+  "vb": "44",
+  "vl": "0",
+  "vn": "62",
+  "vnom": "2339",
+  "vnt": "0",
+  "vv": "2339"
+ }
+}

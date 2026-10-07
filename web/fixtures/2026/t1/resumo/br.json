@@ -1,0 +1,109 @@
+{
+ "ano": 2026,
+ "area": "BR",
+ "corridas": [
+  {
+   "abstencoes": 1598,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 5825,
+   "brancos": 75,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "2º turno",
+     "votos": 1918
+    },
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "2º turno",
+     "votos": 1851
+    },
+    {
+     "destino": "Válido",
+     "nome": "ESCRITOR AUGUSTO CURY",
+     "numero": 70,
+     "partido": "AVANTE",
+     "resultado": "Não eleito",
+     "votos": 128
+    },
+    {
+     "destino": "Válido",
+     "nome": "RENAN SANTOS",
+     "numero": 14,
+     "partido": "MISSÃO",
+     "resultado": "Não eleito",
+     "votos": 60
+    },
+    {
+     "destino": "Válido",
+     "nome": "RONALDO CAIADO",
+     "numero": 55,
+     "partido": "PSD",
+     "resultado": "Não eleito",
+     "votos": 60
+    },
+    {
+     "destino": "Válido",
+     "nome": "ZEMA",
+     "numero": 30,
+     "partido": "NOVO",
+     "resultado": "Não eleito",
+     "votos": 7
+    },
+    {
+     "destino": "Válido",
+     "nome": "HERTZ DIAS",
+     "numero": 16,
+     "partido": "PSTU",
+     "resultado": "Não eleito",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "SAMARA",
+     "numero": 80,
+     "partido": "UP",
+     "resultado": "Não eleito",
+     "votos": 2
+    },
+    {
+     "destino": "Válido",
+     "nome": "EDMILSON COSTA",
+     "numero": 21,
+     "partido": "PCB",
+     "resultado": "Não eleito",
+     "votos": 1
+    },
+    {
+     "destino": "Válido",
+     "nome": "RUI COSTA PIMENTA",
+     "numero": 29,
+     "partido": "PCO",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 4227,
+   "eleicao": 6257,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 4030,
+   "nulos": 119,
+   "nulos_tecnicos": 3,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 4030
+  }
+ ],
+ "turno": 1,
+ "versao_esquema": 1
+}

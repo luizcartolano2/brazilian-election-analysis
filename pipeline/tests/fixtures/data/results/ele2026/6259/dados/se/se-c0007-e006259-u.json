@@ -1,0 +1,429 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "55190",
+         "nmu": "CORONEL RIBEIRO",
+         "st": "Eleito por média",
+         "vap": "7"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55555",
+         "nmu": "MAISA MITIDIERI",
+         "st": "Eleito por QP",
+         "vap": "22"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55111",
+         "nmu": "MARCELL DE MAIM",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55123",
+         "nmu": "ADAILTON MARTINS",
+         "st": "Eleito por QP",
+         "vap": "11"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55255",
+         "nmu": "CARLINHOS FERREIRA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55015",
+         "nmu": "LUCIANO BISPO",
+         "st": "Eleito por QP",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "55777",
+         "nmu": "JORGINHO ARAUJO",
+         "st": "Eleito por QP",
+         "vap": "16"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "55",
+       "sg": "PSD",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "11777",
+         "nmu": "HILDA RIBEIRO",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "11",
+       "sg": "PP",
+       "tval": "1"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "44744",
+         "nmu": "PASTOR DIEGO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44444",
+         "nmu": "CRISTIANO CAVALCANTE",
+         "st": "Eleito por QP",
+         "vap": "16"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44333",
+         "nmu": "GILSON DOS ANJOS",
+         "st": "Suplente",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44000",
+         "nmu": "DRA LIDIANE LUCENA",
+         "st": "Eleito por QP",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "44111",
+         "nmu": "MARCELO SOBRAL",
+         "st": "Eleito por QP",
+         "vap": "7"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "44",
+       "sg": "UNIÃO",
+       "tval": "4"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "13000",
+         "nmu": "CAMILO DANIEL",
+         "st": "Eleito por QP",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13333",
+         "nmu": "CHICO DO CORREIO",
+         "st": "Suplente",
+         "vap": "12"
+        },
+        {
+         "dvt": "Válido",
+         "n": "13555",
+         "nmu": "PADRE INALDO",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "13",
+       "sg": "PT",
+       "tval": "4"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "43777",
+         "nmu": "PAULO JR",
+         "st": "Eleito por QP",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "43000",
+         "nmu": "IBRAIN DE VALMIR",
+         "st": "Eleito por QP",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "43",
+       "sg": "PV",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "10111",
+         "nmu": "ANA LUIZA",
+         "st": "Eleito por média",
+         "vap": "6"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10222",
+         "nmu": "EDUARDO DO TÊNIS",
+         "st": "Suplente",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10000",
+         "nmu": "MARCOS OLIVEIRA",
+         "st": "Eleito por QP",
+         "vap": "2"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10456",
+         "nmu": "GLEITON MEDEIROS",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10888",
+         "nmu": "NEGO DO MATUTO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "10123",
+         "nmu": "BRENO SILVEIRA",
+         "st": "Suplente",
+         "vap": "88"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "8"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Anulado sub judice",
+         "n": "50180",
+         "nmu": "LINDA BRASIL",
+         "st": "Não eleito",
+         "vap": "4"
+        }
+       ],
+       "dvt": "Anulado sub judice",
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "22123",
+         "nmu": "LUCIANO PIMENTEL",
+         "st": "Eleito por QP",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22100",
+         "nmu": "FLÁVIO DA DIREITA SERGIPANA",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "22000",
+         "nmu": "TARCÍSIO DA NCT",
+         "st": "Suplente",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "22",
+       "sg": "PL",
+       "tval": "1"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "70456",
+         "nmu": "NORBERTO PINTO",
+         "st": "Eleito por média",
+         "vap": "5"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "70",
+       "sg": "AVANTE",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "15777",
+         "nmu": "PROFESSOR LUCIANO",
+         "st": "Suplente",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "15000",
+         "nmu": "GARIBALDE",
+         "st": "Suplente",
+         "vap": "14"
+        },
+        {
+         "dvt": "Válido",
+         "n": "15555",
+         "nmu": "ANTÔNIO BALA",
+         "st": "Eleito por QP",
+         "vap": "19"
+        },
+        {
+         "dvt": "Válido",
+         "n": "15111",
+         "nmu": "DR. GILSON ANDRADE",
+         "st": "Suplente",
+         "vap": "3"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "15",
+       "sg": "MDB",
+       "tval": "4"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "20111",
+         "nmu": "TIAGO RANGEL",
+         "st": "Não eleito",
+         "vap": "1"
+        },
+        {
+         "dvt": "Válido",
+         "n": "20555",
+         "nmu": "DRA. TERESA NEUMA",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "20",
+       "sg": "PODE",
+       "tval": "0"
+      }
+     ]
+    },
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "40111",
+         "nmu": "VENÂNCIO FONSECA",
+         "st": "Suplente",
+         "vap": "11"
+        },
+        {
+         "dvt": "Válido",
+         "n": "40000",
+         "nmu": "ZEZINHO SOBRAL",
+         "st": "Eleito por QP",
+         "vap": "3"
+        },
+        {
+         "dvt": "Válido",
+         "n": "40400",
+         "nmu": "KITTY LIMA",
+         "st": "Eleito por média",
+         "vap": "2"
+        }
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "40",
+       "sg": "PSB",
+       "tval": "1"
+      }
+     ]
+    }
+   ],
+   "cd": "7",
+   "nmn": "Deputado Estadual",
+   "nv": "24"
+  }
+ ],
+ "e": {
+  "c": "312",
+  "te": "390"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "312",
+  "van": "0",
+  "vansj": "5",
+  "vb": "4",
+  "vl": "24",
+  "vn": "8",
+  "vnom": "271",
+  "vnt": "0",
+  "vv": "295"
+ }
+}
