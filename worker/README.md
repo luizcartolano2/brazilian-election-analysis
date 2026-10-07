@@ -7,7 +7,7 @@ or deletes anything.
 
 ## Test it
 
-Wrangler needs Node 22 or later.
+The toolchain needs Node 22.12 or a later 22.x, or Node 24 or later. Node 23 is not supported.
 
 ```bash
 npm ci --ignore-scripts
