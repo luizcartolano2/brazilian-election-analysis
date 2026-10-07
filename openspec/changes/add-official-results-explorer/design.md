@@ -243,31 +243,65 @@ and cannot list for the existence check.
 
 ### D-E. Worker
 
-The Worker is a TypeScript module with one R2 binding:
+The Worker is a TypeScript module named `eleicoes-data`, with one R2 binding:
 
 - It accepts a key only when it matches `v/<version id>/...` or
   `assets/duckdb-wasm/<version>/...`, every segment uses `[A-Za-z0-9_.=-]`, no segment
-  is `..`, and the raw path holds no encoded slash. It checks this before touching
-  storage.
+  is `.` or `..`, and the raw path holds no encoded slash. It reads the path from the raw
+  request URL, because `new URL()` resolves `..` first. It checks this before
+  touching storage. The runtime itself resolves `..` and `%2e%2e` segments before the
+  Worker runs, as `wrangler dev` with `curl --path-as-is` showed on 2026-10-07. So a
+  request with `..` reaches the Worker as the resolved path, and the same checks apply.
 - `HEAD` uses `bucket.head()`. `GET` uses `bucket.get(key, { range })` for `bytes=a-b`,
-  `bytes=a-` and `bytes=-n`. A start beyond the end gets 416. A malformed header or
-  several ranges are ignored, and the whole file is returned with 200, as the HTTP range
-  standard allows.
-- CORS allows the exact production origin, `http://localhost:3000`, and preview origins
-  matching `^https://eleicoes-[a-z0-9-]+-<team slug>\.vercel\.app$`, where the team slug
-  is set once the Vercel project exists. Every response carries `Vary: Origin`. The
-  preflight allows `GET`, `HEAD` and the `Range` header. Responses expose
-  `Content-Range`, `Content-Length`, `Accept-Ranges` and `ETag`.
+  `bytes=a-` and `bytes=-n`. A start beyond the end, or `bytes=-0`, gets 416. A malformed
+  header or several ranges are ignored, and the whole file is returned with 200, as the
+  HTTP range standard allows. A request with one well-formed range reads the file's size
+  with `head()` first, because the size decides between 206 and 416. That is two R2 reads
+  for a range. A malformed header skips the `head()`. Alternative rejected: one `get()`
+  with the range, which leaves 416 to R2's error behavior.
+- The content type comes from the file extension: `.json`, `.parquet` and `.wasm`. R2
+  keeps whatever type the uploader guessed, and a browser compiles WebAssembly while
+  streaming only when the type is `application/wasm`. Every response carries
+  `X-Content-Type-Options: nosniff`.
+- CORS allows only the exact production origin and `http://localhost:3000`. Every
+  response carries `Vary: Origin`. The preflight allows `GET`, `HEAD` and the `Range`
+  header, and browsers can keep it for a day, because every preflight counts against the
+  free quota. Responses expose `Content-Range`, `Content-Length`, `Accept-Ranges` and
+  `ETag`.
 
-Tests run in Miniflare through `@cloudflare/vitest-pool-workers`, against a local R2
-bucket, with traversal and look-alike-origin payloads.
+  Vercel previews get no CORS headers, so a preview shows the static pages but not the
+  drill-downs, which are tested locally. Alternative rejected: an origin pattern for this
+  project's previews. The first draft's `^https://eleicoes-[a-z0-9-]+-<team slug>\.vercel\.app$`
+  matches another team with the slug `evil-<team slug>`. A pattern that requires Vercel's
+  9-character commit hash does not help either. Anyone can claim a free `*.vercel.app`
+  alias, and `eleicoes-abcdefghi-<team slug>.vercel.app` has exactly the shape of a real
+  commit preview. The data is public, so the cost of a look-alike is only browser traffic
+  against the quota, but a pattern that promises more than it checks is worse than none.
+- An R2 key is at most 1,024 bytes. A longer key makes R2 throw instead of returning
+  nothing, so the Worker returns 404 for it before touching storage. Any other R2 error
+  returns 503 with the usual `Vary` and CORS headers and no cache header, so the app can
+  read the status and show its error state.
+
+Tests run in the Workers runtime through `@cloudflare/vitest-plugin`, which replaced
+`@cloudflare/vitest-pool-workers` for Vitest 4, against a local R2 bucket, with traversal
+and look-alike-origin payloads. A test that must not read storage passes a bucket that
+throws on any call.
 
 The Worker deploys from `.github/workflows/deploy-worker.yml` on pushes to `main` that
-touch `worker/`. It runs through the `worker-deploy` environment, which requires Luiz as
-reviewer and holds a custom Cloudflare token limited to Workers Scripts edit. A template
-token might also grant R2 access, which would open a second way to write data. Wrangler
-is third-party code and receives that token. The lockfile in `worker/`, the narrow token
-scope and the approval gate are what protect it.
+touch `worker/`. A test job runs first with no secret. The deploy job runs through the
+`worker-deploy` environment, which requires Luiz as reviewer, holds a custom Cloudflare
+token limited to Workers Scripts edit, and reads the repository variable
+`CLOUDFLARE_ACCOUNT_ID`. Wrangler is third-party code and receives that token. The deploy
+job runs no other package code, and it installs with `npm ci --ignore-scripts` from the
+lockfile in `worker/`.
+
+The narrow scope limits less than it seems. Whoever holds the token can replace the
+Worker, and the replacement can serve any bytes to every visitor, because the app reads
+only through the Worker. A replaced script can probably also bind the bucket and write to
+it. So the controls that hold are the approval gate, which keeps the token in one job, and
+the bucket lock on `v/` and `assets/` from D-D where the plan offers one, which keeps
+published versions intact even against a stolen token. A template token adds R2 and other
+rights on top, so it stays out.
 
 ### D-F. Web: static export, two route trees, strict addresses
 
@@ -330,7 +364,7 @@ scope and the approval gate are what protect it.
   on fixtures the municipality and aggregate checks prove only self-consistency. The
   independent check is the full build against TSE's real files, which every publish run
   performs before it uploads anything.
-- **worker**: typecheck and Vitest.
+- **worker**: typecheck, Vitest, and a Wrangler dry-run bundle that needs no credentials.
 - **web**: typecheck, lint, Vitest, a build against `web/fixtures/`, and two Playwright
   tests. The first loads a state page with JavaScript disabled. The second serves the
   build with the headers from `vercel.json`, opens a station view with JavaScript on, and
@@ -383,10 +417,12 @@ This is a new system. The first deployment goes in this order:
 4. Merge the web app's first PR, which adds the `duckdb-wasm` target, and publish that
    target, approving the upload.
 5. Pin the data version and its checksum in `web/`, then create the Vercel project on
-   `web/`, add the CNAME at GoDaddy, and set the team slug in the Worker's CORS pattern.
+   `web/`, and add the CNAME at GoDaddy.
 
 Rollback for data is a PR that pins the previous version and its checksum. Rollback for
-the Worker is redeploying the previous commit.
+the Worker is Rollback on its Deployments page in Cloudflare, or a re-run of an older
+"Deploy Worker" run, which deploys that run's commit. A revert PR then brings `main` in
+line with what is live. A manual trigger always deploys the head of `main`.
 
 ## Open Questions
 

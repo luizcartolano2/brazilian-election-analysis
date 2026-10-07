@@ -32,6 +32,7 @@ blob-report/
 # Deploy tooling
 .vercel/
 .wrangler/
+/worker/dist/
 .dev.vars*
 
 # Environment

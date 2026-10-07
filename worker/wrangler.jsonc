@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eleicoes-data",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "send_metrics": false,
+  "dependencies_instrumentation": { "enabled": false },
+  "r2_buckets": [{ "binding": "DATA", "bucket_name": "eleicoes-data" }]
+}

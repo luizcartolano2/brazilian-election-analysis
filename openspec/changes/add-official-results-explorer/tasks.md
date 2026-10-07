@@ -3,7 +3,7 @@
 - [ ] 1.1 Create a Cloudflare account and an R2 bucket named `eleicoes-data`
 - [ ] 1.2 Create an R2 API token with write access to that bucket only
 - [ ] 1.3 Create a custom Cloudflare API token limited to Workers Scripts edit, not the "Edit Cloudflare Workers" template
-- [ ] 1.4 Create the GitHub environments `data-publish` and `worker-deploy`, each limited to `main` with Luiz as required reviewer, and add each token to its environment
+- [ ] 1.4 Create the GitHub environments `data-publish` and `worker-deploy`, each limited to `main` with Luiz as required reviewer, add each token to its environment, and add the repository variable `CLOUDFLARE_ACCOUNT_ID`
 - [ ] 1.5 Check whether the account's R2 plan offers bucket locks, and if it does, add a lock rule with no expiry on `v/` and `assets/`
 - [ ] 1.6 Install uv locally (`brew install uv`)
 
@@ -26,12 +26,12 @@
 
 ## 3. Worker (one PR)
 
-- [ ] 3.1 Create the Worker project in `worker/` with wrangler, the R2 binding and Vitest on Miniflare, and add the `worker` CI job
-- [ ] 3.2 Validate keys and methods; test 404 for the root, a version path, a missing file, a `..` segment, an encoded slash and a key outside the allowed prefixes, and 405 for write methods
-- [ ] 3.3 Honor single byte ranges; test `bytes=a-b`, `bytes=a-` and `bytes=-n` with exact bytes and `Content-Range`, 416 past the end, and 200 with the whole file for several ranges or a malformed header
-- [ ] 3.4 Add CORS; test the production origin, a preview of this project, a look-alike preview from another team scope, localhost, a foreign origin, a preflight for `GET` with `Range`, the exposed headers, and `Vary: Origin` on every response
-- [ ] 3.5 Set immutable cache headers on version and asset files; test the header
-- [ ] 3.6 Add `deploy-worker.yml` through the `worker-deploy` environment with SHA-pinned actions, and open the PR
+- [x] 3.1 Create the Worker project in `worker/` with wrangler, the R2 binding and Vitest on Miniflare, and add the `worker` CI job
+- [x] 3.2 Validate keys and methods; test 404 for the root, a version path, a missing file, a `..` segment, an encoded slash and a key outside the allowed prefixes, and 405 for write methods
+- [x] 3.3 Honor single byte ranges; test `bytes=a-b`, `bytes=a-` and `bytes=-n` with exact bytes and `Content-Range`, 416 past the end, and 200 with the whole file for several ranges or a malformed header
+- [x] 3.4 Add CORS; test the production origin, localhost, a Vercel preview of this project, a foreign origin, a preflight for `GET` with `Range`, the exposed headers, and `Vary: Origin` on every response
+- [x] 3.5 Set immutable cache headers on version and asset files; test the header
+- [x] 3.6 Add `deploy-worker.yml` through the `worker-deploy` environment with SHA-pinned actions, and open the PR
 
 ## 4. Publishing (one PR)
 
@@ -62,6 +62,5 @@
 ## 6. Launch (Luiz, with help)
 
 - [ ] 6.1 Create the Vercel project on `web/`, add `eleicoes.luizcartolano.com`, and add the CNAME at GoDaddy
-- [ ] 6.2 Set the team slug in the Worker's preview pattern, and approve the redeploy
-- [ ] 6.3 Add to the README that the GoDaddy CNAME must be deleted before the Vercel project is ever removed
-- [ ] 6.4 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view
+- [ ] 6.2 Add to the README that the GoDaddy CNAME must be deleted before the Vercel project is ever removed
+- [ ] 6.3 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view
