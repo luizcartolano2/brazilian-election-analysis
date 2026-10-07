@@ -133,8 +133,9 @@ The Worker SHALL honor a single byte range in the forms `bytes=a-b`, `bytes=a-` 
 - **THEN** the Worker returns 200 with the whole file
 
 ### Requirement: CORS for the app's origins only
-The Worker SHALL send CORS headers only to the exact production origin, the commit preview
-origins of this Vercel project under Luiz's team scope, and local development origins.
+The Worker SHALL send CORS headers only to the exact production origin and the local
+development origin. It SHALL NOT allow any Vercel preview origin, because anyone can claim
+a free `vercel.app` alias that looks like this project's previews.
 Every response SHALL carry `Vary: Origin`. A preflight SHALL allow `GET` and `HEAD` and
 the `Range` header. Responses SHALL expose `Content-Range`, `Content-Length`,
 `Accept-Ranges` and `ETag`.
@@ -143,16 +144,12 @@ the `Range` header. Responses SHALL expose `Content-Range`, `Content-Length`,
 - **WHEN** a request comes from `https://eleicoes.luizcartolano.com`
 - **THEN** the response allows that origin and exposes `Content-Range`, `Content-Length`, `Accept-Ranges` and `ETag`
 
-#### Scenario: A preview deployment of this project
-- **WHEN** a request comes from a commit preview origin of this Vercel project under Luiz's team scope
+#### Scenario: Local development
+- **WHEN** a request comes from `http://localhost:3000`
 - **THEN** the response allows that origin
 
-#### Scenario: A look-alike preview from another account
-- **WHEN** a request comes from a Vercel origin whose project name starts the same but whose team scope differs, including a scope that ends in Luiz's slug
-- **THEN** the response carries no CORS allow header
-
-#### Scenario: A branch preview
-- **WHEN** a request comes from a branch preview origin, which another team can imitate
+#### Scenario: A Vercel origin
+- **WHEN** a request comes from any `vercel.app` origin, a preview of this project included
 - **THEN** the response carries no CORS allow header
 
 #### Scenario: A preflight for a range read

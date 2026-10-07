@@ -1,11 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { allowsOrigin } from "../src/cors";
-import { JSON_FILE, PARQUET_FILE, PRODUCTION, request, requestWith, seed, VERSION } from "./helpers";
+import { JSON_FILE, PARQUET_FILE, PRODUCTION, request, seed, VERSION } from "./helpers";
 
 beforeEach(seed);
 
-const TEAM = "luiz-team";
-const PREVIEW = `https://eleicoes-a1b2c3d4e-${TEAM}.vercel.app`;
 const EXPOSED = "Content-Range, Content-Length, Accept-Ranges, ETag";
 
 function withOrigin(origin: string, init: RequestInit = {}): RequestInit {
@@ -26,45 +23,18 @@ describe("allowed origins", () => {
 
     expect(response.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3000");
   });
-
-  it("allows a commit preview of this project under the team scope", async () => {
-    const response = await requestWith(
-      { VERCEL_TEAM_SLUG: TEAM },
-      `/${PARQUET_FILE}`,
-      withOrigin(PREVIEW),
-    );
-
-    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(PREVIEW);
-  });
-
-  it("allows no preview while the team slug is empty", async () => {
-    const response = await request(`/${PARQUET_FILE}`, withOrigin(PREVIEW));
-
-    expect(response.headers.get("Access-Control-Allow-Origin")).toBeNull();
-    expect(allowsOrigin("https://eleicoes-a1b2c3d4e-.vercel.app", "")).toBe(false);
-  });
 });
 
 describe("refused origins", () => {
+  // Anyone can claim a free *.vercel.app alias, so no Vercel origin passes, this project's
+  // previews included.
   it.each([
-    // Another team whose slug ends in this one, which a looser pattern would accept.
-    `https://eleicoes-a1b2c3d4e-evil-${TEAM}.vercel.app`,
-    // A branch preview of a project named eleicoes, on branch "luiz", in a team named "team".
-    "https://eleicoes-git-luiz-team.vercel.app",
-    `https://eleicoes-git-main-${TEAM}.vercel.app`,
-    `https://eleicoes-a1b2c3d4-${TEAM}.vercel.app`,
-    `https://eleicoes-a1b2c3d4e5-${TEAM}.vercel.app`,
-    `https://eleicoes-A1B2C3D4E-${TEAM}.vercel.app`,
-    `https://eleicoesx-a1b2c3d4e-${TEAM}.vercel.app`,
-    `https://other-a1b2c3d4e-${TEAM}.vercel.app`,
-    `http://eleicoes-a1b2c3d4e-${TEAM}.vercel.app`,
-    `${PREVIEW}.evil.com`,
-  ])("refuses the look-alike preview %s", async (origin) => {
-    const response = await requestWith(
-      { VERCEL_TEAM_SLUG: TEAM },
-      `/${PARQUET_FILE}`,
-      withOrigin(origin),
-    );
+    "https://eleicoes-a1b2c3d4e-luizcartolano2s-projects.vercel.app",
+    "https://eleicoes-git-main-luizcartolano2s-projects.vercel.app",
+    "https://eleicoes-luizcartolano2s-projects.vercel.app",
+    "https://eleicoes.vercel.app",
+  ])("refuses the Vercel origin %s", async (origin) => {
+    const response = await request(`/${PARQUET_FILE}`, withOrigin(origin));
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Access-Control-Allow-Origin")).toBeNull();
@@ -78,6 +48,8 @@ describe("refused origins", () => {
     "http://eleicoes.luizcartolano.com",
     "https://eleicoes.luizcartolano.com.evil.com",
     "https://www.eleicoes.luizcartolano.com",
+    "https://eleicoes.luizcartolano.com/",
+    "https://ELEICOES.luizcartolano.com",
     "http://localhost:3001",
     "https://localhost:3000",
     "http://127.0.0.1:3000",
@@ -85,10 +57,6 @@ describe("refused origins", () => {
     const response = await request(`/${PARQUET_FILE}`, withOrigin(origin));
 
     expect(response.headers.get("Access-Control-Allow-Origin")).toBeNull();
-  });
-
-  it("refuses a team slug that is not a slug", () => {
-    expect(allowsOrigin("https://eleicoes-a1b2c3d4e-.*.vercel.app", ".*")).toBe(false);
   });
 });
 

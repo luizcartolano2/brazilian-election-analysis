@@ -36,14 +36,14 @@ Only `.github/workflows/deploy-worker.yml` deploys. It runs on a push to `main` 
 environment holds the secret `CLOUDFLARE_API_TOKEN`, a custom token limited to Workers
 Scripts edit. The workflow also reads the variable `CLOUDFLARE_ACCOUNT_ID`.
 
-To roll back, redeploy the previous commit with the workflow's manual trigger.
+To roll back, use Rollback on the Worker's Deployments page in Cloudflare, or re-run an
+older "Deploy Worker" run, which deploys that run's commit. GitHub allows a re-run for 30
+days. Then merge a revert PR, so that `main` matches what is live. A manual trigger of the
+workflow always deploys the head of `main`.
 
-## Preview origins
+## Origins
 
-`VERCEL_TEAM_SLUG` in `wrangler.jsonc` is empty, so no Vercel preview can read data. Set it
-to the scope slug of the Vercel project once that project exists. The project must be
-named `eleicoes`.
-
-The Worker accepts only commit previews, `https://eleicoes-<9-character hash>-<slug>.vercel.app`.
-A branch preview is refused, because another Vercel team can create a branch preview whose
-URL ends in the same slug.
+CORS allows only `https://eleicoes.luizcartolano.com` and `http://localhost:3000`. Vercel
+previews get no CORS headers. Anyone can claim a free `*.vercel.app` alias, so no pattern
+can tell this project's previews from a look-alike. In a preview, the static pages work and
+the drill-downs do not. Test the drill-downs locally.

@@ -6,6 +6,7 @@ import {
   bytesOf,
   JSON_FILE,
   PARQUET_FILE,
+  PRODUCTION,
   request,
   requestWith,
   seed,
@@ -29,9 +30,22 @@ describe("files inside a version", () => {
     expect(response.headers.get("Content-Type")).toBe(contentType);
     expect(response.headers.get("Content-Length")).toBe(String(SIZE));
     expect(response.headers.get("Accept-Ranges")).toBe("bytes");
+    expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(response.headers.get("ETag")).toBe((await env.DATA.head(key))?.httpEtag);
     expect(await bytesOf(response)).toEqual(BYTES);
   });
+
+  it.each(["notes.txt", "a.constructor", "a.__proto__", "README"])(
+    "serves %s as application/octet-stream",
+    async (name) => {
+      await env.DATA.put(`${VERSION}/${name}`, BYTES);
+
+      const response = await request(`/${VERSION}/${name}`);
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Content-Type")).toBe("application/octet-stream");
+    },
+  );
 
   it("answers HEAD with the size and no body", async () => {
     const response = await request(`/${PARQUET_FILE}`, { method: "HEAD" });
@@ -39,6 +53,17 @@ describe("files inside a version", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Length")).toBe(String(SIZE));
     expect(await response.text()).toBe("");
+  });
+
+  it("returns 503 with the usual headers when storage fails", async () => {
+    const response = await requestWith({ DATA: UNREADABLE_BUCKET }, `/${PARQUET_FILE}`, {
+      headers: { Origin: PRODUCTION },
+    });
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("Vary")).toBe("Origin");
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(PRODUCTION);
+    expect(response.headers.get("Cache-Control")).toBeNull();
   });
 
   it("returns 404 for a missing file", async () => {
@@ -75,6 +100,20 @@ describe("paths that are not files", () => {
     "/vv/20261005-abc1234-17/manifest.json",
   ])("returns 404 without reading storage for %s, outside the allowed prefixes", async (path) => {
     expect((await requestWith({ DATA: UNREADABLE_BUCKET }, path)).status).toBe(404);
+  });
+
+  it("returns 404 without reading storage for a key longer than R2 allows", async () => {
+    const path = `/${VERSION}/${"a".repeat(1024 - VERSION.length - "/.json".length + 1)}.json`;
+
+    expect(path.length - 1).toBe(1025);
+    expect((await requestWith({ DATA: UNREADABLE_BUCKET }, path)).status).toBe(404);
+  });
+
+  it("reads storage for a key of exactly R2's limit", async () => {
+    const path = `/${VERSION}/${"a".repeat(1024 - VERSION.length - "/.json".length)}.json`;
+
+    expect(path.length - 1).toBe(1024);
+    expect((await request(path)).status).toBe(404);
   });
 
   it.each([

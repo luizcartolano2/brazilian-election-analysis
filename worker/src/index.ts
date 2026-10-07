@@ -2,29 +2,29 @@
 
 import { corsHeaders, PREFLIGHT_HEADERS } from "./cors";
 import { keyFromUrl } from "./keys";
-import { type ByteRange, parseRange } from "./range";
+import { type ByteRange, parseRangeHeader, resolveRange } from "./range";
 
 export interface Env {
   DATA: R2Bucket;
-  VERCEL_TEAM_SLUG: string;
 }
 
 const IMMUTABLE = "public, max-age=31536000, immutable";
 
 // R2 keeps whatever type the uploader guessed, and a browser compiles WebAssembly as it
-// streams only when the type is `application/wasm`.
-const CONTENT_TYPES: Record<string, string> = {
-  json: "application/json; charset=utf-8",
-  parquet: "application/vnd.apache.parquet",
-  wasm: "application/wasm",
-};
+// streams only when the type is `application/wasm`. A Map, because a plain object would
+// answer `constructor` and `__proto__` from its prototype.
+const CONTENT_TYPES = new Map([
+  ["json", "application/json; charset=utf-8"],
+  ["parquet", "application/vnd.apache.parquet"],
+  ["wasm", "application/wasm"],
+]);
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const headers = new Headers({
       Vary: "Origin",
       "X-Content-Type-Options": "nosniff",
-      ...corsHeaders(request.headers.get("Origin"), env.VERCEL_TEAM_SLUG),
+      ...corsHeaders(request.headers.get("Origin")),
     });
     const method = request.method;
     if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
@@ -41,8 +41,16 @@ export default {
       }
       return new Response(null, { status: 204, headers });
     }
-    if (method === "HEAD") return head(env.DATA, key, headers);
-    return get(env.DATA, key, request.headers.get("Range"), headers);
+
+    // Without this, an R2 failure reaches the browser as the runtime's error page, which has
+    // no CORS headers, so the app could not even read its status.
+    try {
+      if (method === "HEAD") return await head(env.DATA, key, headers);
+      return await get(env.DATA, key, request.headers.get("Range"), headers);
+    } catch (error) {
+      console.error("R2 read failed", error);
+      return new Response(null, { status: 503, headers });
+    }
   },
 } satisfies ExportedHandler<Env>;
 
@@ -61,16 +69,17 @@ async function get(
   headers: Headers,
 ): Promise<Response> {
   let range: ByteRange | null = null;
-  if (rangeHeader !== null) {
-    // The size decides between a part, the whole file and 416, so it is read first.
+  const spec = rangeHeader === null ? null : parseRangeHeader(rangeHeader);
+  if (spec !== null) {
+    // The size decides between a part and 416, so it is read first.
     const metadata = await bucket.head(key);
     if (metadata === null) return new Response(null, { status: 404, headers });
-    const parsed = parseRange(rangeHeader, metadata.size);
-    if (parsed === "unsatisfiable") {
+    const resolved = resolveRange(spec, metadata.size);
+    if (resolved === "unsatisfiable") {
       headers.set("Content-Range", `bytes */${metadata.size}`);
       return new Response(null, { status: 416, headers });
     }
-    if (parsed !== "whole") range = parsed;
+    range = resolved;
   }
 
   const object = await bucket.get(key, range === null ? {} : { range });
@@ -88,7 +97,7 @@ async function get(
 
 function describe(headers: Headers, key: string, object: R2Object): void {
   const extension = key.slice(key.lastIndexOf(".") + 1);
-  headers.set("Content-Type", CONTENT_TYPES[extension] ?? "application/octet-stream");
+  headers.set("Content-Type", CONTENT_TYPES.get(extension) ?? "application/octet-stream");
   headers.set("ETag", object.httpEtag);
   headers.set("Accept-Ranges", "bytes");
   headers.set("Cache-Control", IMMUTABLE);

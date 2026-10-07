@@ -1,6 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { parseRange } from "../src/range";
-import { BYTES, bytesOf, PARQUET_FILE, request, seed, SIZE } from "./helpers";
+import { parseRangeHeader, resolveRange } from "../src/range";
+import {
+  BYTES,
+  bytesOf,
+  countingBucket,
+  PARQUET_FILE,
+  request,
+  requestWith,
+  seed,
+  SIZE,
+} from "./helpers";
 
 beforeEach(seed);
 
@@ -79,13 +88,33 @@ describe("a header the Worker ignores", () => {
   });
 });
 
-describe("parseRange", () => {
+describe("R2 reads", () => {
+  it.each([
+    ["no Range header", undefined, ["get"]],
+    ["a single range", "bytes=0-9", ["head", "get"]],
+    ["several ranges", "bytes=0-1,5-6", ["get"]],
+    ["a malformed header", "items=0-9", ["get"]],
+  ])("reads the size first only for a range it will serve: %s", async (_, range, expected) => {
+    const { bucket, calls } = countingBucket();
+    const headers: Record<string, string> = range === undefined ? {} : { Range: range };
+
+    const response = await requestWith({ DATA: bucket }, `/${PARQUET_FILE}`, { headers });
+
+    expect(response.ok).toBe(true);
+    expect(calls).toEqual(expected);
+  });
+});
+
+describe("parseRangeHeader and resolveRange", () => {
   it("has no satisfiable range in an empty file", () => {
-    expect(parseRange("bytes=0-", 0)).toBe("unsatisfiable");
-    expect(parseRange("bytes=-10", 0)).toBe("unsatisfiable");
+    expect(resolveRange({ first: 0, last: null }, 0)).toBe("unsatisfiable");
+    expect(resolveRange({ first: null, last: 10 }, 0)).toBe("unsatisfiable");
   });
 
   it("clamps an end past the file", () => {
-    expect(parseRange("bytes=5-99999999999999999999", 10)).toEqual({ offset: 5, length: 5 });
+    const spec = parseRangeHeader("bytes=5-99999999999999999999");
+
+    expect(spec).not.toBeNull();
+    expect(resolveRange(spec!, 10)).toEqual({ offset: 5, length: 5 });
   });
 });

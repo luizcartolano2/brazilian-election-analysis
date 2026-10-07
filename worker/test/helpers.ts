@@ -35,6 +35,20 @@ export const UNREADABLE_BUCKET = new Proxy({} as R2Bucket, {
   },
 });
 
+/** The local bucket, recording the name of each method the Worker calls on it. */
+export function countingBucket(): { bucket: R2Bucket; calls: string[] } {
+  const calls: string[] = [];
+  const bucket = new Proxy(env.DATA, {
+    get(target, property) {
+      const value = Reflect.get(target, property);
+      if (typeof value !== "function") return value;
+      calls.push(String(property));
+      return value.bind(target);
+    },
+  });
+  return { bucket, calls };
+}
+
 export async function bytesOf(response: Response): Promise<Uint8Array> {
   return new Uint8Array(await response.arrayBuffer());
 }

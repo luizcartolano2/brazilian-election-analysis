@@ -7,9 +7,5 @@
   "preview_urls": false,
   "send_metrics": false,
   "dependencies_instrumentation": { "enabled": false },
-  "r2_buckets": [{ "binding": "DATA", "bucket_name": "eleicoes-data" }],
-  "vars": {
-    // The Vercel scope slug that preview deployments end in. Empty allows no preview.
-    "VERCEL_TEAM_SLUG": ""
-  }
+  "r2_buckets": [{ "binding": "DATA", "bucket_name": "eleicoes-data" }]
 }

@@ -1,24 +1,9 @@
-const PRODUCTION_ORIGIN = "https://eleicoes.luizcartolano.com";
-const LOCAL_ORIGIN = "http://localhost:3000";
-const PREVIEW_PREFIX = "https://eleicoes-";
-const TEAM_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const DEPLOYMENT_HASH = /^[a-z0-9]{9}$/;
+// Vercel previews are left out on purpose. Anyone can claim a free `*.vercel.app` alias, so
+// no pattern can tell this project's previews from a look-alike.
+const ALLOWED_ORIGINS = new Set(["https://eleicoes.luizcartolano.com", "http://localhost:3000"]);
 
-/**
- * Vercel names a commit preview `<project>-<9-character hash>-<scope>.vercel.app`. Only that
- * form passes. A looser pattern, or a branch preview, also matches another team whose slug
- * ends in this one.
- */
-export function allowsOrigin(origin: string, teamSlug: string): boolean {
-  if (origin === PRODUCTION_ORIGIN || origin === LOCAL_ORIGIN) return true;
-  if (!TEAM_SLUG.test(teamSlug)) return false;
-  const suffix = `-${teamSlug}.vercel.app`;
-  if (!origin.startsWith(PREVIEW_PREFIX) || !origin.endsWith(suffix)) return false;
-  return DEPLOYMENT_HASH.test(origin.slice(PREVIEW_PREFIX.length, origin.length - suffix.length));
-}
-
-export function corsHeaders(origin: string | null, teamSlug: string): Record<string, string> {
-  if (origin === null || !allowsOrigin(origin, teamSlug)) return {};
+export function corsHeaders(origin: string | null): Record<string, string> {
+  if (origin === null || !ALLOWED_ORIGINS.has(origin)) return {};
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Expose-Headers": "Content-Range, Content-Length, Accept-Ranges, ETag",
