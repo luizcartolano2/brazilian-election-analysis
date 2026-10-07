@@ -40,6 +40,14 @@ class Downloaded:
         return record
 
 
+def sha512_of(path: Path) -> str:
+    digest = hashlib.sha512()
+    with path.open("rb") as handle:
+        while chunk := handle.read(CHUNK):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def utc_now() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -68,14 +76,25 @@ class Downloader:
         )
         path = self.cache_dir / name
         meta_path = path.with_name(path.name + ".json")
-        if self.reuse_cache and path.exists() and meta_path.exists():
-            meta = json.loads(meta_path.read_text())
-            downloaded = Downloaded(path=path, **meta)
-        else:
+        downloaded = self._cached(source, path, meta_path) if self.reuse_cache else None
+        if downloaded is None:
             downloaded = self._download(source, path)
             meta_path.write_text(json.dumps(downloaded.record(), sort_keys=True))
         self.fetched[source.key] = downloaded
         return downloaded
+
+    @staticmethod
+    def _cached(source: Source, path: Path, meta_path: Path) -> "Downloaded | None":
+        """Reuses a cached file only if it was downloaded for this source and its bytes still
+        hash to what was downloaded, so the manifest records the bytes the build read."""
+        if not (path.exists() and meta_path.exists()):
+            return None
+        meta = json.loads(meta_path.read_text())
+        if meta.get("url") != source.url or meta.get("key") != source.key:
+            return None
+        if path.stat().st_size != meta.get("size") or sha512_of(path) != meta.get("sha512"):
+            return None
+        return Downloaded(path=path, **meta)
 
     def _download(self, source: Source, path: Path) -> Downloaded:
         self.cache_dir.mkdir(parents=True, exist_ok=True)

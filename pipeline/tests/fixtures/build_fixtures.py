@@ -1,16 +1,8 @@
-"""Cuts a small, consistent copy of TSE's files from the real ones in the download cache.
-
-Run from `pipeline/` after a real build has filled `data/cache`:
-    uv run python tests/fixtures/build_fixtures.py
-
-The chosen stations cover each case the pipeline must handle. Candidate identifiers are
-replaced with synthetic values whose CPF check digits are invalid, because fixtures are
-committed to a public repository. TSE's totals are recomputed for the chosen stations only.
-"""
+"""Cuts a small copy of TSE's files from the download cache, one station per case the pipeline
+must handle, with TSE's totals recomputed for those stations and no real personal data."""
 
 import csv
 import io
-import json
 import shutil
 import tempfile
 from collections import defaultdict
@@ -29,7 +21,13 @@ from eleicoes.aggregates import (
     unlisted_vote_types,
 )
 from eleicoes.download import Downloader
-from eleicoes.load import create_votes_table, load_munzona, load_places, load_votes
+from eleicoes.load import (
+    create_votes_table,
+    load_munzona,
+    load_places,
+    load_turnout,
+    load_votes,
+)
 from eleicoes.sources import (
     PROPORTIONAL_RACES,
     Bases,
@@ -39,6 +37,7 @@ from eleicoes.sources import (
     round_config,
     state_votes_source,
 )
+from eleicoes.write import write_json
 
 HERE = Path(__file__).parent
 OUT = HERE / "data"
@@ -47,6 +46,13 @@ CONFIG = round_config(1)
 REAL = Bases()
 FIXTURE_STATES = ("AC", "PE", "SE")
 NORONHA = 30015
+# The pipeline never reads these, and the fixtures are public, so they are blanked. Race is
+# sensitive data under the LGPD even though TSE publishes it.
+BLANKED_ATTRIBUTES = (
+    "CD_GENERO", "DS_GENERO", "CD_COR_RACA", "DS_COR_RACA", "CD_ESTADO_CIVIL",
+    "DS_ESTADO_CIVIL", "CD_GRAU_INSTRUCAO", "DS_GRAU_INSTRUCAO", "CD_OCUPACAO",
+    "DS_OCUPACAO", "SG_UF_NASCIMENTO",
+)  # fmt: skip
 
 # Each query returns station keys (uf, municipio, zona, secao) for one case to cover.
 CASES = {
@@ -214,6 +220,8 @@ def write_candidates(con, csv_path: Path, source, stations: set[tuple]) -> None:
         row[index["NR_TITULO_ELEITORAL_CANDIDATO"]] = f"9{position + 1:011d}"
         row[index["DT_NASCIMENTO"]] = "01/01/1900"
         row[index["DS_EMAIL"]] = "NÃO DIVULGÁVEL"
+        for column in BLANKED_ATTRIBUTES:
+            row[index[column]] = "#NULO"
     write_rows(cdn_path(source.url).with_name(source.member), header, kept)
 
 
@@ -240,11 +248,6 @@ def write_municipality_lists(downloader: Downloader, stations: set[tuple]) -> No
         write_json(results_path(source.url), document)
 
 
-def write_json(path: Path, document: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(document, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-
-
 def write_totals(con, downloader: Downloader, stations: set[tuple], munzona_source) -> None:
     """Recomputes TSE's aggregates and munzona totals for the chosen stations, keeping TSE's
     classification of every number."""
@@ -252,13 +255,7 @@ def write_totals(con, downloader: Downloader, stations: set[tuple], munzona_sour
     turnout_csv = cdn_path(bulk_sources(CONFIG, REAL)["turnout"].url).with_name(
         bulk_sources(CONFIG, REAL)["turnout"].member
     )
-    con.execute(f"""
-        CREATE OR REPLACE TABLE turnout AS
-        SELECT CAST(CD_ELEICAO AS INTEGER) eleicao, SG_UF uf, CAST(CD_CARGO AS INTEGER) cargo,
-               CAST(CD_MUNICIPIO AS INTEGER) municipio, CAST(QT_APTOS AS INTEGER) aptos,
-               CAST(QT_COMPARECIMENTO AS INTEGER) comparecimento
-        FROM read_csv('{turnout_csv}', delim=';', header=true, encoding='latin-1', all_varchar=true)
-    """)
+    load_turnout(con, turnout_csv, CONFIG.round)
     con.execute("""
         CREATE OR REPLACE TABLE chosen_votes AS
         SELECT v.* FROM state v JOIN chosen USING (uf, municipio, zona, secao)
@@ -281,6 +278,12 @@ def write_totals(con, downloader: Downloader, stations: set[tuple], munzona_sour
              f"uf = '{election.state}' AND municipio = {election.municipality}")
         )  # fmt: skip
 
+    real_munzona = {
+        (election, cargo, uf, number): (name, destination)
+        for election, cargo, uf, number, name, destination in con.execute(
+            "SELECT DISTINCT eleicao, cargo, uf, numero, nome_urna, destino FROM munzona"
+        ).fetchall()
+    }
     munzona_rows = []
     for election, cargo, state, area, scope in areas:
         source = aggregate_source(CONFIG, REAL, election, cargo, state, area)
@@ -309,15 +312,9 @@ def write_totals(con, downloader: Downloader, stations: set[tuple], munzona_sour
             if election == CONFIG.state and not listed and vote_type not in (
                 BLANK, NULL, TECHNICAL_NULL, PARTY_LIST
             ):  # fmt: skip
-                destination = (
-                    real.candidates[number].destination
-                    if number in real.candidates
-                    else next(
-                        d for n, d in unlisted_destinations(con, election, cargo, uf) if n == number
-                    )
-                )
+                name, destination = real_munzona[(election, cargo, uf, number)]
                 munzona_rows.append(
-                    (election, uf, municipio, zona, cargo, number, destination, count)
+                    (election, uf, municipio, zona, cargo, number, name, destination, count)
                 )
         attendance, eligible = con.execute(
             f"SELECT sum(comparecimento), sum(aptos) FROM turnout WHERE {scope_sql}"
@@ -327,13 +324,6 @@ def write_totals(con, downloader: Downloader, stations: set[tuple], munzona_sour
             aggregate_document(document, real, by_number, by_type, attendance, eligible),
         )
     write_munzona(munzona_rows, munzona_source)
-
-
-def unlisted_destinations(con, election: int, cargo: int, uf: str) -> list[tuple[int, str]]:
-    return con.execute(
-        f"SELECT DISTINCT numero, destino FROM munzona WHERE eleicao = {election} "
-        f"AND cargo = {cargo} AND uf = '{uf}'"
-    ).fetchall()
 
 
 def aggregate_document(document, real, by_number, by_type, attendance, eligible) -> dict:
@@ -370,16 +360,15 @@ def aggregate_document(document, real, by_number, by_type, attendance, eligible)
 def write_munzona(rows: list[tuple], source) -> None:
     header = [
         "CD_ELEICAO", "NR_TURNO", "SG_UF", "CD_MUNICIPIO", "NR_ZONA", "CD_CARGO",
-        "NR_CANDIDATO", "NM_TIPO_DESTINACAO_VOTOS", "QT_VOTOS_NOMINAIS",
+        "NR_CANDIDATO", "NM_URNA_CANDIDATO", "NM_TIPO_DESTINACAO_VOTOS", "QT_VOTOS_NOMINAIS",
     ]  # fmt: skip
-    write_rows(
-        cdn_path(source.url).with_name(source.member),
-        header,
-        [
-            [str(e), "1", uf, str(m), str(z), str(c), str(n), d, str(v)]
-            for e, uf, m, z, c, n, d, v in sorted(rows)
-        ],
-    )
+    body = []
+    for election, uf, municipio, zona, cargo, number, name, destination, votes in sorted(rows):
+        body.append(
+            [str(election), "1", uf, str(municipio), str(zona), str(cargo), str(number),
+             name, destination, str(votes)]
+        )  # fmt: skip
+    write_rows(cdn_path(source.url).with_name(source.member), header, body)
 
 
 if __name__ == "__main__":

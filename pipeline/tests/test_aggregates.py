@@ -9,6 +9,7 @@ from eleicoes.aggregates import (
     TECHNICAL_NULL,
     MalformedAggregate,
     UnknownDestination,
+    destinations_agree,
     parse_aggregate,
     typed_a_party,
     unlisted_vote_types,
@@ -131,3 +132,24 @@ def test_a_missing_total_fails():
 )  # fmt: skip
 def test_typed_a_party(number, proportional, expected):
     assert typed_a_party(number, proportional) is expected
+
+
+def test_errors_name_the_race():
+    with pytest.raises(UnknownDestination, match="election 6259 race 6 area ac"):
+        parse_aggregate(
+            document([party(15, candidates=[candidate(1501, "Algo novo")])]), "ac", True
+        )
+
+
+def test_a_missing_party_field_is_a_malformed_aggregate():
+    broken = document([party(15)])
+    del broken["carg"][0]["agr"][0]["par"][0]["dvt"]
+    with pytest.raises(MalformedAggregate, match="race 6 area ac"):
+        parse_aggregate(broken, "ac", proportional=True)
+
+
+def test_the_two_files_must_agree_on_a_destination():
+    aggregate = parse_aggregate(document([party(15, candidates=[candidate(1501)])]), "ac", True)
+    destinations_agree(aggregate, {1501: CANDIDATE, 4033: ANNULLED_SUB_JUDICE})
+    with pytest.raises(UnknownDestination, match="1501 has two destinations"):
+        destinations_agree(aggregate, {1501: ANNULLED_SUB_JUDICE})

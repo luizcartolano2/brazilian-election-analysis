@@ -7,6 +7,7 @@ import pytest
 from conftest import run_build
 
 from eleicoes.aggregates import ANNULLED_SUB_JUDICE, PARTY_LIST, TECHNICAL_NULL
+from eleicoes.build import BuildError
 from eleicoes.download import SourceUnavailable
 from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
 from eleicoes.sources import Bases, bulk_sources, round_config
@@ -194,3 +195,88 @@ def test_a_missing_source_stops_the_build_with_no_output(tse, tmp_path):
     with pytest.raises(SourceUnavailable, match=turnout.key):
         run_build(tse, tmp_path)
     assert not (tmp_path / "out").exists()
+
+
+def test_each_classified_candidate_number_has_one_row(built):
+    rows = query(
+        built / DATA / "candidatos.parquet",
+        "SELECT eleicao, cargo, uf, numero FROM FILE WHERE destino IS NOT NULL "
+        "GROUP BY ALL HAVING count(*) > 1",
+    )
+    assert rows == []
+
+
+@pytest.mark.parametrize(("cargo", "uf", "numero"), [(5, "PE", 300), (6, "AC", 1567)])
+def test_names_spelled_differently_still_match(built, cargo, uf, numero):
+    rows = query(
+        built / DATA / "candidatos.parquet",
+        f"SELECT partido_numero, destino FROM FILE WHERE eleicao = 6259 AND cargo = {cargo} "
+        f"AND uf = '{uf}' AND numero = {numero}",
+    )
+    assert len(rows) == 1
+    partido_numero, destino = rows[0]
+    assert partido_numero is not None and destino is not None
+
+
+def test_a_candidate_the_aggregate_omits_takes_the_munzona_destination(built):
+    """Two candidacies share 4033 in Pernambuco after a substitution. Only the one TSE counted
+    gets the destination its municipality-and-zone file gives."""
+    rows = query(
+        built / DATA / "candidatos.parquet",
+        "SELECT nome_urna, destino FROM FILE WHERE cargo = 6 AND uf = 'PE' AND numero = 4033 "
+        "ORDER BY nome_urna",
+    )
+    assert rows == [("GERMANA LACERDA", None), ("ZOZOI DO IBURA", "Anulado sub judice")]
+
+
+def test_turnout_totals_per_municipality_and_zone(built):
+    stations = built / DATA / "comparecimento" / "uf=AC.parquet"
+    expected = query(
+        stations, "SELECT cargo, sum(comparecimento) FROM FILE GROUP BY cargo ORDER BY cargo"
+    )
+    for level in ("municipio", "zona"):
+        totals = built / DATA / "totais" / level / "comparecimento" / "uf=AC.parquet"
+        assert (
+            query(
+                totals, "SELECT cargo, sum(comparecimento) FROM FILE GROUP BY cargo ORDER BY cargo"
+            )
+            == expected
+        )
+
+
+def test_unknown_coordinates_are_null(built):
+    rows = query(built / DATA / "secoes" / "uf=ZZ.parquet", "SELECT DISTINCT latitude FROM FILE")
+    assert rows == [(None,)]
+
+
+def test_a_build_from_other_urls_is_marked(built):
+    manifest = json.loads((built / "manifest.json").read_text())
+    assert manifest["fontes_tse"] is False
+
+
+def municipality_list(tse, election: int) -> Path:
+    return (
+        tse.data / "results" / "ele2026" / str(election) / "config" / f"mun-e{election:06d}-cm.json"
+    )
+
+
+def test_an_invalid_state_code_stops_the_build(tse, tmp_path):
+    tse.edit_json(
+        municipality_list(tse, 6257), lambda document: document["abr"][0].update(cd="a'c")
+    )
+    with pytest.raises(BuildError, match="invalid state code"):
+        run_build(tse, tmp_path)
+
+
+def test_a_repeated_state_is_built_once(tse, tmp_path):
+    out = run_build(tse, tmp_path, states=("AC", "AC"))
+    assert json.loads((out / "manifest.json").read_text())["estados"] == ["AC"]
+
+
+def test_conflicting_municipality_lists_stop_the_build(tse, tmp_path):
+    def rename(document):
+        document["abr"][0]["mu"][0]["nm"] = "OUTRO NOME"
+
+    tse.edit_json(municipality_list(tse, 6261), rename)
+    with pytest.raises(BuildError, match="differs between TSE's lists"):
+        run_build(tse, tmp_path)

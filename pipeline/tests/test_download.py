@@ -11,7 +11,10 @@ BODY = b"some election data\n" * 100
 
 
 class Handler(BaseHTTPRequestHandler):
+    hits: list[str] = []
+
     def do_GET(self):
+        Handler.hits.append(self.path)
         if self.path == "/complete.csv":
             self.send_response(200)
             self.send_header("Content-Length", str(len(BODY)))
@@ -31,6 +34,7 @@ class Handler(BaseHTTPRequestHandler):
 
 @pytest.fixture
 def server():
+    Handler.hits.clear()
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
@@ -66,12 +70,22 @@ def test_a_truncated_file_fails_and_leaves_nothing(server, tmp_path):
     assert list((tmp_path / "cache").iterdir()) == []
 
 
-def test_a_cached_file_is_not_downloaded_again(server, tmp_path):
+def test_an_intact_cached_file_is_not_downloaded_again(server, tmp_path):
+    source = Source("complete", f"{server}/complete.csv")
+    first = downloader(tmp_path).fetch(source)
+    again = downloader(tmp_path).fetch(source)
+    assert again.sha512 == first.sha512
+    assert Handler.hits == ["/complete.csv"]
+
+
+def test_a_changed_cached_file_is_downloaded_again(server, tmp_path):
     source = Source("complete", f"{server}/complete.csv")
     first = downloader(tmp_path).fetch(source)
     first.path.write_bytes(b"changed on disk")
     again = downloader(tmp_path).fetch(source)
-    assert again.sha512 == first.sha512
+    assert again.path.read_bytes() == BODY
+    assert again.sha512 == hashlib.sha512(BODY).hexdigest()
+    assert Handler.hits == ["/complete.csv", "/complete.csv"]
 
 
 def test_fresh_mode_downloads_again(server, tmp_path):
@@ -80,3 +94,12 @@ def test_fresh_mode_downloads_again(server, tmp_path):
     first.path.write_bytes(b"changed on disk")
     fresh = Downloader(tmp_path / "cache", reuse_cache=False, retry_delay=0).fetch(source)
     assert fresh.path.read_bytes() == BODY
+
+
+def test_a_cached_file_recorded_for_another_url_is_downloaded_again(server, tmp_path):
+    source = Source("complete", f"{server}/complete.csv")
+    first = downloader(tmp_path).fetch(source)
+    meta = first.path.with_name(first.path.name + ".json")
+    meta.write_text(meta.read_text().replace("/complete.csv", "/elsewhere.csv"))
+    downloader(tmp_path).fetch(source)
+    assert Handler.hits == ["/complete.csv", "/complete.csv"]

@@ -11,7 +11,7 @@ from eleicoes.privacy import (
     is_valid_cpf,
     valid_cpfs_in,
 )
-from eleicoes.write import write_parquet
+from eleicoes.write import write_json, write_parquet
 
 FIXTURES = Path(__file__).parent / "fixtures" / "data"
 
@@ -70,3 +70,9 @@ def test_writer_refuses_a_personal_column(tmp_path):
     with pytest.raises(PersonalDataError):
         write_parquet(con, "SELECT 1 AS numero, '000' AS nr_cpf", tmp_path / "out.parquet")
     assert not (tmp_path / "out.parquet").exists()
+
+
+def test_json_writer_refuses_a_personal_key(tmp_path):
+    with pytest.raises(PersonalDataError):
+        write_json(tmp_path / "out.json", {"candidatos": [{"numero": 1, "cpf": "000"}]})
+    assert not (tmp_path / "out.json").exists()

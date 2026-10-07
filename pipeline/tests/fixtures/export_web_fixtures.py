@@ -1,16 +1,14 @@
-"""Builds the fixtures and copies the output to `web/fixtures/`, the app's sample data.
+"""Copies the pipeline's output for the fixtures to `web/fixtures/`, the app's sample data.
 
-Run from `pipeline/`: `uv run python tests/fixtures/export_web_fixtures.py`. CI runs it and fails
-when `web/fixtures/` changes, so a schema change cannot reach one side only. The manifest is
-rewritten to name TSE's real URLs, because the fixture build reads them from a temporary path.
-"""
+Sources are recorded as `fixture://` paths: the build read them from a temporary folder, and
+their checksums describe the fixture files, never TSE's real ones."""
 
 import json
 import shutil
 import tempfile
 from pathlib import Path
 
-from published import REAL, publish_fixtures
+from published import publish_fixtures
 
 from eleicoes.build import Build, BuildOptions
 from eleicoes.download import Downloader
@@ -38,7 +36,9 @@ def main() -> None:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         for source in manifest["fontes"]:
             source["url"] = (
-                source["url"].replace(bases.cdn, REAL.cdn).replace(bases.results, REAL.results)
+                source["url"]
+                .replace(bases.cdn, "fixture://cdn")
+                .replace(bases.results, "fixture://results")
             )
         manifest_path.write_text(
             json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=1) + "\n",

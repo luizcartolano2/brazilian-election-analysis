@@ -1,6 +1,7 @@
 """Builds one round's dataset: load, classify, reconcile, then write. Nothing reaches the output
 directory unless every check passes."""
 
+import re
 import shutil
 import sys
 import time
@@ -18,6 +19,7 @@ from eleicoes.aggregates import (
     PARTY_LIST,
     TECHNICAL_NULL,
     RaceAggregate,
+    destinations_agree,
     parse_aggregate,
     typed_a_party,
     unlisted_vote_types,
@@ -30,13 +32,15 @@ from eleicoes.load import (
     load_places,
     load_turnout,
     load_votes,
+    quoted,
 )
 from eleicoes.reconcile import (
     Mismatch,
+    RaceSums,
     ReconciliationFailed,
     aggregate_mismatches,
     municipality_zone_mismatches,
-    party_list_votes,
+    race_sums,
     station_mismatches,
 )
 from eleicoes.sources import (
@@ -60,6 +64,8 @@ CREDIT = {
 SCHEMA_VERSION = 1
 MANIFEST = "manifest.json"
 REPORT_LIMIT = 50
+# State codes end up in SQL and in output paths, so anything else is refused.
+STATE_CODE = re.compile(r"[A-Z]{2}")
 
 
 class BuildError(Exception):
@@ -78,6 +84,13 @@ class BuildOptions:
 
 def log(message: str) -> None:
     print(f"{time.strftime('%H:%M:%S')} {message}", file=sys.stderr, flush=True)
+
+
+def state_code(raw: str) -> str:
+    code = str(raw).upper()
+    if not STATE_CODE.fullmatch(code):
+        raise BuildError(f"TSE's municipality list has an invalid state code: {raw!r}")
+    return code
 
 
 class Build:
@@ -135,14 +148,14 @@ class Build:
         document = self.downloader.json(
             municipality_list_source(self.config, self.options.bases, self.config.president)
         )
-        published = sorted(state["cd"].upper() for state in document["abr"])
+        published = sorted({state_code(state["cd"]) for state in document["abr"]})
         if self.options.states is None:
             self.states = published
             return
         unknown = sorted(set(self.options.states) - set(published))
         if unknown:
             raise BuildError(f"unknown state codes: {', '.join(unknown)}")
-        self.states = sorted(self.options.states)
+        self.states = sorted(set(self.options.states))
 
     def _extracted(self, source) -> Path:
         return self.downloader.extract(source, self.options.work_dir / "extracted")
@@ -181,27 +194,35 @@ class Build:
         """)
 
     def _load_municipalities(self) -> None:
-        rows = []
+        """The presidential and municipal lists overlap. A municipality they describe
+        differently is an error, not something to pick a winner for."""
+        rows: dict[int, tuple] = {}
         for election in [self.config.president, *self.municipal]:
             document = self.downloader.json(
                 municipality_list_source(self.config, self.options.bases, election)
             )
             for state in document["abr"]:
                 for municipality in state["mu"]:
-                    rows.append(
-                        (
-                            int(municipality["cd"]),
-                            int(municipality["cdi"]) if municipality.get("cdi") else None,
-                            municipality["nm"],
-                            state["cd"].upper(),
-                            municipality.get("c") == "s",
-                        )
+                    row = (
+                        int(municipality["cd"]),
+                        int(municipality["cdi"]) if municipality.get("cdi") else None,
+                        municipality["nm"],
+                        state_code(state["cd"]),
+                        municipality.get("c") == "s",
                     )
+                    if rows.setdefault(row[0], row) != row:
+                        raise BuildError(
+                            f"municipality {row[0]} differs between TSE's lists: "
+                            f"{rows[row[0]][1:]} and {row[1:]}"
+                        )
         self.con.execute("""
             CREATE OR REPLACE TABLE municipalities (
                 municipio INTEGER, ibge INTEGER, nome VARCHAR, uf VARCHAR, capital BOOLEAN)
         """)
-        self.con.executemany("INSERT INTO municipalities VALUES (?, ?, ?, ?, ?)", sorted(set(rows)))
+        self.con.executemany(
+            "INSERT INTO municipalities VALUES (?, ?, ?, ?, ?)",
+            [rows[code] for code in sorted(rows)],
+        )
 
     # One state
 
@@ -254,6 +275,7 @@ class Build:
                 ).fetchall(),
                 aggregate.label,
             )
+            destinations_agree(aggregate, unlisted)
             class_rows.extend(
                 (
                     eleicao,
@@ -302,10 +324,12 @@ class Build:
         zone_mismatches, covered = municipality_zone_mismatches(con, state)
         self.mismatches += zone_mismatches
         self.checked["municipality_zone"] += [[state, eleicao, cargo] for eleicao, cargo in covered]
-        for aggregate, scope in scopes:
-            self.mismatches += aggregate_mismatches(
-                con, aggregate, "classified", "turnout_state", scope, state
-            )
+        sums = [
+            (aggregate, race_sums(con, aggregate, "classified", "turnout_state", scope))
+            for aggregate, scope in scopes
+        ]
+        for aggregate, race_total in sums:
+            self.mismatches += aggregate_mismatches(aggregate, race_total, state)
             self.checked["aggregate"].append([aggregate.area, aggregate.election, aggregate.race])
 
         con.execute(
@@ -313,10 +337,10 @@ class Build:
             "WHERE eleicao = $p GROUP BY ALL",
             {"p": self.config.president},
         )
-        self._write_state(state, scopes)
+        self._write_state(state, sums)
         con.execute("DROP TABLE state_votes; DROP TABLE classified")
 
-    def _write_state(self, state: str, scopes: list[tuple[RaceAggregate, str]]) -> None:
+    def _write_state(self, state: str, sums: list[tuple[RaceAggregate, RaceSums]]) -> None:
         con = self.con
         root = self.data_root
         for (cargo,) in con.execute(
@@ -340,12 +364,23 @@ class Build:
                 f"WHERE cargo = {cargo} GROUP BY ALL ORDER BY municipio, zona, tipo, numero",
                 root / "totais" / "zona" / f"cargo={cargo}" / f"uf={state}.parquet",
             )
+        turnout_columns = "aptos, comparecimento, abstencoes, nominais, legenda, brancos, nulos"
         write_parquet(
             con,
-            "SELECT municipio, zona, secao, cargo, aptos, comparecimento, abstencoes, nominais, "
-            "legenda, brancos, nulos FROM turnout_state ORDER BY municipio, zona, secao, cargo",
+            f"SELECT municipio, zona, secao, cargo, {turnout_columns} FROM turnout_state "
+            f"ORDER BY municipio, zona, secao, cargo",
             root / "comparecimento" / f"uf={state}.parquet",
         )
+        turnout_sums = ", ".join(
+            f"sum({column})::INTEGER {column}" for column in turnout_columns.split(", ")
+        )
+        for level, keys in (("municipio", "municipio"), ("zona", "municipio, zona")):
+            write_parquet(
+                con,
+                f"SELECT {keys}, cargo, {turnout_sums} FROM turnout_state "
+                f"GROUP BY {keys}, cargo ORDER BY {keys}, cargo",
+                root / "totais" / level / "comparecimento" / f"uf={state}.parquet",
+            )
         write_parquet(
             con,
             f"SELECT municipio, zona, secao, local_votacao, agregada, secao_principal, nome_local, "
@@ -354,8 +389,8 @@ class Build:
             root / "secoes" / f"uf={state}.parquet",
         )
         races = [
-            self._summary(aggregate, "classified", "turnout_state", scope)
-            for aggregate, scope in scopes
+            self._summary(aggregate, race_total)
+            for aggregate, race_total in sums
             if aggregate.election not in self.municipal
         ]
         write_json(root / "resumo" / f"{state.lower()}.json", self._summary_document(state, races))
@@ -377,32 +412,16 @@ class Build:
             log("partial build: skipping the national presidential check and summary")
             return
         scope = f"eleicao = {president} AND cargo = 1"
-        self.mismatches += aggregate_mismatches(
-            self.con, aggregate, "national", "turnout", scope, "BR"
-        )
+        sums = race_sums(self.con, aggregate, "national", "turnout", scope)
+        self.mismatches += aggregate_mismatches(aggregate, sums, "BR")
         self.checked["aggregate"].append([area, president, 1])
-        summary = self._summary(aggregate, "national", "turnout", scope)
+        summary = self._summary(aggregate, sums)
         write_json(self.data_root / "resumo" / "br.json", self._summary_document("BR", [summary]))
 
     # Summaries
 
-    def _summary(self, aggregate: RaceAggregate, votes: str, turnout: str, scope: str) -> dict:
-        con = self.con
-        by_number = dict(
-            con.execute(
-                f"SELECT numero, sum(votos) FROM {votes} WHERE {scope} AND tipo != {PARTY_LIST} "
-                "GROUP BY numero"
-            ).fetchall()
-        )
-        by_type = dict(
-            con.execute(
-                f"SELECT tipo, sum(votos) FROM {votes} WHERE {scope} GROUP BY tipo"
-            ).fetchall()
-        )
-        eligible, attendance, abstention = con.execute(
-            f"SELECT coalesce(sum(aptos), 0), coalesce(sum(comparecimento), 0), "
-            f"coalesce(sum(abstencoes), 0) FROM {turnout} WHERE {scope}"
-        ).fetchone()
+    def _summary(self, aggregate: RaceAggregate, sums: RaceSums) -> dict:
+        by_number = sums.by_number
         candidates = sorted(
             (
                 {
@@ -417,7 +436,7 @@ class Build:
             ),
             key=lambda entry: (-entry["votos"], entry["numero"]),
         )
-        by_party = party_list_votes(con, aggregate, votes, scope)
+        by_party = sums.by_party
         candidate_votes: dict[int, int] = {}
         for candidate in aggregate.candidates.values():
             candidate_votes[candidate.party_number] = candidate_votes.get(
@@ -440,18 +459,16 @@ class Build:
             ),
         )
 
-        def total(vote_type: int) -> int:
-            return int(by_type.get(vote_type, 0))
-
+        total = sums.total
         return {
             "eleicao": aggregate.election,
             "cargo": aggregate.race,
             "nome": aggregate.race_name,
             "vagas": aggregate.seats,
             "escolhas_por_eleitor": aggregate.choices_per_voter,
-            "aptos": int(eligible),
-            "comparecimento": int(attendance),
-            "abstencoes": int(abstention),
+            "aptos": sums.eligible,
+            "comparecimento": sums.attendance,
+            "abstencoes": sums.abstention,
             "validos": total(CANDIDATE) + total(PARTY_LIST),
             "nominais": total(CANDIDATE),
             "legenda": total(PARTY_LIST),
@@ -494,23 +511,38 @@ class Build:
             ]  # fmt: skip
         con.executemany("INSERT INTO aggregate_candidates VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", rows)
         built = ", ".join(f"'{state}'" for state in [*self.states, "BR"])
+        # The registry and the aggregate spell some ballot names differently (the registry drops
+        # apostrophes, quotes and ordinal marks), so the number is the key. The name only picks
+        # among several candidacies that share a number.
         write_parquet(
             con,
             f"""
             WITH registry_built AS (SELECT * FROM registry WHERE uf IN ({built})),
+            names AS (
+                SELECT eleicao, cargo, uf, numero, count(DISTINCT nome_urna) candidacies
+                FROM registry_built GROUP BY ALL),
+            unlisted AS (
+                SELECT DISTINCT eleicao, cargo, uf, numero, nome_urna, destino FROM munzona),
             matched AS (
-                SELECT r.*, a.destino, a.resultado
-                FROM registry_built r LEFT JOIN aggregate_candidates a
+                SELECT r.*, coalesce(a.destino, u.destino) destino, a.resultado
+                FROM registry_built r
+                JOIN names n USING (eleicao, cargo, uf, numero)
+                LEFT JOIN aggregate_candidates a
                   ON a.eleicao = r.eleicao AND a.cargo = r.cargo AND a.uf = r.uf
-                 AND a.numero = r.numero AND a.nome_urna = r.nome_urna),
+                 AND a.numero = r.numero
+                 AND (n.candidacies = 1 OR a.nome_urna = r.nome_urna)
+                LEFT JOIN unlisted u
+                  ON a.numero IS NULL AND u.eleicao = r.eleicao AND u.cargo = r.cargo
+                 AND u.uf = r.uf AND u.numero = r.numero
+                 AND (n.candidacies = 1 OR u.nome_urna = r.nome_urna)),
             aggregate_only AS (
                 SELECT a.eleicao, {self.config.round}::TINYINT turno, a.cargo, a.uf, a.numero,
                        a.nome_urna, a.partido_numero, a.partido_sigla,
                        NULL::VARCHAR federacao, NULL::VARCHAR coligacao, NULL::VARCHAR situacao,
                        a.destino, a.resultado
-                FROM aggregate_candidates a ANTI JOIN registry_built r
-                  ON a.eleicao = r.eleicao AND a.cargo = r.cargo AND a.uf = r.uf
-                 AND a.numero = r.numero AND a.nome_urna = r.nome_urna)
+                FROM aggregate_candidates a ANTI JOIN matched m
+                  ON a.eleicao = m.eleicao AND a.cargo = m.cargo AND a.uf = m.uf
+                 AND a.numero = m.numero AND m.resultado IS NOT NULL)
             SELECT eleicao, turno, cargo, uf, numero, nome_urna, partido_numero, partido_sigla,
                    federacao, coligacao, situacao, destino, resultado
             FROM (SELECT * FROM matched UNION ALL BY NAME SELECT * FROM aggregate_only)
@@ -518,6 +550,14 @@ class Build:
             """,
             self.data_root / "candidatos.parquet",
         )
+        listed_twice = con.execute(
+            f"""SELECT count(*) FROM (
+                SELECT eleicao, cargo, uf, numero
+                FROM read_parquet({quoted(self.data_root / "candidatos.parquet")})
+                WHERE destino IS NOT NULL GROUP BY ALL HAVING count(*) > 1)"""
+        ).fetchone()[0]
+        if listed_twice:
+            raise BuildError(f"{listed_twice} candidate numbers have more than one classified row")
 
     def _write_municipalities(self) -> None:
         write_parquet(
@@ -534,6 +574,7 @@ class Build:
             "commit": self.options.commit,
             "gerado_em": self.downloader.clock(),
             "parcial": not self.complete,
+            "fontes_tse": self.options.bases == Bases(),
             "estados": self.states,
             "credito": CREDIT,
             "fontes": self.downloader.records(),

@@ -155,3 +155,14 @@ def test_an_unknown_destination_stops_the_build(tse, tmp_path):
     )
     with pytest.raises(UnknownDestination, match="Destino novo"):
         run_build(tse, tmp_path)
+
+
+def test_council_votes_are_checked_against_one_choice(tse, tmp_path):
+    def seven_choices(document):
+        document["v"]["tv"] = str(int(document["e"]["c"]) * 7)
+
+    tse.edit_json(tse.aggregate_path("6261/dados/pe/pe30015-c0025-e006261-u.json"), seven_choices)
+    mismatches = failure(tse, tmp_path)
+    assert any(
+        "[station]" in m and "race 25" in m and "attendance x choices" in m for m in mismatches
+    )

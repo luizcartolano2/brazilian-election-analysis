@@ -154,13 +154,25 @@ def _int(block: dict, key: str, label: str) -> int:
 
 
 def parse_aggregate(document: dict, area: str, proportional: bool) -> RaceAggregate:
-    label = f"aggregate {document.get('ele')} area {area}"
+    race_code = (document.get("carg") or [{}])[0].get("cd")
+    label = f"election {document.get('ele')} race {race_code} area {area}"
     try:
-        race = document["carg"][0]
-        votes = document["v"]
-        electorate = document["e"]
-    except (KeyError, IndexError) as error:
-        raise MalformedAggregate(f"{label} is missing {error}") from error
+        return _parse(document, area, proportional, label)
+    except (KeyError, IndexError, TypeError, ValueError) as error:
+        raise MalformedAggregate(f"{label}: missing or invalid field {error!r}") from None
+
+
+def destinations_agree(aggregate: RaceAggregate, unlisted: dict[int, int]) -> None:
+    """A number both files classify must get the same type from each."""
+    for number, candidate in aggregate.candidates.items():
+        if number in unlisted and unlisted[number] != candidate.vote_type:
+            raise UnknownDestination(f"{aggregate.label}: candidate {number} has two destinations")
+
+
+def _parse(document: dict, area: str, proportional: bool, label: str) -> RaceAggregate:
+    race = document["carg"][0]
+    votes = document["v"]
+    electorate = document["e"]
 
     candidates: dict[int, AggregateCandidate] = {}
     parties: dict[int, AggregateParty] = {}

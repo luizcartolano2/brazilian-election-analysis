@@ -20,7 +20,16 @@ def write_parquet(con: duckdb.DuckDBPyConnection, query: str, path: Path) -> Non
     con.execute(f"COPY ({query}) TO {quoted(path)} ({PARQUET_OPTIONS})")
 
 
+def keys_of(document) -> list[str]:
+    if isinstance(document, dict):
+        return [*document, *(key for value in document.values() for key in keys_of(value))]
+    if isinstance(document, list):
+        return [key for value in document for key in keys_of(value)]
+    return []
+
+
 def write_json(path: Path, document: dict | list) -> None:
+    assert_no_personal_columns(path.name, keys_of(document))
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(document, ensure_ascii=False, sort_keys=True, indent=1)
     path.write_text(text + "\n", encoding="utf-8")

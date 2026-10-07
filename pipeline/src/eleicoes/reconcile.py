@@ -7,7 +7,9 @@ import duckdb
 from eleicoes.aggregates import (
     ANNULLED,
     ANNULLED_SUB_JUDICE,
+    BLANK,
     CANDIDATE,
+    NULL,
     PARTY_LIST,
     TECHNICAL_NULL,
     VOTE_TYPES,
@@ -47,8 +49,8 @@ def station_mismatches(con: duckdb.DuckDBPyConnection, state: str) -> list[Misma
                    coalesce(sum(votos) FILTER (WHERE NOT lista AND tipo IN ({CANDIDATE},
                        {TECHNICAL_NULL}, {ANNULLED}, {ANNULLED_SUB_JUDICE})), 0) nominais,
                    coalesce(sum(votos) FILTER (WHERE lista), 0) legenda,
-                   coalesce(sum(votos) FILTER (WHERE tipo = 3), 0) brancos,
-                   coalesce(sum(votos) FILTER (WHERE tipo = 4), 0) nulos
+                   coalesce(sum(votos) FILTER (WHERE tipo = {BLANK}), 0) brancos,
+                   coalesce(sum(votos) FILTER (WHERE tipo = {NULL}), 0) nulos
             FROM classified GROUP BY ALL),
         theirs AS (SELECT * FROM turnout WHERE uf = $state),
         joined AS (
@@ -135,48 +137,64 @@ def municipality_zone_mismatches(
     return mismatches, [(int(eleicao), int(cargo)) for eleicao, cargo in covered]
 
 
-def party_list_votes(
-    con: duckdb.DuckDBPyConnection, aggregate: RaceAggregate, votes_table: str, scope: str
-) -> dict[int, int]:
-    """List votes per party, whatever their destination: a party under appeal keeps its list
-    votes, classified as annulled sub judice, and TSE still counts them in `tval`."""
-    if not aggregate.parties:
-        return {}
-    numbers = ", ".join(str(number) for number in sorted(aggregate.parties))
-    return dict(
-        con.execute(
-            f"SELECT numero, sum(votos) FROM {votes_table} WHERE {scope} "
-            f"AND numero IN ({numbers}) GROUP BY numero"
-        ).fetchall()
-    )
+@dataclass(frozen=True)
+class RaceSums:
+    """One race's sums over one area, shared by the aggregate check and the summary."""
+
+    by_number: dict[int, int]
+    by_party: dict[int, int]
+    by_type: dict[int, int]
+    eligible: int
+    attendance: int
+    abstention: int
+
+    def total(self, vote_type: int) -> int:
+        return int(self.by_type.get(vote_type, 0))
 
 
-def aggregate_mismatches(
+def race_sums(
     con: duckdb.DuckDBPyConnection,
     aggregate: RaceAggregate,
     votes_table: str,
     turnout_table: str,
     scope: str,
-    where: str,
-) -> list[Mismatch]:
-    """`scope` is a SQL filter, valid on both tables, that selects the aggregate's area."""
-    label = f"{where} race {aggregate.race}"
+) -> RaceSums:
+    """`scope` is a SQL filter, valid on both tables, that selects the aggregate's area.
+
+    Party-list votes are summed by party number whatever their destination: a party under
+    appeal keeps its list votes, classified as annulled sub judice, and TSE still counts
+    them in `tval`."""
     by_number = dict(
         con.execute(
             f"SELECT numero, sum(votos) FROM {votes_table} WHERE {scope} "
             f"AND tipo != {PARTY_LIST} GROUP BY numero"
         ).fetchall()
     )
-    by_party = party_list_votes(con, aggregate, votes_table, scope)
+    by_party = {}
+    if aggregate.parties:
+        numbers = ", ".join(str(number) for number in sorted(aggregate.parties))
+        by_party = dict(
+            con.execute(
+                f"SELECT numero, sum(votos) FROM {votes_table} WHERE {scope} "
+                f"AND numero IN ({numbers}) GROUP BY numero"
+            ).fetchall()
+        )
     by_type = dict(
         con.execute(
             f"SELECT tipo, sum(votos) FROM {votes_table} WHERE {scope} GROUP BY tipo"
         ).fetchall()
     )
-    attendance, eligible = con.execute(
-        f"SELECT coalesce(sum(comparecimento), 0), coalesce(sum(aptos), 0) FROM {turnout_table} "
-        f"WHERE {scope}"
+    eligible, attendance, abstention = con.execute(
+        f"SELECT coalesce(sum(aptos), 0), coalesce(sum(comparecimento), 0), "
+        f"coalesce(sum(abstencoes), 0) FROM {turnout_table} WHERE {scope}"
     ).fetchone()
+    return RaceSums(by_number, by_party, by_type, int(eligible), int(attendance), int(abstention))
+
+
+def aggregate_mismatches(aggregate: RaceAggregate, sums: RaceSums, where: str) -> list[Mismatch]:
+    label = f"{where} race {aggregate.race}"
+    by_number, by_party, by_type = sums.by_number, sums.by_party, sums.by_type
+    attendance, eligible = sums.attendance, sums.eligible
 
     mismatches = []
 
