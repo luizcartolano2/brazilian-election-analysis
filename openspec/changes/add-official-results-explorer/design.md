@@ -351,15 +351,32 @@ rights on top, so it stays out.
 - Messages are `web/messages/pt.json` and `web/messages/en.json`, read through a small
   typed `t()`. A Vitest test compares their key sets. Numbers use `Intl.NumberFormat`
   with `pt-BR` or `en-US`.
-- Pre-rendered pages are `/2026/` and `/2026/<uf>/` for each state and `zz`, in both
-  languages, 58 pages in all.
+- Pre-rendered pages are `/2026/` for Brazil, `/2026/<uf>/` for each state and `zz`,
+  `/2026/<uf>/<race>/` for each race of each state, and `/2026/fontes/`, in both
+  languages: 332 pages in all. Brazil shows President in full and offers the state list
+  for the state races. A state shows the leaders of each race and links to the race's own
+  page, which lists every candidate. Abroad shows its one race in full. A race page is a
+  page of its own because the state deputy race in São Paulo has 1,346 candidates: its
+  HTML is about 2 MB, or 86 KB compressed, and 13,000 DOM nodes, which a phone renders
+  without horizontal scrolling. Links to race pages do not prefetch, so a state page
+  never downloads that data unless the visitor asks for it.
+- A party's total in a deputy race is its valid candidate votes plus its valid list
+  votes, computed from the candidate list. The summary's `votos_candidatos` also counts
+  candidates under appeal, so a party table built on it would add up to more than the
+  valid votes. Votes under appeal have their own lines: each candidate, each party list
+  under appeal, and any remainder that no listed candidate carries.
 - `web/src/data-version.ts` holds the pinned version name, its manifest's SHA-256 and the
   Worker's base URL. The Worker's origin also appears in the `connect-src` directive of
   `vercel.json`, because Vercel reads that file before any build step runs, so a build
-  cannot generate it. A Vitest test fails when the two origins differ. The build-time
-  loader fetches the
-  manifest, checks its SHA-256, then checks each `resumo/*.json` it reads against the
-  manifest, and fails the build on any difference.
+  cannot generate it. A Vitest test fails when the two origins differ. Before `next
+  build`, `scripts/prepare-data.ts` fetches the manifest, checks its SHA-256 and its
+  `parcial` and `fontes_tse` flags, then checks each `resumo/*.json` against the manifest
+  and copies the checked files into `.data/`, where the pages read them. Any difference
+  fails the build. With `ELEICOES_DATA=fixtures` it reads `web/fixtures/` instead, for CI,
+  and checks the summaries but not the pin, because fixtures have no published version.
+- Each language has its own root layout, so an unknown address gets
+  `app/global-not-found.tsx`, in both languages. It needs Next's experimental
+  `globalNotFound` flag. `vercel.json` redirects `/` and `/en/` to the 2026 pages.
 - Municipality, zone and station views are one static page each. Each reads its location
   from query parameters such as `?uf=ac&mu=1066&zn=4&se=77`. A parser accepts `uf` only
   from the 27 states and `zz`, the race only from the election's races, and `mu`, `zn`

@@ -28,7 +28,9 @@ why.
 
 The pipeline builds and checks the whole first round: every polling station in Brazil
 and abroad matches TSE's own totals. The Worker that serves the data to browsers is
-live, and a workflow publishes each data version. The app comes next.
+live, and a workflow publishes each data version. The app's static pages for Brazil,
+each state and each state race are built. The drill-downs to municipality, zone and
+polling station come next.
 
 | Milestone | Target |
 |---|---|
@@ -56,7 +58,7 @@ TSE open data ──> pipeline (GitHub Actions) ──> Parquet on Cloudflare R2
 | Path | Contents |
 |---|---|
 | `pipeline/` | Python: download, checks against TSE, Parquet. See [`pipeline/README.md`](pipeline/README.md) |
-| `web/` | The Next.js app. Only its sample data (`web/fixtures/`) exists so far |
+| `web/` | The Next.js app. See [`web/README.md`](web/README.md) |
 | `worker/` | The Cloudflare Worker in front of R2. See [`worker/README.md`](worker/README.md) |
 | `docs/` | Decisions and, later, the methodology |
 | `research/` | The prototypes from the exploration on 2026-10-06. Not part of the pipeline |
