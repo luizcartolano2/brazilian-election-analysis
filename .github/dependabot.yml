@@ -31,3 +31,28 @@ updates:
       # The test plugin supports one Vitest major, so a new major waits for the plugin.
       - dependency-name: vitest
         update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      next:
+        patterns:
+          - next
+          - eslint-config-next
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
+    ignore:
+      # typescript-eslint supports TypeScript below 6.1, so a newer TypeScript waits for it.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # eslint-plugin-react, through eslint-config-next, supports ESLint 9 only.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
