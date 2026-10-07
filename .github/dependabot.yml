@@ -14,3 +14,16 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /worker
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      # The test plugin pins the Wrangler version it was built with, so they move together.
+      cloudflare:
+        patterns:
+          - wrangler
+          - "@cloudflare/*"

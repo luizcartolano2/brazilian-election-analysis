@@ -27,7 +27,8 @@ why.
 ## Status
 
 The pipeline builds and checks the whole first round: every polling station in Brazil
-and abroad matches TSE's own totals. Publishing, the Worker and the app come next.
+and abroad matches TSE's own totals. The Worker that serves the data to browsers is
+written. Publishing and the app come next.
 
 | Milestone | Target |
 |---|---|
@@ -56,7 +57,7 @@ TSE open data ──> pipeline (GitHub Actions) ──> Parquet on Cloudflare R2
 |---|---|
 | `pipeline/` | Python: download, checks against TSE, Parquet. See [`pipeline/README.md`](pipeline/README.md) |
 | `web/` | The Next.js app. Only its sample data (`web/fixtures/`) exists so far |
-| `worker/` | The Cloudflare Worker in front of R2. Not created yet |
+| `worker/` | The Cloudflare Worker in front of R2. See [`worker/README.md`](worker/README.md) |
 | `docs/` | Decisions and, later, the methodology |
 | `research/` | The prototypes from the exploration on 2026-10-06. Not part of the pipeline |
 | `openspec/` | Specs and in-flight changes |
