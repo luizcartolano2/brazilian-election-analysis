@@ -1,0 +1,24 @@
+import type { Metadata } from 'next'
+import { localePath, t, type Locale } from '@/lib/i18n'
+
+export const SITE_URL = 'https://eleicoes.luizcartolano.com'
+
+export function layoutMetadata(locale: Locale): Metadata {
+  const name = t(locale, 'site.name')
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: name, template: `%s · ${name}` },
+    description: t(locale, 'meta.description'),
+  }
+}
+
+/** `path` is the Portuguese address, so both languages point at each other. */
+export function pageMetadata(locale: Locale, path: string, title: string): Metadata {
+  return {
+    title,
+    alternates: {
+      canonical: localePath(locale, path),
+      languages: { 'pt-BR': localePath('pt', path), en: localePath('en', path) },
+    },
+  }
+}
