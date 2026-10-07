@@ -32,6 +32,7 @@ npm run lint
 npm run format:check
 npm test
 ELEICOES_DATA=fixtures npm run build
+npx playwright install chromium
 npm run test:e2e
 ```
 

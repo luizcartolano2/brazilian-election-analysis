@@ -1,6 +1,6 @@
 {
   "site.name": "2026 Elections",
-  "meta.description": "Official first-round results of Brazil's 2026 elections, from the whole country down to each polling station, with TSE's data.",
+  "meta.description": "Official first-round results of Brazil's 2026 elections for the whole country, each state and each race, with TSE's data.",
   "nav.sources": "Sources",
   "nav.otherLanguage": "Português",
   "nav.breadcrumbs": "You are here",
@@ -75,5 +75,6 @@
   "sources.portalTitle": "Open Data Portal (cdn.tse.jus.br)",
   "sources.portalTerms": "CC BY license, which the portal declares for each package.",
   "sources.resultsTitle": "Results site (resultados.tse.jus.br)",
-  "sources.resultsTerms": "The site states no license. This project treats these files as public records and credits TSE in the same way."
+  "sources.resultsTerms": "The site states no license. This project treats these files as public records and credits TSE in the same way.",
+  "results.candidateOrList": "Candidate or list"
 }

@@ -105,6 +105,12 @@ export function UnderAppealTable({ locale, results }: { locale: Locale; results:
       <p className="mt-1 text-sm text-slate-700">{t(locale, 'results.underAppealNote')}</p>
       <table className="mt-2 w-full table-fixed border-collapse text-sm">
         <caption className="sr-only">{t(locale, 'results.underAppealTitle')}</caption>
+        <thead className="sr-only">
+          <tr>
+            <th scope="col">{t(locale, 'results.candidateOrList')}</th>
+            <th scope="col">{t(locale, 'results.votes')}</th>
+          </tr>
+        </thead>
         <tbody>
           {results.candidatesUnderAppeal.map((candidate) => (
             <tr key={`c${candidate.number}`} className="border-b border-slate-100">

@@ -86,6 +86,8 @@ test('votes under appeal appear on their own lines', async ({ page }) => {
   await page.goto('/2026/pe/deputado-estadual/')
   await expect(page.getByRole('heading', { name: 'Votos sub judice' })).toBeVisible()
   await expect(page.getByText('Legenda do MOBILIZA')).toBeVisible()
+  const table = page.getByRole('table', { name: 'Votos sub judice' })
+  await expect(table.getByRole('columnheader', { name: 'Votos' })).toHaveCount(1)
 })
 
 test('every page credits TSE and the author, and sells nothing', async ({ page }) => {

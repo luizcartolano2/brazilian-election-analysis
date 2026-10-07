@@ -1,6 +1,6 @@
 {
   "site.name": "Eleições 2026",
-  "meta.description": "Resultados oficiais do 1º turno das eleições de 2026, do Brasil inteiro até a seção eleitoral, com dados do TSE.",
+  "meta.description": "Resultados oficiais do 1º turno das eleições de 2026 para o Brasil, cada estado e cada cargo, com dados do TSE.",
   "nav.sources": "Fontes",
   "nav.otherLanguage": "English",
   "nav.breadcrumbs": "Você está em",
@@ -75,5 +75,6 @@
   "sources.portalTitle": "Portal de Dados Abertos (cdn.tse.jus.br)",
   "sources.portalTerms": "Licença CC BY, que o portal declara para cada pacote.",
   "sources.resultsTitle": "Site de resultados (resultados.tse.jus.br)",
-  "sources.resultsTerms": "O site não declara licença. Este projeto trata esses arquivos como registros públicos e credita o TSE da mesma forma."
+  "sources.resultsTerms": "O site não declara licença. Este projeto trata esses arquivos como registros públicos e credita o TSE da mesma forma.",
+  "results.candidateOrList": "Candidato ou legenda"
 }
