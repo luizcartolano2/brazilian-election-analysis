@@ -1,1454 +1,1454 @@
 {
- "ele": "6259",
  "carg": [
   {
-   "cd": "7",
-   "nmn": "Deputado Estadual",
-   "nv": "49",
    "agr": [
     {
      "par": [
       {
-       "n": "12",
-       "sg": "PDT",
-       "dvt": "Válido (legenda)",
-       "tval": "19",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "12345",
          "nmu": "GEORGE ARRAES",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "12",
+       "sg": "PDT",
+       "tval": "19"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "44",
-       "sg": "UNIÃO",
-       "dvt": "Válido (legenda)",
-       "tval": "5",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "44111",
          "nmu": "DELEGADO MENESES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "44244",
          "nmu": "TEN. CORONEL LÚCIA HELENA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "44444",
          "nmu": "MERCIO VIEIRA",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "44365",
          "nmu": "ANA KEITE INCLUSÃO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "44344",
          "nmu": "NEGÃO ACESSÓRIOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "44000",
          "nmu": "ANTONIO COELHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "44844",
          "nmu": "LILY DA SAÚDE",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "44",
+       "sg": "UNIÃO",
+       "tval": "5"
       },
       {
-       "n": "11",
-       "sg": "PP",
-       "dvt": "Válido (legenda)",
-       "tval": "11",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "11611",
          "nmu": "PASTOR CLEITON COLLINS",
-         "dvt": "Válido",
          "st": "",
          "vap": "29"
         },
         {
+         "dvt": "Válido",
          "n": "11789",
          "nmu": "FRANCE HACKER",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "11111",
          "nmu": "GLEIDE ÂNGELO",
-         "dvt": "Válido",
          "st": "",
          "vap": "45"
         },
         {
+         "dvt": "Válido",
          "n": "11555",
          "nmu": "CLAUDIANO FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "11444",
          "nmu": "KAIO MANIÇOBA",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "11232",
          "nmu": "ANDERSON CORREIA",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "11411",
          "nmu": "THIERRY CUPERTINO",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "11777",
          "nmu": "HENRIQUE FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "11511",
          "nmu": "ROBERTA ARRAES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "11222",
          "nmu": "PASTOR JÚNIOR TÉRCIO",
-         "dvt": "Válido",
          "st": "",
          "vap": "40"
         },
         {
+         "dvt": "Válido",
          "n": "11011",
          "nmu": "RONALDO LOPES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "11300",
          "nmu": "JOEL DA HARPA",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "11000",
          "nmu": "ADALTO SANTOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "11",
+       "sg": "PP",
+       "tval": "11"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "20",
-       "sg": "PODE",
-       "dvt": "Válido (legenda)",
-       "tval": "6",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "20222",
          "nmu": "GILSON MACHADO FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "148"
         },
         {
+         "dvt": "Válido",
          "n": "20004",
          "nmu": "CABO TRAJANO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "20300",
          "nmu": "REBECA LUCENA",
-         "dvt": "Válido",
          "st": "",
          "vap": "40"
         },
         {
+         "dvt": "Válido",
          "n": "20999",
          "nmu": "FELLYPE MARTINS",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "20610",
          "nmu": "MARIO RICARDO",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "20100",
          "nmu": "CASSIANO DO MEIO AMBIENTE",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "20111",
          "nmu": "FABRIZIO FERRAZ",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "20020",
          "nmu": "MÁRCIO BOTELHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "20500",
          "nmu": "FILLIP DA FARMACIA",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "20110",
          "nmu": "ROSE NEIDSON",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "20000",
          "nmu": "JEFERSON TIMÓTEO",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         },
         {
+         "dvt": "Válido",
          "n": "20123",
          "nmu": "REGINA DA SAÚDE",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "20900",
          "nmu": "CRISTIANO DO IBURA",
-         "dvt": "Válido",
          "st": "",
          "vap": "11"
         },
         {
+         "dvt": "Válido",
          "n": "20555",
          "nmu": "WANDERSON FLORENCIO",
-         "dvt": "Válido",
          "st": "",
          "vap": "12"
         },
         {
+         "dvt": "Válido",
          "n": "20777",
          "nmu": "BETO ACCIOLY",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "20033",
          "nmu": "GUILHERME QUEIROZ",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "20120",
          "nmu": "LUCIANO DUQUE",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "20200",
          "nmu": "GUSTAVO GOUVEIA",
-         "dvt": "Válido",
          "st": "",
          "vap": "11"
         },
         {
+         "dvt": "Válido",
          "n": "20620",
          "nmu": "EDSON VIEIRA",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "20",
+       "sg": "PODE",
+       "tval": "6"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "43",
-       "sg": "PV",
-       "dvt": "Válido (legenda)",
-       "tval": "2",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "43123",
          "nmu": "JUIZ FERNANDO SANTOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "43643",
          "nmu": "JOÃO DE NADEGI",
-         "dvt": "Válido",
          "st": "",
          "vap": "53"
         },
         {
+         "dvt": "Válido",
          "n": "43333",
          "nmu": "GILMAR JÚNIOR",
-         "dvt": "Válido",
          "st": "",
          "vap": "15"
         },
         {
+         "dvt": "Válido",
          "n": "43456",
          "nmu": "LARA SANTANA",
-         "dvt": "Válido",
          "st": "",
          "vap": "13"
         },
         {
+         "dvt": "Válido",
          "n": "43555",
          "nmu": "JOAQUIM LIRA",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "43",
+       "sg": "PV",
+       "tval": "2"
       },
       {
-       "n": "13",
-       "sg": "PT",
-       "dvt": "Válido (legenda)",
-       "tval": "50",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "13444",
          "nmu": "JOÃO PAULO COSTA",
-         "dvt": "Válido",
          "st": "",
          "vap": "78"
         },
         {
+         "dvt": "Válido",
          "n": "13100",
          "nmu": "PROFESSOR GILMAR",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "13013",
          "nmu": "EUGÊNIA LIMA",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "13000",
          "nmu": "DANI PORTELA",
-         "dvt": "Válido",
          "st": "",
          "vap": "121"
         },
         {
+         "dvt": "Válido",
          "n": "13333",
          "nmu": "BRENO ARAÚJO",
-         "dvt": "Válido",
          "st": "",
          "vap": "14"
         },
         {
+         "dvt": "Válido",
          "n": "13456",
          "nmu": "JOSUEL SANTOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         },
         {
+         "dvt": "Válido",
          "n": "13123",
          "nmu": "DORIEL",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "13113",
          "nmu": "JOÃO PAULO DO PT",
-         "dvt": "Válido",
          "st": "",
          "vap": "40"
         },
         {
+         "dvt": "Válido",
          "n": "13613",
          "nmu": "PROFESSORA IVETE CAETANO",
-         "dvt": "Válido",
          "st": "",
          "vap": "11"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "13",
+       "sg": "PT",
+       "tval": "50"
       },
       {
-       "n": "65",
-       "sg": "PCDOB",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "65013",
          "nmu": "VINI CASTELLO",
-         "dvt": "Válido",
          "st": "",
          "vap": "16"
         },
         {
+         "dvt": "Válido",
          "n": "65111",
          "nmu": "MAKOY",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "65113",
          "nmu": "CIDA PEDROSA",
-         "dvt": "Válido",
          "st": "",
          "vap": "20"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "65",
+       "sg": "PCDOB",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "30",
-       "sg": "NOVO",
-       "dvt": "Válido (legenda)",
-       "tval": "3",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "30190",
          "nmu": "DELEGADA TEREZA NOGUEIRA",
-         "dvt": "Válido",
          "st": "",
          "vap": "10"
         },
         {
+         "dvt": "Válido",
          "n": "30133",
          "nmu": "FERNANDO ANGELIM",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "30000",
          "nmu": "TECIO TELES",
-         "dvt": "Válido",
          "st": "",
          "vap": "10"
         },
         {
+         "dvt": "Válido",
          "n": "30123",
          "nmu": "RODOLFO SILVA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "30630",
          "nmu": "RENATO ANTUNES",
-         "dvt": "Válido",
          "st": "",
          "vap": "36"
         },
         {
+         "dvt": "Válido",
          "n": "30130",
          "nmu": "VIVY DE PAULA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "30777",
          "nmu": "SYER RODRIGUES",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "30874",
          "nmu": "DELEGADO VICTOR LEITE",
-         "dvt": "Válido",
          "st": "",
          "vap": "8"
         },
         {
+         "dvt": "Válido",
          "n": "30022",
          "nmu": "CACAU",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "30300",
          "nmu": "EDUARDO INOJOSA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "30888",
          "nmu": "DÉBORA MOURA",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "30222",
          "nmu": "IVAN GUEDES",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         },
         {
+         "dvt": "Válido",
          "n": "30678",
          "nmu": "MANOEL MEDEIROS",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         },
         {
+         "dvt": "Anulado sub judice",
          "n": "30567",
          "nmu": "LEONARDO MOURA",
-         "dvt": "Anulado sub judice",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "30333",
          "nmu": "TÂMARA DANTAS",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "30",
+       "sg": "NOVO",
+       "tval": "3"
       }
      ]
     },
     {
      "par": [
       {
+       "cand": [],
+       "dvt": "Válido (legenda)",
        "n": "16",
        "sg": "PSTU",
-       "dvt": "Válido (legenda)",
-       "tval": "1",
-       "cand": []
+       "tval": "1"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "18",
-       "sg": "REDE",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "18123",
          "nmu": "RICARDO GADÊLHA",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "18000",
          "nmu": "MARI LESSA",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "18",
+       "sg": "REDE",
+       "tval": "0"
       },
       {
-       "n": "50",
-       "sg": "PSOL",
-       "dvt": "Válido (legenda)",
-       "tval": "3",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "50100",
          "nmu": "DANIEL VALENÇA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "50999",
          "nmu": "YASMIM ALVES",
-         "dvt": "Válido",
          "st": "",
          "vap": "34"
         },
         {
+         "dvt": "Válido",
          "n": "50000",
          "nmu": "JÔ CAVALCANTI",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "50300",
          "nmu": "ALDA ARANTES",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "50050",
          "nmu": "CLEIDE ANDRADE",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "3"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "10",
-       "sg": "REPUBLICANOS",
-       "dvt": "Válido (legenda)",
-       "tval": "4",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "10000",
          "nmu": "JOBSON ALMEIDA",
-         "dvt": "Válido",
          "st": "",
          "vap": "16"
         },
         {
+         "dvt": "Válido",
          "n": "10100",
          "nmu": "ALMIR GOUVEIA",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "10010",
          "nmu": "PROFESSOR GEORGE",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "10123",
          "nmu": "JUNIOR MATUTO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "10444",
          "nmu": "IRMÃ IOLANDA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "10232",
          "nmu": "LÉO QUEBRADÕES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "10140",
          "nmu": "BOTAFOGO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "4"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "33",
-       "sg": "MOBILIZA",
-       "dvt": "Anulado sub judice",
-       "tval": "2",
        "cand": [
         {
+         "dvt": "Anulado sub judice",
          "n": "33133",
          "nmu": "PASTOR LUIZ EDUARDO",
-         "dvt": "Anulado sub judice",
          "st": "",
          "vap": "8"
         },
         {
+         "dvt": "Anulado sub judice",
          "n": "33333",
          "nmu": "CARLOS PREGUIÇA",
-         "dvt": "Anulado sub judice",
          "st": "",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Anulado sub judice",
+       "n": "33",
+       "sg": "MOBILIZA",
+       "tval": "2"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "70",
-       "sg": "AVANTE",
-       "dvt": "Válido (legenda)",
-       "tval": "6",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "70500",
          "nmu": "GUGA DA SAÚDE",
-         "dvt": "Válido",
          "st": "",
          "vap": "16"
         },
         {
+         "dvt": "Válido",
          "n": "70770",
          "nmu": "LETICIA GALINDO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "70111",
          "nmu": "SOCORRINHO DA APAMI",
-         "dvt": "Válido",
          "st": "",
          "vap": "10"
         },
         {
+         "dvt": "Válido",
          "n": "70077",
          "nmu": "PH NORONHA",
-         "dvt": "Válido",
          "st": "",
          "vap": "29"
         },
         {
+         "dvt": "Válido",
          "n": "70007",
          "nmu": "VICTOR FLORES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "70000",
          "nmu": "ALCIDES TEIXEIRA NETO",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         },
         {
+         "dvt": "Válido",
          "n": "70055",
          "nmu": "SERGIO DE NALVA",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "70123",
          "nmu": "SEBASTIÃO OLIVEIRA",
-         "dvt": "Válido",
          "st": "",
          "vap": "219"
         },
         {
+         "dvt": "Válido",
          "n": "70190",
          "nmu": "CABO CARDOSO",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "70072",
          "nmu": "RAFAEL LOURENCO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "70707",
          "nmu": "ANTONIO JUNIOR",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "70",
+       "sg": "AVANTE",
+       "tval": "6"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "14",
-       "sg": "MISSÃO",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "14000",
          "nmu": "GABRIEL ASAFE",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "14214",
          "nmu": "IONE NASCIMENTO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "14114",
          "nmu": "ADRIANO ANDREWS",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "14",
+       "sg": "MISSÃO",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "77",
-       "sg": "SOLIDARIEDADE",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "77777",
          "nmu": "CARLOS ANDRÉ",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "77",
+       "sg": "SOLIDARIEDADE",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "22",
-       "sg": "PL",
-       "dvt": "Válido (legenda)",
-       "tval": "12",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "22656",
          "nmu": "UILMA LOPES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "22612",
          "nmu": "NENECA DO PISTON",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         },
         {
+         "dvt": "Válido",
          "n": "22190",
          "nmu": "CABO AÊNIA",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         },
         {
+         "dvt": "Válido",
          "n": "22555",
          "nmu": "RAFFIE DELLON",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "22522",
          "nmu": "ANDREZZA ASSIS",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "22222",
          "nmu": "ANDRÉ FERREIRA",
-         "dvt": "Válido",
          "st": "",
          "vap": "43"
         },
         {
+         "dvt": "Válido",
          "n": "22700",
          "nmu": "NINO DE ENOQUE",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "22122",
          "nmu": "SARMENTO",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "22022",
          "nmu": "CORONEL FEITOSA",
-         "dvt": "Válido",
          "st": "",
          "vap": "53"
         },
         {
+         "dvt": "Válido",
          "n": "22100",
          "nmu": "LÍVIA ÁLVARO",
-         "dvt": "Válido",
          "st": "",
          "vap": "28"
         },
         {
+         "dvt": "Válido",
          "n": "22755",
          "nmu": "DONA VAL DOS DIREITOS HUMANOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "22345",
          "nmu": "PASTOR CAPELAO JORGE",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "22000",
          "nmu": "JOSENILDO",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "22622",
          "nmu": "ABIMAEL SANTOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "229"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "22",
+       "sg": "PL",
+       "tval": "12"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "55",
-       "sg": "PSD",
-       "dvt": "Válido (legenda)",
-       "tval": "15",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "55155",
          "nmu": "MARCONI SANTANA",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "55555",
          "nmu": "JOÃOZINHO TENÓRIO",
-         "dvt": "Válido",
          "st": "",
          "vap": "47"
         },
         {
+         "dvt": "Válido",
          "n": "55123",
          "nmu": "WILLIAM BRÍGIDO",
-         "dvt": "Válido",
          "st": "",
          "vap": "81"
         },
         {
+         "dvt": "Válido",
          "n": "55500",
          "nmu": "PROFESSORA ANA LÚCIA",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "55232",
          "nmu": "JARBAS FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "55999",
          "nmu": "DELEGADO ROMERO LEAL",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "55333",
          "nmu": "ZÉ DE IRMÃ TECA",
-         "dvt": "Válido",
          "st": "",
          "vap": "8"
         },
         {
+         "dvt": "Válido",
          "n": "55222",
          "nmu": "JANJÃO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "55456",
          "nmu": "ANDERSON LUIZ",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "55055",
          "nmu": "PROFESSOR LUPÉRCIO",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         },
         {
+         "dvt": "Válido",
          "n": "55100",
          "nmu": "ANTONIO MORAES",
-         "dvt": "Válido",
          "st": "",
          "vap": "12"
         },
         {
+         "dvt": "Válido",
          "n": "55777",
          "nmu": "FÁBIO ARAGÃO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "55789",
          "nmu": "NI DO BADOQUE",
-         "dvt": "Válido",
          "st": "",
          "vap": "13"
         },
         {
+         "dvt": "Válido",
          "n": "55444",
          "nmu": "AGLAILSON VICTOR",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "55000",
          "nmu": "ROMERO SALES FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "55700",
          "nmu": "CHEF NEGRALINDA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "55122",
          "nmu": "DAVI MUNIZ",
-         "dvt": "Válido",
          "st": "",
          "vap": "10"
         },
         {
+         "dvt": "Válido",
          "n": "55455",
          "nmu": "CESAR RAMOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "55888",
          "nmu": "DÉBORA ALMEIDA",
-         "dvt": "Válido",
          "st": "",
          "vap": "15"
         },
         {
+         "dvt": "Válido",
          "n": "55133",
          "nmu": "CARLOS BRAGA",
-         "dvt": "Válido",
          "st": "",
          "vap": "7"
         },
         {
+         "dvt": "Válido",
          "n": "55255",
          "nmu": "AMANDA RAMOS",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         },
         {
+         "dvt": "Válido",
          "n": "55655",
          "nmu": "ANDRÉA MEDEIROS",
-         "dvt": "Válido",
          "st": "",
          "vap": "24"
         },
         {
+         "dvt": "Válido",
          "n": "55190",
          "nmu": "CORONEL LINALDO",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "55",
+       "sg": "PSD",
+       "tval": "15"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "15",
-       "sg": "MDB",
-       "dvt": "Válido (legenda)",
-       "tval": "1",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "15000",
          "nmu": "ÁLVARO PORTO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "15190",
          "nmu": "DELEGADA NATASHA DOLCI",
-         "dvt": "Válido",
          "st": "",
          "vap": "22"
         },
         {
+         "dvt": "Válido",
          "n": "15015",
          "nmu": "FLÁVIO GADELHA FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "11"
         },
         {
+         "dvt": "Válido",
          "n": "15123",
          "nmu": "ZÉ QUEIROZ",
-         "dvt": "Válido",
          "st": "",
          "vap": "6"
         },
         {
+         "dvt": "Válido",
          "n": "15013",
          "nmu": "LENO DE CABROBÓ",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "15001",
          "nmu": "EMERSON FREITAS",
-         "dvt": "Válido",
          "st": "",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "15615",
          "nmu": "VICTOR ANDRÉ GOMES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "15555",
          "nmu": "FAGNER RUSSO",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "15",
+       "sg": "MDB",
+       "tval": "1"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "40",
-       "sg": "PSB",
-       "dvt": "Válido (legenda)",
-       "tval": "19",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "40190",
          "nmu": "EDNALDO MOURA",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "40654",
          "nmu": "FRANCISMAR",
-         "dvt": "Válido",
          "st": "",
          "vap": "35"
         },
         {
+         "dvt": "Válido",
          "n": "40640",
          "nmu": "BATISTA CABRAL",
-         "dvt": "Válido",
          "st": "",
          "vap": "51"
         },
         {
+         "dvt": "Válido",
          "n": "40100",
          "nmu": "DIOGO MORAES",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "40123",
          "nmu": "RODRIGO FARIAS",
-         "dvt": "Válido",
          "st": "",
          "vap": "18"
         },
         {
+         "dvt": "Válido",
          "n": "40888",
          "nmu": "ADERALDO PINTO",
-         "dvt": "Válido",
          "st": "",
          "vap": "16"
         },
         {
+         "dvt": "Válido",
          "n": "40222",
          "nmu": "FELIPE DANTAS",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "40120",
          "nmu": "NELSINHO EVANGELISTA",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "40015",
          "nmu": "TÚLIO ARRUDA",
-         "dvt": "Válido",
          "st": "",
          "vap": "17"
         },
         {
+         "dvt": "Válido",
          "n": "40111",
          "nmu": "BRUNO MARQUES",
-         "dvt": "Válido",
          "st": "",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "40340",
          "nmu": "PROF. EDIVANIA ARCANJO",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "40600",
          "nmu": "BRUNO LINS",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "40180",
          "nmu": "STE VILELA",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "40500",
          "nmu": "MARIA DO CÉU",
-         "dvt": "Válido",
          "st": "",
          "vap": "63"
         },
         {
+         "dvt": "Válido",
          "n": "40040",
          "nmu": "SILENO",
-         "dvt": "Válido",
          "st": "",
          "vap": "14"
         },
         {
+         "dvt": "Válido",
          "n": "40155",
          "nmu": "NETO DA SAÚDE",
-         "dvt": "Válido",
          "st": "",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "40555",
          "nmu": "ROMERINHO JATOBÁ",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "40192",
          "nmu": "DRA VERA LOPES",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "40400",
          "nmu": "CAYO ALBINO",
-         "dvt": "Válido",
          "st": "",
          "vap": "98"
         },
         {
+         "dvt": "Válido",
          "n": "40877",
          "nmu": "MISSIONÁRIA LALA",
-         "dvt": "Válido",
          "st": "",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "40000",
          "nmu": "ROMERO ALBUQUERQUE",
-         "dvt": "Válido",
          "st": "",
          "vap": "12"
         },
         {
+         "dvt": "Válido",
          "n": "40444",
          "nmu": "ERIBERTO FILHO",
-         "dvt": "Válido",
          "st": "",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "40440",
          "nmu": "DANY MYLER",
-         "dvt": "Válido",
          "st": "",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "40140",
          "nmu": "MARIA ARRAES",
-         "dvt": "Válido",
          "st": "",
          "vap": "92"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "40",
+       "sg": "PSB",
+       "tval": "19"
       }
      ]
     }
-   ]
+   ],
+   "cd": "7",
+   "nmn": "Deputado Estadual",
+   "nv": "49"
   }
  ],
- "v": {
-  "vnom": "2494",
-  "vl": "157",
-  "vb": "253",
-  "vn": "122",
-  "vnt": "0",
-  "van": "0",
-  "vansj": "12",
-  "tv": "3038",
-  "vv": "2651"
- },
  "e": {
   "c": "3038",
   "te": "4352"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "3038",
+  "van": "0",
+  "vansj": "12",
+  "vb": "253",
+  "vl": "157",
+  "vn": "122",
+  "vnom": "2494",
+  "vnt": "0",
+  "vv": "2651"
  }
 }

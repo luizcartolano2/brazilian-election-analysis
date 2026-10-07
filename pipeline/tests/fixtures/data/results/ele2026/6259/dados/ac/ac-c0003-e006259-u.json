@@ -1,117 +1,117 @@
 {
- "ele": "6259",
  "carg": [
   {
-   "cd": "3",
-   "nmn": "Governador",
-   "nv": "1",
    "agr": [
     {
      "par": [
       {
-       "n": "11",
-       "sg": "PP",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "11",
          "nmu": "MAILZA ASSIS",
-         "dvt": "Válido",
          "st": "2º turno",
          "vap": "350"
         }
-       ]
+       ],
+       "n": "11",
+       "sg": "PP",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "36",
-       "sg": "AGIR",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "36",
          "nmu": "DR.LUISINHO",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         }
-       ]
+       ],
+       "n": "36",
+       "sg": "AGIR",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "10",
-       "sg": "REPUBLICANOS",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "10",
          "nmu": "ALAN RICK",
-         "dvt": "Válido",
          "st": "2º turno",
          "vap": "273"
         }
-       ]
+       ],
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "40",
-       "sg": "PSB",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "40",
          "nmu": "THOR DANTAS",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "26"
         }
-       ]
+       ],
+       "n": "40",
+       "sg": "PSB",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "45",
-       "sg": "PSDB",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "45",
          "nmu": "TIÃO BOCALOM",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "131"
         }
-       ]
+       ],
+       "n": "45",
+       "sg": "PSDB",
+       "tval": "0"
       }
      ]
     }
-   ]
+   ],
+   "cd": "3",
+   "nmn": "Governador",
+   "nv": "1"
   }
  ],
- "v": {
-  "vnom": "781",
-  "vl": "0",
-  "vb": "5",
-  "vn": "71",
-  "vnt": "0",
-  "van": "0",
-  "vansj": "0",
-  "tv": "857",
-  "vv": "781"
- },
  "e": {
   "c": "857",
   "te": "1041"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "857",
+  "van": "0",
+  "vansj": "0",
+  "vb": "5",
+  "vl": "0",
+  "vn": "71",
+  "vnom": "781",
+  "vnt": "0",
+  "vv": "781"
  }
 }

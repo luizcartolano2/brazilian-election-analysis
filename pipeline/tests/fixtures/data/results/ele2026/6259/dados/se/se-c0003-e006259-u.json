@@ -1,99 +1,99 @@
 {
- "ele": "6259",
  "carg": [
   {
-   "cd": "3",
-   "nmn": "Governador",
-   "nv": "1",
    "agr": [
     {
      "par": [
       {
-       "n": "27",
-       "sg": "DC",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "27",
          "nmu": "TATY  CRISTINA DE JESUS",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         }
-       ]
+       ],
+       "n": "27",
+       "sg": "DC",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "55",
-       "sg": "PSD",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "55",
          "nmu": "FÁBIO",
-         "dvt": "Válido",
          "st": "Eleito",
          "vap": "178"
         }
-       ]
+       ],
+       "n": "55",
+       "sg": "PSD",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "10",
-       "sg": "REPUBLICANOS",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "10",
          "nmu": "VALMIR DE FRANCISQUINHO",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "90"
         }
-       ]
+       ],
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "50",
-       "sg": "PSOL",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Anulado sub judice",
          "n": "50",
          "nmu": "DR. HELTON",
-         "dvt": "Anulado sub judice",
          "st": "Não eleito",
          "vap": "5"
         }
-       ]
+       ],
+       "n": "50",
+       "sg": "PSOL",
+       "tval": "0"
       }
      ]
     }
-   ]
+   ],
+   "cd": "3",
+   "nmn": "Governador",
+   "nv": "1"
   }
  ],
- "v": {
-  "vnom": "269",
-  "vl": "0",
-  "vb": "3",
-  "vn": "21",
-  "vnt": "14",
-  "van": "0",
-  "vansj": "5",
-  "tv": "312",
-  "vv": "269"
- },
  "e": {
   "c": "312",
   "te": "390"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "312",
+  "van": "0",
+  "vansj": "5",
+  "vb": "3",
+  "vl": "0",
+  "vn": "21",
+  "vnom": "269",
+  "vnt": "14",
+  "vv": "269"
  }
 }

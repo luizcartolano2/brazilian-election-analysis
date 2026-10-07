@@ -1,525 +1,525 @@
 {
- "ele": "6259",
  "carg": [
   {
-   "cd": "6",
-   "nmn": "Deputado Federal",
-   "nv": "8",
    "agr": [
     {
      "par": [
       {
+       "cand": [],
+       "dvt": "Válido (legenda)",
        "n": "70",
        "sg": "AVANTE",
-       "dvt": "Válido (legenda)",
-       "tval": "1",
-       "cand": []
+       "tval": "1"
       }
      ]
     },
     {
      "par": [
       {
+       "cand": [],
+       "dvt": "Válido (legenda)",
        "n": "12",
        "sg": "PDT",
-       "dvt": "Válido (legenda)",
-       "tval": "3",
-       "cand": []
+       "tval": "3"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "20",
-       "sg": "PODE",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "2000",
          "nmu": "FERNANDO MELO",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "20",
+       "sg": "PODE",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "65",
-       "sg": "PCDOB",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "6511",
          "nmu": "JOÃOZINHO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "5"
         },
         {
+         "dvt": "Válido",
          "n": "6513",
          "nmu": "PERPÉTUA ALMEIDA",
-         "dvt": "Válido",
          "st": "Eleito por média",
          "vap": "13"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "65",
+       "sg": "PCDOB",
+       "tval": "0"
       },
       {
-       "n": "13",
-       "sg": "PT",
-       "dvt": "Válido (legenda)",
-       "tval": "1",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "1333",
          "nmu": "MARCIO ALECIO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "32"
         },
         {
+         "dvt": "Válido",
          "n": "1313",
          "nmu": "ANDRÉ KAMAI",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "1312",
          "nmu": "NEIDE LOPES",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "5"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "13",
+       "sg": "PT",
+       "tval": "1"
       },
       {
-       "n": "43",
-       "sg": "PV",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "4321",
          "nmu": "VIRGÍLIO VIANA",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "4300",
          "nmu": "SIDILENE SILVA",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "9"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "43",
+       "sg": "PV",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "25",
-       "sg": "PRD",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "2525",
          "nmu": "ROSE SILVA",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "2500",
          "nmu": "PRICILA PAULINO",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "25",
+       "sg": "PRD",
+       "tval": "0"
       },
       {
-       "n": "77",
-       "sg": "SOLIDARIEDADE",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "7788",
          "nmu": "MARCIO ALBION",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "77",
+       "sg": "SOLIDARIEDADE",
+       "tval": "0"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "44",
-       "sg": "UNIÃO",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "4422",
          "nmu": "CORONEL ULYSSES",
-         "dvt": "Válido",
          "st": "Eleito por QP",
          "vap": "64"
         },
         {
+         "dvt": "Válido",
          "n": "4455",
          "nmu": "MAZINHO SERAFIM",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "4444",
          "nmu": "DR. FÁBIO RUEDA",
-         "dvt": "Válido",
          "st": "Eleito por QP",
          "vap": "28"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "44",
+       "sg": "UNIÃO",
+       "tval": "0"
       },
       {
-       "n": "11",
-       "sg": "PP",
-       "dvt": "Válido (legenda)",
-       "tval": "3",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "1144",
          "nmu": "LEILA GALVÃO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "46"
         },
         {
+         "dvt": "Válido",
          "n": "1111",
          "nmu": "ZÉ ADRIANO",
-         "dvt": "Válido",
          "st": "Eleito por média",
          "vap": "32"
         },
         {
+         "dvt": "Válido",
          "n": "1101",
          "nmu": "SOCORRO NERI",
-         "dvt": "Válido",
          "st": "Eleito por QP",
          "vap": "69"
         },
         {
+         "dvt": "Válido",
          "n": "1122",
          "nmu": "ZEZINHO BARBARY",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "42"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "11",
+       "sg": "PP",
+       "tval": "3"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "22",
-       "sg": "PL",
-       "dvt": "Válido (legenda)",
-       "tval": "2",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "2202",
          "nmu": "BLANDINA MENEZES",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "2200",
          "nmu": "CACILDA BARBOSA",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "4"
         },
         {
+         "dvt": "Válido",
          "n": "2222",
          "nmu": "JOÃO BITTAR",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "14"
         },
         {
+         "dvt": "Válido",
          "n": "2212",
          "nmu": "JESUS SÉRGIO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "2211",
          "nmu": "TEREZINHA DE FEIJÓ",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "2255",
          "nmu": "LINDEMBERG DA CITOLAB",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "11"
         },
         {
+         "dvt": "Válido",
          "n": "2223",
          "nmu": "PR. PROF. CLEMILTON",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "3"
         },
         {
+         "dvt": "Válido",
          "n": "2244",
          "nmu": "JÚNIOR BETÃO",
-         "dvt": "Válido",
          "st": "Eleito por QP",
          "vap": "33"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "22",
+       "sg": "PL",
+       "tval": "2"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "30",
-       "sg": "NOVO",
-       "dvt": "Válido (legenda)",
-       "tval": "3",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "3079",
          "nmu": "DELEGADO JUDSON",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "3011",
          "nmu": "JUMA AGUIAR",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "3033",
          "nmu": "LEIDIANE DORNELAS",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "30",
+       "sg": "NOVO",
+       "tval": "3"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "10",
-       "sg": "REPUBLICANOS",
-       "dvt": "Válido (legenda)",
-       "tval": "4",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "1022",
          "nmu": "SHEILA ANDRADE",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "1088",
          "nmu": "ENEIAS MARQUES",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "1001",
          "nmu": "CORONEL EDVAN",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "1020",
          "nmu": "RIZO ARAUJO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "1010",
          "nmu": "ROBERTO DUARTE",
-         "dvt": "Válido",
          "st": "Eleito por QP",
          "vap": "67"
         },
         {
+         "dvt": "Válido",
          "n": "1000",
          "nmu": "EBER MACHADO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "2"
         },
         {
+         "dvt": "Válido",
          "n": "1011",
          "nmu": "MANOEL GERÔNIMO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "1077",
          "nmu": "VANDA MILANI",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "76"
         },
         {
+         "dvt": "Válido",
          "n": "1012",
          "nmu": "MIRLA MIRANDA",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "8"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "4"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "15",
-       "sg": "MDB",
-       "dvt": "Válido (legenda)",
-       "tval": "1",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "1533",
          "nmu": "PEDRO LONGO",
-         "dvt": "Válido",
          "st": "Eleito por QP",
          "vap": "119"
         },
         {
+         "dvt": "Anulado sub judice",
          "n": "1515",
          "nmu": "ANTÔNIA LÚCIA",
-         "dvt": "Anulado sub judice",
          "st": "Não eleito",
          "vap": "45"
         },
         {
+         "dvt": "Válido",
          "n": "1577",
          "nmu": "NEY AMORIM",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "13"
         },
         {
+         "dvt": "Válido",
          "n": "1511",
          "nmu": "FÁBIO ARAÚJO",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "28"
         },
         {
+         "dvt": "Válido",
          "n": "1567",
          "nmu": "DRª. KEL GUIMARÃES",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "9"
         },
         {
+         "dvt": "Válido",
          "n": "1500",
          "nmu": "MINORU KINPARA",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "11"
         },
         {
+         "dvt": "Válido",
          "n": "1522",
          "nmu": "VAGNER SALES",
-         "dvt": "Válido",
          "st": "Suplente",
          "vap": "1"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "15",
+       "sg": "MDB",
+       "tval": "1"
       }
      ]
     },
     {
      "par": [
       {
-       "n": "45",
-       "sg": "PSDB",
-       "dvt": "Válido (legenda)",
-       "tval": "0",
        "cand": [
         {
+         "dvt": "Válido",
          "n": "4555",
          "nmu": "IRINEIA BARBOSA",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "1"
         },
         {
+         "dvt": "Válido",
          "n": "4500",
          "nmu": "PEDRO PASCOAL",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "10"
         },
         {
+         "dvt": "Válido",
          "n": "4522",
          "nmu": "JOÃO MARCOS LUZ",
-         "dvt": "Válido",
          "st": "Não eleito",
          "vap": "3"
         }
-       ]
+       ],
+       "dvt": "Válido (legenda)",
+       "n": "45",
+       "sg": "PSDB",
+       "tval": "0"
       }
      ]
     }
-   ]
+   ],
+   "cd": "6",
+   "nmn": "Deputado Federal",
+   "nv": "8"
   }
  ],
- "v": {
-  "vnom": "786",
-  "vl": "18",
-  "vb": "3",
-  "vn": "3",
-  "vnt": "2",
-  "van": "0",
-  "vansj": "45",
-  "tv": "857",
-  "vv": "804"
- },
  "e": {
   "c": "857",
   "te": "1041"
+ },
+ "ele": "6259",
+ "v": {
+  "tv": "857",
+  "van": "0",
+  "vansj": "45",
+  "vb": "3",
+  "vl": "18",
+  "vn": "3",
+  "vnom": "786",
+  "vnt": "2",
+  "vv": "804"
  }
 }
