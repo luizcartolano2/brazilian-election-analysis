@@ -1,6 +1,7 @@
 import type { Locale } from './i18n'
 
 export const YEAR = 2026
+export const ROUND = 1
 
 export interface StateInfo {
   code: string
@@ -55,7 +56,7 @@ export interface RaceInfo {
   slug: string
   pt: string
   en: string
-  /** Deputy and council races, where votes for a party's list also count. */
+  /** The deputy races, where votes for a party's list also count. */
   proportional: boolean
 }
 
@@ -89,7 +90,8 @@ export const RACES: readonly RaceInfo[] = [
     slug: 'conselheiro-distrital',
     pt: 'Conselheiro distrital',
     en: 'District councillor',
-    proportional: true,
+    // Its candidates run without parties, and the seven with the most votes take the seats.
+    proportional: false,
   },
 ]
 

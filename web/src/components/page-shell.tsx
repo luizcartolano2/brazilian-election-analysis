@@ -1,9 +1,9 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { AppLink as Link } from '@/components/app-link'
+import { getSourceInfo } from '@/lib/data'
 import { YEAR } from '@/lib/elections'
 import { localePath, t, type Locale } from '@/lib/i18n'
-
-const REPOSITORY = 'https://github.com/luizcartolano2/brazilian-election-analysis'
+import { REPOSITORY } from '@/lib/site'
 
 export interface Crumb {
   label: string
@@ -40,6 +40,14 @@ export function PageShell({
           </a>
         </nav>
       </header>
+      {getSourceInfo().mode === 'fixtures' && (
+        <p
+          data-testid="fixtures-banner"
+          className="mt-3 rounded bg-amber-100 p-2 text-sm text-amber-900"
+        >
+          {t(locale, 'site.fixturesBanner')}
+        </p>
+      )}
       {crumbs.length > 0 && (
         <nav aria-label={t(locale, 'nav.breadcrumbs')} className="pt-3 text-sm text-slate-600">
           <ol className="flex flex-wrap gap-1">

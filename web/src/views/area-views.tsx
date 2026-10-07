@@ -1,6 +1,12 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CandidateTable, PartyTable, TotalsTable, UnderAppealTable } from '@/components/results'
+import { AppLink } from '@/components/app-link'
+import {
+  CandidateTable,
+  EligibleGapNote,
+  PartyTable,
+  TotalsTable,
+  UnderAppealTable,
+} from '@/components/results'
 import { PageShell } from '@/components/page-shell'
 import { getSummary } from '@/lib/data'
 import {
@@ -30,33 +36,48 @@ function brazil(locale: Locale): string {
   return t(locale, 'area.brazil')
 }
 
-function TurnoutSummary({ locale, results }: { locale: Locale; results: RaceResults }) {
+/** Turnout differs between races, for example through voters in transit, so it names its race. */
+function TurnoutSummary({
+  locale,
+  info,
+  results,
+}: {
+  locale: Locale
+  info: RaceInfo
+  results: RaceResults
+}) {
   const totals = results.totals
   return (
-    <dl className="mt-3 grid grid-cols-3 gap-2 rounded bg-slate-50 p-3 text-sm">
-      <div>
-        <dt className="text-xs text-slate-600">{t(locale, 'totals.eligible')}</dt>
-        <dd className="font-medium tabular-nums">{formatInteger(locale, totals.eligible)}</dd>
-      </div>
-      <div>
-        <dt className="text-xs text-slate-600">{t(locale, 'totals.attendance')}</dt>
-        <dd className="font-medium tabular-nums">
-          {formatInteger(locale, totals.attendance)}
-          <span className="block text-xs font-normal text-slate-600">
-            {formatShare(locale, totals.attendance, totals.eligible)}
-          </span>
-        </dd>
-      </div>
-      <div>
-        <dt className="text-xs text-slate-600">{t(locale, 'totals.abstention')}</dt>
-        <dd className="font-medium tabular-nums">
-          {formatInteger(locale, totals.abstention)}
-          <span className="block text-xs font-normal text-slate-600">
-            {formatShare(locale, totals.abstention, totals.eligible)}
-          </span>
-        </dd>
-      </div>
-    </dl>
+    <section className="mt-3 rounded bg-slate-50 p-3">
+      <h2 className="text-xs font-medium text-slate-600">
+        {t(locale, 'area.turnoutTitle', { race: raceName(info, locale) })}
+      </h2>
+      <dl className="mt-1 grid grid-cols-3 gap-2 text-sm">
+        <div>
+          <dt className="text-xs text-slate-600">{t(locale, 'totals.eligible')}</dt>
+          <dd className="font-medium tabular-nums">{formatInteger(locale, totals.eligible)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-slate-600">{t(locale, 'totals.attendance')}</dt>
+          <dd className="font-medium tabular-nums">
+            {formatInteger(locale, totals.attendance)}
+            <span className="block text-xs font-normal text-slate-600">
+              {formatShare(locale, totals.attendance, totals.eligible)}
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-slate-600">{t(locale, 'totals.abstention')}</dt>
+          <dd className="font-medium tabular-nums">
+            {formatInteger(locale, totals.abstention)}
+            <span className="block text-xs font-normal text-slate-600">
+              {formatShare(locale, totals.abstention, totals.eligible)}
+            </span>
+          </dd>
+        </div>
+      </dl>
+      <EligibleGapNote locale={locale} results={results} />
+    </section>
   )
 }
 
@@ -70,10 +91,13 @@ function RaceNote({
   results: RaceResults
 }) {
   const notes: string[] = []
+  const seats = String(results.seats)
   if (results.choicesPerVoter === 2) {
-    notes.push(t(locale, 'race.twoChoices', { seats: String(results.seats) }))
+    notes.push(t(locale, 'race.twoChoices', { seats }))
   } else if (info.proportional) {
-    notes.push(t(locale, 'race.proportionalSeats', { seats: String(results.seats) }))
+    notes.push(t(locale, 'race.proportionalSeats', { seats }))
+  } else if (results.seats > 1) {
+    notes.push(t(locale, 'race.manySeatsOneChoice', { seats }))
   }
   if (notes.length === 0) return null
   return <p className="mt-1 text-sm text-slate-700">{notes.join(' ')}</p>
@@ -124,7 +148,7 @@ export function BrazilView({ locale }: { locale: Locale }) {
     <PageShell locale={locale} path={`/${YEAR}/`}>
       <h1 className="text-2xl font-semibold">{t(locale, 'brazil.title')}</h1>
       <p className="mt-1 text-sm text-slate-700">{t(locale, 'brazil.intro')}</p>
-      <TurnoutSummary locale={locale} results={results} />
+      <TurnoutSummary locale={locale} info={info} results={results} />
       <h2 className="mt-6 text-xl font-semibold">
         {t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
       </h2>
@@ -134,6 +158,11 @@ export function BrazilView({ locale }: { locale: Locale }) {
         results={results}
         caption={t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
       />
+      <p className="mt-4 text-sm">
+        <AppLink href={localePath(locale, `/${YEAR}/${ABROAD.code}/`)} className="underline">
+          {t(locale, 'brazil.abroadLink')}
+        </AppLink>
+      </p>
       <StateList locale={locale} />
     </PageShell>
   )
@@ -145,11 +174,11 @@ function StateList({ locale }: { locale: Locale }) {
       <h2 className="text-xl font-semibold">{t(locale, 'brazil.statesTitle')}</h2>
       <p className="mt-1 text-sm text-slate-700">{t(locale, 'brazil.statesNote')}</p>
       <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-3">
-        {[...STATES, ABROAD].map((state) => (
+        {STATES.map((state) => (
           <li key={state.code}>
-            <Link href={localePath(locale, `/${YEAR}/${state.code}/`)} className="underline">
+            <AppLink href={localePath(locale, `/${YEAR}/${state.code}/`)} className="underline">
               {areaName(state, locale)}
-            </Link>
+            </AppLink>
           </li>
         ))}
       </ul>
@@ -177,7 +206,8 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
   const races = getSummary(area.code).corridas
   const first = races[0]
   if (first === undefined) throw new Error(`${area.code}.json has no races`)
-  const turnout = raceResults(first, knownRace(first).proportional)
+  const firstInfo = knownRace(first)
+  const turnout = raceResults(first, firstInfo.proportional)
   const abroad = area.code === ABROAD.code
 
   return (
@@ -186,7 +216,7 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
       <p className="mt-1 text-sm text-slate-700">
         {t(locale, abroad ? 'area.abroadIntro' : 'area.intro')}
       </p>
-      <TurnoutSummary locale={locale} results={turnout} />
+      <TurnoutSummary locale={locale} info={firstInfo} results={turnout} />
       {races.map((race) => {
         const info = knownRace(race)
         const results = raceResults(race, info.proportional)
@@ -219,16 +249,17 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
               />
             </div>
             <p className="mt-2 text-sm">
-              {/* A deputy race's page carries over a megabyte of data, too much to prefetch. */}
-              <Link
+              <AppLink
                 href={localePath(locale, `/${YEAR}/${area.code}/${info.slug}/`)}
-                prefetch={false}
                 className="underline"
               >
                 {t(locale, 'area.fullResults', {
-                  count: formatInteger(locale, results.candidates.length),
+                  count: formatInteger(
+                    locale,
+                    results.candidates.length + results.candidatesUnderAppeal.length,
+                  ),
                 })}
-              </Link>
+              </AppLink>
             </p>
           </section>
         )

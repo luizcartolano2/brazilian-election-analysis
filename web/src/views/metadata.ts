@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { localePath, t, type Locale } from '@/lib/i18n'
-
-export const SITE_URL = 'https://eleicoes.luizcartolano.com'
+import { SITE_URL } from '@/lib/site'
 
 export function layoutMetadata(locale: Locale): Metadata {
   const name = t(locale, 'site.name')

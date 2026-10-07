@@ -107,22 +107,51 @@ function candidateRow(candidate: SummaryCandidate): CandidateRow {
   }
 }
 
+export class SummaryMismatch extends Error {}
+
+const sum = (values: number[]) => values.reduce((total, value) => total + value, 0)
+
 /**
  * A party's total counts only its valid candidate votes and its valid list votes. The
  * summary's `votos_candidatos` also counts candidates whose votes are under appeal, so it is
  * not used here: with it, a party table would add up to more than the valid votes.
+ *
+ * Every vote must land on a shown line. A destination this code does not know, or lines that
+ * do not add up to TSE's totals, throw, so the build fails instead of showing wrong numbers.
  */
 export function raceResults(race: SummaryRace, proportional: boolean): RaceResults {
+  const label = `race ${race.cargo}`
+  for (const candidate of race.candidatos) {
+    if (candidate.destino !== VALID && candidate.destino !== UNDER_APPEAL) {
+      throw new SummaryMismatch(`${label}: unknown destination ${candidate.destino}`)
+    }
+  }
+  for (const party of race.partidos ?? []) {
+    if (party.destino !== VALID_LIST && party.destino !== UNDER_APPEAL) {
+      throw new SummaryMismatch(`${label}: unknown list destination ${party.destino}`)
+    }
+  }
   const valid = race.candidatos.filter((candidate) => candidate.destino === VALID)
   const underAppeal = race.candidatos.filter((candidate) => candidate.destino === UNDER_APPEAL)
+  const validListVotes = sum(
+    (race.partidos ?? [])
+      .filter((party) => party.destino === VALID_LIST)
+      .map((party) => party.votos_legenda),
+  )
+  const shownValid = sum(valid.map((candidate) => candidate.votos)) + validListVotes
+  if (shownValid !== race.validos) {
+    throw new SummaryMismatch(
+      `${label}: lines add up to ${shownValid}, valid votes are ${race.validos}`,
+    )
+  }
 
   let parties: PartyRow[] | null = null
   const partiesUnderAppeal: PartyRow[] = []
   if (proportional) {
     const validVotesByParty = new Map<string, number>()
     for (const candidate of valid) {
-      const sum = validVotesByParty.get(candidate.partido) ?? 0
-      validVotesByParty.set(candidate.partido, sum + candidate.votos)
+      const partyVotes = validVotesByParty.get(candidate.partido) ?? 0
+      validVotesByParty.set(candidate.partido, partyVotes + candidate.votos)
     }
     parties = []
     for (const party of race.partidos ?? []) {
@@ -149,6 +178,21 @@ export function raceResults(race: SummaryRace, proportional: boolean): RaceResul
       }
     }
     parties.sort((a, b) => b.total - a.total || a.number - b.number)
+    const partyTotal = sum(parties.map((party) => party.total))
+    if (partyTotal !== race.validos) {
+      throw new SummaryMismatch(
+        `${label}: party totals add up to ${partyTotal}, valid votes are ${race.validos}`,
+      )
+    }
+  }
+
+  const listedUnderAppeal =
+    sum(underAppeal.map((candidate) => candidate.votos)) +
+    sum(partiesUnderAppeal.map((party) => party.listVotes))
+  if (listedUnderAppeal > race.anulados_sub_judice) {
+    throw new SummaryMismatch(
+      `${label}: ${listedUnderAppeal} votes under appeal listed, ${race.anulados_sub_judice} in total`,
+    )
   }
 
   const totalVotes =
@@ -159,10 +203,6 @@ export function raceResults(race: SummaryRace, proportional: boolean): RaceResul
     race.anulados +
     race.anulados_sub_judice
 
-  const listedUnderAppeal =
-    underAppeal.reduce((sum, candidate) => sum + candidate.votos, 0) +
-    partiesUnderAppeal.reduce((sum, party) => sum + party.listVotes, 0)
-
   return {
     race: race.cargo,
     seats: race.vagas,
@@ -171,7 +211,7 @@ export function raceResults(race: SummaryRace, proportional: boolean): RaceResul
     candidatesUnderAppeal: underAppeal.map(candidateRow).sort(byVotesThenNumber),
     parties,
     partiesUnderAppeal,
-    otherUnderAppeal: Math.max(race.anulados_sub_judice - listedUnderAppeal, 0),
+    otherUnderAppeal: race.anulados_sub_judice - listedUnderAppeal,
     totals: {
       valid: race.validos,
       blank: race.brancos,

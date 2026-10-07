@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { ROUND, YEAR } from './elections'
 
 export interface ManifestFile {
   path: string
@@ -56,6 +57,11 @@ export function verifyManifest(bytes: Uint8Array | null, expectedSha256: string)
     )
   }
   const manifest = parseManifest(bytes)
+  if (manifest.ano !== YEAR || manifest.turno !== ROUND) {
+    throw new DataVersionError(
+      `the pinned version holds ${manifest.ano} round ${manifest.turno}, not ${YEAR} round ${ROUND}`,
+    )
+  }
   if (manifest.parcial !== false || manifest.fontes_tse !== true) {
     throw new DataVersionError('the pinned version is partial or was built from files outside TSE')
   }
@@ -76,9 +82,12 @@ export function verifyFile(manifest: Manifest, path: string, bytes: Uint8Array |
   }
 }
 
+const SUMMARY_PATH = new RegExp(`^${YEAR}/t${ROUND}/resumo/[a-z]{2}\\.json$`)
+
+/** The summaries of the year and round the app shows, and no other. */
 export function summaryPaths(manifest: Manifest): string[] {
   return manifest.arquivos
     .map((file) => file.path)
-    .filter((path) => /^\d{4}\/t\d\/resumo\/[a-z]{2}\.json$/.test(path))
+    .filter((path) => SUMMARY_PATH.test(path))
     .sort()
 }

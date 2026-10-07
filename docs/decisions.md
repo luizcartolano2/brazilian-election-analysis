@@ -108,7 +108,7 @@ every route.
 ### D12. Toolchain
 
 The pipeline uses Python 3.12 with uv, DuckDB, numpy, scipy, pytest and ruff. The web app
-uses Vitest and one Playwright smoke test. The Worker uses `wrangler` as a local
+uses Vitest, and Playwright tests of the built site under its production headers. The Worker uses `wrangler` as a local
 dependency. GitHub Actions runs the checks on every PR.
 
 Test-only tools are allowed when a test cannot run without them, and they stay in their

@@ -38,7 +38,7 @@
 - [x] 4.1 Add `publish-data.yml`: manual trigger, `main` only, a non-cancelling concurrency group, a `target` input with `data` as its only value, and SHA-pinned actions
 - [x] 4.2 Add the build job with `contents: read`, no environment, `uv sync --locked`, no cache, and `dist/` handed over as a one-day artifact
 - [x] 4.3 Add the upload job in `data-publish`, which installs nothing and runs only the preinstalled AWS CLI and `.github/scripts/upload-version.sh`: refuse a manifest marked `parcial` or with `fontes_tse` false, verify checksums against the manifest, fail when the version path holds files, upload data files, then `manifest.json`; test the script in the pipeline CI job against a local S3 server for an existing path, a checksum mismatch, and the manifest going last
-- [x] 4.4 Open the PR, merge it, run the `data` target with Luiz's approval, and record the version, its manifest SHA-256, peak disk use and duration in the PR
+- [x] 4.4 Open the PR, merge it, run the `data` target with Luiz's approval, and record the version, its manifest SHA-256 and duration in the PR, with a link to the run, whose summary shows the peak disk use
 - [x] 4.5 Download the published manifest and two data files through the Worker, and check their SHA-256 against the manifest
 
 ## 5. Web: results explorer (one PR, or two if the station views grow large)

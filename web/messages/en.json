@@ -55,7 +55,7 @@
   "footer.sources": "Sources and data version",
   "sources.title": "Sources",
   "sources.intro": "Every number on this site comes from the public files of Brazil's Superior Electoral Court (TSE): its Open Data Portal and its results site.",
-  "sources.checks": "Before publishing, the processing checks every number against TSE's own totals, per polling station, per municipality and zone, per state and for Brazil. If one number does not match, nothing is published.",
+  "sources.checks": "Before publishing, the processing checks the numbers against TSE's own. It checks the votes and turnout of each polling station, each candidate's votes per municipality and zone, where TSE publishes that file, and the totals of each race per state and for Brazil. If one number does not match, nothing is published.",
   "sources.versionTitle": "Data version",
   "sources.version": "Version",
   "sources.builtAt": "Built on",
@@ -63,9 +63,17 @@
   "sources.manifest": "Manifest, with each file's checksum",
   "sources.fixtures": "This is a test build, made from a sample of TSE's files.",
   "sources.licenseTitle": "License",
-  "sources.licenseTse": "TSE's data is under the CC BY license, as its Open Data Portal declares.",
   "sources.licenseDerived": "The files this project publishes are under CC BY 4.0. When you reuse them, credit TSE and this project:",
   "sources.filesTitle": "TSE files used",
   "sources.filesNote": "{count} files, with their size and the time they were downloaded.",
-  "results.otherUnderAppeal": "Other votes under appeal"
+  "results.otherUnderAppeal": "Other votes under appeal",
+  "site.fixturesBanner": "Test build: these numbers come from a sample of TSE's files and are not the official results.",
+  "area.turnoutTitle": "Voters and turnout · {race}",
+  "race.manySeatsOneChoice": "{seats} seats, with one choice per voter.",
+  "brazil.abroadLink": "Presidential votes cast abroad",
+  "totals.eligibleGap": "In TSE's files, {count} eligible voters appear as neither turnout nor abstention.",
+  "sources.portalTitle": "Open Data Portal (cdn.tse.jus.br)",
+  "sources.portalTerms": "CC BY license, which the portal declares for each package.",
+  "sources.resultsTitle": "Results site (resultados.tse.jus.br)",
+  "sources.resultsTerms": "The site states no license. This project treats these files as public records and credits TSE in the same way."
 }

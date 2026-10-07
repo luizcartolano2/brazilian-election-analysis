@@ -22,7 +22,8 @@ build time. It takes the data from one of two places:
   `parcial` or does not say `fontes_tse`, or if any summary differs from its manifest entry.
 - With `ELEICOES_DATA=fixtures`, from `fixtures/`, which the pipeline generates from its
   test data. Fixtures have no published version, so only the summaries are checked
-  against their manifest.
+  against their manifest. Every page then shows a test-build banner, and the step refuses
+  to run on Vercel, where the `VERCEL` variable is set.
 
 ## Test it
 

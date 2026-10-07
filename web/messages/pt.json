@@ -55,7 +55,7 @@
   "footer.sources": "Fontes e versão dos dados",
   "sources.title": "Fontes",
   "sources.intro": "Todos os números deste site vêm dos arquivos públicos do Tribunal Superior Eleitoral (TSE): o Portal de Dados Abertos e o site de resultados.",
-  "sources.checks": "Antes de publicar, o processamento confere cada número com os totais do próprio TSE, por seção, por município e zona, por estado e para o Brasil. Se um número não bate, nada é publicado.",
+  "sources.checks": "Antes de publicar, o processamento confere os números com os do próprio TSE. Ele confere os votos e o comparecimento de cada seção, os votos de cada candidato por município e zona, onde o TSE publica esse arquivo, e os totais de cada disputa por estado e para o Brasil. Se um número não bate, nada é publicado.",
   "sources.versionTitle": "Versão dos dados",
   "sources.version": "Versão",
   "sources.builtAt": "Gerada em",
@@ -63,9 +63,17 @@
   "sources.manifest": "Manifesto, com a soma de verificação de cada arquivo",
   "sources.fixtures": "Esta é uma versão de teste, feita com uma amostra dos arquivos do TSE.",
   "sources.licenseTitle": "Licença",
-  "sources.licenseTse": "Os dados do TSE estão sob a licença CC BY, como declara o Portal de Dados Abertos.",
   "sources.licenseDerived": "Os arquivos que este projeto publica estão sob a licença CC BY 4.0. Ao reutilizá-los, credite o TSE e este projeto:",
   "sources.filesTitle": "Arquivos do TSE usados",
   "sources.filesNote": "{count} arquivos, com o tamanho e o momento em que foram baixados.",
-  "results.otherUnderAppeal": "Outros votos sub judice"
+  "results.otherUnderAppeal": "Outros votos sub judice",
+  "site.fixturesBanner": "Versão de teste: estes números vêm de uma amostra dos arquivos do TSE e não são os resultados oficiais.",
+  "area.turnoutTitle": "Eleitores e comparecimento · {race}",
+  "race.manySeatsOneChoice": "{seats} vagas, com uma escolha por eleitor.",
+  "brazil.abroadLink": "Votos para presidente no exterior",
+  "totals.eligibleGap": "Nos arquivos do TSE, {count} eleitores aptos não aparecem como comparecimento nem como abstenção.",
+  "sources.portalTitle": "Portal de Dados Abertos (cdn.tse.jus.br)",
+  "sources.portalTerms": "Licença CC BY, que o portal declara para cada pacote.",
+  "sources.resultsTitle": "Site de resultados (resultados.tse.jus.br)",
+  "sources.resultsTerms": "O site não declara licença. Este projeto trata esses arquivos como registros públicos e credita o TSE da mesma forma."
 }

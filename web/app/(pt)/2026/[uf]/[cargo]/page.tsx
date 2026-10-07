@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { YEAR } from '@/lib/elections'
 import { pageTitle, RaceView } from '@/views/area-views'
 import { pageMetadata } from '@/views/metadata'
 import { raceParams, type RaceParams } from '@/views/params'
@@ -8,7 +9,7 @@ export const generateStaticParams = raceParams
 
 export async function generateMetadata({ params }: { params: RaceParams }): Promise<Metadata> {
   const { uf, cargo } = await params
-  return pageMetadata('pt', `/2026/${uf}/${cargo}/`, pageTitle('pt', uf, cargo))
+  return pageMetadata('pt', `/${YEAR}/${uf}/${cargo}/`, pageTitle('pt', uf, cargo))
 }
 
 export default async function Page({ params }: { params: RaceParams }) {

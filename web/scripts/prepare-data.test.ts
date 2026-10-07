@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { sha256 } from '../src/lib/manifest'
-import { fixtureSource, loadVersion, type DataSource } from './prepare-data'
+import { dataMode, fixtureSource, loadVersion, type DataSource } from './prepare-data'
 
 const FIXTURES = path.join(import.meta.dirname, '..', 'fixtures')
 const fixtureManifest = readFileSync(path.join(FIXTURES, 'manifest.json'))
@@ -70,8 +70,45 @@ describe('loadVersion', () => {
     }
   })
 
+  it('refuses a version of another year or round', async () => {
+    const source = published((files) => {
+      const manifest = JSON.parse(new TextDecoder().decode(files.get('manifest.json')))
+      manifest.turno = 2
+      files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
+    })
+    await expect(loadVersion(source, await pinOf(source))).rejects.toThrow(/round 2/)
+  })
+
+  it('reads only the summaries of the round the app shows', async () => {
+    const source = published((files) => {
+      const manifest = JSON.parse(new TextDecoder().decode(files.get('manifest.json')))
+      const stray = new TextEncoder().encode('{"area": "PE"}')
+      manifest.arquivos.push({
+        path: '2026/t2/resumo/pe.json',
+        size: stray.byteLength,
+        sha256: sha256(stray),
+      })
+      files.set('2026/t2/resumo/pe.json', stray)
+      files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
+    })
+    const { summaries } = await loadVersion(source, await pinOf(source))
+    const first = JSON.parse(new TextDecoder().decode(summaries.get('pe')))
+    expect(first.turno).toBe(1)
+  })
+
   it('reads the fixtures without a pin, and still checks their summaries', async () => {
     const { summaries } = await loadVersion(fixtureSource(FIXTURES))
     expect(summaries.size).toBe(5)
+  })
+})
+
+describe('dataMode', () => {
+  it('reads the published version unless told to use the fixtures', () => {
+    expect(dataMode({})).toBe('published')
+    expect(dataMode({ ELEICOES_DATA: 'fixtures' })).toBe('fixtures')
+  })
+
+  it('refuses the fixtures on Vercel', () => {
+    expect(() => dataMode({ ELEICOES_DATA: 'fixtures', VERCEL: '1' })).toThrow(/Vercel/)
   })
 })

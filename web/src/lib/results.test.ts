@@ -94,3 +94,35 @@ describe('race lists', () => {
     expect(raceSlugsOf(federalDistrict)).toEqual(['presidente', 'deputado-distrital'])
   })
 })
+
+describe('a summary that does not add up', () => {
+  const deputy = () => structuredClone(race(fixture('pe'), 6))
+
+  it('fails on a destination the app does not know', () => {
+    const broken = deputy()
+    const first = broken.candidatos[0]
+    if (first === undefined) throw new Error('no candidates')
+    first.destino = 'Anulado'
+    expect(() => raceResults(broken, true)).toThrow(/unknown destination/)
+  })
+
+  it('fails when the shown lines differ from the valid votes', () => {
+    const broken = deputy()
+    broken.validos += 1
+    expect(() => raceResults(broken, true)).toThrow(/valid votes are/)
+  })
+
+  it('fails when a candidate belongs to no listed party', () => {
+    const broken = deputy()
+    const first = broken.candidatos.find((candidate) => candidate.destino === 'Válido')
+    if (first === undefined) throw new Error('no valid candidates')
+    first.partido = 'NOPARTY'
+    expect(() => raceResults(broken, true)).toThrow(/party totals/)
+  })
+
+  it('fails when more votes are listed under appeal than TSE counts', () => {
+    const broken = structuredClone(race(fixture('pe'), 5))
+    broken.anulados_sub_judice = 0
+    expect(() => raceResults(broken, false)).toThrow(/under appeal listed/)
+  })
+})

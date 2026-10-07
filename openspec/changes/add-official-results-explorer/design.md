@@ -205,10 +205,10 @@ station, because no rule here handles votes annulled and counted apart. A failur
 the first 50 mismatches, writes every one to `reconciliation-report.txt` in the work
 directory, and exits non-zero.
 
-President and the council have no municipality-and-zone check yet. TSE's presidential
-`votacao_candidato_munzona` file was published empty (header only) on 2026-10-06, and
-there is none for the council. The manifest lists the races checked at each level, so a
-missing check is visible.
+The council has no municipality-and-zone check, because TSE publishes no such file for
+it. TSE's presidential `votacao_candidato_munzona` file was empty on 2026-10-06, but the
+first publish on 2026-10-07 found it filled and checked President in all 28 areas. The
+manifest lists the races checked at each level, so a missing check is visible.
 
 Party-list and turnout totals per municipality and zone have no independent TSE file
 yet. They are sums of station figures that passed check 1, grouped by the same code that
@@ -353,18 +353,27 @@ rights on top, so it stays out.
   with `pt-BR` or `en-US`.
 - Pre-rendered pages are `/2026/` for Brazil, `/2026/<uf>/` for each state and `zz`,
   `/2026/<uf>/<race>/` for each race of each state, and `/2026/fontes/`, in both
-  languages: 332 pages in all. Brazil shows President in full and offers the state list
-  for the state races. A state shows the leaders of each race and links to the race's own
+  languages: 330 pages, plus the 404 files Next writes. Brazil shows President in full,
+  links to the votes cast abroad, and offers the state list for the state races. A state shows the leaders of each race and links to the race's own
   page, which lists every candidate. Abroad shows its one race in full. A race page is a
   page of its own because the state deputy race in São Paulo has 1,346 candidates: its
   HTML is about 2 MB, or 86 KB compressed, and 13,000 DOM nodes, which a phone renders
-  without horizontal scrolling. Links to race pages do not prefetch, so a state page
-  never downloads that data unless the visitor asks for it.
+  without horizontal scrolling. No link prefetches: the pages keep no client state, and
+  prefetching made one visit to the Brazil page fetch the data of all 28 areas.
+- A state page's turnout box names its race, President, because turnout differs between
+  races: voters in transit vote for President only. When TSE's eligible voters differ
+  from turnout plus abstention, as abroad, a note gives the difference.
 - A party's total in a deputy race is its valid candidate votes plus its valid list
   votes, computed from the candidate list. The summary's `votos_candidatos` also counts
   candidates under appeal, so a party table built on it would add up to more than the
   valid votes. Votes under appeal have their own lines: each candidate, each party list
-  under appeal, and any remainder that no listed candidate carries.
+  under appeal, and any remainder that no listed candidate carries. The results model
+  fails the build on a destination it does not know, on lines that do not add up to TSE's
+  valid votes, and on more votes under appeal than TSE counts. It never adjusts a line.
+- The sources page groups TSE's files by host, with each host's terms from
+  `DATA_LICENSE.md`: CC BY for the Open Data Portal, and no stated license for the
+  results site. A source from any other host fails the build until its terms are
+  recorded.
 - `web/src/data-version.ts` holds the pinned version name, its manifest's SHA-256 and the
   Worker's base URL. The Worker's origin also appears in the `connect-src` directive of
   `vercel.json`, because Vercel reads that file before any build step runs, so a build
@@ -374,6 +383,10 @@ rights on top, so it stays out.
   and copies the checked files into `.data/`, where the pages read them. Any difference
   fails the build. With `ELEICOES_DATA=fixtures` it reads `web/fixtures/` instead, for CI,
   and checks the summaries but not the pin, because fixtures have no published version.
+  It refuses fixtures when the `VERCEL` variable is set, and a fixtures build shows a
+  banner on every page, so sample numbers never pass for results. The step reads only
+  the summaries of 2026's first round, and refuses a manifest for any other year or
+  round.
 - Each language has its own root layout, so an unknown address gets
   `app/global-not-found.tsx`, in both languages. It needs Next's experimental
   `globalNotFound` flag. `vercel.json` redirects `/` and `/en/` to the 2026 pages.

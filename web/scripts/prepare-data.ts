@@ -1,9 +1,6 @@
 /**
  * Copies the pinned data version's manifest and summaries into .data/ before `next build`,
  * after checking each one, so a wrong or tampered file fails the build.
- *
- * ELEICOES_DATA=fixtures reads web/fixtures instead, for CI and local work. Fixtures have
- * no published version, so only the summaries are checked against their manifest.
  */
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -43,7 +40,9 @@ export function publishedSource(baseUrl = VERSION_URL): DataSource {
   return {
     mode: 'published',
     async read(relativePath) {
-      const response = await fetch(`${baseUrl}/${relativePath}`)
+      const response = await fetch(`${baseUrl}/${relativePath}`, {
+        signal: AbortSignal.timeout(60_000),
+      })
       if (response.status === 404) return null
       if (!response.ok) throw new Error(`${relativePath}: HTTP ${response.status}`)
       return new Uint8Array(await response.arrayBuffer())
@@ -70,8 +69,17 @@ export async function loadVersion(
   return { manifest, manifestBytes: manifestBytes as Uint8Array, summaries }
 }
 
+export function dataMode(env: Record<string, string | undefined>): DataMode {
+  const mode: DataMode = env.ELEICOES_DATA === 'fixtures' ? 'fixtures' : 'published'
+  // Fixture numbers come from a handful of stations. On Vercel they would go live as results.
+  if (mode === 'fixtures' && env.VERCEL) {
+    throw new Error('ELEICOES_DATA=fixtures is set on Vercel, which deploys only published data')
+  }
+  return mode
+}
+
 async function main(): Promise<void> {
-  const mode: DataMode = process.env.ELEICOES_DATA === 'fixtures' ? 'fixtures' : 'published'
+  const mode = dataMode(process.env)
   const source = mode === 'fixtures' ? fixtureSource() : publishedSource()
   const { manifestBytes, summaries } = await loadVersion(source)
 

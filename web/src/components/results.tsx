@@ -112,7 +112,8 @@ export function UnderAppealTable({ locale, results }: { locale: Locale; results:
                 <span className="font-medium break-words">{candidate.name}</span>{' '}
                 <span className="text-xs text-slate-600">
                   {candidate.party} · {candidate.number}
-                </span>
+                </span>{' '}
+                <Outcome locale={locale} outcome={candidate.outcome} />
               </td>
               <td className="w-28 py-1.5 text-right tabular-nums">
                 {formatInteger(locale, candidate.votes)}
@@ -146,6 +147,7 @@ export function UnderAppealTable({ locale, results }: { locale: Locale; results:
 
 export function PartyTable({ locale, results }: { locale: Locale; results: RaceResults }) {
   if (results.parties === null) return null
+  // raceResults has already failed the build if these do not add up to the valid votes.
   const candidateVotes = results.parties.reduce((sum, party) => sum + party.candidateVotes, 0)
   const listVotes = results.parties.reduce((sum, party) => sum + party.listVotes, 0)
   const valid = results.totals.valid
@@ -198,7 +200,7 @@ export function PartyTable({ locale, results }: { locale: Locale; results: RaceR
         {t(locale, 'results.partySum', {
           candidates: formatInteger(locale, candidateVotes),
           list: formatInteger(locale, listVotes),
-          valid: formatInteger(locale, candidateVotes + listVotes),
+          valid: formatInteger(locale, valid),
         })}
       </p>
     </section>
@@ -230,23 +232,38 @@ export function TotalsTable({ locale, results }: { locale: Locale; results: Race
     { key: 'totals.abstention', value: totals.abstention, whole: totals.eligible },
   )
   return (
-    <table className="mt-6 w-full table-fixed border-collapse text-sm">
-      <caption className="text-left text-base font-semibold">{t(locale, 'totals.title')}</caption>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.key} className="border-b border-slate-100">
-            <th scope="row" className="py-1.5 pr-2 text-left font-normal">
-              {t(locale, row.key)}
-            </th>
-            <td className="w-28 py-1.5 pr-2 text-right tabular-nums">
-              {formatInteger(locale, row.value)}
-            </td>
-            <td className="w-16 py-1.5 text-right text-slate-600 tabular-nums">
-              {row.whole > 0 ? formatShare(locale, row.value, row.whole) : ''}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <>
+      <table className="mt-6 w-full table-fixed border-collapse text-sm">
+        <caption className="text-left text-base font-semibold">{t(locale, 'totals.title')}</caption>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key} className="border-b border-slate-100">
+              <th scope="row" className="py-1.5 pr-2 text-left font-normal">
+                {t(locale, row.key)}
+              </th>
+              <td className="w-28 py-1.5 pr-2 text-right tabular-nums">
+                {formatInteger(locale, row.value)}
+              </td>
+              <td className="w-16 py-1.5 text-right text-slate-600 tabular-nums">
+                {row.whole > 0 ? formatShare(locale, row.value, row.whole) : ''}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <EligibleGapNote locale={locale} results={results} />
+    </>
+  )
+}
+
+/** TSE counts some eligible voters as neither turnout nor abstention, such as abroad. */
+export function EligibleGapNote({ locale, results }: { locale: Locale; results: RaceResults }) {
+  const totals = results.totals
+  const gap = totals.eligible - totals.attendance - totals.abstention
+  if (gap === 0) return null
+  return (
+    <p className="mt-2 text-xs text-slate-600">
+      {t(locale, 'totals.eligibleGap', { count: formatInteger(locale, gap) })}
+    </p>
   )
 }

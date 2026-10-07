@@ -22,11 +22,50 @@ test('each language formats the same share its own way', async ({ page }) => {
 
 test('Brazil offers the state list for the state races, and marks the runoff', async ({ page }) => {
   await page.goto('/2026/')
-  await expect(page.getByRole('heading', { name: 'Governador, Senado e deputados' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Pernambuco' })).toHaveAttribute('href', '/2026/pe/')
+  const states = page.locator('section', {
+    has: page.getByRole('heading', { name: 'Governador, Senado e deputados' }),
+  })
+  await expect(states.getByRole('link', { name: 'Pernambuco' })).toHaveAttribute(
+    'href',
+    '/2026/pe/',
+  )
+  await expect(states.getByRole('link', { name: 'Exterior' })).toHaveCount(0)
+  await expect(
+    page.getByRole('link', { name: 'Votos para presidente no exterior' }),
+  ).toHaveAttribute('href', '/2026/zz/')
   await expect(page.getByText('2º turno', { exact: true })).toHaveCount(2)
   const response = await page.goto('/2026/br/governador/')
   expect(response?.status()).toBe(404)
+})
+
+test('a fixtures build says so on every page', async ({ page }) => {
+  for (const address of ['/2026/', '/en/2026/pe/senador/']) {
+    await page.goto(address)
+    await expect(page.getByTestId('fixtures-banner')).toBeVisible()
+  }
+})
+
+test('a state page names the race its turnout comes from', async ({ page }) => {
+  await page.goto('/2026/pe/')
+  await expect(
+    page.getByRole('heading', { name: 'Eleitores e comparecimento · Presidente' }),
+  ).toBeVisible()
+})
+
+test('a state page counts every candidate its race page lists', async ({ page }) => {
+  const senate = summary('pe').corridas.find((entry) => entry.cargo === 5)
+  await page.goto('/2026/pe/')
+  await expect(page.locator('[data-race="senador"]').getByRole('link')).toHaveText(
+    `Ver todos os ${senate?.candidatos.length} candidatos`,
+  )
+})
+
+test('an unknown address gets a 404 page in both languages, with the credit', async ({ page }) => {
+  const response = await page.goto('/2026/nowhere/at/all/')
+  expect(response?.status()).toBe(404)
+  await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
+  await expect(page.locator('footer')).toContainText('Tribunal Superior Eleitoral')
 })
 
 test('the Senate page says each voter chose two candidates', async ({ page }) => {

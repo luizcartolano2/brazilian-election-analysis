@@ -37,8 +37,14 @@ function headersFor(pathname) {
 }
 
 async function fileFor(pathname) {
-  const target = path.join(ROOT, decodeURIComponent(pathname))
-  if (!target.startsWith(ROOT)) return null
+  let decoded
+  try {
+    decoded = decodeURIComponent(pathname)
+  } catch {
+    return null
+  }
+  const target = path.join(ROOT, decoded)
+  if (target !== ROOT && !target.startsWith(ROOT + path.sep)) return null
   try {
     const info = await stat(target)
     if (info.isFile()) return target
