@@ -107,5 +107,7 @@
   "area.municipalitiesTitle": "Municípios",
   "area.municipalitiesSummary": "Ver os {count} municípios",
   "area.citiesTitle": "Cidades no exterior",
-  "area.citiesSummary": "Ver as {count} cidades"
+  "area.citiesSummary": "Ver as {count} cidades",
+  "search.truncated": "Mostrando só os primeiros locais. Escreva mais do nome ou do endereço para achar o seu.",
+  "drilldown.noScript": "Esta página consulta os dados no navegador e precisa de JavaScript."
 }

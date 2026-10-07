@@ -116,14 +116,18 @@ describe('loadView', () => {
 
 describe('searchPlaces', () => {
   it('finds a place by part of its name, ignoring case and accents', async () => {
-    const places = await searchPlaces(run, locate, 'pe', 30015, 'arquipelago')
+    const { places, truncated } = await searchPlaces(run, locate, 'pe', 30015, 'arquipelago')
+    expect(truncated).toBe(false)
     expect(places).toHaveLength(1)
     expect(places[0]?.stations.length).toBeGreaterThan(1)
   })
 
   it('treats quotes and wildcards in the search as text', async () => {
     for (const text of ["d'água", '" OR 1=1 --', '%', '_']) {
-      await expect(searchPlaces(run, locate, 'pe', 30015, text), text).resolves.toEqual([])
+      await expect(searchPlaces(run, locate, 'pe', 30015, text), text).resolves.toEqual({
+        places: [],
+        truncated: false,
+      })
     }
   })
 })

@@ -59,7 +59,7 @@ const SQL = {
     'WHERE municipio = ? AND (contains(strip_accents(lower(nome_local)), strip_accents(lower(?))) ' +
     'OR contains(strip_accents(lower(endereco)), strip_accents(lower(?))) ' +
     'OR contains(strip_accents(lower(bairro)), strip_accents(lower(?)))) ' +
-    'ORDER BY nome_local, zona, local_votacao, secao LIMIT 400',
+    'ORDER BY nome_local, zona, local_votacao, secao LIMIT ?',
 }
 
 export class NotFound extends Error {}
@@ -217,20 +217,36 @@ export interface PlaceMatch {
   stations: { station: number; aggregated: boolean }[]
 }
 
-/** Polling places in a municipality whose name, address or neighborhood contains the text. */
+const SEARCH_ROWS = 400
+
+/**
+ * Polling places in a municipality whose name, address or neighborhood contains the text.
+ * Past SEARCH_ROWS stations the result is cut at a whole place and marked as truncated.
+ */
 export async function searchPlaces(
   run: Run,
   locate: Locate,
   area: string,
   municipality: number,
   search: string,
-): Promise<PlaceMatch[]> {
+): Promise<{ places: PlaceMatch[]; truncated: boolean }> {
   const term = search.trim().slice(0, 100)
-  if (term === '') return []
-  const rows = await run(SQL.places, [locate(FILES.places(area)), municipality, term, term, term])
+  if (term === '') return { places: [], truncated: false }
+  const rows = await run(SQL.places, [
+    locate(FILES.places(area)),
+    municipality,
+    term,
+    term,
+    term,
+    SEARCH_ROWS + 1,
+  ])
+  const placeKey = (row: Record<string, unknown>) => `${row.zona}/${row.local_votacao}`
+  const truncated = rows.length > SEARCH_ROWS
+  const cut = truncated ? placeKey(rows[SEARCH_ROWS] as Record<string, unknown>) : null
   const places = new Map<string, PlaceMatch>()
-  for (const row of rows) {
-    const key = `${row.zona}/${row.local_votacao}`
+  for (const row of rows.slice(0, SEARCH_ROWS)) {
+    const key = placeKey(row)
+    if (key === cut) continue
     let place = places.get(key)
     if (place === undefined) {
       place = {
@@ -244,5 +260,5 @@ export async function searchPlaces(
     }
     place.stations.push({ station: Number(row.secao), aggregated: row.agregada === true })
   }
-  return [...places.values()]
+  return { places: [...places.values()], truncated }
 }

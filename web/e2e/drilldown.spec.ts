@@ -10,7 +10,7 @@ const STATION = '/2026/secao/?uf=pe&mu=25313&zn=3&se=597&cargo=governador'
 const MUNICIPALITY = '/2026/municipio/?uf=pe&mu=25313&cargo=governador'
 const NORONHA = '/2026/municipio/?uf=pe&mu=30015'
 
-/** Records policy violations, including those a worker reports to the page. */
+/** Records the policy violations the page reports. A worker reports its own elsewhere. */
 async function watchPolicy(page: Page) {
   await page.addInitScript(() => {
     window.__violations = []

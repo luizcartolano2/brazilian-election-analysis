@@ -26,16 +26,22 @@ export function browserRunner(config: DrilldownConfig): Promise<Run> {
 async function start(config: DrilldownConfig): Promise<Run> {
   const duckdb = await import('@duckdb/duckdb-wasm')
   const worker = new Worker(absolute(config.workerScript))
-  const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker)
-  await db.instantiate(absolute(`${config.assetBase}/duckdb-eh.wasm`))
-  await db.open({ query: { castBigIntToDouble: true } })
-  const connection = await db.connect()
-  const repository = absolute(`${config.assetBase}/extensions`)
-  // The repository comes from the build, never from the address, and holds no quote.
-  if (repository.includes("'")) throw new Error('the extension repository URL holds a quote')
-  await connection.query('SET autoload_known_extensions = false')
-  await connection.query(`SET custom_extension_repository = '${repository}'`)
-  await connection.query('LOAD parquet')
+  let connection: Awaited<ReturnType<InstanceType<typeof duckdb.AsyncDuckDB>['connect']>>
+  try {
+    const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker)
+    await db.instantiate(absolute(`${config.assetBase}/duckdb-eh.wasm`))
+    await db.open({ query: { castBigIntToDouble: true } })
+    connection = await db.connect()
+    const repository = absolute(`${config.assetBase}/extensions`)
+    // The repository comes from the build, never from the address, and holds no quote.
+    if (repository.includes("'")) throw new Error('the extension repository URL holds a quote')
+    await connection.query('SET autoload_known_extensions = false')
+    await connection.query(`SET custom_extension_repository = '${repository}'`)
+    await connection.query('LOAD parquet')
+  } catch (error) {
+    worker.terminate()
+    throw error
+  }
 
   let queue: Promise<unknown> = Promise.resolve()
   return (sql, params) => {

@@ -17,8 +17,19 @@ async function withExtensionRepository<T>(load: (repository: string) => T): Prom
     repository,
   ])
   try {
-    const [chunk] = (await once(child.stdout, 'data')) as [Buffer]
-    return load(`http://127.0.0.1:${chunk.toString().trim()}`)
+    const port = await Promise.race([
+      once(child.stdout, 'data').then(([chunk]) => String(chunk).trim()),
+      once(child, 'exit').then(() => {
+        throw new Error('the extension server exited before it started')
+      }),
+      new Promise<never>((_, reject) => {
+        setTimeout(
+          () => reject(new Error('the extension server did not start in 10 s')),
+          10_000,
+        ).unref()
+      }),
+    ])
+    return load(`http://127.0.0.1:${port}`)
   } finally {
     child.kill()
   }

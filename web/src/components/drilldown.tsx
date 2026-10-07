@@ -94,6 +94,8 @@ export function Drilldown({
       </Notice>
     )
   }
+  const area = areaByCode(address.area)
+  if (area === undefined) return null
   if (state.status === 'loading') {
     return <Notice>{t(locale, 'drilldown.loading')}</Notice>
   }
@@ -117,7 +119,7 @@ export function Drilldown({
         <p data-testid="missing-place">{t(locale, 'drilldown.missing')}</p>
         <p className="mt-2">
           <AppLink href={localePath(locale, `/${YEAR}/${address.area}/`)} className="underline">
-            {areaName(areaByCode(address.area) ?? { code: '', pt: '', en: '' }, locale)}
+            {areaName(area, locale)}
           </AppLink>
         </p>
       </Notice>

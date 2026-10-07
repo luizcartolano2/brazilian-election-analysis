@@ -107,5 +107,7 @@
   "area.municipalitiesTitle": "Municipalities",
   "area.municipalitiesSummary": "See the {count} municipalities",
   "area.citiesTitle": "Cities abroad",
-  "area.citiesSummary": "See the {count} cities"
+  "area.citiesSummary": "See the {count} cities",
+  "search.truncated": "Showing only the first places. Type more of the name or address to find yours.",
+  "drilldown.noScript": "This page queries the data in the browser and needs JavaScript."
 }

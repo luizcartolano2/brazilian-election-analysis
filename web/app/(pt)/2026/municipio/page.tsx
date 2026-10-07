@@ -16,6 +16,9 @@ export const metadata: Metadata = pageMetadata(
 export default function Page() {
   return (
     <PageShell locale="pt" path={`/${YEAR}/municipio/`}>
+      <noscript>
+        <p className="text-sm">{t('pt', 'drilldown.noScript')}</p>
+      </noscript>
       <Suspense fallback={<p className="text-sm">{t('pt', 'drilldown.loading')}</p>}>
         <Drilldown locale="pt" level="municipio" config={getDrilldownConfig()} />
       </Suspense>

@@ -7,7 +7,9 @@ import { browserLocate, browserRunner } from '@/lib/drilldown/browser'
 import { searchPlaces, type PlaceMatch } from '@/lib/drilldown/queries'
 import { t, type Locale } from '@/lib/i18n'
 
-type Result = { status: 'idle' | 'searching' | 'failed' } | { status: 'done'; places: PlaceMatch[] }
+type Result =
+  | { status: 'idle' | 'searching' | 'failed' }
+  | { status: 'done'; places: PlaceMatch[]; truncated: boolean }
 
 /** "Find your polling station": part of a place's name or address, within one municipality. */
 export function PlaceSearch({
@@ -28,11 +30,15 @@ export function PlaceSearch({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (text.trim() === '') {
+      setResult({ status: 'idle' })
+      return
+    }
     setResult({ status: 'searching' })
     try {
       const run = await browserRunner(config)
-      const places = await searchPlaces(run, browserLocate(config), area, municipality, text)
-      setResult({ status: 'done', places })
+      const found = await searchPlaces(run, browserLocate(config), area, municipality, text)
+      setResult({ status: 'done', ...found })
     } catch {
       setResult({ status: 'failed' })
     }
@@ -72,28 +78,35 @@ export function PlaceSearch({
             {t(locale, 'search.none')}
           </p>
         ) : (
-          <ul className="mt-3 space-y-3 text-sm" data-testid="search-results">
-            {result.places.map((place) => (
-              <li key={`${place.zone}-${place.place}-${place.address}`}>
-                <p className="font-medium break-words">{place.place}</p>
-                <p className="break-words text-slate-700">
-                  {[place.address, place.neighborhood].filter(Boolean).join(' · ')}
-                </p>
-                <p className="mt-1 flex flex-wrap gap-x-3">
-                  <span className="text-slate-600">{t(locale, 'search.stations')}:</span>
-                  {place.stations.map((station) => (
-                    <AppLink
-                      key={station.station}
-                      href={stationHref(place.zone, station.station)}
-                      className="underline"
-                    >
-                      {station.station}
-                    </AppLink>
-                  ))}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <>
+            {result.truncated && (
+              <p className="mt-2 text-sm" data-testid="search-truncated">
+                {t(locale, 'search.truncated')}
+              </p>
+            )}
+            <ul className="mt-3 space-y-3 text-sm" data-testid="search-results">
+              {result.places.map((place) => (
+                <li key={`${place.zone}-${place.place}-${place.address}`}>
+                  <p className="font-medium break-words">{place.place}</p>
+                  <p className="break-words text-slate-700">
+                    {[place.address, place.neighborhood].filter(Boolean).join(' · ')}
+                  </p>
+                  <p className="mt-1 flex flex-wrap gap-x-3">
+                    <span className="text-slate-600">{t(locale, 'search.stations')}:</span>
+                    {place.stations.map((station) => (
+                      <AppLink
+                        key={station.station}
+                        href={stationHref(place.zone, station.station)}
+                        className="underline"
+                      >
+                        {station.station}
+                      </AppLink>
+                    ))}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </>
         ))}
     </section>
   )

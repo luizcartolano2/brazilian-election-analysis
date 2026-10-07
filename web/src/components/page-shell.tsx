@@ -36,7 +36,17 @@ export function PageShell({
         </Link>
         <nav className="flex gap-4 text-sm">
           <Link href={localePath(locale, `/${YEAR}/fontes/`)}>{t(locale, 'nav.sources')}</Link>
-          <Suspense fallback={<span>{t(locale, 'nav.otherLanguage')}</span>}>
+          <Suspense
+            fallback={
+              <a
+                href={localePath(other, path)}
+                hrefLang={other === 'pt' ? 'pt-BR' : 'en'}
+                lang={other === 'pt' ? 'pt-BR' : 'en'}
+              >
+                {t(locale, 'nav.otherLanguage')}
+              </a>
+            }
+          >
             <LanguageLink
               href={localePath(other, path)}
               language={other === 'pt' ? 'pt-BR' : 'en'}
