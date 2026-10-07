@@ -7,3 +7,6 @@ package-lock.json
 playwright-report
 test-results
 next-env.d.ts
+public/duckdb
+public/_fixtures
+.cache

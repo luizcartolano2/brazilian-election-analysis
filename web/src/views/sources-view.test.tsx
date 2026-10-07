@@ -6,6 +6,8 @@ import { DATA_VERSION, VERSION_URL } from '@/data-version'
 import type { Manifest } from '@/lib/manifest'
 import { SourcesContent } from './sources-view'
 
+const PLACES = { dataBase: '/data', assetBase: '/assets', workerScript: '/worker.js' }
+
 const manifest = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', '..', 'fixtures', 'manifest.json'), 'utf-8'),
 ) as Manifest
@@ -16,7 +18,7 @@ describe('the sources page', () => {
       <SourcesContent
         locale="pt"
         manifest={manifest}
-        source={{ mode: 'published', version: DATA_VERSION.name }}
+        source={{ mode: 'published', version: DATA_VERSION.name, ...PLACES }}
       />,
     )
     expect(html).toContain(DATA_VERSION.name)
@@ -28,7 +30,7 @@ describe('the sources page', () => {
       <SourcesContent
         locale="en"
         manifest={manifest}
-        source={{ mode: 'fixtures', version: null }}
+        source={{ mode: 'fixtures', version: null, ...PLACES }}
       />,
     )
     expect(html).toContain('test build')
@@ -40,7 +42,7 @@ describe('the sources page', () => {
       <SourcesContent
         locale="en"
         manifest={manifest}
-        source={{ mode: 'fixtures', version: null }}
+        source={{ mode: 'fixtures', version: null, ...PLACES }}
       />,
     )
     expect(html).toContain('CC BY license, which the portal declares')
@@ -54,7 +56,11 @@ describe('the sources page', () => {
     }
     expect(() =>
       renderToStaticMarkup(
-        <SourcesContent locale="pt" manifest={odd} source={{ mode: 'fixtures', version: null }} />,
+        <SourcesContent
+          locale="pt"
+          manifest={odd}
+          source={{ mode: 'fixtures', version: null, ...PLACES }}
+        />,
       ),
     ).toThrow(/no terms recorded/)
   })

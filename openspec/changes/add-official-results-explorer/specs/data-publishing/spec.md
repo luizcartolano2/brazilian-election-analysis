@@ -76,17 +76,28 @@ version without a manifest is incomplete and SHALL NOT be pinned by the app.
 - **WHEN** a publish stops after some data files were uploaded but before the manifest
 - **THEN** that version has no manifest, and the next publish uses a new version path
 
-### Requirement: The browser engine's WebAssembly file comes from storage
-The DuckDB-WASM WebAssembly file SHALL be published to storage under a path named for its
-package version, by the same protected workflow, and SHALL be immutable like a data
-version.
+### Requirement: The browser engine's files come from storage
+The same protected workflow SHALL publish two files under
+`assets/duckdb-wasm/<package version>/`: the DuckDB-WASM WebAssembly module from the
+locked package, and DuckDB's signed Parquet extension, pinned by SHA-256. A publish SHALL
+NOT overwrite or delete a file under that path. A production build of the app SHALL fail
+when either file that the Worker serves differs from the locked module or the pinned
+extension.
 
 #### Scenario: The app loads the query engine
 - **WHEN** a drill-down view starts the query engine
-- **THEN** the WebAssembly file comes through the Worker, not from the app's host
+- **THEN** the module and the Parquet extension come through the Worker, not from the app's host or a third-party host
+
+#### Scenario: A published asset differs
+- **WHEN** a production build finds that the Worker serves a module or an extension that differs from the lockfile or the pin
+- **THEN** the build fails
+
+#### Scenario: An asset upload is interrupted
+- **WHEN** an asset publish stops after some files were uploaded but before `SHA256SUMS`
+- **THEN** a retry keeps each file there that equals the staged one, uploads the rest, and fails if any file there differs
 
 ### Requirement: The Worker serves versioned files only
-The Worker SHALL answer `GET` and `HEAD` for files inside a data version or a WebAssembly
+The Worker SHALL answer `GET` and `HEAD` for files inside a data version or a DuckDB
 asset path, and `OPTIONS` for CORS preflight. It SHALL accept a key only when every path
 segment uses safe characters, with no `..` segment and no encoded slash. It SHALL return
 404 for anything else and SHALL NOT list directories. Other methods SHALL get 405.
@@ -158,7 +169,7 @@ the `Range` header. Responses SHALL expose `Content-Range`, `Content-Length`,
 
 ### Requirement: Versions are cached forever
 Because a version never changes, the Worker SHALL mark files inside a version or a
-WebAssembly asset path as immutable and cacheable for one year.
+DuckDB asset path as immutable and cacheable for one year.
 
 #### Scenario: Cache headers on a data file
 - **WHEN** the Worker returns a file inside a version

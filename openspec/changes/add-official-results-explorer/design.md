@@ -77,8 +77,10 @@ manifest.json
 2026/t1/resumo/<uf>.json                        one per state, plus zz
 ```
 
-The council race is `cargo=25/uf=PE`. The query engine's WebAssembly file lives outside
-versions, at `assets/duckdb-wasm/<package version>/`.
+The council race is `cargo=25/uf=PE`. The query engine's files live outside versions,
+under `assets/duckdb-wasm/<package version>/`: the WebAssembly module as `duckdb-eh.wasm`,
+and DuckDB's signed Parquet extension at the path that DuckDB requests,
+`extensions/v1.5.4/wasm_eh/parquet.duckdb_extension.wasm`.
 
 The schemas below are new, because no schema exists before this change.
 
@@ -227,8 +229,13 @@ those pins current.
    build. That group holds `moto` and `boto3`, about 60 packages that only the upload
    script's tests need, so they stay out of the job that writes the data. The build job
    then hands `dist/` to the next job as a workflow artifact with one day of retention.
-   For the WebAssembly target, it runs
-   `npm ci` in `web/` and copies the `.wasm` file out of the locked package.
+   For the WebAssembly target, a separate pair of jobs runs `npm ci --ignore-scripts` in
+   `web/`, copies the `.wasm` file out of the locked package and downloads DuckDB's
+   Parquet extension at its pinned SHA-256, with a `SHA256SUMS` list.
+   `.github/scripts/upload-asset.sh` then refuses an asset path that holds `SHA256SUMS`,
+   or a file that is not one of the staged assets or differs from it. It uploads only the
+   missing files, reads them all back, and uploads `SHA256SUMS` last. A retry after an
+   interrupted upload therefore resumes it, and nothing is ever overwritten.
 2. **upload** uses the `data-publish` environment. That environment allows `main` only,
    requires Luiz as reviewer, and holds the R2 credentials. The job installs nothing and
    runs no pipeline code. It runs only the runner's preinstalled AWS CLI and
@@ -390,16 +397,44 @@ rights on top, so it stays out.
 - Each language has its own root layout, so an unknown address gets
   `app/global-not-found.tsx`, in both languages. It needs Next's experimental
   `globalNotFound` flag. `vercel.json` redirects `/` and `/en/` to the 2026 pages.
-- Municipality, zone and station views are one static page each. Each reads its location
-  from query parameters such as `?uf=ac&mu=1066&zn=4&se=77`. A parser accepts `uf` only
-  from the 27 states and `zz`, the race only from the election's races, and `mu`, `zn`
-  and `se` only as whole numbers in range. Anything else shows the error state. Parquet
-  URLs are built only from parsed values and the pinned version, and every value reaches
-  DuckDB through a prepared statement, including the search text.
-- DuckDB-WASM's worker script is self-hosted in `public/duckdb/`, because a browser
-  `Worker` must load from the page's own origin. The `.wasm` file comes from the Worker at
-  `assets/duckdb-wasm/<version>/`. That keeps the largest download off Vercel's monthly
-  bandwidth, where Hobby has no overage and pauses the project instead.
+- Municipality, zone and station views are one static page each, `/2026/municipio/`,
+  `/2026/zona/` and `/2026/secao/`. Each reads its location from query parameters such as
+  `?uf=ac&mu=1066&zn=4&se=77&cargo=governador`. A parser accepts `uf` only from the 27
+  states and `zz`, `mu`, `zn` and `se` only as whole numbers in range, each parameter only
+  once, and `cargo` only as a race that the place has: the council exists only in
+  Fernando de Noronha, municipality 30015. Without `cargo` the view shows President.
+  Anything else shows the error state, and no query runs and no file is requested.
+- Every SQL statement that reads data is a constant. The file's URL, built only from
+  parsed values and the pinned version, is a bound parameter of `read_parquet(?)`, like
+  every other value. The one interpolated value is the extension repository's URL, in a
+  `SET` statement. That URL comes from the build, never from the address, and the app
+  refuses it if it holds a quote. The
+  search uses `contains()` on lower-case text without accents, so quotes, `%` and `_` in
+  the search box are only letters. Statements run one at a time.
+- A view builds a summary-shaped race from the Parquet rows, and passes it through the
+  same checks and tables as a state page. A failed check shows the error state.
+- State pages list their municipalities, and abroad lists its cities, from
+  `municipios.parquet`. The data step checks that file against the manifest and turns it
+  into JSON with DuckDB-WASM's Node build.
+- DuckDB-WASM's worker script is copied from the locked package into
+  `public/duckdb/<package version>/` at build time, because a browser `Worker` must load
+  from the page's own origin. The app uses the exception-handling build only, which every
+  major browser has supported since late 2021. An older browser sees the error state.
+- DuckDB-WASM reads Parquet only through its `parquet` extension, which DuckDB fetches when
+  it loads. The Worker serves DuckDB's signed extension next to the `.wasm` file, under
+  `assets/duckdb-wasm/<package version>/`. `web/scripts/duckdb-assets.ts` pins its SHA-256,
+  DuckDB checks its signature on `LOAD`, and the app turns automatic loading off. Both
+  files come through the Worker, which keeps the largest downloads off Vercel's monthly
+  bandwidth, where Hobby has no overage and pauses the project instead. Alternative
+  rejected: allowing `extensions.duckdb.org` in `connect-src`, which would make every
+  visitor's browser depend on, and contact, a third-party host at run time.
+- The production build downloads both assets through the Worker and compares them with
+  the lockfile's module and the pinned extension. A missing or different asset fails the
+  build, so the `duckdb-wasm` target must be published before the first production build.
+  The build then caches the Worker's extension, so its own queries load the copy that
+  browsers load, and a production build never contacts `extensions.duckdb.org`.
+- A fixtures build serves the fixtures and the DuckDB assets from the app's own origin,
+  under `/_fixtures/`, so CI runs the views under the same security policy.
 - `web/fixtures/` is generated by the pipeline from its own fixtures, and the pipeline CI
   job fails when regenerating them changes anything. So a schema change that reaches only
   one side fails CI.

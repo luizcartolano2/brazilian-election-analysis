@@ -1,14 +1,9 @@
 import { notFound } from 'next/navigation'
 import { AppLink } from '@/components/app-link'
-import {
-  CandidateTable,
-  EligibleGapNote,
-  PartyTable,
-  TotalsTable,
-  UnderAppealTable,
-} from '@/components/results'
+import { FullResults, RaceNote } from '@/components/race-results'
+import { CandidateTable, EligibleGapNote } from '@/components/results'
 import { PageShell } from '@/components/page-shell'
-import { getSummary } from '@/lib/data'
+import { getMunicipalities, getSummary } from '@/lib/data'
 import {
   ABROAD,
   areaByCode,
@@ -81,61 +76,10 @@ function TurnoutSummary({
   )
 }
 
-function RaceNote({
-  locale,
-  info,
-  results,
-}: {
-  locale: Locale
-  info: RaceInfo
-  results: RaceResults
-}) {
-  const notes: string[] = []
-  const seats = String(results.seats)
-  if (results.choicesPerVoter === 2) {
-    notes.push(t(locale, 'race.twoChoices', { seats }))
-  } else if (info.proportional) {
-    notes.push(t(locale, 'race.proportionalSeats', { seats }))
-  } else if (results.seats > 1) {
-    notes.push(t(locale, 'race.manySeatsOneChoice', { seats }))
-  }
-  if (notes.length === 0) return null
-  return <p className="mt-1 text-sm text-slate-700">{notes.join(' ')}</p>
-}
-
 function knownRace(race: SummaryRace): RaceInfo {
   const info = raceByCode(race.cargo)
   if (info === undefined) throw new Error(`unknown race code ${race.cargo} in the summary`)
   return info
-}
-
-function FullResults({
-  locale,
-  info,
-  results,
-  caption,
-}: {
-  locale: Locale
-  info: RaceInfo
-  results: RaceResults
-  caption: string
-}) {
-  return (
-    <>
-      <RaceNote locale={locale} info={info} results={results} />
-      <div className="mt-3">
-        <CandidateTable
-          locale={locale}
-          candidates={results.candidates}
-          validVotes={results.totals.valid}
-          caption={caption}
-        />
-      </div>
-      <UnderAppealTable locale={locale} results={results} />
-      <PartyTable locale={locale} results={results} />
-      <TotalsTable locale={locale} results={results} />
-    </>
-  )
 }
 
 /** Brazil as a whole: President, with the state races offered through the state list. */
@@ -264,7 +208,40 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
           </section>
         )
       })}
+      <MunicipalityList locale={locale} area={area} />
     </PageShell>
+  )
+}
+
+function MunicipalityList({ locale, area }: { locale: Locale; area: StateInfo }) {
+  const municipalities = getMunicipalities(area.code)
+  if (municipalities.length === 0) return null
+  const abroad = area.code === ABROAD.code
+  return (
+    <section className="mt-8">
+      <h2 className="text-xl font-semibold">
+        {t(locale, abroad ? 'area.citiesTitle' : 'area.municipalitiesTitle')}
+      </h2>
+      <details className="mt-2">
+        <summary className="cursor-pointer text-sm underline">
+          {t(locale, abroad ? 'area.citiesSummary' : 'area.municipalitiesSummary', {
+            count: formatInteger(locale, municipalities.length),
+          })}
+        </summary>
+        <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
+          {municipalities.map((municipality) => (
+            <li key={municipality.municipio} className="break-words">
+              <AppLink
+                href={`${localePath(locale, `/${YEAR}/municipio/`)}?uf=${area.code}&mu=${municipality.municipio}`}
+                className="underline"
+              >
+                {municipality.nome}
+              </AppLink>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </section>
   )
 }
 

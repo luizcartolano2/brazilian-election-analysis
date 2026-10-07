@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { AppLink as Link } from '@/components/app-link'
+import { LanguageLink } from '@/components/language-link'
 import { getSourceInfo } from '@/lib/data'
 import { YEAR } from '@/lib/elections'
 import { localePath, t, type Locale } from '@/lib/i18n'
@@ -35,9 +36,23 @@ export function PageShell({
         </Link>
         <nav className="flex gap-4 text-sm">
           <Link href={localePath(locale, `/${YEAR}/fontes/`)}>{t(locale, 'nav.sources')}</Link>
-          <a href={localePath(other, path)} hrefLang={other === 'pt' ? 'pt-BR' : 'en'} lang={other}>
-            {t(locale, 'nav.otherLanguage')}
-          </a>
+          <Suspense
+            fallback={
+              <a
+                href={localePath(other, path)}
+                hrefLang={other === 'pt' ? 'pt-BR' : 'en'}
+                lang={other === 'pt' ? 'pt-BR' : 'en'}
+              >
+                {t(locale, 'nav.otherLanguage')}
+              </a>
+            }
+          >
+            <LanguageLink
+              href={localePath(other, path)}
+              language={other === 'pt' ? 'pt-BR' : 'en'}
+              label={t(locale, 'nav.otherLanguage')}
+            />
+          </Suspense>
         </nav>
       </header>
       {getSourceInfo().mode === 'fixtures' && (

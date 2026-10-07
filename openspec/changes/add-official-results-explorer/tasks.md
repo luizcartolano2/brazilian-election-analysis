@@ -44,23 +44,23 @@
 ## 5. Web: results explorer (one PR, or two if the station views grow large)
 
 - [x] 5.1 Create the Next.js 16 app in `web/` with static export, Tailwind 4, Vitest and Playwright, a lint rule against `dangerouslySetInnerHTML`, and the `web` CI job with a fixtures build
-- [ ] 5.2 Add the `duckdb-wasm` target to `publish-data.yml`, which publishes the locked package's `.wasm` file to `assets/duckdb-wasm/<version>/`; test that an existing asset path stops it; after merge, publish it with Luiz's approval
+- [ ] 5.2 Add the `duckdb-wasm` target to `publish-data.yml`, which publishes the locked package's `.wasm` file and DuckDB's signed Parquet extension, pinned by SHA-256, to `assets/duckdb-wasm/<version>/`; test that a complete asset path stops it, that a retry resumes an interrupted upload only when the files there equal the staged ones, and that a production build fails when the Worker serves a different file; after merge, publish it with Luiz's approval
 - [x] 5.3 Add the two route trees, the `pt` and `en` message files and `t()`; test that the key sets match, that numbers format as `47,03%` and `47.03%`, and that switching language keeps the page
 - [x] 5.4 Add `data-version.ts` with the version name, the manifest's SHA-256 and the Worker URL, and the build-time loader; test that a missing manifest, a wrong manifest checksum and a summary that differs from the manifest each fail the build, and that the Worker origin in `vercel.json` equals the one in `data-version.ts`
 - [x] 5.5 Build the Brazil and state pages with headline results in the HTML; Playwright test that a state page shows its leaders with JavaScript disabled
-- [ ] 5.6 Add the results view for a race and area, with party-list votes in the deputy races, invalid-vote lines and TSE's outcome; test the Senate note, the Federal District's race list, the council's seven seats, a deputy race whose candidate and list votes add up to the valid votes shown, a sub judice line, the governor race for Brazil offering the state list, and the runoff marking
-- [ ] 5.7 Add the address parser; test SQL text in `mu`, a slash and `..` in `uf`, an out-of-range zone and an unknown race, each showing the error state with no query and no file request
-- [ ] 5.8 Add the DuckDB-WASM query layer with prepared statements, the worker script in `public/duckdb/` and the `.wasm` from the Worker; test the queries against fixture Parquet
-- [ ] 5.9 Add drill-down links and query-parameter addresses; test that a copied station address reopens the same station and race
-- [ ] 5.10 Add the station page with the aggregated-station message and the link to TSE's station view; test the link format against the verified example
-- [ ] 5.11 Add "find your polling station" by municipality and place name or address; test a partial school name and a search text with quotes
-- [ ] 5.12 Add the error state; test that a failed query shows a message and a retry and no numbers
+- [x] 5.6 Add the results view for a race and area, with party-list votes in the deputy races, invalid-vote lines and TSE's outcome; test the Senate note, the Federal District's race list, the council's seven seats, a deputy race whose candidate and list votes add up to the valid votes shown, a sub judice line, the governor race for Brazil offering the state list, and the runoff marking
+- [x] 5.7 Add the address parser; test SQL text in `mu`, a slash and `..` in `uf`, an out-of-range zone and an unknown race, each showing the error state with no query and no file request
+- [x] 5.8 Add the DuckDB-WASM query layer with prepared statements, the worker script in `public/duckdb/` and the `.wasm` from the Worker; test the queries against fixture Parquet
+- [x] 5.9 Add drill-down links and query-parameter addresses; test that a copied station address reopens the same station and race
+- [x] 5.10 Add the station page with the aggregated-station message and the link to TSE's station view; test the link format against the verified example
+- [x] 5.11 Add "find your polling station" by municipality and place name or address; test a partial school name and a search text with quotes
+- [x] 5.12 Add the error state; test that a failed query shows a message and a retry and no numbers
 - [x] 5.13 Add the footer and the sources page; test the TSE credit in both languages, and that the sources page shows the version and links to its manifest
-- [ ] 5.14 Add the security headers and the policy in `web/vercel.json` for every path; Playwright test that a station view with JavaScript on and these headers shows results with no policy violation
-- [ ] 5.15 Check every page at 360 pixels wide, and open the PR
+- [x] 5.14 Add the security headers and the policy in `web/vercel.json` for every path; Playwright test that a station view with JavaScript on and these headers shows results with no policy violation
+- [x] 5.15 Check every page at 360 pixels wide, and open the PR
 
 ## 6. Launch (Luiz, with help)
 
 - [ ] 6.1 Create the Vercel project on `web/`, add `eleicoes.luizcartolano.com`, and add the CNAME at GoDaddy
 - [ ] 6.2 Add to the README that the GoDaddy CNAME must be deleted before the Vercel project is ever removed
-- [ ] 6.3 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view
+- [ ] 6.3 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view; follow the TSE link from a governor view and from the council view, and make sure that each opens the same station in that race

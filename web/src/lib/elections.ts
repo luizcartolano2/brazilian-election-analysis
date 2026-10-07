@@ -58,18 +58,42 @@ export interface RaceInfo {
   en: string
   /** The deputy races, where votes for a party's list also count. */
   proportional: boolean
+  /** TSE's election code: President, the state races, and Fernando de Noronha's council. */
+  election: number
 }
 
 export const RACES: readonly RaceInfo[] = [
-  { code: 1, slug: 'presidente', pt: 'Presidente', en: 'President', proportional: false },
-  { code: 3, slug: 'governador', pt: 'Governador', en: 'Governor', proportional: false },
-  { code: 5, slug: 'senador', pt: 'Senador', en: 'Senator', proportional: false },
+  {
+    code: 1,
+    slug: 'presidente',
+    pt: 'Presidente',
+    en: 'President',
+    proportional: false,
+    election: 6257,
+  },
+  {
+    code: 3,
+    slug: 'governador',
+    pt: 'Governador',
+    en: 'Governor',
+    proportional: false,
+    election: 6259,
+  },
+  {
+    code: 5,
+    slug: 'senador',
+    pt: 'Senador',
+    en: 'Senator',
+    proportional: false,
+    election: 6259,
+  },
   {
     code: 6,
     slug: 'deputado-federal',
     pt: 'Deputado federal',
     en: 'Federal deputy',
     proportional: true,
+    election: 6259,
   },
   {
     code: 7,
@@ -77,6 +101,7 @@ export const RACES: readonly RaceInfo[] = [
     pt: 'Deputado estadual',
     en: 'State deputy',
     proportional: true,
+    election: 6259,
   },
   {
     code: 8,
@@ -84,6 +109,7 @@ export const RACES: readonly RaceInfo[] = [
     pt: 'Deputado distrital',
     en: 'District deputy',
     proportional: true,
+    election: 6259,
   },
   {
     code: 25,
@@ -92,6 +118,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'District councillor',
     // Its candidates run without parties, and the seven with the most votes take the seats.
     proportional: false,
+    election: 6261,
   },
 ]
 
@@ -106,3 +133,8 @@ export function raceBySlug(slug: string): RaceInfo | undefined {
 export function raceName(race: RaceInfo, locale: Locale): string {
   return race[locale]
 }
+
+/** Fernando de Noronha's Conselheiro Distrital race: seven seats, one choice per voter. */
+export const COUNCIL = { area: 'pe', municipality: 30015, race: 25, seats: 7, choicesPerVoter: 1 }
+
+export const PRESIDENT = 1

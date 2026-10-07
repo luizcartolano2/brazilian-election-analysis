@@ -8,6 +8,7 @@ on:
         type: choice
         options:
           - data
+          - duckdb-wasm
         default: data
 
 # Publishes wait for each other, and one in progress is never cut off. The branch is in the
@@ -97,6 +98,65 @@ jobs:
         run: bash .github/scripts/upload-version.sh dist "$VERSION"
         env:
           VERSION: ${{ needs.build.outputs.version }}
+          R2_ENDPOINT: https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: eleicoes-data # the bucket in worker/wrangler.jsonc
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+
+  # The query engine's WebAssembly module, from the locked npm package, and DuckDB's signed
+  # Parquet extension, checked against its pinned SHA-256. No secret here either.
+  build-assets:
+    if: github.ref == 'refs/heads/main' && inputs.target == 'duckdb-wasm'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    outputs:
+      version: ${{ steps.stage.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Install from the lockfile
+        run: npm ci --ignore-scripts
+
+      - name: Stage the assets
+        id: stage
+        run: npx --no-install tsx scripts/stage-duckdb-assets.ts ../duckdb-assets >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: duckdb-assets
+          path: duckdb-assets/
+          retention-days: 1
+          if-no-files-found: error
+
+  upload-assets:
+    needs: build-assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: data-publish
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: duckdb-assets
+          path: duckdb-assets
+
+      - name: Upload the assets
+        run: bash .github/scripts/upload-asset.sh duckdb-assets "$VERSION"
+        env:
+          VERSION: ${{ needs.build-assets.outputs.version }}
           R2_ENDPOINT: https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           R2_BUCKET: eleicoes-data # the bucket in worker/wrangler.jsonc
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}

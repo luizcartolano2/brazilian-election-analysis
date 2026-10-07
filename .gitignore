@@ -21,6 +21,9 @@ htmlcov/
 # Node and Next.js
 node_modules/
 /web/.data/
+/web/.cache/
+/web/public/duckdb/
+/web/public/_fixtures/
 .next/
 out/
 *.tsbuildinfo

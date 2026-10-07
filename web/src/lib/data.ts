@@ -1,6 +1,8 @@
 /** Reads the data that scripts/prepare-data.ts checked and copied into .data/. Build time only. */
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import type { DrilldownConfig } from './drilldown/config'
+import { COUNCIL } from './elections'
 import type { Manifest } from './manifest'
 import type { Summary } from './results'
 
@@ -19,6 +21,16 @@ function readJson<T>(relative: string): T {
 export interface DataSourceInfo {
   mode: 'published' | 'fixtures'
   version: string | null
+  /** Where the browser reads the data version and the DuckDB assets from. */
+  dataBase: string
+  assetBase: string
+  workerScript: string
+}
+
+export interface Municipality {
+  municipio: number
+  nome: string
+  capital: boolean
 }
 
 let manifest: Manifest | undefined
@@ -48,4 +60,40 @@ export function getSummary(area: string): Summary {
 /** The state codes and `zz` that this data version covers, in lower case. */
 export function coveredAreas(): string[] {
   return getManifest().estados.map((code) => code.toLowerCase())
+}
+
+let municipalities: Record<string, Municipality[]> | undefined
+
+/** An area's municipalities, or its cities abroad, in TSE's order of names. */
+export function getMunicipalities(area: string): Municipality[] {
+  municipalities ??= readJson<Record<string, Municipality[]>>('municipios.json')
+  return municipalities[area] ?? []
+}
+
+/** What the browser needs to query this data version, with each area's races and shapes. */
+export function getDrilldownConfig(): DrilldownConfig {
+  const source = getSourceInfo()
+  const areaRaces: DrilldownConfig['areaRaces'] = {}
+  const shapes: DrilldownConfig['shapes'] = {}
+  for (const area of coveredAreas()) {
+    const races = getSummary(area).corridas
+    areaRaces[area] = races.map((race) => race.cargo)
+    shapes[area] = Object.fromEntries(
+      races.map((race) => [
+        race.cargo,
+        { seats: race.vagas, choicesPerVoter: race.escolhas_por_eleitor },
+      ]),
+    )
+  }
+  const councilArea = shapes[COUNCIL.area]
+  if (councilArea !== undefined) {
+    councilArea[COUNCIL.race] = { seats: COUNCIL.seats, choicesPerVoter: COUNCIL.choicesPerVoter }
+  }
+  return {
+    dataBase: source.dataBase,
+    assetBase: source.assetBase,
+    workerScript: source.workerScript,
+    areaRaces,
+    shapes,
+  }
 }
