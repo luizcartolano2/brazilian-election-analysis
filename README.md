@@ -28,7 +28,7 @@ why.
 
 The pipeline builds and checks the whole first round: every polling station in Brazil
 and abroad matches TSE's own totals. The Worker that serves the data to browsers is
-written. Publishing and the app come next.
+live, and a workflow publishes each data version. The app comes next.
 
 | Milestone | Target |
 |---|---|

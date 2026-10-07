@@ -228,11 +228,31 @@ those pins current.
 2. **upload** uses the `data-publish` environment. That environment allows `main` only,
    requires Luiz as reviewer, and holds the R2 credentials. The job installs nothing and
    runs no pipeline code. It runs only the runner's preinstalled AWS CLI and
-   `.github/scripts/upload-version.sh`, a short script from this repository. The script
-   downloads the artifact's files, checks each file's SHA-256 against the manifest, lists
-   `v/<id>/` with the S3 API against R2's endpoint and fails if anything is there,
-   uploads the data files with `aws s3 cp`, and uploads `manifest.json` last. The
-   pipeline CI job tests the script against a local S3 server.
+   `.github/scripts/upload-version.sh`, a short script from this repository. The
+   `download-artifact` action fetches the build's files. The script then works in this
+   order:
+   1. It refuses a manifest that does not say `parcial: false` and `fontes_tse: true`,
+      and a version id that is not `<YYYYMMDD>-<commit>-<run id>`.
+   2. It checks that the folder holds exactly the files the manifest lists, each with
+      the listed size and SHA-256, and that every path passes the Worker's segment check.
+   3. It lists `v/<id>/` with the S3 API against R2's endpoint, and fails if anything is
+      there.
+   4. It uploads the data files with `aws s3 cp --recursive`.
+   5. It downloads them back and repeats the check from step 2. A file that R2 stored
+      wrongly therefore stops the version before it is complete.
+   6. It uploads `manifest.json`, and writes the version and the manifest's SHA-256 to
+      the run's summary.
+
+   The script asks the AWS CLI for checksum headers only when the S3 API requires them,
+   because R2 has rejected the headers that newer CLI versions send by default. Steps 2
+   and 5 check integrity instead. The pipeline CI job runs the script with the real AWS
+   CLI against a local S3 server from `moto`. An `aws` shim on `PATH` records the order of
+   calls, interrupts an upload, and alters a stored file, so the tests prove that the
+   manifest goes last and that a failed check withholds it.
+
+   The build job also records its duration and its peak disk use in the run's summary.
+   The artifact lasts one day, so an upload that waits longer for approval fails, and
+   the publish runs again from the start.
 
 If the account's R2 plan offers bucket locks, a lock rule on `v/` and `assets/` makes
 immutability hold even against a stolen token.
