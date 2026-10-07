@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Uploads the DuckDB assets to R2 under a new, immutable path: the files first, then
+# Uploads the DuckDB assets to R2 under an immutable path: the files first, then
 # SHA256SUMS, after reading the files back.
 #
 # Usage: upload-asset.sh <dir> <package version>
@@ -58,18 +58,32 @@ check_files() {
 
 check_files "$dir" "the staged files"
 
-# The backticks are JMESPath's literal syntax, not a shell expansion.
-# shellcheck disable=SC2016
-count_query='length(Contents || `[]`)'
-existing=$(aws s3api list-objects-v2 --endpoint-url "$R2_ENDPOINT" --bucket "$R2_BUCKET" \
-  --prefix "$prefix/" --max-keys 1 --no-paginate --query "$count_query" --output text)
-[[ $existing == 0 ]] || fail "$prefix/ already holds files, and an asset path is never overwritten"
-
-aws s3 cp "$dir" "s3://$R2_BUCKET/$prefix/" --recursive --exclude SHA256SUMS \
-  --no-follow-symlinks --endpoint-url "$R2_ENDPOINT" --only-show-errors
-
+found=$(mktemp -d)
 readback=$(mktemp -d)
-trap 'rm -rf "$readback"' EXIT
+trap 'rm -rf "$found" "$readback"' EXIT
+
+# An asset path is never overwritten. A retry after an interrupted upload can find some of
+# these files there already, and it resumes only when each one is the staged file exactly.
+aws s3 cp "s3://$R2_BUCKET/$prefix/" "$found" --recursive \
+  --endpoint-url "$R2_ENDPOINT" --only-show-errors
+[[ ! -e $found/SHA256SUMS ]] || fail "$prefix/ is already complete, and is never overwritten"
+while read -r stored; do
+  [[ -n $stored ]] || continue
+  expected=''
+  while read -r sha256 path; do
+    [[ $path == "$stored" ]] && expected=$sha256
+  done <<<"$listed"
+  [[ -n $expected ]] || fail "$prefix/ holds $stored, which is not one of these assets"
+  [[ $(sha256sum "$found/$stored" | cut -d' ' -f1) == "$expected" ]] ||
+    fail "$prefix/$stored differs from the staged file, and is never overwritten"
+done <<<"$(cd "$found" && find . -type f | sed 's|^\./||' | LC_ALL=C sort)"
+
+while read -r sha256 path; do
+  [[ -e $found/$path ]] && continue
+  aws s3 cp "$dir/$path" "s3://$R2_BUCKET/$prefix/$path" \
+    --endpoint-url "$R2_ENDPOINT" --only-show-errors
+done <<<"$listed"
+
 aws s3 cp "s3://$R2_BUCKET/$prefix/" "$readback" --recursive \
   --endpoint-url "$R2_ENDPOINT" --only-show-errors
 check_files "$readback" "the files in R2"

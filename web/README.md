@@ -28,15 +28,16 @@ build time. It takes the data from one of two places:
 ## Municipality, zone and station views
 
 These views query the Parquet files in the browser with DuckDB-WASM. `prepare-data.ts`
-also copies DuckDB's worker script into `public/duckdb/`, and downloads DuckDB's signed
-Parquet extension into `.cache/` once, checked against the SHA-256 in
-`scripts/duckdb-assets.ts`. That download needs network access to `extensions.duckdb.org`.
+also copies DuckDB's worker script into `public/duckdb/`, and keeps DuckDB's signed
+Parquet extension in `.cache/`, checked against the SHA-256 in `scripts/duckdb-assets.ts`.
 
-- A fixtures build copies the fixtures, DuckDB's `.wasm` module and the extension into
-  `public/_fixtures/`, so the views run against the same origin.
+- A fixtures build downloads the extension from `extensions.duckdb.org` once, then copies
+  the fixtures, DuckDB's `.wasm` module and the extension into `public/_fixtures/`, so the
+  views run against the same origin.
 - A production build reads both DuckDB assets through the Worker and fails unless they
-  match the lockfile and the pin. Publish the `duckdb-wasm` target before the first one,
-  and again after any update of `@duckdb/duckdb-wasm`.
+  match the lockfile and the pin. It caches the Worker's extension and never contacts
+  `extensions.duckdb.org`. Publish the `duckdb-wasm` target before the first production
+  build, and again after any update of `@duckdb/duckdb-wasm`.
 
 After that update, run DuckDB's `SELECT version()` and, if the version changed, download
 the extension for it and update `PARQUET_EXTENSION` in `scripts/duckdb-assets.ts`. The data

@@ -24,7 +24,7 @@ language's format.
 - **THEN** the test suite fails
 
 ### Requirement: Results for every race at every level
-For a chosen race and area, the app SHALL show every candidate's votes and share of valid
+For a chosen race and area, the app SHALL show the candidates' votes and shares of valid
 votes, ordered by votes, together with blank votes, null votes, technical nulls,
 attendance and abstention. It SHALL also show annulled and annulled sub judice votes
 whenever they are not zero, as TSE does. Levels are Brazil, state, municipality, zone and
@@ -34,11 +34,18 @@ Federal District shows its district deputy race in place of a state deputy race.
 Fernando de Noronha also shows its Conselheiro Distrital race, from the municipality
 level down. In the deputy races, the page SHALL also show each party's list votes and its
 total of candidate and list votes, so every vote counted in the valid-vote denominator
-is visible.
+is visible. At the Brazil and state levels, and abroad, the list SHALL hold every
+candidate in the race. In a municipality, zone or polling station, it SHALL hold every
+candidate with at least one vote there, and the page SHALL say that the others are left
+out.
 
 #### Scenario: Governor in one municipality
 - **WHEN** a visitor opens the governor race for a municipality
 - **THEN** they see each candidate's votes and share, blank, null, technical nulls, attendance and abstention for that municipality
+
+#### Scenario: A candidate with no votes in a polling station
+- **WHEN** a visitor opens a polling station where a candidate in the race received no votes
+- **THEN** that candidate is not listed, and the page says that only candidates with votes there are listed
 
 #### Scenario: Two senate seats
 - **WHEN** a visitor opens the senate race

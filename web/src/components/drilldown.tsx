@@ -280,6 +280,9 @@ function ViewBody({
               results={data.results}
               caption={`${raceName(address.race, locale)} · ${title}`}
             />
+            <p className="mt-2 text-sm text-slate-600" data-testid="zero-votes">
+              {t(locale, 'drilldown.zeroVotes')}
+            </p>
           </section>
         )
       )}

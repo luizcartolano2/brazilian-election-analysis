@@ -1,8 +1,19 @@
 import { readFileSync } from 'node:fs'
+import { mkdtemp, readFile } from 'node:fs/promises'
+import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { sha256 } from '../src/lib/manifest'
-import { dataMode, fixtureSource, loadVersion, type DataSource } from './prepare-data'
+import { EXTENSION_PATH, packageFile, parquetExtension } from './duckdb-assets'
+import {
+  dataMode,
+  fixtureSource,
+  loadVersion,
+  verifyPublishedAssets,
+  type DataSource,
+} from './prepare-data'
 
 const FIXTURES = path.join(import.meta.dirname, '..', 'fixtures')
 const fixtureManifest = readFileSync(path.join(FIXTURES, 'manifest.json'))
@@ -110,5 +121,65 @@ describe('dataMode', () => {
 
   it('refuses the fixtures on Vercel', () => {
     expect(() => dataMode({ ELEICOES_DATA: 'fixtures', VERCEL: '1' })).toThrow(/Vercel/)
+  })
+})
+
+describe('verifyPublishedAssets', () => {
+  /** Serves `files` as the Worker would, for as long as `check` runs. */
+  async function withAssets(
+    files: Map<string, Uint8Array>,
+    check: (assetBase: string) => Promise<void>,
+  ): Promise<void> {
+    const server = createServer((request, response) => {
+      const body = files.get((request.url ?? '').slice(1))
+      response.writeHead(body === undefined ? 404 : 200).end(body)
+    })
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+    try {
+      await check(`http://127.0.0.1:${(server.address() as AddressInfo).port}`)
+    } finally {
+      server.close()
+    }
+  }
+
+  async function publishedAssets(): Promise<Map<string, Uint8Array>> {
+    return new Map([
+      ['duckdb-eh.wasm', new Uint8Array(await readFile(packageFile('duckdb-eh.wasm')))],
+      [EXTENSION_PATH, new Uint8Array(await readFile(await parquetExtension()))],
+    ])
+  }
+
+  it('caches the extension the Worker serves when both assets match', async () => {
+    const files = await publishedAssets()
+    const cacheDir = await mkdtemp(path.join(tmpdir(), 'assets-'))
+    await withAssets(files, (assetBase) => verifyPublishedAssets(assetBase, cacheDir))
+    expect(sha256(await readFile(path.join(cacheDir, EXTENSION_PATH)))).toBe(
+      sha256(files.get(EXTENSION_PATH) as Uint8Array),
+    )
+  })
+
+  it('fails when the Worker serves another extension', async () => {
+    const files = await publishedAssets()
+    files.set(EXTENSION_PATH, new TextEncoder().encode('not the extension'))
+    const cacheDir = await mkdtemp(path.join(tmpdir(), 'assets-'))
+    await withAssets(files, async (assetBase) => {
+      await expect(verifyPublishedAssets(assetBase, cacheDir)).rejects.toThrow(/the pin is/)
+    })
+  })
+
+  it('fails when the Worker serves another module', async () => {
+    const files = await publishedAssets()
+    files.set('duckdb-eh.wasm', new TextEncoder().encode('not the module'))
+    await withAssets(files, async (assetBase) => {
+      await expect(verifyPublishedAssets(assetBase)).rejects.toThrow(/locked package/)
+    })
+  })
+
+  it('names the target to publish when an asset is missing', async () => {
+    const files = await publishedAssets()
+    files.delete(EXTENSION_PATH)
+    await withAssets(files, async (assetBase) => {
+      await expect(verifyPublishedAssets(assetBase)).rejects.toThrow(/duckdb-wasm target/)
+    })
   })
 })

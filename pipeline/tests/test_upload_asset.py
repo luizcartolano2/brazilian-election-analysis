@@ -59,15 +59,42 @@ def test_uploads_the_assets_then_the_sums(tmp_path, endpoint, bucket, staged):
     assert writes[-1].split()[3] == f"s3://{BUCKET}/{PREFIX}SHA256SUMS"
 
 
-def test_refuses_an_asset_path_that_holds_files(tmp_path, endpoint, bucket, staged):
+def test_resumes_when_the_files_there_are_the_staged_ones(tmp_path, endpoint, bucket, staged):
+    bucket.put_object(Bucket=BUCKET, Key=PREFIX + "duckdb-eh.wasm", Body=FILES["duckdb-eh.wasm"])
+
+    result, calls = run(tmp_path, endpoint, staged)
+
+    assert result.returncode == 0, result.stderr
+    assert keys(bucket) == sorted(PREFIX + path for path in [*FILES, "SHA256SUMS"])
+    writes = [call.split()[3] for call in calls if call.startswith("s3 cp")]
+    assert f"s3://{BUCKET}/{PREFIX}duckdb-eh.wasm" not in writes
+
+
+def test_refuses_a_file_there_that_differs(tmp_path, endpoint, bucket, staged):
     bucket.put_object(Bucket=BUCKET, Key=PREFIX + "duckdb-eh.wasm", Body=b"earlier")
 
     result, calls = run(tmp_path, endpoint, staged)
 
     assert result.returncode != 0
-    assert "already holds files" in result.stderr
+    assert "differs from the staged file" in result.stderr
     assert keys(bucket) == [PREFIX + "duckdb-eh.wasm"]
-    assert not any(call.startswith("s3 cp") for call in calls)
+    copies = [call.split() for call in calls if call.startswith("s3 cp")]
+    assert not any(target.startswith("s3://") for _, _, _, target, *_ in copies)
+
+
+@pytest.mark.parametrize(
+    ("key", "message"),
+    [("SHA256SUMS", "already complete"), ("other.wasm", "not one of these assets")],
+    ids=["a complete path", "an unknown file"],
+)
+def test_refuses_a_path_it_cannot_resume(tmp_path, endpoint, bucket, staged, key, message):
+    bucket.put_object(Bucket=BUCKET, Key=PREFIX + key, Body=b"x")
+
+    result, _ = run(tmp_path, endpoint, staged)
+
+    assert result.returncode != 0
+    assert message in result.stderr
+    assert keys(bucket) == [PREFIX + key]
 
 
 def test_refuses_a_file_that_differs_from_its_sum(tmp_path, endpoint, bucket, staged):
@@ -95,7 +122,7 @@ def test_withholds_the_sums_when_a_stored_file_differs(tmp_path, endpoint, bucke
         endpoint,
         staged,
         TAMPER_KEY=PREFIX + "duckdb-eh.wasm",
-        TAMPER_AFTER="--exclude SHA256SUMS",
+        TAMPER_AFTER="duckdb-eh.wasm s3://",
     )
 
     assert result.returncode != 0

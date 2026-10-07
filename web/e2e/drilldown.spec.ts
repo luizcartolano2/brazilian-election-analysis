@@ -31,6 +31,9 @@ test('a station view shows its results under the production headers', async ({ p
   expect(response?.headers()['content-security-policy']).toContain("connect-src 'self'")
   await expect(page.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible()
   await expect(page.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByTestId('zero-votes')).toHaveText(
+    'Só aparecem os candidatos que tiveram votos neste lugar.',
+  )
   expect(await page.evaluate(() => window.__violations)).toEqual([])
   expect(errors).toEqual([])
 })
@@ -40,11 +43,16 @@ test('a copied station address opens the same station and race', async ({ browse
   await first.goto(MUNICIPALITY)
   await first.getByRole('link', { name: 'Zona 3' }).click()
   await first.getByRole('link', { name: 'Seção 597' }).click()
-  await expect(first.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
+  // The zone page has a valid-votes row too, so only the station's heading shows the click landed.
+  await expect(first.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible({
+    timeout: 30_000,
+  })
   const copied = first.url()
   const second = await browser.newPage()
   await second.goto(copied)
-  await expect(second.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible()
+  await expect(second.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible({
+    timeout: 30_000,
+  })
   await expect(second.locator('[aria-current="page"]', { hasText: 'Governador' })).toBeVisible()
   await expect(second.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
 })

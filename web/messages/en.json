@@ -97,6 +97,7 @@
   "drilldown.principalLink": "See station {principal}",
   "drilldown.tseLink": "See this station on TSE's results site",
   "drilldown.place": "Polling place",
+  "drilldown.zeroVotes": "Only candidates who received votes in this place are listed.",
   "search.title": "Find your polling station",
   "search.label": "Polling place name, address or neighborhood",
   "search.button": "Search",

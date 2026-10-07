@@ -97,6 +97,7 @@
   "drilldown.principalLink": "Ver a seção {principal}",
   "drilldown.tseLink": "Ver esta seção no site de resultados do TSE",
   "drilldown.place": "Local de votação",
+  "drilldown.zeroVotes": "Só aparecem os candidatos que tiveram votos neste lugar.",
   "search.title": "Encontre sua seção",
   "search.label": "Nome, endereço ou bairro do local de votação",
   "search.button": "Buscar",

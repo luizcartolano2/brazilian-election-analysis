@@ -1,8 +1,10 @@
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { nodeRunner } from '../../../scripts/duckdb-node'
 import { parseAddress } from '../address'
-import { COUNCIL } from '../elections'
+import { COUNCIL, raceByCode } from '../elections'
+import type { Summary } from '../results'
 import { loadView, NotFound, searchPlaces, type Locate, type Run } from './queries'
 
 const FIXTURES = path.join(import.meta.dirname, '..', '..', '..', 'fixtures')
@@ -84,6 +86,55 @@ describe('loadView', () => {
     const partyTotal = (results.parties ?? []).reduce((sum, party) => sum + party.total, 0)
     expect(partyTotal).toBe(results.totals.valid)
   })
+
+  it('names the candidacy TSE classified when two share a number', async () => {
+    const data = await view('municipio', 'uf=pe&mu=23051&cargo=deputado-federal')
+    const shared = data.results?.candidates.find((candidate) => candidate.number === 4444)
+    expect(shared?.name).toBe('JULIANA DE CHAPARRAL')
+  })
+
+  it('adds the municipalities up to each state summary, candidate by candidate', async () => {
+    for (const area of ['ac', 'pe', 'se', 'zz']) {
+      const summary = JSON.parse(
+        readFileSync(path.join(FIXTURES, '2026', 't1', 'resumo', `${area}.json`), 'utf-8'),
+      ) as Summary
+      const municipalities = await run(
+        'SELECT municipio FROM read_parquet(?) WHERE uf = ? ORDER BY municipio',
+        [locate('2026/municipios.parquet'), area.toUpperCase()],
+      )
+      for (const race of summary.corridas) {
+        const slug = raceByCode(race.cargo)?.slug
+        const votes = new Map<number, number>()
+        const outcomes = new Map<number, string>()
+        let blank = 0
+        let valid = 0
+        for (const row of municipalities) {
+          const data = await view('municipio', `uf=${area}&mu=${row.municipio}&cargo=${slug}`)
+          const results = data.results
+          if (results === null) throw new Error('no results')
+          for (const candidate of [...results.candidates, ...results.candidatesUnderAppeal]) {
+            votes.set(candidate.number, (votes.get(candidate.number) ?? 0) + candidate.votes)
+            outcomes.set(candidate.number, candidate.outcome)
+          }
+          blank += results.totals.blank
+          valid += results.totals.valid
+        }
+        const label = `${area} race ${race.cargo}`
+        for (const candidate of race.candidatos) {
+          expect(votes.get(candidate.numero) ?? 0, `${label} ${candidate.numero}`).toBe(
+            candidate.votos,
+          )
+          if (votes.has(candidate.numero)) {
+            expect(outcomes.get(candidate.numero), `${label} ${candidate.numero}`).toBe(
+              candidate.resultado,
+            )
+          }
+        }
+        expect(blank, label).toBe(race.brancos)
+        expect(valid, label).toBe(race.validos)
+      }
+    }
+  }, 60_000)
 
   it('shows the council in Fernando de Noronha with seven seats and one choice', async () => {
     const data = await view(

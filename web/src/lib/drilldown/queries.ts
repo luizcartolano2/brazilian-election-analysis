@@ -19,9 +19,11 @@ export type Locate = (relativePath: string) => string
 // The SQL text is constant. Nothing from the address or the search box is ever part of it.
 const SQL = {
   municipality: 'SELECT nome FROM read_parquet(?) WHERE municipio = ? AND uf = ?',
+  // A substitution can leave two candidacies on one number. Only the one TSE classified has a
+  // destination, and the pipeline allows one such row per number.
   candidates:
     'SELECT numero, nome_urna, partido_numero, partido_sigla, resultado FROM read_parquet(?) ' +
-    'WHERE cargo = ? AND uf = ?',
+    'WHERE cargo = ? AND uf = ? AND destino IS NOT NULL',
   municipalityVotes:
     'SELECT tipo, numero, sum(votos)::INTEGER AS votos FROM read_parquet(?) ' +
     'WHERE municipio = ? GROUP BY tipo, numero',

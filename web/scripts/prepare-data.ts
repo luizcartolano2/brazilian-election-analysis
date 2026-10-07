@@ -13,7 +13,14 @@ import {
   verifyManifest,
   type Manifest,
 } from '../src/lib/manifest'
-import { assetFiles, duckdbPackageVersion, packageFile, sha256Of } from './duckdb-assets'
+import {
+  assetFiles,
+  cacheParquetExtension,
+  duckdbPackageVersion,
+  EXTENSION_PATH,
+  packageFile,
+  sha256Of,
+} from './duckdb-assets'
 import { nodeRunner } from './duckdb-node'
 
 export type DataMode = 'published' | 'fixtures'
@@ -88,23 +95,31 @@ export async function loadVersion(
   }
 }
 
-/** Checks that the Worker serves the DuckDB assets this lockfile and pin expect. */
-async function verifyPublishedAssets(assetBase: string): Promise<void> {
-  for (const asset of await assetFiles()) {
-    const response = await fetch(`${assetBase}/${asset.path}`, {
-      signal: AbortSignal.timeout(120_000),
-    })
-    if (response.status === 404) {
-      throw new Error(
-        `${assetBase}/${asset.path} is not published. Run the duckdb-wasm target first.`,
-      )
-    }
-    if (!response.ok) throw new Error(`${asset.path}: HTTP ${response.status}`)
-    const published = sha256Of(new Uint8Array(await response.arrayBuffer()))
-    if (published !== sha256Of(await readFile(asset.source))) {
-      throw new Error(`the published ${asset.path} differs from the one this build expects`)
-    }
+async function publishedAsset(assetBase: string, assetPath: string): Promise<Uint8Array> {
+  const response = await fetch(`${assetBase}/${assetPath}`, {
+    signal: AbortSignal.timeout(120_000),
+  })
+  if (response.status === 404) {
+    throw new Error(`${assetBase}/${assetPath} is not published. Run the duckdb-wasm target first.`)
   }
+  if (!response.ok) throw new Error(`${assetPath}: HTTP ${response.status}`)
+  return new Uint8Array(await response.arrayBuffer())
+}
+
+/**
+ * Checks that the Worker serves the lockfile's module and the pinned extension. The build's
+ * own queries then load the Worker's extension, so they never contact extensions.duckdb.org.
+ */
+export async function verifyPublishedAssets(assetBase: string, cacheDir?: string): Promise<void> {
+  const wasmModule = await publishedAsset(assetBase, 'duckdb-eh.wasm')
+  if (sha256Of(wasmModule) !== sha256Of(await readFile(packageFile('duckdb-eh.wasm')))) {
+    throw new Error('the published duckdb-eh.wasm differs from the one in the locked package')
+  }
+  await cacheParquetExtension(
+    await publishedAsset(assetBase, EXTENSION_PATH),
+    `${assetBase}/${EXTENSION_PATH}`,
+    cacheDir,
+  )
 }
 
 /** The municipality list for the state pages, one entry per area, read with DuckDB. */
@@ -136,6 +151,14 @@ async function main(): Promise<void> {
   const source = mode === 'fixtures' ? fixtureSource() : publishedSource()
   const { manifest, manifestBytes, summaries, municipalities } = await loadVersion(source)
   const duckdbVersion = duckdbPackageVersion()
+  // Fixtures have no Worker, so a fixtures build serves their files and the DuckDB assets
+  // itself, from the same origin, under the same layout.
+  const dataBase = mode === 'fixtures' ? '/_fixtures/data' : VERSION_URL
+  const assetBase =
+    mode === 'fixtures'
+      ? `/_fixtures/assets/duckdb-wasm/${duckdbVersion}`
+      : `${DATA_VERSION.workerUrl}/assets/duckdb-wasm/${duckdbVersion}`
+  if (mode === 'published') await verifyPublishedAssets(assetBase)
 
   await rm(DATA_DIR, { recursive: true, force: true })
   await mkdir(path.join(DATA_DIR, 'resumo'), { recursive: true })
@@ -156,15 +179,9 @@ async function main(): Promise<void> {
   await mkdir(path.dirname(path.join(PUBLIC_DIR, workerScript)), { recursive: true })
   await cp(packageFile('duckdb-browser-eh.worker.js'), path.join(PUBLIC_DIR, workerScript))
 
-  // Fixtures have no Worker, so a fixtures build serves their files and the DuckDB assets
-  // itself, from the same origin, under the same layout.
   const fixturesDir = path.join(PUBLIC_DIR, '_fixtures')
   await rm(fixturesDir, { recursive: true, force: true })
-  let dataBase: string
-  let assetBase: string
   if (mode === 'fixtures') {
-    dataBase = '/_fixtures/data'
-    assetBase = `/_fixtures/assets/duckdb-wasm/${duckdbVersion}`
     for (const entry of manifest.arquivos) {
       await mkdir(path.dirname(path.join(fixturesDir, 'data', entry.path)), { recursive: true })
       await cp(
@@ -177,10 +194,6 @@ async function main(): Promise<void> {
       await mkdir(path.dirname(target), { recursive: true })
       await cp(asset.source, target)
     }
-  } else {
-    dataBase = VERSION_URL
-    assetBase = `${DATA_VERSION.workerUrl}/assets/duckdb-wasm/${duckdbVersion}`
-    await verifyPublishedAssets(assetBase)
   }
 
   const version = mode === 'published' ? DATA_VERSION.name : null

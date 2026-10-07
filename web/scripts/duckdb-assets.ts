@@ -9,7 +9,7 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 
 const require = createRequire(import.meta.url)
-const WEB_ROOT = path.resolve(import.meta.dirname, '..')
+const CACHE_DIR = path.join(path.resolve(import.meta.dirname, '..'), '.cache')
 
 /** DuckDB-WASM reads Parquet only through this extension, which it fetches on LOAD. */
 export const PARQUET_EXTENSION = {
@@ -36,8 +36,24 @@ export function duckdbPackageVersion(): string {
   return (JSON.parse(readFileSync(manifest, 'utf-8')) as { version: string }).version
 }
 
+/** Stores the extension's bytes in the cache, after checking them against the pin. */
+export async function cacheParquetExtension(
+  bytes: Uint8Array,
+  origin: string,
+  cacheDir = CACHE_DIR,
+): Promise<string> {
+  const actual = sha256Of(bytes)
+  if (actual !== PARQUET_EXTENSION.sha256) {
+    throw new Error(`${origin} has SHA-256 ${actual}, the pin is ${PARQUET_EXTENSION.sha256}`)
+  }
+  const target = path.join(cacheDir, EXTENSION_PATH)
+  await mkdir(path.dirname(target), { recursive: true })
+  await writeFile(target, bytes)
+  return target
+}
+
 /** The extension's local copy, downloaded once and checked against its pinned SHA-256. */
-export async function parquetExtension(cacheDir = path.join(WEB_ROOT, '.cache')): Promise<string> {
+export async function parquetExtension(cacheDir = CACHE_DIR): Promise<string> {
   const target = path.join(cacheDir, EXTENSION_PATH)
   try {
     if (sha256Of(await readFile(target)) === PARQUET_EXTENSION.sha256) return target
@@ -46,16 +62,11 @@ export async function parquetExtension(cacheDir = path.join(WEB_ROOT, '.cache'))
   }
   const response = await fetch(EXTENSION_SOURCE, { signal: AbortSignal.timeout(60_000) })
   if (!response.ok) throw new Error(`${EXTENSION_SOURCE}: HTTP ${response.status}`)
-  const bytes = new Uint8Array(await response.arrayBuffer())
-  const actual = sha256Of(bytes)
-  if (actual !== PARQUET_EXTENSION.sha256) {
-    throw new Error(
-      `${EXTENSION_SOURCE} has SHA-256 ${actual}, the pin is ${PARQUET_EXTENSION.sha256}`,
-    )
-  }
-  await mkdir(path.dirname(target), { recursive: true })
-  await writeFile(target, bytes)
-  return target
+  return cacheParquetExtension(
+    new Uint8Array(await response.arrayBuffer()),
+    EXTENSION_SOURCE,
+    cacheDir,
+  )
 }
 
 /** Each asset's path under assets/duckdb-wasm/<package version>/, and its local source. */
