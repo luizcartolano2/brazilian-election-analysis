@@ -244,6 +244,15 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
 
         await rm(file)
         const list = municipalities[area] ?? []
+        // The map draws the list, so votes for a municipality outside it would vanish from it.
+        const known = new Set(list.map((municipality) => municipality.municipio))
+        for (const code of valid.keys()) {
+          if (!known.has(code)) {
+            problems.push(
+              `${where}: the totals hold municipality ${code}, which the municipality list lacks`,
+            )
+          }
+        }
         const mapped = list.flatMap((municipality) =>
           municipality.ibge === null ? [] : [{ ...municipality, ibge: municipality.ibge }],
         )

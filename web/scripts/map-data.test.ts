@@ -181,6 +181,39 @@ describe('buildMaps on the fixtures', () => {
     ).rejects.toThrow(/br.json: RECIFE \(2611606\) has no area/)
   })
 
+  it('fails and names a municipality in the totals that the municipality list lacks', async () => {
+    const source = fixtureSource()
+    const { manifest } = await readManifest(source)
+    const summaries = new Map<string, Summary>()
+    for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
+      const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
+      summaries.set(path.basename(file, '.json'), JSON.parse(text) as Summary)
+    }
+    const boundaries = new Map<string, Uint8Array>()
+    for (const name of ['ac.json', 'pe.json', 'se.json', 'br.json']) {
+      boundaries.set(name, new Uint8Array(await readFile(path.join(FIXTURES_GEO, name))))
+    }
+    const withoutRecife = {
+      ...municipalities,
+      pe: (municipalities.pe ?? []).filter((municipality) => municipality.municipio !== 25313),
+    }
+    const target = await mkdtemp(path.join(os.tmpdir(), 'mapas-'))
+
+    await expect(
+      buildMaps({
+        run,
+        source,
+        manifest,
+        summaries,
+        municipalities: withoutRecife,
+        boundaries,
+        out: target,
+      }),
+    ).rejects.toThrow(
+      /pe governador: the totals hold municipality 25313, which the municipality list lacks/,
+    )
+  })
+
   it('reads the IBGE codes of a boundary file', async () => {
     const ids = boundaryIds(new Uint8Array(await readFile(path.join(FIXTURES_GEO, 'pe.json'))))
 
