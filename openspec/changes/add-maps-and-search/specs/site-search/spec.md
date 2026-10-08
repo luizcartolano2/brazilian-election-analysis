@@ -6,26 +6,29 @@ part of its name, without knowing which state or race page holds it.
 ## ADDED Requirements
 
 ### Requirement: A search box on every page
-Every page SHALL offer a search box that finds municipalities, cities abroad and every
-candidacy in the pinned summaries. The summaries leave out Fernando de Noronha's
-Conselheiro Distrital race, so its candidacies are not in the search. A municipality
-result SHALL name its state. A candidacy result SHALL show the ballot name, number,
-party, race, area and TSE's outcome. Each President candidacy SHALL appear once, for
-Brazil. Matching SHALL ignore case and accents, and SHALL accept part of a name. A
-candidacy SHALL also match its full ballot number. The list SHALL show at most 20
-results, and SHALL say when more match.
+Every page except the page for an unknown address SHALL offer a search box that finds
+municipalities, cities abroad and every candidacy in the pinned summaries. The summaries
+leave out Fernando de Noronha's Conselheiro Distrital race, so its candidacies are not in
+the search. A municipality result SHALL name its state. A candidacy result SHALL show the
+ballot name, number, party, race, area and TSE's outcome. Each President candidacy SHALL
+appear once, for Brazil. Matching SHALL start at two typed characters, SHALL ignore
+case and accents, and SHALL accept part of a name. A candidacy SHALL also match its full
+ballot number. The list SHALL show at most 20 results, and SHALL say when more match. A
+full ballot number SHALL list every candidacy that holds it, even past 20, because each
+state numbers its own candidacies.
 
 #### Scenario: A name without accents
 - **WHEN** a visitor types "sao jose"
-- **THEN** the results include every municipality whose name holds "São José", each with its state
+- **THEN** municipalities whose names hold "São José" show, each with its state
+- **AND** a note says that more match, because more than 20 municipalities hold that name
 
 #### Scenario: A city abroad
 - **WHEN** a visitor types "lisboa"
 - **THEN** the results include Lisbon's votes abroad, under TSE's Portuguese name
 
 #### Scenario: A ballot number
-- **WHEN** a visitor types a deputy candidate's full ballot number
-- **THEN** the results include that candidacy
+- **WHEN** a visitor types a deputy's full ballot number, which candidacies in 27 states hold
+- **THEN** the results include every candidacy with that number, each with its state
 
 #### Scenario: A President candidate
 - **WHEN** a visitor types the ballot name of a President candidate

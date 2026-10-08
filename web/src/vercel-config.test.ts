@@ -44,6 +44,19 @@ describe('vercel.json', () => {
   })
 
   it('applies to every path', () => {
-    expect(config.headers.map((entry) => entry.source)).toEqual(['/(.*)'])
+    expect(config.headers[0]?.source).toBe('/(.*)')
+  })
+
+  it('adds nothing but caching on other paths', () => {
+    for (const rule of config.headers.slice(1)) {
+      expect(rule.headers.map((entry) => entry.key)).toEqual(['Cache-Control'])
+    }
+  })
+
+  it('lets browsers keep the search index for good, because its path names its content', () => {
+    const rule = config.headers.find((entry) => entry.source === '/busca/(.*)')
+    expect(rule?.headers).toEqual([
+      { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+    ])
   })
 })

@@ -1,5 +1,6 @@
 import { formatInteger, formatShare, t, type Locale, type MessageKey } from '@/lib/i18n'
 import { isElected, isInRunoff, type CandidateRow, type RaceResults } from '@/lib/results'
+import { candidateRowId } from '@/lib/search'
 
 const OUTCOME_KEYS: Record<string, MessageKey> = {
   Eleito: 'outcome.elected',
@@ -11,10 +12,21 @@ const OUTCOME_KEYS: Record<string, MessageKey> = {
 }
 
 /** TSE's own outcome, translated when it is a known value and shown as published otherwise. */
+export function outcomeLabel(locale: Locale, outcome: string): string {
+  const key = OUTCOME_KEYS[outcome]
+  return key === undefined ? outcome : t(locale, key)
+}
+
+/** Every known outcome's label, for client code that gets no message files. */
+export function outcomeLabels(locale: Locale): Record<string, string> {
+  return Object.fromEntries(
+    Object.keys(OUTCOME_KEYS).map((outcome) => [outcome, outcomeLabel(locale, outcome)]),
+  )
+}
+
 export function Outcome({ locale, outcome }: { locale: Locale; outcome: string }) {
   if (outcome === '') return null
-  const key = OUTCOME_KEYS[outcome]
-  const label = key === undefined ? outcome : t(locale, key)
+  const label = outcomeLabel(locale, outcome)
   const highlighted = isElected(outcome) || isInRunoff(outcome)
   return (
     <span
@@ -43,11 +55,14 @@ export function CandidateTable({
   candidates,
   validVotes,
   caption,
+  withRowIds = false,
 }: {
   locale: Locale
   candidates: CandidateRow[]
   validVotes: number
   caption: string
+  /** Only one table on a page can carry the ids. */
+  withRowIds?: boolean
 }) {
   return (
     <table className="w-full table-fixed border-collapse text-sm">
@@ -67,7 +82,11 @@ export function CandidateTable({
       </thead>
       <tbody>
         {candidates.map((candidate) => (
-          <tr key={candidate.number} className="border-b border-slate-100 align-top">
+          <tr
+            key={candidate.number}
+            id={withRowIds ? candidateRowId(candidate.number) : undefined}
+            className="scroll-mt-4 border-b border-slate-100 align-top"
+          >
             <td className="py-2 pr-2">
               <div className="font-medium break-words">{candidate.name}</div>
               <div className="flex flex-wrap items-center gap-x-2 text-xs text-slate-600">
@@ -113,7 +132,11 @@ export function UnderAppealTable({ locale, results }: { locale: Locale; results:
         </thead>
         <tbody>
           {results.candidatesUnderAppeal.map((candidate) => (
-            <tr key={`c${candidate.number}`} className="border-b border-slate-100">
+            <tr
+              key={`c${candidate.number}`}
+              id={candidateRowId(candidate.number)}
+              className="scroll-mt-4 border-b border-slate-100"
+            >
               <td className="py-1.5 pr-2">
                 <span className="font-medium break-words">{candidate.name}</span>{' '}
                 <span className="text-xs text-slate-600">

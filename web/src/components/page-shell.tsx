@@ -1,9 +1,12 @@
 import { Suspense, type ReactNode } from 'react'
 import { AppLink as Link } from '@/components/app-link'
 import { LanguageLink } from '@/components/language-link'
+import { outcomeLabels } from '@/components/results'
+import { SiteSearch, type SearchLabels } from '@/components/site-search'
 import { getSourceInfo } from '@/lib/data'
 import { YEAR } from '@/lib/elections'
 import { localePath, t, type Locale } from '@/lib/i18n'
+import { MAX_RESULTS } from '@/lib/search'
 import { REPOSITORY } from '@/lib/site'
 
 export interface Crumb {
@@ -54,6 +57,14 @@ export function PageShell({
             />
           </Suspense>
         </nav>
+        {/* Holds the box's height before the script runs, so the page does not move. */}
+        <div className="min-h-8 basis-full noscript:hidden">
+          <SiteSearch
+            locale={locale}
+            base={getSourceInfo().searchBase}
+            labels={searchLabels(locale)}
+          />
+        </div>
       </header>
       {getSourceInfo().mode === 'fixtures' && (
         <p
@@ -85,6 +96,21 @@ export function PageShell({
       <SiteFooter locale={locale} />
     </div>
   )
+}
+
+function searchLabels(locale: Locale): SearchLabels {
+  return {
+    label: t(locale, 'siteSearch.label'),
+    placeholder: t(locale, 'siteSearch.placeholder'),
+    loading: t(locale, 'siteSearch.loading'),
+    failed: t(locale, 'siteSearch.failed'),
+    none: t(locale, 'siteSearch.none'),
+    one: t(locale, 'siteSearch.one'),
+    many: t(locale, 'siteSearch.many'),
+    more: t(locale, 'siteSearch.more', { count: String(MAX_RESULTS) }),
+    brazil: t(locale, 'area.brazil'),
+    outcomes: outcomeLabels(locale),
+  }
 }
 
 function SiteFooter({ locale }: { locale: Locale }) {
