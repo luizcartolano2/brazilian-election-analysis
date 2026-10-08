@@ -1,9 +1,10 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { DATA_VERSION } from './data-version'
 
 interface VercelConfig {
+  ignoreCommand: string
   headers: { source: string; headers: { key: string; value: string }[] }[]
 }
 
@@ -27,6 +28,13 @@ function directive(policy: string, name: string): string[] {
 }
 
 describe('vercel.json', () => {
+  it('skips a build through the script that compares web/ with the last deployment', () => {
+    expect(config.ignoreCommand).toBe('sh scripts/vercel-ignore-build.sh')
+    expect(
+      existsSync(path.join(import.meta.dirname, '..', 'scripts', 'vercel-ignore-build.sh')),
+    ).toBe(true)
+  })
+
   const policy = header('Content-Security-Policy')
 
   it('lets the browser fetch data only from the app and the pinned Worker', () => {

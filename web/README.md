@@ -121,6 +121,14 @@ and redirects in `vercel.json`, so they run under the production security policy
 `mapshaper` and its 227 packages stay out of the app's install and Vercel's build. The
 unit tests need it installed, as above.
 
+## Deploys
+
+Vercel builds a commit only when something under `web/` changed since the branch's last
+successful deployment. `vercel.json` runs `scripts/vercel-ignore-build.sh` as its Ignored
+Build Step. The script builds whenever it cannot tell, for example on a branch's first
+deployment. A skipped deployment shows as canceled and stores no output, which keeps
+Vercel's Deployment Storage down.
+
 ## Pin a new data version
 
 A "Publish data" run's summary shows the version and its manifest's SHA-256.
