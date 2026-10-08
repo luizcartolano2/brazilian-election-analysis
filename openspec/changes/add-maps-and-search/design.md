@@ -101,7 +101,7 @@ secrets. It uses `mapshaper` at a locked version, and works in this order:
    +lon_0=-54 +lat_1=-2 +lat_2=-22 +ellps=GRS80`). An equal-area map gives each
    municipality its true share of the map, and the browser does no projection math.
 4. It drops each polygon part that lies more than 100 km from its municipality's largest
-   part. It fails when a dropped part is not on the written list in `geo-assets.ts`.
+   part, measured between their bounding boxes. It fails when a dropped part is not on the written list in `geo-assets.ts`.
    That list starts with Trindade and Martim Vaz in Vitória, and the first real run is
    reviewed before anything is added to it. Fernando de Noronha keeps its shape, because
    it is its own municipality.

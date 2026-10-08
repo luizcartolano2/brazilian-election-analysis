@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Uploads the DuckDB assets to R2 under an immutable path: the files first, then
-# SHA256SUMS, after reading the files back.
+# Uploads staged assets to R2 under an immutable path: the files first, then SHA256SUMS,
+# after reading the files back.
 #
-# Usage: upload-asset.sh <dir> <package version>
+# Usage: upload-asset.sh <dir> <asset path>
+# The asset path is assets/duckdb-wasm/<package version> or assets/geo/ibge-2025/<build id>.
 # Reads R2_ENDPOINT, R2_BUCKET, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
 set -euo pipefail
 
-usage="usage: upload-asset.sh <dir> <package version>"
+usage="usage: upload-asset.sh <dir> <asset path>"
 dir=${1:?$usage}
-version=${2:?$usage}
+prefix=${2:?$usage}
 : "${R2_ENDPOINT:?R2_ENDPOINT is not set}"
 : "${R2_BUCKET:?R2_BUCKET is not set}"
 
@@ -27,9 +28,10 @@ fail() {
 # The Worker serves only keys whose segments use these characters.
 safe_path='^[A-Za-z0-9_.=-]+(/[A-Za-z0-9_.=-]+)*$'
 
-[[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] ||
-  fail "the package version '$version' is not a version number"
-prefix="assets/duckdb-wasm/$version"
+duckdb_path='^assets/duckdb-wasm/[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'
+geo_path='^assets/geo/ibge-2025/[0-9]{8}-[0-9a-f]{7}-[0-9]+$'
+[[ $prefix =~ $duckdb_path || $prefix =~ $geo_path ]] ||
+  fail "'$prefix' is neither assets/duckdb-wasm/<package version> nor assets/geo/ibge-2025/<build id>"
 sums="$dir/SHA256SUMS"
 [[ -f $sums ]] || fail "$dir has no SHA256SUMS"
 listed=$(LC_ALL=C sort -k2 "$sums")
@@ -93,7 +95,7 @@ aws s3 cp "$sums" "s3://$R2_BUCKET/$prefix/SHA256SUMS" \
 echo "Published $prefix/ with $(wc -l <<<"$listed" | tr -d ' ') files."
 if [[ -n ${GITHUB_STEP_SUMMARY:-} ]]; then
   {
-    echo "### Published DuckDB assets"
+    echo "### Published assets"
     echo
     echo "- Path: \`$prefix/\`"
   } >>"$GITHUB_STEP_SUMMARY"

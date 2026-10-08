@@ -2,6 +2,7 @@
 out
 .data
 fixtures
+fixtures-geo
 node_modules
 package-lock.json
 playwright-report
