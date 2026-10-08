@@ -43,6 +43,53 @@ After that update, run DuckDB's `SELECT version()` and, if the version changed, 
 the extension for it and update `PARQUET_EXTENSION` in `scripts/duckdb-assets.ts`. The data
 step fails until the two agree.
 
+## Maps and candidate pages
+
+`prepare-data.ts` also builds the maps' values. It reads each race's municipality totals and
+the candidate registry from the pinned version, and checks each file against the manifest.
+It then checks that the municipalities add up to each summary. Any difference fails the
+build, and the build lists every one. The step writes `.data/mapas/`: the two most voted
+in each municipality for every race map, and each President, Governor and Senate
+candidate's votes for their share map.
+
+The browser draws a map with `d3-geo` and `topojson-client` from a boundary file. It draws
+only after the file's SHA-256 matches the pin, and shows a message otherwise. Every page
+with a map also lists its municipalities in its HTML, so the numbers read without
+JavaScript.
+
+`npm run build` ends with `scripts/page-size.ts`, which fails when any page exceeds
+2,500,000 bytes.
+
+## Boundaries
+
+The maps use IBGE's Malha Municipal Digital 2025. `geo/stage-geo-assets.ts` simplifies and
+projects it, and the "Publish data" workflow publishes it with the target `geo`.
+`scripts/geo-assets.ts` pins the source's SHA-512, the staging settings, and the published
+build with the SHA-256 of each file.
+
+- A production build fetches the pinned build through the Worker, and fails on a missing
+  or changed file. It also joins each file with the data's municipalities.
+- A fixtures build serves `fixtures-geo/`, the boundaries of the fixture municipalities,
+  from `/_fixtures/geo/`.
+
+To pin a new boundary build, run "Publish data" with the target `geo` and approve the
+upload. Then copy the build path and the SHA-256 of each file from its `SHA256SUMS` into
+`GEO_BUILD`. To regenerate the fixture boundaries from IBGE's zip, run:
+
+```bash
+npx tsx geo/stage-geo-assets.ts fixtures-geo fixtures --fixtures --source BR_Municipios_2025.zip
+```
+
+`DATA_LICENSE.md` records IBGE's terms and the credit line that every map shows.
+
+## Search
+
+The search box in each page's header finds municipalities, cities abroad and candidacies.
+`prepare-data.ts` builds its index from the checked summaries and municipality list. It
+writes the index into `public/busca/<hash>/`, with an allowlist of fields, and `vercel.json`
+marks that path immutable. The browser downloads the index the first time a visitor
+focuses the box.
+
 ## Test it
 
 ```bash
