@@ -44,7 +44,7 @@
 ## 5. Web: results explorer (one PR, or two if the station views grow large)
 
 - [x] 5.1 Create the Next.js 16 app in `web/` with static export, Tailwind 4, Vitest and Playwright, a lint rule against `dangerouslySetInnerHTML`, and the `web` CI job with a fixtures build
-- [ ] 5.2 Add the `duckdb-wasm` target to `publish-data.yml`, which publishes the locked package's `.wasm` file and DuckDB's signed Parquet extension, pinned by SHA-256, to `assets/duckdb-wasm/<version>/`; test that a complete asset path stops it, that a retry resumes an interrupted upload only when the files there equal the staged ones, and that a production build fails when the Worker serves a different file; after merge, publish it with Luiz's approval
+- [x] 5.2 Add the `duckdb-wasm` target to `publish-data.yml`, which publishes the locked package's `.wasm` file and DuckDB's signed Parquet extension, pinned by SHA-256, to `assets/duckdb-wasm/<version>/`; test that a complete asset path stops it, that a retry resumes an interrupted upload only when the files there equal the staged ones, and that a production build fails when the Worker serves a different file; after merge, publish it with Luiz's approval
 - [x] 5.3 Add the two route trees, the `pt` and `en` message files and `t()`; test that the key sets match, that numbers format as `47,03%` and `47.03%`, and that switching language keeps the page
 - [x] 5.4 Add `data-version.ts` with the version name, the manifest's SHA-256 and the Worker URL, and the build-time loader; test that a missing manifest, a wrong manifest checksum and a summary that differs from the manifest each fail the build, and that the Worker origin in `vercel.json` equals the one in `data-version.ts`
 - [x] 5.5 Build the Brazil and state pages with headline results in the HTML; Playwright test that a state page shows its leaders with JavaScript disabled
@@ -62,5 +62,5 @@
 ## 6. Launch (Luiz, with help)
 
 - [ ] 6.1 Create the Vercel project on `web/`, add `eleicoes.luizcartolano.com`, and add the CNAME at GoDaddy
-- [ ] 6.2 Add to the README that the GoDaddy CNAME must be deleted before the Vercel project is ever removed
+- [x] 6.2 Add to the README that the GoDaddy CNAME must be deleted before the Vercel project is ever removed
 - [ ] 6.3 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view; follow the TSE link from a governor view and from the council view, and make sure that each opens the same station in that race
