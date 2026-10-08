@@ -73,6 +73,17 @@ and the credit line to use.
 
 [portal]: https://dadosabertos.tse.jus.br/
 
+## Hosting
+
+The app is a Vercel project with `web/` as its root directory. A CNAME record at GoDaddy,
+where the DNS for `luizcartolano.com` lives, points `eleicoes.luizcartolano.com` at it.
+The Worker uses its `workers.dev` address and needs no DNS record.
+
+Before you remove the Vercel project, or the domain from it, delete the GoDaddy CNAME
+record. If you close the Vercel account, or Vercel suspends the project, delete the record
+too. A record that points at Vercel with no project behind it can let someone else claim
+the subdomain and serve pages under it.
+
 ## Working on it
 
 Feature work goes through [OpenSpec](https://github.com/Fission-AI/OpenSpec):

@@ -420,6 +420,15 @@ rights on top, so it stays out.
   `public/duckdb/<package version>/` at build time, because a browser `Worker` must load
   from the page's own origin. The app uses the exception-handling build only, which every
   major browser has supported since late 2021. An older browser sees the error state.
+  DuckDB's worker drops a failed module download without rejecting, so the app counts 20
+  seconds without a progress report from DuckDB's start as a failure. That window covers
+  the worker's start, the module download and its compilation. DuckDB reports nothing until
+  two chunks first arrive 20 ms or more apart, and then reports every chunk. With steady
+  small packets from a local server, the first report came at most 6.8 seconds into the
+  download, in Chromium and WebKit. The measurement did not cover Firefox. At 6x CPU
+  throttling, the whole start took 1.7 seconds. A request for the extension or a data file
+  can hang without failing. DuckDB sends it inside the worker with no timeout, so the view
+  then stays loading.
 - DuckDB-WASM reads Parquet only through its `parquet` extension, which DuckDB fetches when
   it loads. The Worker serves DuckDB's signed extension next to the `.wasm` file, under
   `assets/duckdb-wasm/<package version>/`. `web/scripts/duckdb-assets.ts` pins its SHA-256,

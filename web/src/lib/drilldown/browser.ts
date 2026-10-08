@@ -1,3 +1,4 @@
+import type { AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { DrilldownConfig } from './config'
 import type { Locate, Run } from './queries'
 
@@ -11,6 +12,9 @@ export function browserLocate(config: DrilldownConfig): Locate {
 
 let runner: Promise<Run> | null = null
 
+/** DuckDB reports progress well under a second apart while the module downloads. */
+const STALL_MS = 20_000
+
 /**
  * One DuckDB instance per page, started on first use. A failed start is forgotten, so a retry
  * starts again. Statements run one at a time.
@@ -23,13 +27,42 @@ export function browserRunner(config: DrilldownConfig): Promise<Run> {
   return runner
 }
 
+/**
+ * DuckDB's worker drops a failed module download without rejecting, which would leave a view
+ * loading forever. So a download that stops reporting progress counts as failed.
+ */
+function instantiate(db: AsyncDuckDB, moduleUrl: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let settled = false
+    const settle = (outcome: () => void) => {
+      settled = true
+      clearTimeout(timer)
+      outcome()
+    }
+    const restartTimer = () => {
+      if (settled) return
+      clearTimeout(timer)
+      timer = setTimeout(
+        () => settle(() => reject(new Error('the DuckDB module download stalled'))),
+        STALL_MS,
+      )
+    }
+    restartTimer()
+    db.instantiate(moduleUrl, null, restartTimer).then(
+      () => settle(resolve),
+      (error: unknown) => settle(() => reject(error)),
+    )
+  })
+}
+
 async function start(config: DrilldownConfig): Promise<Run> {
   const duckdb = await import('@duckdb/duckdb-wasm')
   const worker = new Worker(absolute(config.workerScript))
   let connection: Awaited<ReturnType<InstanceType<typeof duckdb.AsyncDuckDB>['connect']>>
   try {
     const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker)
-    await db.instantiate(absolute(`${config.assetBase}/duckdb-eh.wasm`))
+    await instantiate(db, absolute(`${config.assetBase}/duckdb-eh.wasm`))
     await db.open({ query: { castBigIntToDouble: true } })
     connection = await db.connect()
     const repository = absolute(`${config.assetBase}/extensions`)
