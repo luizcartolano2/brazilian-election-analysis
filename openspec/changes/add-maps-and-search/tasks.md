@@ -5,12 +5,12 @@
 
 ## 2. Web: search (the search PR)
 
-- [ ] 2.1 Amend the `CLAUDE.md` invariant on run-time reads, so that it allows the pinned boundary build through the Worker and files that the build derived from the pinned version, served from the app's own origin
-- [ ] 2.2 Write `busca/<hash>/municipios.json` and `busca/<hash>/candidatos.json` in `prepare-data.ts`, taking President from `br.json` only. Mark `/busca/` immutable in `vercel.json`, and add `web/public/busca/` to `.gitignore`. Test that an entry with a field outside the allowed ones fails the build, that each President candidacy appears once, and record the compressed size of `candidatos.json` in the PR
-- [ ] 2.3 Add matching and ranking. Test on a synthetic list "sao jose", "lisboa", a full ballot number, quotes with `%`, `_` and `*`, the ranking order, and the cap of 20 results with its note
-- [ ] 2.4 Add the search box to the header of every page, loading the index on first focus. Test that a page load requests no index, that the down arrow twice and Enter open the second result, that Escape closes the list, that the result count is announced, that an English page names the race "Senator", and that without JavaScript no box shows
-- [ ] 2.5 Send each result to its place: a municipality or a city abroad to its view, a President, Governor or Senate candidacy to its race page until task 7.3 adds candidate pages, and a deputy candidacy to its race page with its row in view. Test each kind
-- [ ] 2.6 Add pages with the search box open to the 360-pixel test and to the production-headers test
+- [x] 2.1 Amend the `CLAUDE.md` invariant on run-time reads, so that it allows the pinned boundary build through the Worker and files that the build derived from the pinned version, served from the app's own origin
+- [x] 2.2 Write `busca/<hash>/municipios.json` and `busca/<hash>/candidatos.json` in `prepare-data.ts`, taking President from `br.json` only. Mark `/busca/` immutable in `vercel.json`, and add `web/public/busca/` to `.gitignore`. Test that an entry with a field outside the allowed ones fails the build, that each President candidacy appears once, and record the compressed size of `candidatos.json` in the PR
+- [x] 2.3 Add matching and ranking. Test on a synthetic list "sao jose", "lisboa", a full ballot number, quotes with `%`, `_` and `*`, the ranking order, and the cap of 20 results with its note
+- [x] 2.4 Add the search box to the header of every page, loading the index on first focus. Test that a page load requests no index, that the down arrow twice and Enter open the second result, that Escape closes the list, that the result count is announced, that an English page names the race "Senator", and that without JavaScript no box shows
+- [x] 2.5 Send each result to its place: a municipality or a city abroad to its view, a President, Governor or Senate candidacy to its race page until task 7.3 adds candidate pages, and a deputy candidacy to its race page with its row in view. Test each kind
+- [x] 2.6 Add pages with the search box open to the 360-pixel test and to the production-headers test
 
 ## 3. Worker (the Worker PR)
 

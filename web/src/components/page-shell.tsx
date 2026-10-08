@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from 'react'
 import { AppLink as Link } from '@/components/app-link'
 import { LanguageLink } from '@/components/language-link'
+import { SiteSearch } from '@/components/site-search'
 import { getSourceInfo } from '@/lib/data'
 import { YEAR } from '@/lib/elections'
 import { localePath, t, type Locale } from '@/lib/i18n'
@@ -54,6 +55,9 @@ export function PageShell({
             />
           </Suspense>
         </nav>
+        <div className="basis-full empty:hidden">
+          <SiteSearch locale={locale} base={getSourceInfo().searchBase} />
+        </div>
       </header>
       {getSourceInfo().mode === 'fixtures' && (
         <p

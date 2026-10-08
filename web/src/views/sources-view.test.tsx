@@ -6,7 +6,12 @@ import { DATA_VERSION, VERSION_URL } from '@/data-version'
 import type { Manifest } from '@/lib/manifest'
 import { SourcesContent } from './sources-view'
 
-const PLACES = { dataBase: '/data', assetBase: '/assets', workerScript: '/worker.js' }
+const PLACES = {
+  dataBase: '/data',
+  assetBase: '/assets',
+  workerScript: '/worker.js',
+  searchBase: '/busca/0',
+}
 
 const manifest = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', '..', 'fixtures', 'manifest.json'), 'utf-8'),

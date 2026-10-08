@@ -25,6 +25,8 @@ export interface DataSourceInfo {
   dataBase: string
   assetBase: string
   workerScript: string
+  /** The search index's folder in the static export, named for its content. */
+  searchBase: string
 }
 
 export interface Municipality {

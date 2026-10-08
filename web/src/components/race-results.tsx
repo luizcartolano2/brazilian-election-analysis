@@ -45,6 +45,7 @@ export function FullResults({
           candidates={results.candidates}
           validVotes={results.totals.valid}
           caption={caption}
+          withRowIds
         />
       </div>
       <UnderAppealTable locale={locale} results={results} />

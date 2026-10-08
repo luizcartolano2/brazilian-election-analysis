@@ -5,6 +5,8 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { DATA_VERSION, VERSION_URL } from '../src/data-version'
+import type { Municipality } from '../src/lib/data'
+import type { Summary } from '../src/lib/results'
 import { YEAR } from '../src/lib/elections'
 import {
   parseManifest,
@@ -22,6 +24,7 @@ import {
   sha256Of,
 } from './duckdb-assets'
 import { nodeRunner } from './duckdb-node'
+import { buildSearchIndex } from './search-index'
 
 export type DataMode = 'published' | 'fixtures'
 
@@ -122,17 +125,45 @@ export async function verifyPublishedAssets(assetBase: string, cacheDir?: string
   )
 }
 
+/**
+ * Writes the search index into the static export under a path named for its content, so the
+ * browser can cache it for good. Returns that path.
+ */
+async function writeSearchIndex(
+  summaries: Map<string, Uint8Array>,
+  municipalities: Record<string, Municipality[]>,
+): Promise<string> {
+  const parsed = new Map<string, Summary>()
+  for (const [area, bytes] of summaries) {
+    parsed.set(area, JSON.parse(new TextDecoder().decode(bytes)) as Summary)
+  }
+  const index = buildSearchIndex(parsed, municipalities)
+  const municipios = JSON.stringify(index.municipios)
+  const candidatos = JSON.stringify(index.candidatos)
+  const hash = sha256Of(new TextEncoder().encode(`${municipios}\n${candidatos}`)).slice(0, 16)
+  const target = path.join(PUBLIC_DIR, 'busca', hash)
+  await rm(path.join(PUBLIC_DIR, 'busca'), { recursive: true, force: true })
+  await mkdir(target, { recursive: true })
+  await writeFile(path.join(target, 'municipios.json'), municipios)
+  await writeFile(path.join(target, 'candidatos.json'), candidatos)
+  return `/busca/${hash}`
+}
+
 /** The municipality list for the state pages, one entry per area, read with DuckDB. */
-async function municipalityList(file: string): Promise<Record<string, unknown[]>> {
+async function municipalityList(file: string): Promise<Record<string, Municipality[]>> {
   const run = await nodeRunner()
   const rows = await run(
     'SELECT lower(uf) AS area, municipio, nome, capital FROM read_parquet(?) ORDER BY uf, nome',
     [file],
   )
-  const byArea: Record<string, unknown[]> = {}
+  const byArea: Record<string, Municipality[]> = {}
   for (const row of rows) {
     const area = String(row.area)
-    ;(byArea[area] ??= []).push({ municipio: row.municipio, nome: row.nome, capital: row.capital })
+    ;(byArea[area] ??= []).push({
+      municipio: Number(row.municipio),
+      nome: String(row.nome),
+      capital: Boolean(row.capital),
+    })
   }
   return byArea
 }
@@ -168,10 +199,9 @@ async function main(): Promise<void> {
   }
   const municipalitiesFile = path.join(DATA_DIR, 'municipios.parquet')
   await writeFile(municipalitiesFile, municipalities)
-  await writeFile(
-    path.join(DATA_DIR, 'municipios.json'),
-    JSON.stringify(await municipalityList(municipalitiesFile)),
-  )
+  const municipalityLists = await municipalityList(municipalitiesFile)
+  await writeFile(path.join(DATA_DIR, 'municipios.json'), JSON.stringify(municipalityLists))
+  const searchBase = await writeSearchIndex(summaries, municipalityLists)
 
   // A browser Worker must load from the page's own origin, so the app serves this script.
   const workerScript = `/duckdb/${duckdbVersion}/duckdb-browser-eh.worker.js`
@@ -199,7 +229,7 @@ async function main(): Promise<void> {
   const version = mode === 'published' ? DATA_VERSION.name : null
   await writeFile(
     path.join(DATA_DIR, 'source.json'),
-    JSON.stringify({ mode, version, dataBase, assetBase, workerScript }),
+    JSON.stringify({ mode, version, dataBase, assetBase, workerScript, searchBase }),
   )
   console.log(`data: ${mode} ${version ?? ''}, ${summaries.size} summaries checked`)
   // The DuckDB runner keeps a Node worker alive.
