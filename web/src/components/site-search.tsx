@@ -158,7 +158,7 @@ export function SiteSearch({
       event.preventDefault()
       setOpen(true)
       setActive((current) => Math.min(current + 1, found.hits.length - 1))
-    } else if (event.key === 'ArrowUp' && found.hits.length > 0) {
+    } else if (event.key === 'ArrowUp' && open && found.hits.length > 0) {
       event.preventDefault()
       setActive((current) => Math.max(current - 1, 0))
     } else if (event.key === 'Enter' && open && found.hits.length > 0) {

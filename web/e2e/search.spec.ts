@@ -64,6 +64,17 @@ test('Escape closes the list', async ({ page }) => {
   await expect(searchBox(page)).not.toHaveAttribute('aria-controls')
 })
 
+test('the up arrow on a closed list selects nothing, so the down arrow opens on the first result', async ({
+  page,
+}) => {
+  await page.goto('/2026/')
+  await type(page, 're')
+  await searchBox(page).press('Escape')
+  await searchBox(page).press('ArrowUp')
+  await searchBox(page).press('ArrowDown')
+  await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected', 'true')
+})
+
 test('the arrow keys keep the active result in view', async ({ page }) => {
   await page.goto('/2026/')
   await type(page, 'da')
