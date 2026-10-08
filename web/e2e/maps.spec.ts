@@ -31,7 +31,7 @@ test('a Governor map frame holds the race, area, round, legend, statement and bo
   await expect(frame).toContainText('As cores mostram o candidato mais votado em cada município.')
   await expect(frame).toContainText('apertada, abaixo de 5 p.p.')
   await expect(frame).toContainText('RAQUEL LYRA (PSD)')
-  await expect(frame).toContainText('Dados: TSE.')
+  await expect(frame).toContainText('Fonte: Tribunal Superior Eleitoral (TSE)')
   await expect(frame).toContainText('Limites municipais: IBGE')
 })
 
@@ -70,6 +70,28 @@ test('each state on the Brazil page links to its President race page, which list
 
   await expect(page).toHaveURL('/2026/pe/presidente/')
   await expect(rows(page).filter({ hasText: 'RECIFE' })).toHaveCount(1)
+})
+
+test('a state page maps its Governor race, and folds its list', async ({ page }) => {
+  const map = await drawnMap(page, '/2026/pe/')
+
+  await expect(map.locator('xpath=ancestor::figure')).toContainText('Governador · Pernambuco')
+  await expect(rows(page).first()).toBeHidden()
+  await page.getByText('Ver os 3 municípios').click()
+  await expect(rows(page)).toHaveCount(3)
+})
+
+test('a Senate frame says that each voter chose two, and English details use English ordinals', async ({
+  page,
+}) => {
+  const map = await drawnMap(page, '/en/2026/pe/senador/')
+
+  await expect(map.locator('xpath=ancestor::figure')).toContainText(
+    'Each voter chose two candidates for two seats',
+  )
+  await map.locator(`path[data-ibge="${RECIFE}"]`).hover()
+  await expect(page.getByTestId('map-details')).toContainText('1st')
+  await expect(page.getByTestId('map-details')).not.toContainText('1º')
 })
 
 test('abroad shows no map', async ({ page }) => {
@@ -205,7 +227,7 @@ test('a Senate list shows the two most voted with their shares, and sorts by nam
 })
 
 test('the filter ignores case and accents', async ({ page }) => {
-  await page.goto('/2026/ac/')
+  await page.goto('/2026/ac/governador/')
   await page.getByPlaceholder('Filtrar municípios').fill('brasileia')
 
   await expect(rows(page)).toHaveCount(1)

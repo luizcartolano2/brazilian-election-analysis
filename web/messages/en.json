@@ -137,7 +137,6 @@
   "map.failedBrazil": "The map did not load. Each state below leads to the list of its municipalities.",
   "map.noScript": "The map needs JavaScript. The list below holds the same data.",
   "map.noScriptBrazil": "The map needs JavaScript. Each state below leads to the list of its municipalities.",
-  "map.credits": "Data: TSE. Municipal boundaries: IBGE, Malha Municipal 2025, simplified by this project. Approximate boundaries, not official ones.",
   "map.points": "{points} pts",
   "map.view": "Open {name}",
   "map.close": "Close",

@@ -39,7 +39,7 @@ function mapLabels(
     loading: t(locale, 'map.loading'),
     failed: t(locale, brazil ? 'map.failedBrazil' : 'map.failed'),
     noScript: t(locale, brazil ? 'map.noScriptBrazil' : 'map.noScript'),
-    credits: t(locale, 'map.credits'),
+    credits: [t(locale, 'footer.credit'), t(locale, 'sources.boundariesCredit')],
     points: t(locale, 'map.points'),
     view: t(locale, 'map.view'),
     close: t(locale, 'map.close'),
@@ -68,6 +68,7 @@ export function MapSection({
   areaLabel,
   race,
   table,
+  collapsed,
   children,
 }: {
   locale: Locale
@@ -75,6 +76,7 @@ export function MapSection({
   areaLabel: string
   race: RaceInfo
   table: boolean
+  collapsed?: string
   children?: ReactNode
 }) {
   const data = getRaceMap(area, race.code)
@@ -96,6 +98,7 @@ export function MapSection({
         inset={area === 'pe' ? NORONHA : undefined}
         labels={mapLabels(locale, race, areaLabel, data.kind, area === 'br')}
         table={table}
+        collapsed={collapsed}
       >
         {children}
       </RaceMap>

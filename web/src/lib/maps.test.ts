@@ -164,8 +164,8 @@ describe('checkRaceSums', () => {
 
   it('names the candidate, the area and both numbers on a one-vote difference', () => {
     expect(checkRaceSums('pe governador', GOVERNOR, false, totals({ 55: 401 }))).toEqual([
-      'pe governador: candidate 55 BETO has 400 votes in the summary and 401 in its municipalities',
-      'pe governador: the valid votes has 1000 votes in the summary and 1001 in its municipalities',
+      'pe governador: candidate 55 BETO: 400 votes in the summary, 401 in its municipalities',
+      'pe governador: the valid votes: 1000 votes in the summary, 1001 in its municipalities',
     ])
   })
 

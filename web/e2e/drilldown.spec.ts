@@ -185,6 +185,7 @@ test('a state page links to each of its municipalities, on the Governor race of 
   page,
 }) => {
   await page.goto('/2026/pe/')
+  await page.getByText('Ver os 3 municípios').click()
   await expect(
     page.getByTestId('municipality-table').getByRole('link', { name: 'FERNANDO DE NORONHA' }),
   ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=30015&cargo=governador')

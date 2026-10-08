@@ -18,6 +18,7 @@ import {
   type VoteTotal,
 } from '../src/lib/maps'
 import { sha256Of } from './duckdb-assets'
+import { LAGOONS } from './geo-assets'
 import type { DataSource } from './prepare-data'
 import type { Summary, SummaryRace } from '../src/lib/results'
 
@@ -56,19 +57,30 @@ export function boundaryIds(bytes: Uint8Array): Set<number> {
   return new Set(topology.objects.municipios.geometries.map((geometry) => geometry.id))
 }
 
-/** Fails on any mapped municipality with no IBGE code, or with no area in its boundary file. */
+/**
+ * Joins a boundary file with the data's municipalities, both ways: each municipality needs an
+ * IBGE code and an area, and each area a municipality, unless it is one of IBGE's lagoons.
+ */
 export function checkBoundaries(
-  where: string,
+  file: string,
   municipalities: Municipality[],
   ids: Set<number>,
+  lagoons: number[] = LAGOONS,
 ): string[] {
-  return municipalities
+  const problems = municipalities
     .filter((municipality) => municipality.ibge === null || !ids.has(municipality.ibge))
     .map((municipality) =>
       municipality.ibge === null
-        ? `${where}: ${municipality.nome} (${municipality.municipio}) has no IBGE code`
-        : `${where}: ${municipality.nome} (${municipality.ibge}) has no boundary`,
+        ? `${file}: ${municipality.nome} (${municipality.municipio}) has no IBGE code`
+        : `${file}: ${municipality.nome} (${municipality.ibge}) has no area`,
     )
+  const codes = new Set(municipalities.map((municipality) => municipality.ibge))
+  for (const id of ids) {
+    if (!codes.has(id) && !lagoons.includes(id)) {
+      problems.push(`${file}: the area ${id} belongs to no municipality in the data`)
+    }
+  }
+  return problems
 }
 
 interface MapInputs {
@@ -108,6 +120,24 @@ async function localCopy(inputs: MapInputs, folder: string, relative: string): P
   return file
 }
 
+/** Copies the files a few at a time, since each one is a round trip to the Worker. */
+async function localCopies(
+  inputs: MapInputs,
+  folder: string,
+  relatives: string[],
+): Promise<Map<string, string>> {
+  const copies = new Map<string, string>()
+  let next = 0
+  const worker = async () => {
+    while (next < relatives.length) {
+      const relative = relatives[next++] as string
+      copies.set(relative, await localCopy(inputs, folder, relative))
+    }
+  }
+  await Promise.all(Array.from({ length: 8 }, worker))
+  return copies
+}
+
 function raceOf(summary: Summary | undefined, cargo: number): SummaryRace | undefined {
   return summary?.corridas.find((race) => race.cargo === cargo)
 }
@@ -127,14 +157,31 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
   const brazilRows: MapData['rows'] = []
   let brazilUnits: string[] = []
   try {
-    const federations = await federationsByRace(run, await localCopy(inputs, folder, CANDIDATES))
-    for (const [area, summary] of [...summaries].sort(([a], [b]) => a.localeCompare(b))) {
-      if (area === 'br') continue
+    const areas = [...summaries]
+      .filter(([area]) => area !== 'br')
+      .sort(([a], [b]) => a.localeCompare(b))
+    const copies = await localCopies(inputs, folder, [
+      CANDIDATES,
+      ...areas.flatMap(([area, summary]) =>
+        summary.corridas.map((race) => totalsPath(area, race.cargo)),
+      ),
+    ])
+    const copyOf = (relative: string) => copies.get(relative) as string
+    const federations = await federationsByRace(run, copyOf(CANDIDATES))
+    for (const [area, summary] of areas) {
+      if (area !== ABROAD.code) {
+        const ids = boundaries.get(`${area}.json`)
+        if (ids === undefined) problems.push(`the pinned boundary build has no ${area}.json`)
+        else
+          problems.push(
+            ...checkBoundaries(`${area}.json`, municipalities[area] ?? [], boundaryIds(ids)),
+          )
+      }
       for (const race of summary.corridas) {
         const info = raceByCode(race.cargo)
         if (info === undefined) throw new Error(`${area}.json holds race ${race.cargo}`)
         const where = `${area} ${info.slug}`
-        const file = await localCopy(inputs, folder, totalsPath(area, race.cargo))
+        const file = copyOf(totalsPath(area, race.cargo))
         const totals = (
           await run(
             'SELECT tipo, numero, sum(votos)::DOUBLE AS votos FROM read_parquet(?) GROUP BY ALL',
@@ -147,7 +194,10 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
         }))
         problems.push(...checkRaceSums(where, race, info.proportional, totals))
         if (race.cargo === PRESIDENT) brazilTotals.push(...totals)
-        if (area === ABROAD.code) continue
+        if (area === ABROAD.code) {
+          await rm(file)
+          continue
+        }
 
         const units = raceUnits(
           race,
@@ -155,8 +205,11 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
           federations.get(`${area}:${race.cargo}`) ?? new Map(),
           race.cargo === PRESIDENT ? brazilRace : race,
         )
-        // Units are whole numbers, so the mapping goes into the query as literals.
-        const values = units.mapping.map(([tipo, numero, unit]) => `(${tipo}, ${numero}, ${unit})`)
+        // Units are whole numbers, so the mapping goes into the query as literals. A race with
+        // no valid unit gets one row that matches no vote, so the query stays valid.
+        const values = (units.mapping.length > 0 ? units.mapping : [[-1, -1, -1]]).map(
+          ([tipo, numero, unit]) => `(${tipo}, ${numero}, ${unit})`,
+        )
         const unitVotes = (
           await run(
             `WITH units(tipo, numero, unit) AS (VALUES ${values.join(', ')})
@@ -189,13 +242,8 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
           ).map((row) => [Number(row.municipio), Number(row.valid)]),
         )
 
+        await rm(file)
         const list = municipalities[area] ?? []
-        const ids = boundaries.get(`${area}.json`)
-        if (ids === undefined) {
-          problems.push(`${where}: the pinned boundary build has no ${area}.json`)
-        } else {
-          problems.push(...checkBoundaries(where, list, boundaryIds(ids)))
-        }
         const mapped = list.flatMap((municipality) =>
           municipality.ibge === null ? [] : [{ ...municipality, ibge: municipality.ibge }],
         )
@@ -214,6 +262,12 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
     }
     // Brazil's summary counts the cities abroad, so its check does too.
     problems.push(...checkRaceSums('br presidente', brazilRace, false, brazilTotals))
+    const brazilIds = boundaries.get('br.json')
+    const inStates = areas
+      .filter(([area]) => area !== ABROAD.code)
+      .flatMap(([area]) => municipalities[area] ?? [])
+    if (brazilIds === undefined) problems.push('the pinned boundary build has no br.json')
+    else problems.push(...checkBoundaries('br.json', inStates, boundaryIds(brazilIds)))
     await mkdir(path.join(out, 'br'), { recursive: true })
     const brazil: MapData = { kind: 'margin', units: brazilUnits, rows: brazilRows }
     await writeFile(path.join(out, 'br', `${PRESIDENT}.json`), JSON.stringify(brazil))

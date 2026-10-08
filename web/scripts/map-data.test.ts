@@ -46,16 +46,22 @@ describe('readBoundaries', () => {
 describe('checkBoundaries', () => {
   const recife: Municipality = { municipio: 25313, ibge: 2611606, nome: 'RECIFE', capital: true }
 
-  it('passes a municipality with a boundary', () => {
-    expect(checkBoundaries('pe governador', [recife], new Set([2611606]))).toEqual([])
+  it('passes when the municipalities and the areas match, lagoons aside', () => {
+    expect(checkBoundaries('rs.json', [recife], new Set([2611606, 4300001]))).toEqual([])
   })
 
-  it('names a municipality without a boundary, and one without an IBGE code', () => {
+  it('names a municipality without an area, and one without an IBGE code', () => {
     const noCode = { ...recife, municipio: 1, ibge: null, nome: 'NOWHERE' }
 
-    expect(checkBoundaries('pe governador', [recife, noCode], new Set())).toEqual([
-      'pe governador: RECIFE (2611606) has no boundary',
-      'pe governador: NOWHERE (1) has no IBGE code',
+    expect(checkBoundaries('pe.json', [recife, noCode], new Set())).toEqual([
+      'pe.json: RECIFE (2611606) has no area',
+      'pe.json: NOWHERE (1) has no IBGE code',
+    ])
+  })
+
+  it('names an area that no municipality in the data has', () => {
+    expect(checkBoundaries('pe.json', [recife], new Set([2611606, 2699999]))).toEqual([
+      'pe.json: the area 2699999 belongs to no municipality in the data',
     ])
   })
 })
@@ -146,7 +152,33 @@ describe('buildMaps on the fixtures', () => {
         boundaries: new Map([['pe.json', empty]]),
         out: target,
       }),
-    ).rejects.toThrow(/pe governador: RECIFE \(2611606\) has no boundary/)
+    ).rejects.toThrow(/pe.json: RECIFE \(2611606\) has no area/)
+  })
+
+  it('fails and names a municipality that the Brazil file lacks', async () => {
+    const source = fixtureSource()
+    const { manifest } = await readManifest(source)
+    const summaries = new Map<string, Summary>()
+    for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
+      const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
+      summaries.set(path.basename(file, '.json'), JSON.parse(text) as Summary)
+    }
+    const boundaries = new Map<string, Uint8Array>()
+    for (const name of ['ac.json', 'pe.json', 'se.json']) {
+      boundaries.set(name, new Uint8Array(await readFile(path.join(FIXTURES_GEO, name))))
+    }
+    const brazil = JSON.parse(await readFile(path.join(FIXTURES_GEO, 'br.json'), 'utf-8')) as {
+      objects: { municipios: { geometries: { id: number }[] } }
+    }
+    brazil.objects.municipios.geometries = brazil.objects.municipios.geometries.filter(
+      (geometry) => geometry.id !== 2611606,
+    )
+    boundaries.set('br.json', new TextEncoder().encode(JSON.stringify(brazil)))
+    const target = await mkdtemp(path.join(os.tmpdir(), 'mapas-'))
+
+    await expect(
+      buildMaps({ run, source, manifest, summaries, municipalities, boundaries, out: target }),
+    ).rejects.toThrow(/br.json: RECIFE \(2611606\) has no area/)
   })
 
   it('reads the IBGE codes of a boundary file', async () => {

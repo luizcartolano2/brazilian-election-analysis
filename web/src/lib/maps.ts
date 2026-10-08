@@ -139,7 +139,7 @@ export function checkRaceSums(
   const compare = (what: string, summary: number, municipalities: number) => {
     if (summary !== municipalities) {
       problems.push(
-        `${where}: ${what} has ${summary} votes in the summary and ${municipalities} in its municipalities`,
+        `${where}: ${what}: ${summary} votes in the summary, ${municipalities} in its municipalities`,
       )
     }
   }

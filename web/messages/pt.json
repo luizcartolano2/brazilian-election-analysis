@@ -137,7 +137,6 @@
   "map.failedBrazil": "O mapa não carregou. Cada estado abaixo leva à lista dos seus municípios.",
   "map.noScript": "O mapa precisa de JavaScript. A lista abaixo traz os mesmos dados.",
   "map.noScriptBrazil": "O mapa precisa de JavaScript. Cada estado abaixo leva à lista dos seus municípios.",
-  "map.credits": "Dados: TSE. Limites municipais: IBGE, Malha Municipal 2025, simplificados por este projeto. Limites aproximados, não oficiais.",
   "map.points": "{points} p.p.",
   "map.view": "Ver {name}",
   "map.close": "Fechar",

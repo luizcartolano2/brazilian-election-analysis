@@ -225,6 +225,9 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
           areaLabel={areaName(area, locale)}
           race={governor}
           table
+          collapsed={t(locale, 'area.municipalitiesSummary', {
+            count: formatInteger(locale, getMunicipalities(area.code).length),
+          })}
         />
       ) : (
         <MunicipalityList locale={locale} area={area} />

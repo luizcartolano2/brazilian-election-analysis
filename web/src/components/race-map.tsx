@@ -40,7 +40,8 @@ export interface MapLabels {
   loading: string
   failed: string
   noScript: string
-  credits: string
+  /** The TSE and IBGE credit lines, as DATA_LICENSE.md gives them. */
+  credits: string[]
   /** Holds `{points}`. */
   points: string
   /** Holds `{name}`. */
@@ -220,7 +221,11 @@ function Legend({
         )}
       </ul>
       {data.kind === 'margin' && <p>{labels.binsLegend}</p>}
-      <p className="text-slate-600">{labels.credits}</p>
+      {labels.credits.map((credit) => (
+        <p key={credit} className="text-slate-600">
+          {credit}
+        </p>
+      ))}
     </figcaption>
   )
 }
@@ -255,26 +260,25 @@ function DetailsText({
       <>
         <strong className="block">{name}</strong>
         <span className="block">
-          1º {unit(first)}: {formatShare(locale, firstVotes, valid)}
+          {labels.table.first} {unit(first)}: {formatShare(locale, firstVotes, valid)}
         </span>
         {second !== -1 && (
           <span className="block">
-            2º {unit(second)}: {formatShare(locale, secondVotes, valid)}
+            {labels.table.second} {unit(second)}: {formatShare(locale, secondVotes, valid)}
           </span>
         )}
       </>
     )
   }
+  const tie = second !== -1 && firstVotes === secondVotes
   const margin = marginPoints(row)
   return (
     <>
       <strong className="block">{name}</strong>
       <span className="block">
-        {second !== -1 && firstVotes === secondVotes
-          ? fill(labels.tieDetails, { first: unit(first), second: unit(second) })
-          : unit(first)}
+        {tie ? fill(labels.tieDetails, { first: unit(first), second: unit(second) }) : unit(first)}
       </span>
-      {second !== -1 && firstVotes !== secondVotes && (
+      {!tie && (
         <span className="block">
           {fill(labels.points, { points: formatPoints(locale, margin) })} ·{' '}
           {labels.bins[binOf(margin)]}
@@ -290,13 +294,16 @@ function MunicipalityTable({
   labels,
   hrefOf,
   hydrated,
+  collapsed,
 }: {
   locale: Locale
   data: MapData
   labels: MapLabels
   hrefOf: (row: MapRow) => string
   hydrated: boolean
+  collapsed?: string
 }) {
+  const filterId = useId()
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<'name' | 'margin'>('name')
   const collator = useMemo(() => new Intl.Collator(locale === 'pt' ? 'pt-BR' : 'en-US'), [locale])
@@ -311,16 +318,18 @@ function MunicipalityTable({
   const unit = (index: number) => (index === -1 ? '–' : (data.units[index] ?? ''))
   const senate = data.kind === 'senate'
   const table = labels.table
+  const pressed = (active: boolean) =>
+    `rounded border px-2 py-1 ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`
 
-  return (
-    <div className="mt-6">
+  const content = (
+    <>
       {hydrated && (
         <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
-          <label className="sr-only" htmlFor={`${table.caption}-filter`}>
+          <label className="sr-only" htmlFor={filterId}>
             {table.filter}
           </label>
           <input
-            id={`${table.caption}-filter`}
+            id={filterId}
             type="search"
             value={query}
             maxLength={60}
@@ -332,7 +341,7 @@ function MunicipalityTable({
             type="button"
             aria-pressed={order === 'name'}
             onClick={() => setOrder('name')}
-            className={`rounded border px-2 py-1 ${order === 'name' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}
+            className={pressed(order === 'name')}
           >
             {table.sortName}
           </button>
@@ -341,7 +350,7 @@ function MunicipalityTable({
               type="button"
               aria-pressed={order === 'margin'}
               onClick={() => setOrder('margin')}
-              className={`rounded border px-2 py-1 ${order === 'margin' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}
+              className={pressed(order === 'margin')}
             >
               {table.sortMargin}
             </button>
@@ -351,7 +360,11 @@ function MunicipalityTable({
           </p>
         </div>
       )}
-      <table className="w-full text-sm" data-testid="municipality-table">
+      {/* Styles sit on the table, so each of up to 853 rows carries no class. */}
+      <table
+        className="w-full text-sm [&_a]:underline [&_small]:block [&_small]:text-xs [&_small]:text-slate-600 [&_tbody_tr]:border-b [&_tbody_tr]:border-slate-100 [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums"
+        data-testid="municipality-table"
+      >
         <caption className="mb-1 text-left text-xs text-slate-600">{table.caption}</caption>
         <thead>
           <tr className="border-b border-slate-300 text-left text-xs text-slate-600">
@@ -372,39 +385,27 @@ function MunicipalityTable({
             const tie = second !== -1 && firstVotes === secondVotes
             const margin = marginPoints(row)
             return (
-              <tr key={ibge} className="border-b border-slate-100 align-top">
-                <td className="py-1 pr-2 break-words">
-                  <a href={hrefOf(row)} className="underline">
-                    {name}
-                  </a>
+              <tr key={ibge}>
+                <td>
+                  <a href={hrefOf(row)}>{name}</a>
                 </td>
                 {senate ? (
                   <>
-                    <td className="py-1 pr-2 break-words">
-                      {unit(first)}{' '}
-                      <span className="text-xs text-slate-600 tabular-nums">
-                        {formatShare(locale, firstVotes, valid)}
-                      </span>
+                    <td>
+                      {unit(first)} <small>{formatShare(locale, firstVotes, valid)}</small>
                     </td>
-                    <td className="py-1 text-right break-words">
-                      {unit(second)}{' '}
-                      <span className="text-xs text-slate-600 tabular-nums">
-                        {formatShare(locale, secondVotes, valid)}
-                      </span>
+                    <td>
+                      {unit(second)} <small>{formatShare(locale, secondVotes, valid)}</small>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="py-1 pr-2 break-words">{tie ? labels.tie : unit(first)}</td>
-                    <td className="py-1 text-right tabular-nums">
-                      {first === -1 || second === -1
+                    <td>{tie ? labels.tie : unit(first)}</td>
+                    <td>
+                      {first === -1 || tie
                         ? '–'
                         : fill(labels.points, { points: formatPoints(locale, margin) })}
-                      {first !== -1 && second !== -1 && !tie && (
-                        <span className="block text-xs text-slate-600">
-                          {labels.bins[binOf(margin)]}
-                        </span>
-                      )}
+                      {first !== -1 && !tie && <small>{labels.bins[binOf(margin)]}</small>}
                     </td>
                   </>
                 )}
@@ -413,7 +414,15 @@ function MunicipalityTable({
           })}
         </tbody>
       </table>
-    </div>
+    </>
+  )
+
+  if (collapsed === undefined) return <div className="mt-6">{content}</div>
+  return (
+    <details className="mt-6">
+      <summary className="cursor-pointer text-sm underline">{collapsed}</summary>
+      <div className="mt-2">{content}</div>
+    </details>
   )
 }
 
@@ -430,6 +439,7 @@ export function RaceMap({
   inset,
   labels,
   table,
+  collapsed,
   children,
 }: {
   locale: Locale
@@ -442,6 +452,8 @@ export function RaceMap({
   inset?: number
   labels: MapLabels
   table: boolean
+  /** Folds the list under this summary, on a page where it follows other results. */
+  collapsed?: string
   children?: ReactNode
 }) {
   const hydrated = useSyncExternalStore(
@@ -541,8 +553,10 @@ export function RaceMap({
             viewBox={`0 0 ${drawn.width} ${drawn.height}`}
             className="block h-auto w-full"
             role="img"
-            aria-label={`${labels.title}. ${labels.statement}`}
+            aria-labelledby={`${patternId}-title ${patternId}-desc`}
           >
+            <title id={`${patternId}-title`}>{labels.title}</title>
+            <desc id={`${patternId}-desc`}>{labels.statement}</desc>
             <defs>
               <pattern
                 id={patternId}
@@ -659,6 +673,7 @@ export function RaceMap({
           labels={labels}
           hrefOf={hrefOf}
           hydrated={hydrated}
+          collapsed={collapsed}
         />
       )}
     </>
