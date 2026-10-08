@@ -105,8 +105,11 @@ jobs:
           node-version: 22
 
       # Install scripts are third-party code, and the platform binaries arrive as packages.
-      - name: Install from the lockfile
-        run: npm ci --ignore-scripts
+      # The boundary staging tools have their own lockfile, which only the unit tests need.
+      - name: Install from the lockfiles
+        run: |
+          npm ci --ignore-scripts
+          npm ci --ignore-scripts --prefix geo
 
       - name: Lint
         run: npm run lint

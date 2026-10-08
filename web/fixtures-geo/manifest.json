@@ -8,22 +8,23 @@
  "credito": {
   "pt": "Limites municipais: IBGE, Malha Municipal Digital 2025, sob licença compatível com CC BY 4.0. Geometria simplificada e reprojetada por este projeto. Limites aproximados, não oficiais.",
   "en": "Municipal boundaries: IBGE, Malha Municipal Digital 2025, under a license compatible with CC BY 4.0. Geometry simplified and reprojected by this project. Approximate boundaries, not official ones.",
-  "terms": "https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf"
+  "termos": "https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf"
  },
  "commit": "fixtures",
+ "versaoDados": "fixtures",
  "mapshaper": "0.7.67",
  "parametros": {
-  "projection": "+proj=aea +lat_0=-12 +lon_0=-54 +lat_1=-2 +lat_2=-22 +ellps=GRS80",
-  "farPartKm": 100,
-  "brazil": {
-   "intervalM": 5000,
-   "quantization": 10000,
-   "maxBytes": 1000000
+  "projecao": "+proj=aea +lat_0=-12 +lon_0=-54 +lat_1=-2 +lat_2=-22 +ellps=GRS80",
+  "distanciaMaximaKm": 100,
+  "brasil": {
+   "intervaloM": 5000,
+   "quantizacao": 10000,
+   "limiteBytes": 1000000
   },
-  "state": {
-   "intervalM": 400,
-   "quantization": 100000,
-   "maxBytes": 600000
+  "estado": {
+   "intervaloM": 400,
+   "quantizacao": 100000,
+   "limiteBytes": 600000
   }
  },
  "partesRemovidas": [],

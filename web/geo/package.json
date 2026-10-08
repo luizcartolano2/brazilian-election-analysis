@@ -1,0 +1,9 @@
+{
+  "name": "eleicoes-geo",
+  "private": true,
+  "type": "module",
+  "description": "Tools that stage IBGE's municipal boundaries. Only the publish workflow and the boundary tests install them.",
+  "devDependencies": {
+    "mapshaper": "0.7.67"
+  }
+}

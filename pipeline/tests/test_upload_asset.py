@@ -75,6 +75,16 @@ def test_uploads_a_boundary_build(tmp_path, endpoint, bucket):
     assert keys(bucket) == sorted(f"{GEO_PATH}/{path}" for path in [*files, "SHA256SUMS"])
 
 
+def test_refuses_a_complete_boundary_build(tmp_path, endpoint, bucket, staged):
+    bucket.put_object(Bucket=BUCKET, Key=f"{GEO_PATH}/SHA256SUMS", Body=b"x")
+
+    result, _ = run(tmp_path, endpoint, staged, GEO_PATH)
+
+    assert result.returncode != 0
+    assert "already complete" in result.stderr
+    assert keys(bucket) == [f"{GEO_PATH}/SHA256SUMS"]
+
+
 def test_resumes_when_the_files_there_are_the_staged_ones(tmp_path, endpoint, bucket, staged):
     bucket.put_object(Bucket=BUCKET, Key=PREFIX + "duckdb-eh.wasm", Body=FILES["duckdb-eh.wasm"])
 

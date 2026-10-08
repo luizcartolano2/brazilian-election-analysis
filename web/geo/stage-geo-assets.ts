@@ -3,14 +3,15 @@
  * TopoJSON for Brazil and for each state, then `manifest.json`, then a SHA256SUMS list.
  */
 import { createHash } from 'node:crypto'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
+import { parseArgs } from 'node:util'
 import mapshaper from 'mapshaper'
 import { DATA_VERSION } from '../src/data-version'
-import { duckdbPackageVersion, sha256Of } from './duckdb-assets'
-import { nodeRunner } from './duckdb-node'
+import { duckdbPackageVersion, sha256Of } from '../scripts/duckdb-assets'
+import { nodeRunner } from '../scripts/duckdb-node'
 import {
   EXPECTED_DROPS,
   GEO_CREDIT,
@@ -23,19 +24,22 @@ import {
   type GeoSettings,
   type GeoSource,
   type OutputSettings,
-} from './geo-assets'
+} from '../scripts/geo-assets'
 import {
+  cachePublishedExtension,
   fixtureSource,
-  loadVersion,
   publishedSource,
-  verifyPublishedAssets,
+  readManifest,
+  readMunicipalities,
   type DataSource,
-} from './prepare-data'
+} from '../scripts/prepare-data'
 
 export interface StageInput {
   zip: Uint8Array
-  /** IBGE codes of the municipalities in the data version's list. */
-  municipalities: Set<number>
+  /** The data version's municipalities that have an IBGE code, with their names. */
+  municipalities: Map<number, string>
+  /** The data version that `municipalities` comes from. */
+  dataVersion: string
   commit: string
   /** Keeps only these municipalities, for the fixtures. */
   only?: Set<number>
@@ -52,10 +56,11 @@ export interface DroppedPart {
   distanciaKm: number
 }
 
-interface PartRow {
+export interface PartRow {
   PART: number
   CD_MUN: number
   NM_MUN: string
+  CD_UF: string
   AREA: number
   BOUNDS: string
 }
@@ -65,6 +70,8 @@ type Files = Record<string, string | Uint8Array>
 const MAPSHAPER_VERSION = (
   createRequire(import.meta.url)('mapshaper/package.json') as { version: string }
 ).version
+
+const LISTS = new Set(['SHA256SUMS', 'manifest.json'])
 
 function text(value: string | Uint8Array | undefined): string {
   if (value === undefined) throw new Error('mapshaper wrote no output')
@@ -80,6 +87,15 @@ function shapefile(files: Files, name: string): Files {
   return picked
 }
 
+function stateCodeOf(code: number): string {
+  return String(code).slice(0, 2)
+}
+
+function label(code: number, names: Map<number, string>): string {
+  const name = names.get(code)
+  return name ? `${code} (${name})` : String(code)
+}
+
 function bounds(row: PartRow): number[] {
   return row.BOUNDS.split(',').map(Number)
 }
@@ -89,6 +105,41 @@ function gap(first: number[], second: number[]): number {
   const [ax0 = 0, ay0 = 0, ax1 = 0, ay1 = 0] = first
   const [bx0 = 0, by0 = 0, bx1 = 0, by1 = 0] = second
   return Math.hypot(Math.max(0, bx0 - ax1, ax0 - bx1), Math.max(0, by0 - ay1, ay0 - by1))
+}
+
+/** Reads, projects and splits the source into single parts, each with its area and bounds. */
+export async function explodeSource(
+  zip: Uint8Array,
+  source: GeoSource,
+  settings: GeoSettings,
+  only?: Set<number>,
+): Promise<{ rows: PartRow[]; parts: Files }> {
+  // Codes reach these expressions only as numbers.
+  const keep = only === undefined ? '' : `-filter "[${[...only].join(',')}].indexOf(+CD_MUN) > -1"`
+  const exploded = await mapshaper.applyCommands(
+    `-i source.zip -target ${source.layer} ${keep} -filter-fields CD_MUN,NM_MUN,CD_UF ` +
+      `-each "CD_MUN=+CD_MUN" -proj ${settings.projection} -explode ` +
+      `-each "PART=this.id, AREA=this.area, BOUNDS=this.bounds.join(',')" ` +
+      '-o format=json parts.json -o format=shapefile parts.shp',
+    { 'source.zip': zip },
+  )
+  return {
+    rows: JSON.parse(text(exploded['parts.json'])) as PartRow[],
+    parts: shapefile(exploded, 'parts'),
+  }
+}
+
+/** Fails when an area's state code is unknown or disagrees with its own IBGE code. */
+export function checkStates(rows: PartRow[]): void {
+  const wrong = rows.filter(
+    (row) => STATE_CODES[row.CD_UF] === undefined || row.CD_UF !== stateCodeOf(row.CD_MUN),
+  )
+  if (wrong.length > 0) {
+    const listed = [...new Set(wrong.map((row) => `${row.CD_MUN} (${row.NM_MUN}): ${row.CD_UF}`))]
+    throw new Error(
+      `these areas have a state code that their IBGE code does not match: ${listed.join(', ')}`,
+    )
+  }
 }
 
 /** Each part farther than the limit from its municipality's largest part. */
@@ -118,27 +169,32 @@ export function farParts(rows: PartRow[], farPartKm: number): (DroppedPart & { p
   return far.sort((a, b) => a.municipio - b.municipio || b.areaKm2 - a.areaKm2)
 }
 
-/** Fails on a far part that the list does not expect, or on a listed part that stayed. */
+/** Matches each far part to its own listed entry, and fails on any part or entry left over. */
 export function checkDrops(
   found: DroppedPart[],
   expected: ExpectedDrop[],
   present: Set<number>,
 ): void {
-  const matches = (part: DroppedPart, drop: ExpectedDrop) =>
-    part.municipio === drop.municipio && part.areaKm2 === drop.areaKm2
+  const used = new Set<number>()
   const problems: string[] = []
   for (const part of found) {
-    if (!expected.some((drop) => matches(part, drop))) {
+    const index = expected.findIndex(
+      (drop, position) =>
+        !used.has(position) && drop.municipio === part.municipio && drop.areaKm2 === part.areaKm2,
+    )
+    if (index === -1) {
       problems.push(
         `an unexpected far part of ${part.municipio} (${part.nome}): ${part.areaKm2} km², ${part.distanciaKm} km from its largest part`,
       )
+    } else {
+      used.add(index)
     }
   }
-  for (const drop of expected) {
-    if (present.has(drop.municipio) && !found.some((part) => matches(part, drop))) {
+  expected.forEach((drop, position) => {
+    if (!used.has(position) && present.has(drop.municipio)) {
       problems.push(`EXPECTED_DROPS lists ${drop.nome}, ${drop.areaKm2} km², which stayed`)
     }
-  }
+  })
   if (problems.length > 0) {
     throw new Error(`${problems.join('. ')}. Review each part, then update EXPECTED_DROPS`)
   }
@@ -146,17 +202,65 @@ export function checkDrops(
 
 /** Fails unless each municipality has an area, and each area a municipality or a lagoon. */
 export function checkJoin(
-  areas: Set<number>,
-  municipalities: Set<number>,
+  areas: Map<number, string>,
+  municipalities: Map<number, string>,
   lagoons: number[],
 ): void {
-  const missing = [...municipalities].filter((code) => !areas.has(code)).sort((a, b) => a - b)
-  const unmatched = [...areas]
+  const missing = [...municipalities.keys()]
+    .filter((code) => !areas.has(code))
+    .sort((a, b) => a - b)
+  const unmatched = [...areas.keys()]
     .filter((code) => !municipalities.has(code) && !lagoons.includes(code))
     .sort((a, b) => a - b)
   const problems: string[] = []
-  if (missing.length > 0) problems.push(`no boundary for the municipalities ${missing.join(', ')}`)
-  if (unmatched.length > 0) problems.push(`no municipality for the areas ${unmatched.join(', ')}`)
+  if (missing.length > 0) {
+    const listed = missing.map((code) => label(code, municipalities)).join(', ')
+    problems.push(`no boundary for the municipalities ${listed}`)
+  }
+  if (unmatched.length > 0) {
+    const listed = unmatched.map((code) => label(code, areas)).join(', ')
+    problems.push(`no municipality for the areas ${listed}`)
+  }
+  if (problems.length > 0) throw new Error(problems.join('. '))
+}
+
+function idsOf(files: Map<string, Uint8Array>, name: string): number[] {
+  const parsed = JSON.parse(new TextDecoder().decode(files.get(name))) as {
+    objects: { municipios: { geometries: { id: number }[] } }
+  }
+  return parsed.objects.municipios.geometries.map((geometry) => geometry.id)
+}
+
+/**
+ * Checks the written files: each municipality in `br.json` and in its own state's file, each
+ * state with a municipality in a file, and no other area besides the lagoons.
+ */
+export function checkOutput(
+  files: Map<string, Uint8Array>,
+  municipalities: Map<number, string>,
+  lagoons: number[],
+): void {
+  const brazil = idsOf(files, 'br.json')
+  checkJoin(new Map(brazil.map((id) => [id, ''])), municipalities, lagoons)
+  const problems: string[] = []
+  const inStates = new Set<number>()
+  for (const [code, area] of Object.entries(STATE_CODES)) {
+    const name = `${area}.json`
+    const expected = [...municipalities.keys()].some((id) => stateCodeOf(id) === code)
+    if (!files.has(name)) {
+      if (expected) problems.push(`no file for the state ${area}`)
+      continue
+    }
+    for (const id of idsOf(files, name)) {
+      if (stateCodeOf(id) !== code) problems.push(`${name} holds ${label(id, municipalities)}`)
+      inStates.add(id)
+    }
+  }
+  const outside = brazil.filter((id) => !inStates.has(id))
+  if (outside.length > 0) {
+    const listed = outside.map((id) => label(id, municipalities)).join(', ')
+    problems.push(`no state file holds ${listed}`)
+  }
   if (problems.length > 0) throw new Error(problems.join('. '))
 }
 
@@ -178,6 +282,21 @@ function checkBudget(name: string, bytes: Uint8Array, output: OutputSettings): v
   }
 }
 
+/** The settings as the manifest records them. */
+export function describeSettings(settings: GeoSettings) {
+  const output = (values: OutputSettings) => ({
+    intervaloM: values.intervalM,
+    quantizacao: values.quantization,
+    limiteBytes: values.maxBytes,
+  })
+  return {
+    projecao: settings.projection,
+    distanciaMaximaKm: settings.farPartKm,
+    brasil: output(settings.brazil),
+    estado: output(settings.state),
+  }
+}
+
 /** Every staged file by name, in memory. Writes nothing. */
 export async function stageGeoAssets(input: StageInput): Promise<Map<string, Uint8Array>> {
   const source = input.source ?? GEO_SOURCE
@@ -188,21 +307,12 @@ export async function stageGeoAssets(input: StageInput): Promise<Map<string, Uin
     throw new Error(`the source's SHA-512 is ${sha512}, but geo-assets.ts pins ${source.sha512}`)
   }
 
-  // Codes reach these expressions only as numbers.
-  const keep =
-    input.only === undefined ? '' : `-filter "[${[...input.only].join(',')}].indexOf(+CD_MUN) > -1"`
-  const exploded = await mapshaper.applyCommands(
-    `-i source.zip -target ${source.layer} ${keep} -filter-fields CD_MUN,NM_MUN,CD_UF ` +
-      `-each "CD_MUN=+CD_MUN" -proj ${settings.projection} -explode ` +
-      `-each "PART=this.id, AREA=this.area, BOUNDS=this.bounds.join(',')" ` +
-      '-o format=json parts.json -o format=shapefile parts.shp',
-    { 'source.zip': input.zip },
-  )
-  const rows = JSON.parse(text(exploded['parts.json'])) as PartRow[]
-  const areas = new Set(rows.map((row) => row.CD_MUN))
+  const { rows, parts } = await explodeSource(input.zip, source, settings, input.only)
+  checkStates(rows)
+  const areas = new Map(rows.map((row) => [row.CD_MUN, row.NM_MUN]))
   checkJoin(areas, input.municipalities, lagoons)
   const dropped = farParts(rows, settings.farPartKm)
-  checkDrops(dropped, input.expectedDrops ?? EXPECTED_DROPS, areas)
+  checkDrops(dropped, input.expectedDrops ?? EXPECTED_DROPS, new Set(areas.keys()))
 
   const dropFilter =
     dropped.length === 0
@@ -211,7 +321,7 @@ export async function stageGeoAssets(input: StageInput): Promise<Map<string, Uin
   const base = shapefile(
     await mapshaper.applyCommands(
       `-i parts.shp ${dropFilter} -dissolve CD_MUN copy-fields=CD_UF -o format=shapefile base.shp`,
-      shapefile(exploded, 'parts'),
+      parts,
     ),
     'base',
   )
@@ -239,24 +349,29 @@ export async function stageGeoAssets(input: StageInput): Promise<Map<string, Uin
     files.set(`${area}.json`, topology(text(content)))
   }
 
-  checkBudget('br.json', files.get('br.json') as Uint8Array, brazil)
-  for (const [name, bytes] of files) if (name !== 'br.json') checkBudget(name, bytes, state)
+  for (const [name, bytes] of files) {
+    checkBudget(name, bytes, name === 'br.json' ? brazil : state)
+  }
+  checkOutput(files, input.municipalities, lagoons)
 
   const names = [...files.keys()].sort()
   const manifest = {
     edicao: GEO_EDITION,
     fonte: { url: source.url, sha512: source.sha512, bytes: source.bytes },
-    credito: GEO_CREDIT,
+    credito: { pt: GEO_CREDIT.pt, en: GEO_CREDIT.en, termos: GEO_CREDIT.terms },
     commit: input.commit,
+    versaoDados: input.dataVersion,
     mapshaper: MAPSHAPER_VERSION,
-    parametros: settings,
+    parametros: describeSettings(settings),
     partesRemovidas: dropped.map(({ municipio, nome, areaKm2, distanciaKm }) => ({
       municipio,
       nome,
       areaKm2,
       distanciaKm,
     })),
-    areasSemMunicipio: [...areas].filter((code) => lagoons.includes(code)).sort((a, b) => a - b),
+    areasSemMunicipio: [...areas.keys()]
+      .filter((code) => lagoons.includes(code))
+      .sort((a, b) => a - b),
     arquivos: names.map((name) => {
       const bytes = files.get(name) as Uint8Array
       return { path: name, bytes: bytes.length, sha256: sha256Of(bytes) }
@@ -271,11 +386,19 @@ export async function stageGeoAssets(input: StageInput): Promise<Map<string, Uin
   return files
 }
 
-/** Stages into `target`, which it writes only after every check passes. */
+/**
+ * Stages into `target`, which it writes only after every check passes. It replaces an earlier
+ * staging there, and refuses a folder that holds anything else.
+ */
 export async function stageToFolder(
   target: string,
   input: StageInput,
 ): Promise<Map<string, Uint8Array>> {
+  const existing = await readdir(target).catch(() => [] as string[])
+  const foreign = existing.filter((name) => !LISTS.has(name) && !/^[a-z]{2}\.json$/.test(name))
+  if (foreign.length > 0) {
+    throw new Error(`${target} holds ${foreign.join(', ')}, which no staging writes`)
+  }
   const files = await stageGeoAssets(input)
   await rm(target, { recursive: true, force: true })
   await mkdir(target, { recursive: true })
@@ -283,11 +406,12 @@ export async function stageToFolder(
   return files
 }
 
-/** The IBGE codes in a data version's municipality list, after checking it. */
-export async function municipalityCodes(source: DataSource): Promise<Set<number>> {
-  const { municipalities } = await loadVersion(source)
+/** The municipalities with an IBGE code in a data version's checked list, with their names. */
+export async function municipalitiesByCode(source: DataSource): Promise<Map<number, string>> {
+  const { manifest } = await readManifest(source)
+  const municipalities = await readMunicipalities(source, manifest)
   if (source.mode === 'published') {
-    await verifyPublishedAssets(
+    await cachePublishedExtension(
       `${DATA_VERSION.workerUrl}/assets/duckdb-wasm/${duckdbPackageVersion()}`,
     )
   }
@@ -296,8 +420,8 @@ export async function municipalityCodes(source: DataSource): Promise<Set<number>
     const file = path.join(folder, 'municipios.parquet')
     await writeFile(file, municipalities)
     const run = await nodeRunner()
-    const rows = await run('SELECT ibge FROM read_parquet(?) WHERE ibge IS NOT NULL', [file])
-    return new Set(rows.map((row) => Number(row.ibge)))
+    const rows = await run('SELECT ibge, nome FROM read_parquet(?) WHERE ibge IS NOT NULL', [file])
+    return new Map(rows.map((row) => [Number(row.ibge), String(row.nome)]))
   } finally {
     await rm(folder, { recursive: true, force: true })
   }
@@ -324,27 +448,43 @@ async function summarize(files: Map<string, Uint8Array>): Promise<void> {
   await writeFile(summary, `${lines.join('\n')}\n`, { flag: 'a' })
 }
 
-/** Usage: stage-geo-assets.ts <folder> <commit> [--source <zip>] [--fixtures] */
-async function main(args: string[]): Promise<void> {
-  const fixtures = args.includes('--fixtures')
-  const sourceAt = args.indexOf('--source')
-  const sourcePath = sourceAt === -1 ? undefined : args[sourceAt + 1]
-  const [target, commit] = args.filter(
-    (arg, index) => !arg.startsWith('--') && (sourceAt === -1 || index !== sourceAt + 1),
-  )
-  if (target === undefined || commit === undefined) {
-    throw new Error('usage: stage-geo-assets.ts <folder> <commit> [--source <zip>] [--fixtures]')
+const USAGE = 'usage: stage-geo-assets.ts <folder> <commit> [--source <zip>] [--fixtures]'
+
+/** Reads the command line, and fails on an unknown option or a missing value. */
+export function parseCommandLine(args: string[]): {
+  target: string
+  commit: string
+  source?: string
+  fixtures: boolean
+} {
+  const { values, positionals } = parseArgs({
+    args,
+    options: { source: { type: 'string' }, fixtures: { type: 'boolean', default: false } },
+    allowPositionals: true,
+    strict: true,
+  })
+  const [target, commit] = positionals
+  if (positionals.length !== 2 || target === undefined || commit === undefined) {
+    throw new Error(USAGE)
   }
-  const zip = sourcePath === undefined ? await download(GEO_SOURCE.url) : await readFile(sourcePath)
-  const municipalities = await municipalityCodes(fixtures ? fixtureSource() : publishedSource())
-  const files = await stageToFolder(path.resolve(target), {
+  return { target, commit, source: values.source, fixtures: values.fixtures }
+}
+
+async function main(args: string[]): Promise<void> {
+  const options = parseCommandLine(args)
+  const zip =
+    options.source === undefined ? await download(GEO_SOURCE.url) : await readFile(options.source)
+  const source = options.fixtures ? fixtureSource() : publishedSource()
+  const municipalities = await municipalitiesByCode(source)
+  const files = await stageToFolder(path.resolve(options.target), {
     zip,
     municipalities,
-    commit,
-    only: fixtures ? municipalities : undefined,
+    dataVersion: options.fixtures ? 'fixtures' : DATA_VERSION.name,
+    commit: options.commit,
+    only: options.fixtures ? new Set(municipalities.keys()) : undefined,
   })
   await summarize(files)
-  console.error(`staged ${files.size} files into ${target}`)
+  console.error(`staged ${files.size} files into ${options.target}`)
   // The DuckDB runner keeps a Node worker alive.
   process.exit(0)
 }

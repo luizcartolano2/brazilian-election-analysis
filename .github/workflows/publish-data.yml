@@ -184,13 +184,15 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install from the lockfile
-        run: npm ci --ignore-scripts
+      - name: Install from the lockfiles
+        run: |
+          npm ci --ignore-scripts
+          npm ci --ignore-scripts --prefix geo
 
       - name: Stage the boundaries
         id: stage
         run: |
-          npx --no-install tsx scripts/stage-geo-assets.ts ../geo-assets "$GITHUB_SHA"
+          npx --no-install tsx geo/stage-geo-assets.ts ../geo-assets "$GITHUB_SHA"
           echo "build=$(date -u +%Y%m%d)-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

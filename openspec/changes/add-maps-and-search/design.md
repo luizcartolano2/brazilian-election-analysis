@@ -91,8 +91,10 @@ Alternatives rejected:
 
 ### D2. Boundaries are a pinned build, simplified and projected before publishing
 
-The staging script `web/scripts/stage-geo-assets.ts` runs in a publish job with no
-secrets. It uses `mapshaper` at a locked version, and works in this order:
+The staging script `web/geo/stage-geo-assets.ts` runs in a publish job with no secrets.
+It uses `mapshaper` at a locked version, from its own package in `web/geo/`. `mapshaper`
+brings 227 packages, two of them with install scripts, so it stays out of the app's own
+install and out of Vercel's build. The script works in this order:
 
 1. It downloads `BR_Municipios_2025.zip` from IBGE's server and checks the SHA-512
    pinned in `web/scripts/geo-assets.ts`.
@@ -108,11 +110,19 @@ secrets. It uses `mapshaper` at a locked version, and works in this order:
 5. It simplifies and quantizes into `br.json`, for the Brazil map, and one finer
    `<uf>.json` per state. It fails when a file exceeds its budget, counted in raw bytes:
    1 MB for `br.json` and 600 KB for a state.
-6. It reads the pinned data version's `municipios.parquet` through the Worker. It fails
-   when a municipality with an IBGE code has no area, or when an area has no
-   municipality and is not one of IBGE's two lagoon areas in Rio Grande do Sul.
-7. It writes `manifest.json`, with the source URL and SHA-512, the commit, the
-   `mapshaper` version, the settings and the dropped parts, then `SHA256SUMS`.
+6. It reads the pinned data version's manifest and `municipios.parquet` through the
+   Worker, with DuckDB's Parquet extension from the Worker too. It fails when a
+   municipality with an IBGE code has no area, or when an area has no municipality and
+   is not one of IBGE's two lagoon areas in Rio Grande do Sul. It runs this check on the
+   source, and again on the written files, where each municipality must also sit in its
+   own state's file.
+7. It writes `manifest.json`, with the source URL and SHA-512, the commit, the data
+   version of the join check, the `mapshaper` version, the settings, the dropped parts
+   and IBGE's credit, then `SHA256SUMS`.
+
+Each boundary file holds one TopoJSON object, `municipios`, with a `bbox`. Each geometry
+carries the IBGE code as a numeric `id`, and no properties. The lagoon areas carry their
+own codes. A state file takes the app's lowercase area code, such as `pe.json`.
 
 The build id is `<YYYYMMDD>-<short commit>-<run id>`, as for data versions, and the path
 is `assets/geo/ibge-2025/<build id>/`. A fix to the boundaries therefore gets a new path,
