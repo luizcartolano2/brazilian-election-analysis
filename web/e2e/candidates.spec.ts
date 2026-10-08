@@ -82,15 +82,52 @@ test('a President candidate maps every state, and lists municipalities by state'
   ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=25313&cargo=presidente')
 })
 
-test('a Senate candidate maps in steps of 5 points, and says that each voter chose two', async ({
+test('a Senate share map frame holds the candidate, steps of 5, two choices and both credits', async ({
   page,
 }) => {
   const map = await drawnMap(page, '/2026/pe/senador/130/')
   const frame = map.locator('xpath=ancestor::figure')
 
+  await expect(frame).toContainText('HUMBERTO COSTA · Senador · Pernambuco · 1º turno')
+  await expect(frame).toContainText('nos votos válidos de cada município')
   await expect(frame).toContainText('de 0 a 5%')
   await expect(frame).toContainText('25% ou mais')
   await expect(frame).toContainText('Cada eleitor escolheu dois candidatos para duas vagas')
+  await expect(frame).toContainText('Fonte: Tribunal Superior Eleitoral (TSE)')
+  await expect(frame).toContainText('Limites municipais: IBGE')
+})
+
+test("a share map's details show a municipality's votes and share", async ({ page }) => {
+  const map = await drawnMap(page, '/2026/pe/governador/55/')
+  await map.locator('path[data-ibge="2611606"]').hover()
+
+  const details = page.getByTestId('map-details')
+  await expect(details).toContainText('RECIFE')
+  await expect(details).toContainText(/\d+ votos · \d+,\d+%/)
+})
+
+test("a President candidate's filter shows its match inside the folded states", async ({
+  page,
+}) => {
+  await page.goto('/2026/presidente/13/')
+  await page.getByPlaceholder('Filtrar municípios').fill('recife')
+
+  await expect(
+    page.getByTestId('municipality-table').getByRole('link', { name: 'RECIFE' }),
+  ).toBeVisible()
+})
+
+test('a President candidate page says that its map leaves out the votes abroad, and links to them', async ({
+  page,
+}) => {
+  await page.goto('/2026/presidente/13/')
+
+  await expect(page.getByTestId('abroad-note')).toContainText('votos dados no exterior')
+  await expect(
+    page
+      .getByTestId('abroad-note')
+      .getByRole('link', { name: 'Votos para presidente no exterior' }),
+  ).toHaveAttribute('href', '/2026/zz/')
 })
 
 test('a candidacy under appeal shows its votes as under appeal, and no share map', async ({

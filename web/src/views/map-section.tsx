@@ -28,6 +28,8 @@ function mapLabels(
   areaLabel: string,
   data: MapData,
   brazil: boolean,
+  /** Whether each voter chose two candidates, as the summary says. */
+  twoChoices: boolean,
   candidate?: string,
 ): MapLabels {
   const kind = data.kind
@@ -45,8 +47,7 @@ function mapLabels(
     statement: share
       ? t(locale, 'map.shareStatement', { candidate })
       : t(locale, race.proportional ? 'map.statementParty' : 'map.statement'),
-    twoChoices:
-      race.code === 5 ? t(locale, share ? 'map.shareTwoChoices' : 'map.twoChoices') : null,
+    twoChoices: twoChoices ? t(locale, share ? 'map.shareTwoChoices' : 'map.twoChoices') : null,
     bins,
     steps: data.step === undefined ? [] : stepLabels(locale, data.step),
     votesCount: t(locale, 'map.votesCount'),
@@ -155,7 +156,7 @@ export function MapSection({
       area={area}
       race={race}
       data={data}
-      labels={mapLabels(locale, race, areaLabel, data, area === 'br')}
+      labels={mapLabels(locale, race, areaLabel, data, area === 'br', data.kind === 'senate')}
       heading={t(locale, 'map.heading', { race: raceName(race, locale) })}
       table={table}
       collapsed={collapsed}
@@ -166,8 +167,8 @@ export function MapSection({
 }
 
 /**
- * One candidacy's share of the valid votes by municipality, in steps of 10 points, or of 5 for
- * the Senate, where each voter chose two. Null when the candidacy has no valid votes to map.
+ * One candidacy's share of the valid votes by municipality, in steps of 10 points, or of 5
+ * where each voter chose two, as in the Senate. Null when the candidacy has no column to map.
  */
 export function ShareMapSection({
   locale,
@@ -176,6 +177,7 @@ export function ShareMapSection({
   race,
   numero,
   name,
+  choicesPerVoter,
 }: {
   locale: Locale
   area: string
@@ -183,8 +185,10 @@ export function ShareMapSection({
   race: RaceInfo
   numero: number
   name: string
+  choicesPerVoter: number
 }) {
-  const step = race.code === 5 ? 5 : 10
+  const twoChoices = choicesPerVoter > 1
+  const step = twoChoices ? 5 : 10
   const data = shareMap(getCandidateVotes(area, race.code), numero, name, step)
   if (data === null) return null
   return (
@@ -193,7 +197,7 @@ export function ShareMapSection({
       area={area}
       race={race}
       data={data}
-      labels={mapLabels(locale, race, areaLabel, data, false, name)}
+      labels={mapLabels(locale, race, areaLabel, data, false, twoChoices, name)}
       heading={t(locale, 'map.shareHeading')}
       table
     />

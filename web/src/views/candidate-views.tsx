@@ -136,7 +136,16 @@ export function CandidateView({
           race={race}
           numero={candidate.numero}
           name={candidate.nome}
+          choicesPerVoter={summary.escolhas_por_eleitor}
         />
+      )}
+      {mapped && race.code === PRESIDENT && (
+        <p className="mt-4 text-sm text-slate-700" data-testid="abroad-note">
+          {t(locale, 'candidate.abroadNote')}{' '}
+          <AppLink href={localePath(locale, `/${YEAR}/${ABROAD.code}/`)} className="underline">
+            {t(locale, 'brazil.abroadLink')}
+          </AppLink>
+        </p>
       )}
       <p className="mt-6 text-sm">
         <AppLink href={localePath(locale, racePagePath(candidacy))} className="underline">

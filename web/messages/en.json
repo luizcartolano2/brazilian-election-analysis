@@ -177,5 +177,6 @@
   "candidate.underAppeal": "This candidacy's votes are under appeal. TSE records them as “{status}” and does not count them among the valid votes, so the page shows no share and no map.",
   "candidate.twoChoices": "Each voter chose two candidates for two seats. The share is of all the valid votes in the race.",
   "candidate.oneMunicipality": "This race has a single municipality, so the page shows no map.",
-  "candidate.allCandidates": "See every candidate for {race} · {area}"
+  "candidate.allCandidates": "See every candidate for {race} · {area}",
+  "candidate.abroadNote": "The map and the list leave out the votes cast abroad, which count in the total above."
 }

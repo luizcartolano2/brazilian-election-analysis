@@ -122,8 +122,9 @@ municipality's two most voted candidates with their shares, and a visitor SHALL 
 to sort the list by name. A visitor SHALL be able to filter any list by part of a name,
 ignoring case and accents. On the Brazil page, each state SHALL link to its
 President race page, which lists that state's municipalities for the President race. A
-candidate page SHALL list each municipality's votes and share for that candidate,
-grouped by state on a President candidate's page.
+candidate page with a share map SHALL list each municipality's votes and share for that
+candidate, grouped by state on a President candidate's page, and a visitor SHALL be able
+to sort that list by name or by share. A filter SHALL show its matches in every group.
 
 #### Scenario: The list without JavaScript
 - **WHEN** a Governor race page is loaded with JavaScript disabled
@@ -195,8 +196,10 @@ votes and map that share by municipality. The steps are 10 percentage points up 
 or more for President and Governor, and 5 points up to 25 or more for the Senate,
 because each Senate voter chose two candidates. A candidacy whose votes TSE annulled sub
 judice SHALL show its votes as under appeal, with TSE's status, and no share map. In an
-area with one municipality, the page SHALL show no share map. The race page SHALL link
-to each of these pages.
+area with one municipality, the page SHALL show no share map. A President candidate's
+page SHALL say that its map leaves out the votes cast abroad, and link to them. Every
+results table of a President, Governor or Senate race SHALL link each candidate to their
+page.
 
 #### Scenario: A governor candidate
 - **WHEN** a visitor opens the page of a Governor candidate in Bahia

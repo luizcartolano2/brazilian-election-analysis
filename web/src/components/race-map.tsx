@@ -502,7 +502,8 @@ function MunicipalityTable({
       )}
       {groups.map(([area, group]) =>
         byState ? (
-          <details key={area} className="mt-2">
+          // A filter opens every state, so that a match shows wherever it is.
+          <details key={area} className="mt-2" open={query !== ''}>
             <summary className="cursor-pointer text-sm underline">
               {stateLabel(area)} · {formatInteger(locale, group.length)}
             </summary>

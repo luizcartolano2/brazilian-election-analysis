@@ -177,5 +177,6 @@
   "candidate.underAppeal": "Os votos desta candidatura estão sob recurso. O TSE os registra como “{status}” e não os conta entre os votos válidos, por isso a página não mostra parcela nem mapa.",
   "candidate.twoChoices": "Cada eleitor escolheu dois candidatos para duas vagas. A parcela é sobre todos os votos válidos da disputa.",
   "candidate.oneMunicipality": "Esta disputa tem um único município, por isso a página não mostra mapa.",
-  "candidate.allCandidates": "Ver todos os candidatos a {race} · {area}"
+  "candidate.allCandidates": "Ver todos os candidatos a {race} · {area}",
+  "candidate.abroadNote": "O mapa e a lista não trazem os votos dados no exterior, que contam no total acima."
 }
