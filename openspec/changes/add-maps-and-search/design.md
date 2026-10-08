@@ -264,8 +264,12 @@ Brazil page, each state's row gains a link to its President race page.
 
 ### D8. Worker
 
-`PREFIXES` in `worker/src/keys.ts` gains `["assets", "geo"]`. The segment and length
-rules stay. `.json` already has its content type, so the boundaries use that extension.
+`PREFIXES` in `worker/src/keys.ts` gains `["assets", "geo", "ibge-2025"]`. The prefix
+names the edition, so that the build id is the version segment, as it is for the data
+versions and the DuckDB assets. The Worker then refuses a build path itself and a file
+outside a build without reading storage. A new IBGE edition needs its own prefix, in the
+same change that stages it. The segment and length rules stay. `.json` already has its
+content type, so the boundaries use that extension.
 
 ### D9. A size gate on the static export
 

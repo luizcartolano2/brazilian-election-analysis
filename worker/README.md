@@ -2,8 +2,8 @@
 
 Serves published data from the R2 bucket `eleicoes-data` to the app. It answers `GET` and
 `HEAD` for files under `v/<version>/`, `assets/duckdb-wasm/<version>/` and
-`assets/geo/<edition>/`, and it honors a single byte range. It sends CORS headers to the app's origins only. It never lists, writes
-or deletes anything.
+`assets/geo/ibge-2025/<build id>/`, and it honors a single byte range. It sends CORS headers
+to the app's origins only. It never lists, writes or deletes anything.
 
 ## Test it
 

@@ -91,6 +91,7 @@ describe("paths that are not files", () => {
     "/assets/geo/",
     "/assets/geo/ibge-2025",
     "/assets/geo/ibge-2025/",
+    `/${GEO_BUILD}`,
     `/${GEO_BUILD}/`,
   ])("returns 404 and no listing for %s", async (path) => {
     const response = await requestWith({ DATA: UNREADABLE_BUCKET }, path);
@@ -104,9 +105,11 @@ describe("paths that are not files", () => {
     "/data/2026/t1/resumo/br.json",
     "/assets/other/1.0.0/file.wasm",
     "/assets/1.29.0/duckdb-eh.wasm",
-    "/assets/geography/ibge-2025/20261010-abc1234-37000000000/br.json",
-    "/assets/GEO/ibge-2025/20261010-abc1234-37000000000/br.json",
-    "/assets/maps/ibge-2025/20261010-abc1234-37000000000/br.json",
+    `/${GEO_FILE.replace("assets/geo/", "assets/geography/")}`,
+    `/${GEO_FILE.replace("assets/geo/", "assets/GEO/")}`,
+    `/${GEO_FILE.replace("assets/geo/", "assets/maps/")}`,
+    `/${GEO_FILE.replace("ibge-2025", "ibge-2024")}`,
+    "/assets/geo/ibge-2025/br.json",
     "/V/20261005-abc1234-17/manifest.json",
     "/vv/20261005-abc1234-17/manifest.json",
   ])("returns 404 without reading storage for %s, outside the allowed prefixes", async (path) => {
