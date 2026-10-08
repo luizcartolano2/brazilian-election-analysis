@@ -17,7 +17,6 @@ import {
   type RaceInfo,
 } from '@/lib/elections'
 import { formatInteger, formatShare, localePath, t, type Locale } from '@/lib/i18n'
-import { displayName } from '@/lib/names'
 import { VALID, type SummaryCandidate, type SummaryRace } from '@/lib/results'
 import { hasMap, ShareMapSection } from '@/views/map-section'
 
@@ -56,7 +55,7 @@ function racePagePath(candidacy: Candidacy): string {
 
 function crumbs(locale: Locale, candidacy: Candidacy): Crumb[] {
   const brazil = { label: t(locale, 'area.brazil'), path: `/${YEAR}/` }
-  const name = { label: displayName(candidacy.candidate.nome) }
+  const name = { label: candidacy.candidate.nome }
   if (candidacy.race.code === PRESIDENT) return [brazil, name]
   return [
     brazil,
@@ -91,7 +90,7 @@ export function CandidateView({
       path={candidatePath(race, candidacy.area, candidate.numero)}
       crumbs={crumbs(locale, candidacy)}
     >
-      <h1 className="text-2xl font-semibold break-words">{displayName(candidate.nome)}</h1>
+      <h1 className="text-2xl font-semibold break-words">{candidate.nome}</h1>
       <p className="mt-1 text-sm text-slate-700">
         {candidate.partido} · {candidate.numero} ·{' '}
         {t(locale, 'race.inArea', { race: raceName(race, locale), area: where })}
@@ -136,7 +135,7 @@ export function CandidateView({
           areaLabel={where}
           race={race}
           numero={candidate.numero}
-          name={displayName(candidate.nome)}
+          name={candidate.nome}
           choicesPerVoter={summary.escolhas_por_eleitor}
         />
       )}
@@ -160,7 +159,7 @@ export function CandidateView({
 export function candidateTitle(locale: Locale, area: string, slug: string, numero: string): string {
   const candidacy = findCandidacy(area, slug, numero)
   if (candidacy === undefined) return t(locale, 'brazil.title')
-  return `${displayName(candidacy.candidate.nome)} · ${raceName(candidacy.race, locale)} · ${areaLabel(locale, candidacy.area)}`
+  return `${candidacy.candidate.nome} · ${raceName(candidacy.race, locale)} · ${areaLabel(locale, candidacy.area)}`
 }
 
 export function candidatePagePath(area: string, slug: string, numero: string): string {

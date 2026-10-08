@@ -1,4 +1,5 @@
 /** Map values by municipality, the checks that tie them to the summaries, and the margin bins. */
+import { displayName } from './names'
 import { VALID, VALID_LIST, type SummaryRace } from './results'
 
 export const CANDIDATE = 1
@@ -46,6 +47,39 @@ export const SHARE_STEPS = 6
 export interface CandidateVotes {
   numbers: number[]
   rows: [number, number, string, number, ...number[]][]
+}
+
+// A majoritarian unit reads "NAME (PARTY)". A deputy race's units are parties and federations.
+function displayUnit(unit: string): string {
+  const open = unit.lastIndexOf(' (')
+  return open === -1 ? displayName(unit) : displayName(unit.slice(0, open)) + unit.slice(open)
+}
+
+/** The map with municipality names, and a majoritarian race's candidate names, in title case. */
+export function withDisplayNames(data: MapData, proportional: boolean): MapData {
+  return {
+    ...data,
+    units: proportional ? data.units : data.units.map(displayUnit),
+    rows: data.rows.map(([ibge, municipio, nome, ...rest]) => [
+      ibge,
+      municipio,
+      displayName(nome),
+      ...rest,
+    ]),
+  }
+}
+
+/** The votes with municipality names in title case. */
+export function votesWithDisplayNames(votes: CandidateVotes): CandidateVotes {
+  return {
+    ...votes,
+    rows: votes.rows.map(([ibge, municipio, nome, ...rest]) => [
+      ibge,
+      municipio,
+      displayName(nome),
+      ...rest,
+    ]),
+  }
 }
 
 /** One candidate's column as a share map. A row's leader is the candidate, with its votes. */

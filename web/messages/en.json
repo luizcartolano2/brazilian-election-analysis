@@ -182,5 +182,5 @@
   "site.firstRound": "Round 1",
   "nav.states": "States",
   "sources.namesTitle": "Names",
-  "sources.namesNote": "TSE publishes the names of candidates, municipalities and cities abroad in capital letters. This site shows each word with a capital first letter and the other letters in lower case. It changes no letter, accent or word order. Acronyms such as PT and PSOL stay in capitals."
+  "sources.namesNote": "TSE publishes the names of candidates, municipalities and cities abroad in capital letters. This site shows them with capital initials, with particles such as \"da\" and \"e\" in lower case and acronyms such as PT and PSOL in capitals. It changes no letter, accent or word order."
 }

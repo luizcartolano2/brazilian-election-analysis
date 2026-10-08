@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { DrilldownConfig } from './drilldown/config'
 import { COUNCIL, raceByCode } from './elections'
 import type { Manifest } from './manifest'
-import type { CandidateVotes, MapData } from './maps'
+import { votesWithDisplayNames, withDisplayNames, type CandidateVotes, type MapData } from './maps'
 import { displayName } from './names'
 import type { Summary } from './results'
 
@@ -56,11 +56,21 @@ export function getSourceInfo(): DataSourceInfo {
   return source
 }
 
-/** `area` is `br`, a state code or `zz`, in lower case. */
+/** `area` is `br`, a state code or `zz`, in lower case. Candidates' names come in title case. */
 export function getSummary(area: string): Summary {
   let summary = summaries.get(area)
   if (summary === undefined) {
-    summary = readJson<Summary>(`resumo/${area}.json`)
+    const read = readJson<Summary>(`resumo/${area}.json`)
+    summary = {
+      ...read,
+      corridas: read.corridas.map((race) => ({
+        ...race,
+        candidatos: race.candidatos.map((candidate) => ({
+          ...candidate,
+          nome: displayName(candidate.nome),
+        })),
+      })),
+    }
     summaries.set(area, summary)
   }
   return summary
@@ -83,12 +93,6 @@ export function getMunicipalities(area: string): Municipality[] {
   return municipalities[area] ?? []
 }
 
-// A majoritarian unit reads "NAME (PARTY)". A deputy race's units are parties and federations.
-function displayUnit(unit: string): string {
-  const open = unit.lastIndexOf(' (')
-  return open === -1 ? displayName(unit) : displayName(unit.slice(0, open)) + unit.slice(open)
-}
-
 const maps = new Map<string, MapData>()
 
 /** A race's values by municipality: `br` holds the President map of Brazil. */
@@ -96,18 +100,10 @@ export function getRaceMap(area: string, race: number): MapData {
   const key = `${area}/${race}`
   let data = maps.get(key)
   if (data === undefined) {
-    const read = readJson<MapData>(`mapas/${key}.json`)
-    const proportional = raceByCode(race)?.proportional ?? true
-    data = {
-      ...read,
-      units: proportional ? read.units : read.units.map(displayUnit),
-      rows: read.rows.map(([ibge, municipio, nome, ...rest]) => [
-        ibge,
-        municipio,
-        displayName(nome),
-        ...rest,
-      ]),
-    }
+    data = withDisplayNames(
+      readJson<MapData>(`mapas/${key}.json`),
+      raceByCode(race)?.proportional ?? true,
+    )
     maps.set(key, data)
   }
   return data
@@ -120,16 +116,7 @@ export function getCandidateVotes(area: string, race: number): CandidateVotes {
   const key = `${area}/${race}-votos`
   let data = votes.get(key)
   if (data === undefined) {
-    const read = readJson<CandidateVotes>(`mapas/${key}.json`)
-    data = {
-      ...read,
-      rows: read.rows.map(([ibge, municipio, nome, ...rest]) => [
-        ibge,
-        municipio,
-        displayName(nome),
-        ...rest,
-      ]),
-    }
+    data = votesWithDisplayNames(readJson<CandidateVotes>(`mapas/${key}.json`))
     votes.set(key, data)
   }
   return data

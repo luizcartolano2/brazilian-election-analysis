@@ -12,6 +12,8 @@ import {
   stepOf,
   type MapRow,
   type VoteTotal,
+  votesWithDisplayNames,
+  withDisplayNames,
 } from './maps'
 import { UNDER_APPEAL, VALID, VALID_LIST, type SummaryRace } from './results'
 
@@ -297,5 +299,32 @@ describe('shareMap and stepOf', () => {
 
     expect(fillOf(map?.rows[1] as MapRow, 'share', 10)).toEqual({ kind: 'none' })
     expect(fillOf(map?.rows[0] as MapRow, 'share', 10)).toEqual({ kind: 'share', step: 4 })
+  })
+})
+
+describe('names in title case', () => {
+  const row: MapRow = [2611606, 25313, 'RECIFE', 0, 10, 1, 5, 20]
+
+  it("recases municipalities and a majoritarian race's candidates, and keeps the party", () => {
+    const data = withDisplayNames(
+      { kind: 'margin', units: ['RAQUEL LYRA (PSD)', 'JOÃO CAMPOS (PSB)'], rows: [row] },
+      false,
+    )
+    expect(data.units).toEqual(['Raquel Lyra (PSD)', 'João Campos (PSB)'])
+    expect(data.rows[0]?.[2]).toBe('Recife')
+  })
+
+  it("keeps a deputy race's parties and federations as TSE writes them", () => {
+    const data = withDisplayNames({ kind: 'margin', units: ['FE BRASIL', 'PL'], rows: [row] }, true)
+    expect(data.units).toEqual(['FE BRASIL', 'PL'])
+    expect(data.rows[0]?.[2]).toBe('Recife')
+  })
+
+  it("recases the municipalities of a candidate's votes", () => {
+    const votes = votesWithDisplayNames({
+      numbers: [55],
+      rows: [[2611606, 25313, 'RECIFE', 20, 10]],
+    })
+    expect(votes.rows[0]?.[2]).toBe('Recife')
   })
 })

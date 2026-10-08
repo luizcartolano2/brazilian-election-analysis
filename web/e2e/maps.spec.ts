@@ -148,7 +148,7 @@ test.describe('on a phone', () => {
 
     const details = page.getByTestId('map-details')
     await expect(details).toContainText('Recife')
-    await expect(details.getByRole('link', { name: 'Ver RECIFE' })).toHaveAttribute(
+    await expect(details.getByRole('link', { name: 'Ver Recife', exact: true })).toHaveAttribute(
       'href',
       '/2026/municipio/?uf=pe&mu=25313&cargo=governador',
     )

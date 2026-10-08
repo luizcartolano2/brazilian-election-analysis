@@ -12,8 +12,6 @@
   --color-muted: #4b5563;
   --color-surface: #f3f4f1;
   --color-line: #e3e5e0;
-  --radius-card: 14px;
-  --radius-panel: 18px;
 }
 
 @layer base {

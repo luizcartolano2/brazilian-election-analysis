@@ -30,6 +30,9 @@ describe('displayName', () => {
     ['JOÃO DO BH', 'João do BH'],
     ['DE ASSIS', 'De Assis'],
     ['CAPITÃO ÉDSON JR', 'Capitão Édson Jr'],
+    ['LÈ MÖR', 'Lè Mör'],
+    ['LYLY DO POVO', 'Lyly do Povo'],
+    ['ZÉ,MARIA', 'Zé,Maria'],
   ])('handles punctuation, titles and particles: %s', (name, expected) => {
     expect(displayName(name)).toBe(expected)
   })

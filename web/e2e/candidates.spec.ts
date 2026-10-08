@@ -78,7 +78,7 @@ test('a President candidate maps every state, and lists municipalities by state'
   await expect(page.getByText('Pernambuco · 3')).toBeVisible()
   await page.getByText('Pernambuco · 3').click()
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife' }),
+    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife', exact: true }),
   ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=25313&cargo=presidente')
 })
 
@@ -113,7 +113,7 @@ test("a President candidate's filter shows its match inside the folded states", 
   await page.getByPlaceholder('Filtrar municípios').fill('recife')
 
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife' }),
+    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife', exact: true }),
   ).toBeVisible()
 })
 

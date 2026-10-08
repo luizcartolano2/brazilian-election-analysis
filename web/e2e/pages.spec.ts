@@ -28,7 +28,7 @@ test.describe('under the production headers', () => {
         const kind = request.resourceType()
         if (
           (kind === 'font' || kind === 'stylesheet') &&
-          new URL(request.url()).origin !== baseURL
+          new URL(request.url()).origin !== new URL(baseURL ?? '').origin
         ) {
           elsewhere.push(request.url())
         }

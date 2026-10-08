@@ -9,14 +9,17 @@ test('the fonts come from the site, and the text shows without them', async ({ p
   await page.goto('/2026/')
   await page.evaluate(() => document.fonts.ready)
   expect(fonts.length).toBeGreaterThan(0)
-  // next/font adds a fallback face for each font, drawn from a local system font.
-  const faces = await page.evaluate(() =>
-    [...document.fonts].map((face) => ({ family: face.family, status: face.status })),
-  )
-  const own = faces.filter((face) => !face.family.includes('Fallback'))
-  const fallback = faces.filter((face) => face.family.includes('Fallback'))
-  expect(own.map((face) => face.status)).toEqual(['error', 'error'])
-  expect(fallback.length).toBe(2)
+  // The first family of the text and of a heading is the site's own font. The rest fall back.
+  const statuses = await page.evaluate(() => {
+    const unquote = (family: string) => family.trim().replace(/^["']|["']$/g, '')
+    const own = [document.body, document.querySelector('h1')].map((element) =>
+      unquote(getComputedStyle(element as Element).fontFamily.split(',')[0] ?? ''),
+    )
+    return [...document.fonts]
+      .filter((face) => own.includes(unquote(face.family)))
+      .map((face) => face.status)
+  })
+  expect(statuses).toEqual(['error', 'error'])
   const heading = page.getByRole('heading', { level: 1 })
   await expect(heading).toBeVisible()
   expect((await heading.boundingBox())?.height).toBeGreaterThan(10)
