@@ -22,6 +22,7 @@ import {
   describeSettings,
   explodeSource,
   farParts,
+  loadSource,
   municipalitiesByCode,
   parseCommandLine,
   stageGeoAssets,
@@ -375,6 +376,33 @@ describe('stageToFolder', () => {
     const files = await stageToFolder(target, input())
 
     expect((await readdir(target)).sort()).toEqual([...files.keys()].sort())
+  })
+})
+
+describe('loadSource', () => {
+  const URL = 'https://ibge.test/source.zip'
+
+  it('gives the same plain Uint8Array from a file and from a download, and both stage', async () => {
+    const file = path.join(await mkdtemp(path.join(os.tmpdir(), 'geo-')), 'source.zip')
+    await writeFile(file, plain.zip)
+    const fromFile = await loadSource(file)
+    const downloaded = await loadSource(
+      undefined,
+      URL,
+      async () => new Response(new Uint8Array(plain.zip)),
+    )
+
+    for (const zip of [fromFile, downloaded]) {
+      expect(Buffer.isBuffer(zip)).toBe(false)
+      expect(zip).toEqual(new Uint8Array(plain.zip))
+      expect((await stageGeoAssets(input({ zip }))).has('br.json')).toBe(true)
+    }
+  })
+
+  it('fails on a download that does not succeed', async () => {
+    const failing = async () => new Response(null, { status: 503 })
+
+    await expect(loadSource(undefined, URL, failing)).rejects.toThrow(/HTTP 503/)
   })
 })
 
