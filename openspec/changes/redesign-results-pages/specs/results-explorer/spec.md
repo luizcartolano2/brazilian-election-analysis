@@ -126,8 +126,9 @@ abroad in title case: each word starts with a capital letter and continues in lo
 case. The Portuguese particles "da", "das", "de", "do", "dos" and "e" SHALL stay in
 lower case unless they start the name, and so SHALL a "d" before an apostrophe, as in
 "Pau d'Arco". A word with no vowel, such as PT or BH, SHALL keep its capitals, except
-the abbreviated titles CMDT, DR, JR, SGT and SR, which take title case. The vowels are A,
-E, I, O, U and Y, with or without an accent. An acronym that
+the abbreviated titles CMDT, DR, JR, PR, SGT and SR, which take title case. The vowels are
+A, E, I, O, U and Y, with or without an accent. A Roman numeral of two letters or more,
+written with I, V and X, such as II or XV, SHALL keep its capitals. An acronym that
 holds a vowel SHALL keep its capitals when it is on a written list, which holds at least
 PCO, PSOL, PSTU, CUT, ONG, SAMU and COHAB. Every other word takes title case, a party
 name that is also a common word, such as NOVO, included. A letter after any character
@@ -158,8 +159,12 @@ the typed text.
 - **THEN** the site shows "Ze da ONG"
 
 #### Scenario: An abbreviated title
-- **WHEN** TSE's ballot names are "DR. ANA LIMA" and "DR.ANA LIMA"
-- **THEN** the site shows "Dr. Ana Lima" and "Dr.Ana Lima"
+- **WHEN** TSE's ballot names are "DR. ANA LIMA", "DR.ANA LIMA" and "PR. ANA LIMA"
+- **THEN** the site shows "Dr. Ana Lima", "Dr.Ana Lima" and "Pr. Ana Lima"
+
+#### Scenario: A Roman numeral
+- **WHEN** TSE's municipality names are "PEDRO II" and "PIO IX"
+- **THEN** the site shows "Pedro II" and "Pio IX"
 
 #### Scenario: Two words joined by a slash
 - **WHEN** TSE's ballot name is "LU ENFERMEIRA/PROFESSORA"

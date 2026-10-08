@@ -188,7 +188,7 @@ Alternatives:
 splits each word into segments at any character that is neither a letter nor a digit,
 and applies the rule to each segment. It compares a segment
 without its ordinal marks, so "DRª" counts as "DR". The lists of particles, titles and
-acronyms are constants next to it.
+acronyms, and the pattern of a Roman numeral, are constants next to it.
 
 The function applies to candidates' ballot names, to municipality names and to the
 names of cities abroad. It runs where those names enter the views:

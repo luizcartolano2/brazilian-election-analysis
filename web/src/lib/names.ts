@@ -2,7 +2,7 @@
 
 const PARTICLES = new Set(['DA', 'DAS', 'DE', 'DO', 'DOS', 'E'])
 // Abbreviated titles, which have no vowel and so would otherwise stay in capitals.
-const TITLES = new Set(['CMDT', 'DR', 'JR', 'SGT', 'SR'])
+const TITLES = new Set(['CMDT', 'DR', 'JR', 'PR', 'SGT', 'SR'])
 // Acronyms that hold a vowel. A party name that is also a word, such as NOVO, is not one.
 const ACRONYMS = new Set(['COHAB', 'CUT', 'ONG', 'PCO', 'PSOL', 'PSTU', 'SAMU'])
 
@@ -12,6 +12,7 @@ const VOWEL = /[AEIOUY]/u
 const MARKS = /\p{M}/gu
 const ORDINALS = /[ªº°]/gu
 const APOSTROPHE = /^['’]/u
+const ROMAN = /^(?=[IVX]{2})X{0,3}(IX|IV|V?I{0,3})$/u
 
 function capitalize(segment: string): string {
   const lower = segment.toLocaleLowerCase('pt-BR')
@@ -21,6 +22,7 @@ function capitalize(segment: string): string {
 function recaseSegment(segment: string): string {
   const core = segment.replace(ORDINALS, '').toLocaleUpperCase('pt-BR')
   if (TITLES.has(core)) return capitalize(segment)
+  if (ROMAN.test(core)) return segment
   if (ACRONYMS.has(core) || !VOWEL.test(core.normalize('NFD').replace(MARKS, ''))) return segment
   return capitalize(segment)
 }

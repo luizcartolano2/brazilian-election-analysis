@@ -11,6 +11,9 @@ describe('displayName', () => {
     ['ZE DA ONG', 'Ze da ONG'],
     ['DR. ANA LIMA', 'Dr. Ana Lima'],
     ['DR.ANA LIMA', 'Dr.Ana Lima'],
+    ['PR. ANA LIMA', 'Pr. Ana Lima'],
+    ['PEDRO II', 'Pedro II'],
+    ['PIO IX', 'Pio IX'],
     ['LU ENFERMEIRA/PROFESSORA', 'Lu Enfermeira/Professora'],
     ['ABREU E LIMA', 'Abreu e Lima'],
     ["PAU D'ARCO", "Pau d'Arco"],
@@ -32,6 +35,11 @@ describe('displayName', () => {
     ['CAPITÃO ÉDSON JR', 'Capitão Édson Jr'],
     ['LÈ MÖR', 'Lè Mör'],
     ['LYLY DO POVO', 'Lyly do Povo'],
+    ['PR ANA', 'Pr Ana'],
+    ['PRª LÚCIA', 'Prª Lúcia'],
+    ['XV DE NOVEMBRO', 'XV de Novembro'],
+    ['LUÍS XIV', 'Luís XIV'],
+    ['LI VIVI', 'Li Vivi'],
     ['ZÉ,MARIA', 'Zé,Maria'],
   ])('handles punctuation, titles and particles: %s', (name, expected) => {
     expect(displayName(name)).toBe(expected)
