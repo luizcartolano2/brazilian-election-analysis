@@ -155,13 +155,13 @@ describe('hitHref', () => {
     expect(lisbon && hitHref(lisbon, 'en')).toBe('/en/2026/municipio/?uf=zz&mu=29505')
   })
 
-  it('sends a candidacy to its row on the race page', () => {
+  it('sends President, Governor and Senate candidacies to their pages, and a deputy to its row', () => {
     const [lula] = search(index(), 'lula').hits
     const [deputy] = search(index(), 'abimael').hits
     const [senator] = search(index(), 'humberto').hits
-    expect(lula && hitHref(lula, 'pt')).toBe('/2026/#candidato-13')
+    expect(lula && hitHref(lula, 'pt')).toBe('/2026/presidente/13/')
     expect(deputy && hitHref(deputy, 'pt')).toBe('/2026/pe/deputado-estadual/#candidato-22622')
-    expect(senator && hitHref(senator, 'en')).toBe('/en/2026/pe/senador/#candidato-130')
+    expect(senator && hitHref(senator, 'en')).toBe('/en/2026/pe/senador/130/')
     expect(deputy && hitHref(deputy, 'pt').endsWith(`#${candidateRowId(22622)}`)).toBe(true)
   })
 

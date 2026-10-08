@@ -30,11 +30,14 @@ export function FullResults({
   info,
   results,
   caption,
+  candidateHref,
 }: {
   locale: Locale
   info: RaceInfo
   results: RaceResults
   caption: string
+  /** A candidacy's own page, in the races that have them. */
+  candidateHref?: (number: number) => string
 }) {
   return (
     <>
@@ -46,9 +49,10 @@ export function FullResults({
           validVotes={results.totals.valid}
           caption={caption}
           withRowIds
+          candidateHref={candidateHref}
         />
       </div>
-      <UnderAppealTable locale={locale} results={results} />
+      <UnderAppealTable locale={locale} results={results} candidateHref={candidateHref} />
       <PartyTable locale={locale} results={results} />
       <TotalsTable locale={locale} results={results} />
     </>

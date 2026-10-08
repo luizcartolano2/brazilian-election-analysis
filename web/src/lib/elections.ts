@@ -174,3 +174,13 @@ export function raceName(race: RaceInfo, locale: Locale): string {
 export const COUNCIL = { area: 'pe', municipality: 30015, race: 25, seats: 7, choicesPerVoter: 1 }
 
 export const PRESIDENT = 1
+
+/** The races whose candidacies each get a page: President, Governor and Senate. */
+export const CANDIDATE_PAGE_RACES: ReadonlySet<number> = new Set([1, 3, 5])
+
+/** A candidacy's page, as a Portuguese address. President has one page, for Brazil. */
+export function candidatePath(race: RaceInfo, area: string, number: number): string {
+  return race.code === PRESIDENT
+    ? `/${YEAR}/presidente/${number}/`
+    : `/${YEAR}/${area}/${race.slug}/${number}/`
+}

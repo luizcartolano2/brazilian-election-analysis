@@ -55,9 +55,9 @@ test('a state page names the race its turnout comes from', async ({ page }) => {
 test('a state page counts every candidate its race page lists', async ({ page }) => {
   const senate = summary('pe').corridas.find((entry) => entry.cargo === 5)
   await page.goto('/2026/pe/')
-  await expect(page.locator('[data-race="senador"]').getByRole('link')).toHaveText(
-    `Ver todos os ${senate?.candidatos.length} candidatos`,
-  )
+  await expect(
+    page.locator('[data-race="senador"]').getByRole('link', { name: /^Ver todos os/ }),
+  ).toHaveText(`Ver todos os ${senate?.candidatos.length} candidatos`)
 })
 
 test('an unknown address gets a 404 page in both languages, with the credit', async ({ page }) => {

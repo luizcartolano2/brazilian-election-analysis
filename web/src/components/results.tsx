@@ -1,3 +1,4 @@
+import { AppLink } from '@/components/app-link'
 import { formatInteger, formatShare, t, type Locale, type MessageKey } from '@/lib/i18n'
 import { isElected, isInRunoff, type CandidateRow, type RaceResults } from '@/lib/results'
 import { candidateRowId } from '@/lib/search'
@@ -56,6 +57,7 @@ export function CandidateTable({
   validVotes,
   caption,
   withRowIds = false,
+  candidateHref,
 }: {
   locale: Locale
   candidates: CandidateRow[]
@@ -63,6 +65,8 @@ export function CandidateTable({
   caption: string
   /** Only one table on a page can carry the ids. */
   withRowIds?: boolean
+  /** A candidacy's own page, in the races that have them. */
+  candidateHref?: (number: number) => string
 }) {
   return (
     <table className="w-full table-fixed border-collapse text-sm">
@@ -88,7 +92,9 @@ export function CandidateTable({
             className="scroll-mt-4 border-b border-slate-100 align-top"
           >
             <td className="py-2 pr-2">
-              <div className="font-medium break-words">{candidate.name}</div>
+              <div className="font-medium break-words">
+                <CandidateName candidate={candidate} href={candidateHref} />
+              </div>
               <div className="flex flex-wrap items-center gap-x-2 text-xs text-slate-600">
                 <span>
                   {candidate.party} · {candidate.number}
@@ -110,7 +116,30 @@ export function CandidateTable({
   )
 }
 
-export function UnderAppealTable({ locale, results }: { locale: Locale; results: RaceResults }) {
+function CandidateName({
+  candidate,
+  href,
+}: {
+  candidate: CandidateRow
+  href?: (number: number) => string
+}) {
+  if (href === undefined) return <>{candidate.name}</>
+  return (
+    <AppLink href={href(candidate.number)} className="underline">
+      {candidate.name}
+    </AppLink>
+  )
+}
+
+export function UnderAppealTable({
+  locale,
+  results,
+  candidateHref,
+}: {
+  locale: Locale
+  results: RaceResults
+  candidateHref?: (number: number) => string
+}) {
   if (
     results.candidatesUnderAppeal.length === 0 &&
     results.partiesUnderAppeal.length === 0 &&
@@ -138,7 +167,9 @@ export function UnderAppealTable({ locale, results }: { locale: Locale; results:
               className="scroll-mt-4 border-b border-slate-100"
             >
               <td className="py-1.5 pr-2">
-                <span className="font-medium break-words">{candidate.name}</span>{' '}
+                <span className="font-medium break-words">
+                  <CandidateName candidate={candidate} href={candidateHref} />
+                </span>{' '}
                 <span className="text-xs text-slate-600">
                   {candidate.party} · {candidate.number}
                 </span>{' '}

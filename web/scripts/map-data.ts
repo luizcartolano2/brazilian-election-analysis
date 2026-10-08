@@ -7,12 +7,21 @@ import os from 'node:os'
 import path from 'node:path'
 import type { Municipality } from '../src/lib/data'
 import type { Run } from '../src/lib/drilldown/queries'
-import { ABROAD, PRESIDENT, raceByCode, ROUND, YEAR } from '../src/lib/elections'
+import {
+  ABROAD,
+  CANDIDATE_PAGE_RACES,
+  PRESIDENT,
+  raceByCode,
+  ROUND,
+  YEAR,
+} from '../src/lib/elections'
 import { verifyFile, type Manifest } from '../src/lib/manifest'
 import {
   checkRaceSums,
+  CANDIDATE,
   mapRows,
   raceUnits,
+  type CandidateVotes,
   type MapData,
   type UnitVotes,
   type VoteTotal,
@@ -111,6 +120,40 @@ async function federationsByRace(
   return byRace
 }
 
+/** Each candidate's votes in each mapped municipality, in the order of `numbers`. */
+function candidateVotes(
+  numbers: number[],
+  rows: Record<string, unknown>[],
+  municipalities: Municipality[],
+  valid: Map<number, number>,
+): CandidateVotes {
+  const column = new Map(numbers.map((numero, index) => [numero, index]))
+  const byMunicipality = new Map<number, number[]>()
+  for (const row of rows) {
+    const index = column.get(Number(row.numero))
+    if (index === undefined) continue
+    const counts = byMunicipality.get(Number(row.municipio)) ?? numbers.map(() => 0)
+    counts[index] = Number(row.votos)
+    byMunicipality.set(Number(row.municipio), counts)
+  }
+  return {
+    numbers,
+    rows: municipalities.flatMap((municipality) =>
+      municipality.ibge === null
+        ? []
+        : [
+            [
+              municipality.ibge,
+              municipality.municipio,
+              municipality.nome,
+              valid.get(municipality.municipio) ?? 0,
+              ...(byMunicipality.get(municipality.municipio) ?? numbers.map(() => 0)),
+            ],
+          ],
+    ),
+  }
+}
+
 /** Every race file is checked against the manifest, then read from a temporary copy. */
 async function localCopy(inputs: MapInputs, folder: string, relative: string): Promise<string> {
   const bytes = await inputs.source.read(relative)
@@ -156,6 +199,7 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
   const brazilTotals: VoteTotal[] = []
   const brazilRows: MapData['rows'] = []
   let brazilUnits: string[] = []
+  const brazilVotes: CandidateVotes = { numbers: [], rows: [] }
   try {
     const areas = [...summaries]
       .filter(([area]) => area !== 'br')
@@ -242,8 +286,26 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
           ).map((row) => [Number(row.municipio), Number(row.valid)]),
         )
 
-        await rm(file)
         const list = municipalities[area] ?? []
+        if (CANDIDATE_PAGE_RACES.has(race.cargo)) {
+          const votes = candidateVotes(
+            units.mapping.map(([, numero]) => numero),
+            await run(
+              `SELECT municipio, numero, sum(votos)::DOUBLE AS votos FROM read_parquet(?)
+               WHERE tipo = ${CANDIDATE} GROUP BY ALL`,
+              [file],
+            ),
+            list,
+            valid,
+          )
+          await mkdir(path.join(out, area), { recursive: true })
+          await writeFile(path.join(out, area, `${race.cargo}-votos.json`), JSON.stringify(votes))
+          if (race.cargo === PRESIDENT) {
+            brazilVotes.numbers = votes.numbers
+            brazilVotes.rows.push(...votes.rows)
+          }
+        }
+        await rm(file)
         // The map draws the list, so votes for a municipality outside it would vanish from it.
         const known = new Set(list.map((municipality) => municipality.municipio))
         for (const code of valid.keys()) {
@@ -280,6 +342,7 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
     await mkdir(path.join(out, 'br'), { recursive: true })
     const brazil: MapData = { kind: 'margin', units: brazilUnits, rows: brazilRows }
     await writeFile(path.join(out, 'br', `${PRESIDENT}.json`), JSON.stringify(brazil))
+    await writeFile(path.join(out, 'br', `${PRESIDENT}-votos.json`), JSON.stringify(brazilVotes))
   } finally {
     await rm(folder, { recursive: true, force: true })
   }

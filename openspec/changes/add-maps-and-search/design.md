@@ -219,7 +219,10 @@ Senate from each state's summary. That gives 497 pages in each language. A stati
 `municipio` already do.
 
 - A candidacy whose destination is "Anulado sub judice" shows its votes as under appeal,
-  with TSE's status, and no share map.
+  with TSE's status, and no share and no share map.
+- The build writes each President, Governor and Senate candidate's valid votes by
+  municipality, one file per race, and each candidate page reads its own column. The share
+  map uses the same map component, in six steps of one green hue.
 - A candidate in the Federal District gets no share map, because the district has one
   municipality.
 - A President candidate's municipality table groups rows by state, in collapsed

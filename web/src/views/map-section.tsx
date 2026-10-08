@@ -1,10 +1,10 @@
 /** A race's map by municipality, with its text in the page's language. */
 import type { ReactNode } from 'react'
 import { RaceMap, type MapLabels } from '@/components/race-map'
-import { getMunicipalities, getRaceMap, getSourceInfo } from '@/lib/data'
+import { getCandidateVotes, getMunicipalities, getRaceMap, getSourceInfo } from '@/lib/data'
 import { raceName, type RaceInfo } from '@/lib/elections'
 import { t, type Locale } from '@/lib/i18n'
-import { isMappedArea, type MapKind } from '@/lib/maps'
+import { isMappedArea, shareMap, SHARE_STEPS, type MapData } from '@/lib/maps'
 
 // Fernando de Noronha lies about 350 km off the coast, and would widen Pernambuco's maps.
 const NORONHA = 2605459
@@ -13,24 +13,44 @@ export function hasMap(area: string): boolean {
   return isMappedArea(area, getMunicipalities(area).length)
 }
 
+/** The share steps' names, such as "de 10 a 20%" and, last, "50% ou mais". */
+function stepLabels(locale: Locale, step: number): string[] {
+  return Array.from({ length: SHARE_STEPS }, (_, index) =>
+    index === SHARE_STEPS - 1
+      ? t(locale, 'map.stepLast', { from: String(index * step) })
+      : t(locale, 'map.step', { from: String(index * step), to: String((index + 1) * step) }),
+  )
+}
+
 function mapLabels(
   locale: Locale,
   race: RaceInfo,
   areaLabel: string,
-  kind: MapKind,
+  data: MapData,
   brazil: boolean,
+  /** Whether each voter chose two candidates, as the summary says. */
+  twoChoices: boolean,
+  candidate?: string,
 ): MapLabels {
+  const kind = data.kind
   const raceLabel = raceName(race, locale)
+  const share = candidate !== undefined
   const bins: [string, string, string] = [
     t(locale, 'map.binClose'),
     t(locale, 'map.binClear'),
     t(locale, 'map.binWide'),
   ]
   return {
-    title: t(locale, 'map.title', { race: raceLabel, area: areaLabel }),
-    statement: t(locale, race.proportional ? 'map.statementParty' : 'map.statement'),
-    twoChoices: kind === 'senate' ? t(locale, 'map.twoChoices') : null,
+    title: share
+      ? t(locale, 'map.shareTitle', { candidate, race: raceLabel, area: areaLabel })
+      : t(locale, 'map.title', { race: raceLabel, area: areaLabel }),
+    statement: share
+      ? t(locale, 'map.shareStatement', { candidate })
+      : t(locale, race.proportional ? 'map.statementParty' : 'map.statement'),
+    twoChoices: twoChoices ? t(locale, share ? 'map.shareTwoChoices' : 'map.twoChoices') : null,
     bins,
+    steps: data.step === undefined ? [] : stepLabels(locale, data.step),
+    votesCount: t(locale, 'map.votesCount'),
     binsLegend: t(locale, 'map.binsLegend', { close: bins[0], clear: bins[1], wide: bins[2] }),
     other: t(locale, 'map.other'),
     tie: t(locale, 'map.tie'),
@@ -45,9 +65,11 @@ function mapLabels(
     close: t(locale, 'map.close'),
     tieDetails: t(locale, 'map.tieDetails'),
     table: {
-      caption: t(locale, kind === 'senate' ? 'map.tableCaptionSenate' : 'map.tableCaption', {
-        race: raceLabel,
-      }),
+      caption: share
+        ? t(locale, 'map.tableCaptionShare', { candidate })
+        : t(locale, kind === 'senate' ? 'map.tableCaptionSenate' : 'map.tableCaption', {
+            race: raceLabel,
+          }),
       municipality: t(locale, 'map.municipality'),
       leader: t(locale, 'map.leader'),
       margin: t(locale, 'map.margin'),
@@ -56,9 +78,57 @@ function mapLabels(
       filter: t(locale, 'map.filter'),
       sortName: t(locale, 'map.sortName'),
       sortMargin: t(locale, 'map.sortMargin'),
+      votes: t(locale, 'map.votes'),
+      share: t(locale, 'map.share'),
+      sortShare: t(locale, 'map.sortShare'),
       count: t(locale, 'map.count'),
     },
   }
+}
+
+function MapView({
+  locale,
+  area,
+  race,
+  data,
+  labels,
+  heading,
+  table,
+  collapsed,
+  children,
+}: {
+  locale: Locale
+  area: string
+  race: RaceInfo
+  data: MapData
+  labels: MapLabels
+  heading: string
+  table: boolean
+  collapsed?: string
+  children?: ReactNode
+}) {
+  const source = getSourceInfo()
+  const file = `${area}.json`
+  const sha256 = source.geoSha256[file]
+  if (sha256 === undefined) throw new Error(`the pinned boundary build has no ${file}`)
+  return (
+    <section className="mt-8" data-map={`${area}-${race.slug}`}>
+      <h2 className="text-xl font-semibold">{heading}</h2>
+      <RaceMap
+        locale={locale}
+        data={data}
+        boundary={{ url: `${source.geoBase}/${file}`, sha256 }}
+        race={race.slug}
+        area={area === 'br' ? undefined : area}
+        inset={area === 'pe' ? NORONHA : undefined}
+        labels={labels}
+        table={table}
+        collapsed={collapsed}
+      >
+        {children}
+      </RaceMap>
+    </section>
+  )
 }
 
 /** `area` is `br` for the President map of Brazil, or a state's code. */
@@ -80,28 +150,56 @@ export function MapSection({
   children?: ReactNode
 }) {
   const data = getRaceMap(area, race.code)
-  const source = getSourceInfo()
-  const file = `${area}.json`
-  const sha256 = source.geoSha256[file]
-  if (sha256 === undefined) throw new Error(`the pinned boundary build has no ${file}`)
   return (
-    <section className="mt-8" data-map={`${area}-${race.slug}`}>
-      <h2 className="text-xl font-semibold">
-        {t(locale, 'map.heading', { race: raceName(race, locale) })}
-      </h2>
-      <RaceMap
-        locale={locale}
-        data={data}
-        boundary={{ url: `${source.geoBase}/${file}`, sha256 }}
-        race={race.slug}
-        area={area === 'br' ? undefined : area}
-        inset={area === 'pe' ? NORONHA : undefined}
-        labels={mapLabels(locale, race, areaLabel, data.kind, area === 'br')}
-        table={table}
-        collapsed={collapsed}
-      >
-        {children}
-      </RaceMap>
-    </section>
+    <MapView
+      locale={locale}
+      area={area}
+      race={race}
+      data={data}
+      labels={mapLabels(locale, race, areaLabel, data, area === 'br', data.kind === 'senate')}
+      heading={t(locale, 'map.heading', { race: raceName(race, locale) })}
+      table={table}
+      collapsed={collapsed}
+    >
+      {children}
+    </MapView>
+  )
+}
+
+/**
+ * One candidacy's share of the valid votes by municipality, in steps of 10 points, or of 5
+ * where each voter chose two, as in the Senate. Null when the candidacy has no column to map.
+ */
+export function ShareMapSection({
+  locale,
+  area,
+  areaLabel,
+  race,
+  numero,
+  name,
+  choicesPerVoter,
+}: {
+  locale: Locale
+  area: string
+  areaLabel: string
+  race: RaceInfo
+  numero: number
+  name: string
+  choicesPerVoter: number
+}) {
+  const twoChoices = choicesPerVoter > 1
+  const step = twoChoices ? 5 : 10
+  const data = shareMap(getCandidateVotes(area, race.code), numero, name, step)
+  if (data === null) return null
+  return (
+    <MapView
+      locale={locale}
+      area={area}
+      race={race}
+      data={data}
+      labels={mapLabels(locale, race, areaLabel, data, false, twoChoices, name)}
+      heading={t(locale, 'map.shareHeading')}
+      table
+    />
   )
 }

@@ -7,6 +7,8 @@ import { getMunicipalities, getSummary } from '@/lib/data'
 import {
   ABROAD,
   areaByCode,
+  CANDIDATE_PAGE_RACES,
+  candidatePath,
   areaName,
   raceByCode,
   raceBySlug,
@@ -78,6 +80,16 @@ function TurnoutSummary({
   )
 }
 
+/** Links each candidacy of the races that have candidate pages to its page. */
+function candidateHref(
+  locale: Locale,
+  race: RaceInfo,
+  area: string,
+): ((number: number) => string) | undefined {
+  if (!CANDIDATE_PAGE_RACES.has(race.code)) return undefined
+  return (number) => localePath(locale, candidatePath(race, area, number))
+}
+
 function knownRace(race: SummaryRace): RaceInfo {
   const info = raceByCode(race.cargo)
   if (info === undefined) throw new Error(`unknown race code ${race.cargo} in the summary`)
@@ -103,6 +115,7 @@ export function BrazilView({ locale }: { locale: Locale }) {
         info={info}
         results={results}
         caption={t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
+        candidateHref={candidateHref(locale, info, 'br')}
       />
       <MapSection locale={locale} area="br" areaLabel={brazil(locale)} race={info} table={false} />
       <p className="mt-4 text-sm">
@@ -179,7 +192,13 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
           return (
             <section key={race.cargo} className="mt-6">
               <h2 className="text-xl font-semibold">{title}</h2>
-              <FullResults locale={locale} info={info} results={results} caption={title} />
+              <FullResults
+                locale={locale}
+                info={info}
+                results={results}
+                caption={title}
+                candidateHref={candidateHref(locale, info, area.code)}
+              />
             </section>
           )
         }
@@ -200,6 +219,7 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
                 candidates={results.candidates.slice(0, size)}
                 validVotes={results.totals.valid}
                 caption={t(locale, 'area.leadersCaption', { race: title })}
+                candidateHref={candidateHref(locale, info, area.code)}
               />
             </div>
             <p className="mt-2 text-sm">
@@ -296,10 +316,22 @@ export function RaceView({ locale, code, slug }: { locale: Locale; code: string;
           table
         >
           <h2 className="mt-8 text-xl font-semibold">{t(locale, 'race.candidatesTitle')}</h2>
-          <FullResults locale={locale} info={info} results={results} caption={title} />
+          <FullResults
+            locale={locale}
+            info={info}
+            results={results}
+            caption={title}
+            candidateHref={candidateHref(locale, info, area.code)}
+          />
         </MapSection>
       ) : (
-        <FullResults locale={locale} info={info} results={results} caption={title} />
+        <FullResults
+          locale={locale}
+          info={info}
+          results={results}
+          caption={title}
+          candidateHref={candidateHref(locale, info, area.code)}
+        />
       )}
     </PageShell>
   )

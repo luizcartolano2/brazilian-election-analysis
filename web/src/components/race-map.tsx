@@ -16,10 +16,18 @@ import {
 import { feature, mesh } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
 import { addressQuery } from '@/lib/address'
-import { areaOfIbge, raceBySlug, YEAR } from '@/lib/elections'
-import { formatPoints, formatShare } from '@/lib/format'
+import { areaByCode, areaName, areaOfIbge, raceBySlug, YEAR } from '@/lib/elections'
+import { formatInteger, formatPoints, formatShare } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
-import { fillColor, NO_VOTES, OTHER, SENATE_SHADE, SHADES, WATER } from '@/lib/map-colors'
+import {
+  fillColor,
+  NO_VOTES,
+  OTHER,
+  SENATE_SHADE,
+  SHADES,
+  SHARE_SHADES,
+  WATER,
+} from '@/lib/map-colors'
 import { binOf, fillOf, marginPoints, type MapData, type MapRow } from '@/lib/maps'
 import { localePath } from '@/lib/paths'
 import { normalize } from '@/lib/search'
@@ -31,6 +39,10 @@ export interface MapLabels {
   /** The Senate's two choices per voter. */
   twoChoices: string | null
   bins: [string, string, string]
+  /** A share map's six steps, such as "de 0 a 10%". */
+  steps: string[]
+  /** Holds `{votes}`. */
+  votesCount: string
   /** Names the bins and their limits, for maps that have them. */
   binsLegend: string
   other: string
@@ -59,6 +71,9 @@ export interface MapLabels {
     filter: string
     sortName: string
     sortMargin: string
+    votes: string
+    share: string
+    sortShare: string
     /** Holds `{shown}` and `{total}`. */
     count: string
   }
@@ -186,13 +201,20 @@ function Legend({
   /** Whether the map holds a lagoon, which Rio Grande do Sul and Brazil do. */
   water: boolean
 }) {
-  const colored = data.units.slice(0, 2)
+  const colored = data.kind === 'share' ? [] : data.units.slice(0, 2)
   return (
     <figcaption className="mt-2 space-y-1 text-xs text-slate-700">
       <p className="text-sm font-medium text-slate-900">{labels.title}</p>
       <p>{labels.statement}</p>
       {labels.twoChoices !== null && <p>{labels.twoChoices}</p>}
       <ul className="flex flex-wrap gap-x-4 gap-y-1">
+        {data.kind === 'share' &&
+          SHARE_SHADES.map((shade, index) => (
+            <li key={shade} className="flex items-center gap-1">
+              <Swatch color={shade} />
+              <span>{labels.steps[index]}</span>
+            </li>
+          ))}
         {colored.map((unit, index) => (
           <li key={unit} className="flex items-center gap-1">
             {data.kind === 'senate' ? (
@@ -203,16 +225,18 @@ function Legend({
             <span className="ml-1 break-words">{unit}</span>
           </li>
         ))}
-        {data.units.length > 2 && (
+        {data.kind !== 'share' && data.units.length > 2 && (
           <li className="flex items-center gap-1">
             <Swatch color={OTHER} />
             <span>{labels.other}</span>
           </li>
         )}
-        <li className="flex items-center gap-1">
-          <Swatch color="" pattern />
-          <span>{labels.tie}</span>
-        </li>
+        {data.kind !== 'share' && (
+          <li className="flex items-center gap-1">
+            <Swatch color="" pattern />
+            <span>{labels.tie}</span>
+          </li>
+        )}
         {water && (
           <li className="flex items-center gap-1">
             <Swatch color={WATER} />
@@ -255,6 +279,17 @@ function DetailsText({
       </>
     )
   }
+  if (data.kind === 'share') {
+    return (
+      <>
+        <strong className="block">{name}</strong>
+        <span className="block">
+          {fill(labels.votesCount, { votes: formatInteger(locale, firstVotes) })} ·{' '}
+          {formatShare(locale, firstVotes, valid)}
+        </span>
+      </>
+    )
+  }
   if (data.kind === 'senate') {
     return (
       <>
@@ -288,6 +323,17 @@ function DetailsText({
   )
 }
 
+function groupByState(rows: MapRow[]): [string, MapRow[]][] {
+  const groups = new Map<string, MapRow[]>()
+  for (const row of rows) {
+    const area = areaOfIbge(row[0]) ?? ''
+    const group = groups.get(area) ?? []
+    group.push(row)
+    groups.set(area, group)
+  }
+  return [...groups]
+}
+
 function MunicipalityTable({
   locale,
   data,
@@ -295,6 +341,7 @@ function MunicipalityTable({
   hrefOf,
   hydrated,
   collapsed,
+  byState,
 }: {
   locale: Locale
   data: MapData
@@ -302,22 +349,115 @@ function MunicipalityTable({
   hrefOf: (row: MapRow) => string
   hydrated: boolean
   collapsed?: string
+  /** Groups the rows under each state, in folded sections, for a list of all of Brazil. */
+  byState: boolean
 }) {
   const filterId = useId()
   const [query, setQuery] = useState('')
-  const [order, setOrder] = useState<'name' | 'margin'>('name')
+  const [order, setOrder] = useState<'name' | 'margin' | 'share'>('name')
   const collator = useMemo(() => new Intl.Collator(locale === 'pt' ? 'pt-BR' : 'en-US'), [locale])
   const rows = useMemo(() => {
     const wanted = normalize(query)
     const kept = data.rows.filter((row) => wanted === '' || normalize(row[2]).includes(wanted))
     const byName = (a: MapRow, b: MapRow) => collator.compare(a[2], b[2])
     if (order === 'name') return kept.sort(byName)
+    if (order === 'share') {
+      const shareOf = (row: MapRow) => (row[7] > 0 ? row[4] / row[7] : 0)
+      return kept.sort((a, b) => shareOf(b) - shareOf(a) || byName(a, b))
+    }
     const marginOf = (row: MapRow) => (row[3] === -1 ? Infinity : marginPoints(row))
     return kept.sort((a, b) => marginOf(a) - marginOf(b) || byName(a, b))
   }, [data.rows, query, order, collator])
   const unit = (index: number) => (index === -1 ? '–' : (data.units[index] ?? ''))
   const senate = data.kind === 'senate'
+  const share = data.kind === 'share'
   const table = labels.table
+  const secondOrder = share ? 'share' : 'margin'
+  const groups: [string, MapRow[]][] = byState ? groupByState(rows) : [['', rows]]
+  if (byState) groups.sort(([a], [b]) => collator.compare(stateLabel(a), stateLabel(b)))
+
+  function stateLabel(code: string): string {
+    const area = areaByCode(code)
+    return area === undefined ? code : areaName(area, locale)
+  }
+
+  function cells(row: MapRow) {
+    const [, , , first, firstVotes, second, secondVotes, valid] = row
+    if (share) {
+      return (
+        <>
+          <td>{formatInteger(locale, firstVotes)}</td>
+          <td>{formatShare(locale, firstVotes, valid)}</td>
+        </>
+      )
+    }
+    if (senate) {
+      return (
+        <>
+          <td>
+            {unit(first)} <small>{formatShare(locale, firstVotes, valid)}</small>
+          </td>
+          <td>
+            {unit(second)} <small>{formatShare(locale, secondVotes, valid)}</small>
+          </td>
+        </>
+      )
+    }
+    const tie = second !== -1 && firstVotes === secondVotes
+    const margin = marginPoints(row)
+    return (
+      <>
+        <td>{tie ? labels.tie : unit(first)}</td>
+        <td>
+          {first === -1 || tie
+            ? '–'
+            : fill(labels.points, { points: formatPoints(locale, margin) })}
+          {first !== -1 && !tie && <small>{labels.bins[binOf(margin)]}</small>}
+        </td>
+      </>
+    )
+  }
+
+  function renderTable(group: MapRow[]) {
+    const headers = share
+      ? [table.votes, table.share]
+      : senate
+        ? [table.first, table.second]
+        : [table.leader, table.margin]
+    return (
+      // Styles sit on the table, so each of up to 5,571 rows carries no class.
+      <table
+        className={`w-full text-sm ${share ? '[&_td:nth-child(2)]:text-right [&_td:nth-child(2)]:tabular-nums' : ''} [&_a]:underline [&_small]:block [&_small]:text-xs [&_small]:text-slate-600 [&_tbody_tr]:border-b [&_tbody_tr]:border-slate-100 [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums`}
+        data-testid="municipality-table"
+      >
+        <caption className="mb-1 text-left text-xs text-slate-600">{table.caption}</caption>
+        <thead>
+          <tr className="border-b border-slate-300 text-left text-xs text-slate-600">
+            <th scope="col" className="py-1 pr-2 font-medium">
+              {table.municipality}
+            </th>
+            <th scope="col" className={`py-1 pr-2 font-medium ${share ? 'text-right' : ''}`}>
+              {headers[0]}
+            </th>
+            <th scope="col" className="py-1 text-right font-medium">
+              {headers[1]}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {group.map((row) => (
+            <tr key={row[0]}>
+              <td>
+                <a href={hrefOf(row)}>{row[2]}</a>
+              </td>
+              {cells(row)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+
   const pressed = (active: boolean) =>
     `rounded border px-2 py-1 ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`
 
@@ -348,11 +488,11 @@ function MunicipalityTable({
           {!senate && (
             <button
               type="button"
-              aria-pressed={order === 'margin'}
-              onClick={() => setOrder('margin')}
-              className={pressed(order === 'margin')}
+              aria-pressed={order === secondOrder}
+              onClick={() => setOrder(secondOrder)}
+              className={pressed(order === secondOrder)}
             >
-              {table.sortMargin}
+              {share ? table.sortShare : table.sortMargin}
             </button>
           )}
           <p role="status" className="w-full text-xs text-slate-600">
@@ -360,60 +500,19 @@ function MunicipalityTable({
           </p>
         </div>
       )}
-      {/* Styles sit on the table, so each of up to 853 rows carries no class. */}
-      <table
-        className="w-full text-sm [&_a]:underline [&_small]:block [&_small]:text-xs [&_small]:text-slate-600 [&_tbody_tr]:border-b [&_tbody_tr]:border-slate-100 [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums"
-        data-testid="municipality-table"
-      >
-        <caption className="mb-1 text-left text-xs text-slate-600">{table.caption}</caption>
-        <thead>
-          <tr className="border-b border-slate-300 text-left text-xs text-slate-600">
-            <th scope="col" className="py-1 pr-2 font-medium">
-              {table.municipality}
-            </th>
-            <th scope="col" className="py-1 pr-2 font-medium">
-              {senate ? table.first : table.leader}
-            </th>
-            <th scope="col" className="py-1 text-right font-medium">
-              {senate ? table.second : table.margin}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const [ibge, , name, first, firstVotes, second, secondVotes, valid] = row
-            const tie = second !== -1 && firstVotes === secondVotes
-            const margin = marginPoints(row)
-            return (
-              <tr key={ibge}>
-                <td>
-                  <a href={hrefOf(row)}>{name}</a>
-                </td>
-                {senate ? (
-                  <>
-                    <td>
-                      {unit(first)} <small>{formatShare(locale, firstVotes, valid)}</small>
-                    </td>
-                    <td>
-                      {unit(second)} <small>{formatShare(locale, secondVotes, valid)}</small>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>{tie ? labels.tie : unit(first)}</td>
-                    <td>
-                      {first === -1 || tie
-                        ? '–'
-                        : fill(labels.points, { points: formatPoints(locale, margin) })}
-                      {first !== -1 && !tie && <small>{labels.bins[binOf(margin)]}</small>}
-                    </td>
-                  </>
-                )}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      {groups.map(([area, group]) =>
+        byState ? (
+          // A filter opens every state, so that a match shows wherever it is.
+          <details key={area} className="mt-2" open={query !== ''}>
+            <summary className="cursor-pointer text-sm underline">
+              {stateLabel(area)} · {formatInteger(locale, group.length)}
+            </summary>
+            {renderTable(group)}
+          </details>
+        ) : (
+          <div key={area}>{renderTable(group)}</div>
+        ),
+      )}
     </>
   )
 
@@ -530,7 +629,7 @@ export function RaceMap({
   function colorOf(id: number): string {
     if (LAGOONS.has(id)) return WATER
     const row = rowsByIbge.get(id)
-    return row === undefined ? NO_VOTES : fillColor(fillOf(row, data.kind), patternId)
+    return row === undefined ? NO_VOTES : fillColor(fillOf(row, data.kind, data.step), patternId)
   }
 
   const framed = (
@@ -674,6 +773,7 @@ export function RaceMap({
           hrefOf={hrefOf}
           hydrated={hydrated}
           collapsed={collapsed}
+          byState={area === undefined}
         />
       )}
     </>

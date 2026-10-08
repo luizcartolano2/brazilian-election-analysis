@@ -36,4 +36,7 @@ export const PAGES = [
   '/en/2026/se/',
   '/en/2026/se/deputado-estadual/',
   '/en/2026/fontes/',
+  '/2026/presidente/13/',
+  '/2026/pe/governador/55/',
+  '/en/2026/pe/senador/130/',
 ]

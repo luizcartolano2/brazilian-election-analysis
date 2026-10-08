@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { DrilldownConfig } from './drilldown/config'
 import { COUNCIL } from './elections'
 import type { Manifest } from './manifest'
-import type { MapData } from './maps'
+import type { CandidateVotes, MapData } from './maps'
 import type { Summary } from './results'
 
 const DATA_DIR = path.join(process.cwd(), '.data')
@@ -87,6 +87,19 @@ export function getRaceMap(area: string, race: number): MapData {
   if (data === undefined) {
     data = readJson<MapData>(`mapas/${key}.json`)
     maps.set(key, data)
+  }
+  return data
+}
+
+const votes = new Map<string, CandidateVotes>()
+
+/** Each candidate's votes by municipality in a race: `br` holds President for Brazil. */
+export function getCandidateVotes(area: string, race: number): CandidateVotes {
+  const key = `${area}/${race}-votos`
+  let data = votes.get(key)
+  if (data === undefined) {
+    data = readJson<CandidateVotes>(`mapas/${key}.json`)
+    votes.set(key, data)
   }
   return data
 }
