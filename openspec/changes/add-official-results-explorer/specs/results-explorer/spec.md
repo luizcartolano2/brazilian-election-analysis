@@ -177,6 +177,10 @@ a partial result as if it were complete.
 - **WHEN** a polling-station query fails
 - **THEN** the page shows an error message and offers a retry, with no numbers for that view
 
+#### Scenario: The query engine fails to download
+- **WHEN** the download of the query engine's module or its Parquet extension fails
+- **THEN** the view shows the error message and the retry, and does not stay on its loading message
+
 ### Requirement: Usable on a phone
 Every page SHALL work at 360 pixels wide without horizontal scrolling, and every number
 shown in a chart SHALL also be available as text.

@@ -420,6 +420,9 @@ rights on top, so it stays out.
   `public/duckdb/<package version>/` at build time, because a browser `Worker` must load
   from the page's own origin. The app uses the exception-handling build only, which every
   major browser has supported since late 2021. An older browser sees the error state.
+  DuckDB's worker drops a failed module download without rejecting, so the app counts 20
+  seconds without download progress as a failure. While bytes arrive, DuckDB reports
+  progress less than a second apart, measured from 1 Mbps to an unthrottled connection.
 - DuckDB-WASM reads Parquet only through its `parquet` extension, which DuckDB fetches when
   it loads. The Worker serves DuckDB's signed extension next to the `.wasm` file, under
   `assets/duckdb-wasm/<package version>/`. `web/scripts/duckdb-assets.ts` pins its SHA-256,

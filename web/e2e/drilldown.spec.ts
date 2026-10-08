@@ -133,6 +133,26 @@ test('a failed query shows an error and a retry, and no numbers', async ({ page 
   await expect(page.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
 })
 
+for (const [label, file] of [
+  ['module', '**/duckdb-eh.wasm'],
+  ['Parquet extension', '**/parquet.duckdb_extension.wasm'],
+] as const) {
+  test(`a failed ${label} download shows an error and a retry, and the retry works`, async ({
+    page,
+  }) => {
+    test.setTimeout(90_000)
+    await page.route(file, (route) => route.abort())
+    await page.goto(STATION)
+    await expect(page.getByText('Não foi possível carregar os dados')).toBeVisible({
+      timeout: 40_000,
+    })
+    await expect(page.getByRole('table')).toHaveCount(0)
+    await page.unroute(file)
+    await page.getByRole('button', { name: 'Tentar de novo' }).click()
+    await expect(page.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
+  })
+}
+
 for (const [label, address] of [
   ['SQL text in the municipality', '/2026/secao/?uf=pe&mu=25313%3BDROP%20TABLE%20x&zn=3&se=597'],
   ['a slash in the state code', '/2026/municipio/?uf=pe%2F..%2Fsp&mu=25313'],
