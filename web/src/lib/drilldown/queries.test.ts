@@ -81,7 +81,7 @@ describe('loadView', () => {
     const data = await view('municipio', 'uf=pe&mu=25313&cargo=deputado-estadual')
     const results = data.results
     if (results === null) throw new Error('no results')
-    expect(data.municipalityName).toBe('RECIFE')
+    expect(data.municipalityName).toBe('Recife')
     expect(results.candidates[0]?.name).not.toMatch(/^\d+$/)
     const partyTotal = (results.parties ?? []).reduce((sum, party) => sum + party.total, 0)
     expect(partyTotal).toBe(results.totals.valid)
@@ -90,7 +90,7 @@ describe('loadView', () => {
   it('names the candidacy TSE classified when two share a number', async () => {
     const data = await view('municipio', 'uf=pe&mu=23051&cargo=deputado-federal')
     const shared = data.results?.candidates.find((candidate) => candidate.number === 4444)
-    expect(shared?.name).toBe('JULIANA DE CHAPARRAL')
+    expect(shared?.name).toBe('Juliana de Chaparral')
   })
 
   it('adds the municipalities up to each state summary, candidate by candidate', async () => {
@@ -155,7 +155,7 @@ describe('loadView', () => {
 
   it('reads votes cast abroad', async () => {
     const city = await view('municipio', 'uf=zz&mu=29173')
-    expect(city.municipalityName).toBe('KATMANDU')
+    expect(city.municipalityName).toBe('Katmandu')
     expect(city.results?.candidates.length).toBeGreaterThan(0)
   })
 

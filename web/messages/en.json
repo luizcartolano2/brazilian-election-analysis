@@ -178,5 +178,9 @@
   "candidate.twoChoices": "Each voter chose two candidates for two seats. The share is of all the valid votes in the race.",
   "candidate.oneMunicipality": "This race has a single municipality, so the page shows no map.",
   "candidate.allCandidates": "See every candidate for {race} · {area}",
-  "candidate.abroadNote": "The map and the list leave out the votes cast abroad, which count in the total above."
+  "candidate.abroadNote": "The map and the list leave out the votes cast abroad, which count in the total above.",
+  "site.firstRound": "Round 1",
+  "nav.states": "States",
+  "sources.namesTitle": "Names",
+  "sources.namesNote": "TSE publishes the names of candidates, municipalities and cities abroad in capital letters. This site shows each word with a capital first letter and the other letters in lower case. It changes no letter, accent or word order. Acronyms such as PT and PSOL stay in capitals."
 }

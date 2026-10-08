@@ -112,7 +112,7 @@ test('an index that fails to load says so, and a click on the box tries again', 
   await searchBox(page).click()
   await expect(message).toHaveCount(0)
   await searchBox(page).fill('recife')
-  await expect(page.getByRole('option', { name: /^RECIFE/ })).toBeVisible()
+  await expect(page.getByRole('option', { name: /^Recife/ })).toBeVisible()
 })
 
 test('the result count is announced', async ({ page }) => {
@@ -128,18 +128,18 @@ test('the result count is announced', async ({ page }) => {
 test('an English page names the race in English', async ({ page }) => {
   await page.goto('/en/2026/')
   await type(page, 'humberto')
-  const senator = page.getByRole('option', { name: /HUMBERTO COSTA/ })
+  const senator = page.getByRole('option', { name: /Humberto Costa/ })
   await expect(senator).toContainText('Senator')
   await expect(senator).toContainText('Pernambuco')
   await expect(senator).toContainText('Elected')
   await searchBox(page).fill('katmandu')
-  await expect(page.getByRole('option', { name: /KATMANDU/ })).toContainText('Abroad')
+  await expect(page.getByRole('option', { name: /Katmandu/ })).toContainText('Abroad')
 })
 
 test('each President candidacy appears once', async ({ page }) => {
   await page.goto('/2026/')
   await type(page, 'lula')
-  await expect(page.getByRole('option', { name: /^LULA PT · 13/ })).toHaveCount(1)
+  await expect(page.getByRole('option', { name: /^Lula PT · 13/ })).toHaveCount(1)
 })
 
 test('without JavaScript no search box shows, and the Brazil page is a click away', async ({
@@ -154,15 +154,15 @@ test('without JavaScript no search box shows, and the Brazil page is a click awa
 })
 
 for (const [label, query, option, address, row] of [
-  ['a municipality', 'recife', /^RECIFE/, '/2026/municipio/?uf=pe&mu=25313', null],
-  ['a city abroad', 'katmandu', /^KATMANDU/, '/2026/municipio/?uf=zz&mu=29173', null],
-  ['a President candidacy', 'lula', /^LULA PT · 13/, '/2026/presidente/13/', null],
-  ['a Governor candidacy', 'raquel lyra', /^RAQUEL LYRA/, '/2026/pe/governador/55/', null],
-  ['a Senate candidacy', 'humberto', /^HUMBERTO COSTA/, '/2026/pe/senador/130/', null],
+  ['a municipality', 'recife', /^Recife/, '/2026/municipio/?uf=pe&mu=25313', null],
+  ['a city abroad', 'katmandu', /^Katmandu/, '/2026/municipio/?uf=zz&mu=29173', null],
+  ['a President candidacy', 'lula', /^Lula PT · 13/, '/2026/presidente/13/', null],
+  ['a Governor candidacy', 'raquel lyra', /^Raquel Lyra/, '/2026/pe/governador/55/', null],
+  ['a Senate candidacy', 'humberto', /^Humberto Costa/, '/2026/pe/senador/130/', null],
   [
     'a deputy candidacy',
     'abimael',
-    /^ABIMAEL SANTOS/,
+    /^Abimael Santos/,
     '/2026/pe/deputado-estadual/#candidato-22622',
     'candidato-22622',
   ],

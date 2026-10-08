@@ -49,6 +49,21 @@ describe('the sources page', () => {
     expect(html).toContain('simplified')
   })
 
+  it.each([
+    ['pt', 'em letras maiúsculas'],
+    ['en', 'in capital letters'],
+  ] as const)('says in %s that names were recased from TSE’s capitals', (locale, phrase) => {
+    const html = renderToStaticMarkup(
+      <SourcesContent
+        locale={locale}
+        manifest={manifest}
+        source={{ mode: 'fixtures', version: null, ...PLACES }}
+      />,
+    )
+    expect(html).toContain(phrase)
+    expect(html).toContain('PSOL')
+  })
+
   it('says a fixtures build is a test build, with no manifest link', () => {
     const html = renderToStaticMarkup(
       <SourcesContent

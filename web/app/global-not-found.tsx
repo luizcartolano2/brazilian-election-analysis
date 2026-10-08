@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { FONT_VARIABLES } from './fonts'
 import { localePath, t, type Locale } from '@/lib/i18n'
 import { REPOSITORY } from '@/lib/site'
 
@@ -12,7 +13,7 @@ const LOCALES: Locale[] = ['pt', 'en']
 /** One page for any unknown address, in both languages, because no layout applies to it. */
 export default function GlobalNotFound() {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={FONT_VARIABLES}>
       <body>
         <div className="mx-auto max-w-3xl px-4">
           <main className="py-10">
@@ -28,7 +29,7 @@ export default function GlobalNotFound() {
               </section>
             ))}
           </main>
-          <footer className="border-t border-slate-200 py-4 text-xs text-slate-600">
+          <footer className="border-line text-muted border-t py-4 text-xs">
             {LOCALES.map((locale) => (
               <p key={locale} lang={locale === 'pt' ? 'pt-BR' : 'en'} className="mb-1">
                 {t(locale, 'footer.credit')}

@@ -1,5 +1,6 @@
 import type { DrilldownAddress } from '../address'
 import { PRESIDENT } from '../elections'
+import { displayName } from '../names'
 import { raceResults, type RaceResults } from '../results'
 import { FILES } from './files'
 import {
@@ -130,7 +131,7 @@ export async function loadView(
   ])
   if (named === undefined) throw new NotFound('no such municipality in this state')
   const view: ViewData = {
-    municipalityName: text(named.nome),
+    municipalityName: displayName(text(named.nome)),
     results: null,
     zones: [],
     stations: [],

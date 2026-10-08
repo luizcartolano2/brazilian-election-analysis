@@ -175,6 +175,9 @@ export const COUNCIL = { area: 'pe', municipality: 30015, race: 25, seats: 7, ch
 
 export const PRESIDENT = 1
 
+/** Election day of each round. */
+export const ROUND_DATES = { first: '2026-10-04', runoff: '2026-10-25' } as const
+
 /** The races whose candidacies each get a page: President, Governor and Senate. */
 export const CANDIDATE_PAGE_RACES: ReadonlySet<number> = new Set([1, 3, 5])
 

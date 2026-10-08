@@ -1,5 +1,6 @@
 /** The summary files' shape, and the rows a results view shows. */
 import { raceByCode } from './elections'
+import { displayName } from './names'
 
 export const VALID = 'Válido'
 export const VALID_LIST = 'Válido (legenda)'
@@ -100,7 +101,7 @@ const byVotesThenNumber = (
 function candidateRow(candidate: SummaryCandidate): CandidateRow {
   return {
     number: candidate.numero,
-    name: candidate.nome,
+    name: displayName(candidate.nome),
     party: candidate.partido,
     votes: candidate.votos,
     outcome: candidate.resultado,

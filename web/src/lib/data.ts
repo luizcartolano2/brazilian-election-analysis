@@ -2,9 +2,10 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { DrilldownConfig } from './drilldown/config'
-import { COUNCIL } from './elections'
+import { COUNCIL, raceByCode } from './elections'
 import type { Manifest } from './manifest'
 import type { CandidateVotes, MapData } from './maps'
+import { displayName } from './names'
 import type { Summary } from './results'
 
 const DATA_DIR = path.join(process.cwd(), '.data')
@@ -72,10 +73,20 @@ export function coveredAreas(): string[] {
 
 let municipalities: Record<string, Municipality[]> | undefined
 
-/** An area's municipalities, or its cities abroad, in TSE's order of names. */
+/** An area's municipalities, or its cities abroad, in TSE's order of names, with names in title case. */
 export function getMunicipalities(area: string): Municipality[] {
-  municipalities ??= readJson<Record<string, Municipality[]>>('municipios.json')
+  municipalities ??= Object.fromEntries(
+    Object.entries(readJson<Record<string, Municipality[]>>('municipios.json')).map(
+      ([code, list]) => [code, list.map((entry) => ({ ...entry, nome: displayName(entry.nome) }))],
+    ),
+  )
   return municipalities[area] ?? []
+}
+
+// A majoritarian unit reads "NAME (PARTY)". A deputy race's units are parties and federations.
+function displayUnit(unit: string): string {
+  const open = unit.lastIndexOf(' (')
+  return open === -1 ? displayName(unit) : displayName(unit.slice(0, open)) + unit.slice(open)
 }
 
 const maps = new Map<string, MapData>()
@@ -85,7 +96,18 @@ export function getRaceMap(area: string, race: number): MapData {
   const key = `${area}/${race}`
   let data = maps.get(key)
   if (data === undefined) {
-    data = readJson<MapData>(`mapas/${key}.json`)
+    const read = readJson<MapData>(`mapas/${key}.json`)
+    const proportional = raceByCode(race)?.proportional ?? true
+    data = {
+      ...read,
+      units: proportional ? read.units : read.units.map(displayUnit),
+      rows: read.rows.map(([ibge, municipio, nome, ...rest]) => [
+        ibge,
+        municipio,
+        displayName(nome),
+        ...rest,
+      ]),
+    }
     maps.set(key, data)
   }
   return data
@@ -98,7 +120,16 @@ export function getCandidateVotes(area: string, race: number): CandidateVotes {
   const key = `${area}/${race}-votos`
   let data = votes.get(key)
   if (data === undefined) {
-    data = readJson<CandidateVotes>(`mapas/${key}.json`)
+    const read = readJson<CandidateVotes>(`mapas/${key}.json`)
+    data = {
+      ...read,
+      rows: read.rows.map(([ibge, municipio, nome, ...rest]) => [
+        ibge,
+        municipio,
+        displayName(nome),
+        ...rest,
+      ]),
+    }
     votes.set(key, data)
   }
   return data

@@ -12,6 +12,7 @@ import {
 } from 'react'
 import { areaByCode, areaName, raceByCode, raceName } from '@/lib/elections'
 import type { Locale } from '@/lib/i18n'
+import { displayName } from '@/lib/names'
 import {
   hitHref,
   MIN_QUERY_LENGTH,
@@ -77,7 +78,7 @@ function HitLabel({ locale, labels, hit }: { locale: Locale; labels: SearchLabel
   if (hit.kind === 'municipality') {
     return (
       <>
-        <span className="font-medium break-words">{hit.name}</span>{' '}
+        <span className="font-medium break-words">{displayName(hit.name)}</span>{' '}
         <span className="text-xs text-slate-600">· {areaLabel(locale, labels, hit.area)}</span>
       </>
     )
@@ -91,7 +92,7 @@ function HitLabel({ locale, labels, hit }: { locale: Locale; labels: SearchLabel
   ].filter(Boolean)
   return (
     <>
-      <span className="block font-medium break-words">{hit.name}</span>
+      <span className="block font-medium break-words">{displayName(hit.name)}</span>
       <span className="block text-xs text-slate-600">{details.join(' · ')}</span>
     </>
   )
@@ -190,6 +191,20 @@ export function SiteSearch({
       <label htmlFor={`${id}-input`} className="sr-only">
         {labels.label}
       </label>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        aria-hidden="true"
+        className="text-muted pointer-events-none absolute top-3.5 left-3.5"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="M20 20l-3.5-3.5" />
+      </svg>
       <input
         id={`${id}-input`}
         type="text"
@@ -219,7 +234,7 @@ export function SiteSearch({
         }}
         onKeyDown={onKeyDown}
         onBlur={() => setOpen(false)}
-        className="h-8 w-full rounded border border-slate-300 px-2 text-sm"
+        className="border-ink/20 h-11 w-full rounded-xl border bg-white pr-3 pl-10 text-base"
       />
       {open && typed && loaded.status === 'ready' && (
         // Keeps the focus in the box when a press lands on an option, the scrollbar or the note.

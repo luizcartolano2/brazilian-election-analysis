@@ -178,5 +178,9 @@
   "candidate.twoChoices": "Cada eleitor escolheu dois candidatos para duas vagas. A parcela é sobre todos os votos válidos da disputa.",
   "candidate.oneMunicipality": "Esta disputa tem um único município, por isso a página não mostra mapa.",
   "candidate.allCandidates": "Ver todos os candidatos a {race} · {area}",
-  "candidate.abroadNote": "O mapa e a lista não trazem os votos dados no exterior, que contam no total acima."
+  "candidate.abroadNote": "O mapa e a lista não trazem os votos dados no exterior, que contam no total acima.",
+  "site.firstRound": "1º turno",
+  "nav.states": "Estados",
+  "sources.namesTitle": "Nomes",
+  "sources.namesNote": "O TSE publica os nomes de candidatos, municípios e cidades no exterior em letras maiúsculas. Este site mostra cada palavra com a inicial maiúscula e as demais letras minúsculas. Ele não muda nenhuma letra, acento ou ordem de palavras. Siglas como PT e PSOL continuam em maiúsculas."
 }

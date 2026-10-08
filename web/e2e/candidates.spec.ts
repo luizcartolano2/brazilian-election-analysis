@@ -44,7 +44,7 @@ test("a page's address opens the same candidate in a new browser", async ({ brow
   const page = await context.newPage()
   await page.goto('/2026/pe/senador/130/')
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('HUMBERTO COSTA')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Humberto Costa')
   await expect(page.getByText('PT · 130 · Senador · Pernambuco')).toBeVisible()
   await context.close()
 })
@@ -57,13 +57,13 @@ test('a Governor candidate shows votes, share and outcome, a share map and a lis
   const candidate = race?.candidatos.find((entry) => entry.numero === 55)
   const votes = new Intl.NumberFormat('pt-BR').format(candidate?.votos ?? -1)
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('RAQUEL LYRA')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Raquel Lyra')
   await expect(page.getByTestId('candidate-votes')).toHaveText(votes)
   await expect(page.getByText('Parcela dos válidos')).toBeVisible()
   await expect(page.getByText(candidate?.resultado ?? '?', { exact: true }).first()).toBeVisible()
   await expect(map.locator('svg path[data-ibge]')).toHaveCount(3)
   const frame = map.locator('xpath=ancestor::figure')
-  await expect(frame).toContainText('RAQUEL LYRA · Governador · Pernambuco · 1º turno')
+  await expect(frame).toContainText('Raquel Lyra · Governador · Pernambuco · 1º turno')
   await expect(frame).toContainText('de 0 a 10%')
   await expect(frame).toContainText('50% ou mais')
   await expect(page.getByTestId('municipality-table').locator('tbody tr')).toHaveCount(3)
@@ -78,7 +78,7 @@ test('a President candidate maps every state, and lists municipalities by state'
   await expect(page.getByText('Pernambuco · 3')).toBeVisible()
   await page.getByText('Pernambuco · 3').click()
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'RECIFE' }),
+    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife' }),
   ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=25313&cargo=presidente')
 })
 
@@ -88,7 +88,7 @@ test('a Senate share map frame holds the candidate, steps of 5, two choices and 
   const map = await drawnMap(page, '/2026/pe/senador/130/')
   const frame = map.locator('xpath=ancestor::figure')
 
-  await expect(frame).toContainText('HUMBERTO COSTA · Senador · Pernambuco · 1º turno')
+  await expect(frame).toContainText('Humberto Costa · Senador · Pernambuco · 1º turno')
   await expect(frame).toContainText('nos votos válidos de cada município')
   await expect(frame).toContainText('de 0 a 5%')
   await expect(frame).toContainText('25% ou mais')
@@ -102,7 +102,7 @@ test("a share map's details show a municipality's votes and share", async ({ pag
   await map.locator('path[data-ibge="2611606"]').hover()
 
   const details = page.getByTestId('map-details')
-  await expect(details).toContainText('RECIFE')
+  await expect(details).toContainText('Recife')
   await expect(details).toContainText(/\d+ votos · \d+,\d+%/)
 })
 
@@ -113,7 +113,7 @@ test("a President candidate's filter shows its match inside the folded states", 
   await page.getByPlaceholder('Filtrar municípios').fill('recife')
 
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'RECIFE' }),
+    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife' }),
   ).toBeVisible()
 })
 
@@ -148,9 +148,9 @@ test('a candidate in an area with one municipality gets no share map', async ({ 
 })
 
 for (const [label, address, name, target] of [
-  ['the Brazil page', '/2026/', 'LULA', '/2026/presidente/13/'],
-  ['a Governor race page', '/2026/pe/governador/', 'RAQUEL LYRA', '/2026/pe/governador/55/'],
-  ['a Senate race page', '/2026/pe/senador/', 'HUMBERTO COSTA', '/2026/pe/senador/130/'],
+  ['the Brazil page', '/2026/', 'Lula', '/2026/presidente/13/'],
+  ['a Governor race page', '/2026/pe/governador/', 'Raquel Lyra', '/2026/pe/governador/55/'],
+  ['a Senate race page', '/2026/pe/senador/', 'Humberto Costa', '/2026/pe/senador/130/'],
 ] as const) {
   test(`${label} links each candidate to their page`, async ({ page }) => {
     await page.goto(address)
@@ -164,7 +164,7 @@ for (const [label, address, name, target] of [
 test('a deputy race keeps its candidates without links', async ({ page }) => {
   await page.goto('/2026/pe/deputado-federal/')
 
-  await expect(page.getByRole('link', { name: 'PEDRO CAMPOS', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Pedro Campos', exact: true })).toHaveCount(0)
 })
 
 test('switching language keeps the candidate page', async ({ page }) => {

@@ -29,7 +29,7 @@ test('a station view shows its results under the production headers', async ({ p
   const errors = await watchPolicy(page)
   const response = await page.goto(STATION)
   expect(response?.headers()['content-security-policy']).toContain("connect-src 'self'")
-  await expect(page.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seção 597 · Zona 3 · Recife' })).toBeVisible()
   await expect(page.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
   await expect(page.getByTestId('zero-votes')).toHaveText(
     'Só aparecem os candidatos que tiveram votos neste lugar.',
@@ -44,13 +44,13 @@ test('a copied station address opens the same station and race', async ({ browse
   await first.getByRole('link', { name: 'Zona 3' }).click()
   await first.getByRole('link', { name: 'Seção 597' }).click()
   // The zone page has a valid-votes row too, so only the station's heading shows the click landed.
-  await expect(first.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible({
+  await expect(first.getByRole('heading', { name: 'Seção 597 · Zona 3 · Recife' })).toBeVisible({
     timeout: 30_000,
   })
   const copied = first.url()
   const second = await browser.newPage()
   await second.goto(copied)
-  await expect(second.getByRole('heading', { name: 'Seção 597 · Zona 3 · RECIFE' })).toBeVisible({
+  await expect(second.getByRole('heading', { name: 'Seção 597 · Zona 3 · Recife' })).toBeVisible({
     timeout: 30_000,
   })
   await expect(second.locator('[aria-current="page"]', { hasText: 'Governador' })).toBeVisible()
@@ -59,7 +59,7 @@ test('a copied station address opens the same station and race', async ({ browse
 
 test('a municipality links to its zones, and a zone to its stations', async ({ page }) => {
   await page.goto(MUNICIPALITY)
-  await expect(page.getByRole('heading', { name: 'RECIFE', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Recife', exact: true })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Zona 3' })).toHaveAttribute(
     'href',
     '/2026/zona/?uf=pe&mu=25313&zn=3&cargo=governador',
@@ -187,7 +187,7 @@ test('a state page links to each of its municipalities, on the Governor race of 
   await page.goto('/2026/pe/')
   await page.getByText('Ver os 3 municípios').click()
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'FERNANDO DE NORONHA' }),
+    page.getByTestId('municipality-table').getByRole('link', { name: 'Fernando de Noronha' }),
   ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=30015&cargo=governador')
 })
 
