@@ -115,17 +115,23 @@ view for the race shown. On a touch screen, the details SHALL hold a link to tha
 
 ### Requirement: Every color has a text equivalent
 Each state and race page with a map SHALL list the mapped municipalities in its
-delivered HTML. On a most-voted map, each row SHALL show the municipality's most voted
-and, where the map has bins, the margin in percentage points and the bin's name. A
-visitor SHALL be able to sort the list by name or by margin, and to filter it by part of
-a name, ignoring case and accents. On the Brazil page, each state SHALL link to its
+delivered HTML. On a map with margin bins, each row SHALL show the municipality's most
+voted, the margin in percentage points and the bin's name, and a visitor SHALL be able to
+sort the list by name or by margin. On a Senate map, each row SHALL show the
+municipality's two most voted candidates with their shares, and a visitor SHALL be able
+to sort the list by name. A visitor SHALL be able to filter any list by part of a name,
+ignoring case and accents. On the Brazil page, each state SHALL link to its
 President race page, which lists that state's municipalities for the President race. A
 candidate page SHALL list each municipality's votes and share for that candidate,
 grouped by state on a President candidate's page.
 
 #### Scenario: The list without JavaScript
-- **WHEN** a race page is loaded with JavaScript disabled
+- **WHEN** a Governor race page is loaded with JavaScript disabled
 - **THEN** the list shows every municipality with its most voted and margin, and the page says that the map needs JavaScript
+
+#### Scenario: A Senate list
+- **WHEN** a visitor opens a Senate race page
+- **THEN** each row shows the municipality's two most voted candidates with their shares, with no margin, and the list sorts by name
 
 #### Scenario: Sorting by margin
 - **WHEN** a visitor sorts a state's list by margin
@@ -143,7 +149,8 @@ grouped by state on a President candidate's page.
 The build SHALL read each municipality's totals and the candidate registry from the
 pinned data version, and check the files against the manifest. It SHALL check that the
 municipalities add up to the area's summary for every candidate, every party's valid
-candidate votes plus list votes, and the valid votes. The Brazil check SHALL include the
+candidate votes plus valid list votes, and the valid votes. A party list that TSE
+annulled sub judice counts in neither side. The Brazil check SHALL include the
 cities abroad, because the Brazil summary includes them. Any difference SHALL fail the
 build, and the build SHALL NOT adjust a value.
 
@@ -158,6 +165,10 @@ language, and the list SHALL stay.
 #### Scenario: Votes under appeal
 - **WHEN** a state's federal deputy race holds candidates whose votes TSE annulled sub judice
 - **THEN** the party check compares only the valid candidate votes plus list votes, and passes
+
+#### Scenario: A party list under appeal
+- **WHEN** a state's deputy race holds a party list whose destination is "Anulado sub judice"
+- **THEN** the party check leaves that list's votes out on both sides, and passes
 
 #### Scenario: The Brazil check
 - **WHEN** the build checks the President race for Brazil

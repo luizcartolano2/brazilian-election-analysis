@@ -1,9 +1,9 @@
 ## Why
 
 The first release shows its numbers only in tables. A visitor cannot see where a
-candidate led, and reaches a municipality only through its state's list. D14 is met,
-because the first release shipped before the runoff. Luiz chose to also land maps and a
-search box before the runoff on 2026-10-25.
+candidate led, and reaches a municipality only through its state's list. The first
+release met D14 by shipping before the runoff. D14 now also records Luiz's target for
+this change: merge by 2026-10-23, before the runoff on 2026-10-25.
 
 A survey of the sites that publish TSE's results on 2026-10-08 shaped the scope. g1,
 Poder360 and O Tempo draw municipality maps with no street basemap. Nexo goes down to
@@ -120,4 +120,5 @@ Worker), D13 (only Actions publishes), D14 and D17.
 - `CLAUDE.md`, `DATA_LICENSE.md`, `.gitignore` and the READMEs.
 - `add-official-results-explorer` is archived before this change, because this change's
   deltas build on its specs.
-- The change merges by 2026-10-23, so the runoff weekend needs no deploy.
+- `docs/decisions.md`: D14 records the target to merge by 2026-10-23, so the runoff
+  weekend needs no deploy.

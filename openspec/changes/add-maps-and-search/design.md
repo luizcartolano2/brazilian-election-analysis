@@ -61,9 +61,12 @@ mapped race and area, and adds the IBGE code to its municipality list.
 - Before writing, the step adds up the municipalities and compares the result with the
   area's summary:
   - Each candidate's votes.
-  - Each party's valid candidate votes plus `votos_legenda`. The step computes them from
-    the summary's valid candidates, never from `votos_candidatos`, which also counts
-    votes under appeal (issue #11).
+  - Each party's valid candidate votes plus its valid list votes. The step computes the
+    candidate votes from the summary's valid candidates, never from `votos_candidatos`,
+    which also counts votes under appeal (issue #11). It counts `votos_legenda` only when
+    the party's destination is "Válido (legenda)". A list under appeal keeps its votes in
+    the summary, but those votes are annulled sub judice, so the map input leaves them
+    out. The pinned summaries hold 21 such lists.
   - The valid votes.
 - For Brazil, the sum covers every state and the cities abroad, because `br.json`
   includes them.
@@ -248,8 +251,9 @@ Alternatives rejected:
 
 The existing municipality list on the state page becomes a table in the HTML of each
 state and race page with a map. Its columns are the municipality as a link, the most
-voted, the margin and the bin. It sorts by name by default. A small script adds sorting
-by margin and a filter by name. Without JavaScript, the table stays complete. On the
+voted, the margin and the bin. A Senate table instead shows the two most voted with
+their shares, and has no margin. Every table sorts by name by default. A small script
+adds a filter by name, and sorting by margin where the table has one. Without JavaScript, the table stays complete. On the
 Brazil page, each state's row gains a link to its President race page.
 
 ### D8. Worker
