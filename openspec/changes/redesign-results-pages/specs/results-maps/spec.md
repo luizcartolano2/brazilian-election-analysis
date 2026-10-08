@@ -50,10 +50,11 @@ out the votes cast abroad, and link to them. Every results table of a President,
 or Senate race SHALL link each candidate to their page.
 
 Below the map, a candidacy with valid votes SHALL list up to six municipalities of its
-area, those with the most valid votes, with the candidate's share in each. A President candidate's
-page SHALL also list the candidate's share in each state, from the highest to the lowest,
-and SHALL state in how many states the candidate was the most voted. Each state in that
-list SHALL link to the state's page.
+area, those with the most valid votes, with the candidate's share in each. In an area
+with one municipality, the page shows no such list. A President candidate's page SHALL
+also list the candidate's share in each state, from the highest to the lowest, and SHALL
+state in how many states the candidate was the most voted. Each state in that list SHALL
+link to the state's page.
 
 #### Scenario: A governor candidate
 - **WHEN** a visitor opens the page of a Governor candidate in Bahia
@@ -74,6 +75,10 @@ list SHALL link to the state's page.
 #### Scenario: A President candidate's states
 - **WHEN** a visitor opens the page of a President candidate who was the most voted in 12 states
 - **THEN** the page states 12 states, and lists the candidate's share in all 27 states from the highest to the lowest
+
+#### Scenario: An area with one municipality
+- **WHEN** a visitor opens the page of a Governor candidate in the Federal District
+- **THEN** the page shows neither a share map nor a list of municipalities
 
 #### Scenario: The largest municipalities
 - **WHEN** a visitor opens the page of a Governor candidate in São Paulo

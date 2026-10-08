@@ -85,22 +85,34 @@ font file.
 
 ### 3. The headline comes from TSE's outcomes only
 
-A pure function in `src/lib/headline.ts` takes a race's results and returns one of four
-forms, each with its own message key:
+A pure function in `src/lib/headline.ts` takes a race's results and returns the first
+form that applies, in this order:
 
 | Form | When | Portuguese example |
 |---|---|---|
-| Runoff | At least one candidate's outcome is `2º turno` | "Flavio Bolsonaro e Lula vão ao 2º turno" |
-| Elected | At least one candidate's outcome is an elected outcome | "Raquel Lyra vence no 1º turno" |
-| Count | A proportional race | "46 vagas de deputado federal preenchidas" |
-| Most voted | No candidate has either outcome | "Raquel Lyra teve mais votos" |
+| Count | A proportional race where TSE elected at least one candidate | "46 vagas de deputado federal preenchidas" |
+| Seats | A proportional race where TSE elected no one | "Deputado federal: 46 vagas" |
+| Runoff | A majoritarian race where a candidate's outcome is `2º turno` | "Flavio Bolsonaro e Lula vão ao 2º turno" |
+| Elected | A majoritarian race where a candidate's outcome is an elected outcome | "Raquel Lyra vence no 1º turno" |
+| Most voted | Any other majoritarian race | "Raquel Lyra teve mais votos" |
+
+The proportional forms come first, because `isElected()` also matches "Eleito por QP".
+For the Senate, the Elected form names both winners with a plural verb, for example
+"Humberto Costa e Marília Arraes vencem para o Senado". A candidate page uses three more
+forms: the candidate's own runoff or elected outcome, the place in the race, or TSE's
+status for votes under appeal.
 
 The function reads `isElected()` and `isInRunoff()`, which the outcome badges already
-use. It never compares votes to decide an outcome. A unit test covers each form.
+use. It never compares votes to decide an outcome. A unit test covers each form and the
+order between them.
 
 The summaries hold no gender for a candidate, and Portuguese marks gender in "eleito"
 and "eleita". So every form uses a verb or a noun with no gender, as in the examples.
 The Portuguese and English messages each take the names as parameters.
+
+The dates of the two rounds, 2026-10-04 and 2026-10-25, are constants in
+`src/lib/elections.ts`, next to the election codes. The header and the runoff cards
+format them in the page's language.
 
 ### 4. The rank colors come from the maps' own ranking
 
@@ -118,15 +130,31 @@ accessible name is the state, the leader and the share. Its fill comes from the 
 margin. The text color is white on the darkest shade and `ink` on the others, which keeps
 each pair above 4.5 to 1.
 
-The list next to the grid is an HTML table of state, most voted and share. On a phone it
-sits in a `<details>` element under the grid, closed by default, so the page does not
-grow by 27 rows.
+The list is an HTML table of state, most voted and share, inside a `<details>` element
+under the grid. It is closed at every width, so the page does not grow by 27 rows and
+needs no script or viewport rule to decide. Each row links to the state's President race
+page, which keeps the link that the maps' text-equivalent requirement asks for.
 
 ### 6. The tabs enhance panels that the server renders in full
 
 The server renders each race as a `<section>` with `id` set to the race's slug, for
 example `senador`. Above the sections sits a list of links to `#governador`, `#senador`
-and `#presidente`. This is the whole page without JavaScript.
+and `#presidente`. This is the whole page without JavaScript. The Governor section holds
+the Governor map, its municipality list and the closest municipalities. Each section
+holds its own race's turnout, because turnout differs between races.
+
+Three CSS rules decide which panel shows before any script runs:
+
+- Under `@media (scripting: none)`, every panel shows.
+- Under `@media (scripting: enabled)`, only the Governor panel shows.
+- When a panel is the `:target`, it shows and the Governor panel hides. The rule uses
+  `:has(:target)` on the panels' container.
+
+The third rule makes a deep link to `#senador` paint the Senate panel first. It also
+keeps the tab links working when JavaScript runs but the tabs' script fails to load.
+`history.replaceState` does not move `:target`, so once the component runs, it marks the
+container, and the three rules stop applying. From then on, the `hidden` attributes
+alone decide which panel shows.
 
 A small client component then:
 
@@ -136,39 +164,54 @@ A small client component then:
 - writes the selected tab's fragment with `history.replaceState`, so the back button
   does not step through tabs,
 - marks the other panels `hidden="until-found"`, so the browser's find-in-page still
-  reaches their text where the browser supports it.
-
-The first paint must not show all panels and then hide them. A custom Tailwind variant
-on `@media (scripting: enabled)` hides every panel except Governor's before the script
-runs. The existing `noscript:` variant covers the other case.
+  reaches their text where the browser supports it,
+- selects a panel's tab on its `beforematch` event, so a panel that find-in-page reveals
+  is also the selected tab.
 
 Alternatives:
 
 - CSS-only tabs with `:target`. They give no tab semantics to a screen reader, and they
-  show nothing when the address has no fragment.
+  show nothing when the address has no fragment. The design keeps `:target` as the
+  fallback only.
+- No CSS before the script, so every panel shows until hydration. The page then jumps
+  on every load, by the height of two panels.
+- An inline script in the head that reads the fragment before the first paint. It needs
+  no `:has()`, but it adds a script outside React that the tests cannot reach.
 - One page per tab. That adds 81 pages, and the race pages already exist.
 
 ### 7. Title case is one pure function, applied where names enter the views
 
 `src/lib/names.ts` exports `displayName()`, which follows the rule in the spec. It
-compares a word without its punctuation and ordinal marks, so "DRª." counts as "DR". The
-lists of particles, titles and party abbreviations are constants next to it.
+splits each word into segments at a hyphen, an apostrophe, a quote mark, a parenthesis,
+a period or a slash, and applies the rule to each segment. It compares a segment
+without its ordinal marks, so "DRª" counts as "DR". The lists of particles, titles and
+acronyms are constants next to it.
 
-The function runs in four places, where TSE's names enter the views:
+The function applies to candidates' ballot names, to municipality names and to the
+names of cities abroad. It runs where those names enter the views:
 
 1. `raceResults()`, which builds every results table and card from a summary.
 2. The candidate page, its title and its metadata.
-3. The map labels and the municipality tables.
+3. The map labels, the municipality tables and the municipality lists.
 4. In the browser, the search results and the drill-down views.
 
 The search index keeps TSE's spelling, because matching already ignores case and
 accents. Only the displayed result changes.
 
-Before the change merges, a task runs `displayName()` over every ballot name in the
-pinned summaries. It lists each word that stays in capitals, and Luiz reviews the list.
-On 2026-10-08, the summaries held 18,505 distinct ballot names.
+IBGE publishes municipality names in mixed case, but the boundary build keeps only the
+IBGE code, and reading the names from IBGE would add a source to every page. TSE's names
+with the same rule are close enough, and the review below covers every one of them.
 
-### 8. The new lists are computed at build time and stay small
+Before the change merges, a task runs `displayName()` over every ballot name in the
+pinned summaries, every municipality and every city abroad. On 2026-10-08, that was
+18,505 distinct ballot names and 5,571 municipalities. The task attaches three lists to
+the PR, and Luiz reviews them:
+
+1. Each word that keeps its capitals.
+2. Each recased word of four letters or fewer, where a missed acronym hides.
+3. Each name that holds a period, a slash or a digit.
+
+### 8. The new lists are computed at build time, and the tables stay small
 
 - The closest municipalities come from the state's Governor rows in `getRaceMap()`,
   sorted by margin, with ties first.
@@ -177,22 +220,33 @@ On 2026-10-08, the summaries held 18,505 distinct ballot names.
 - A President candidate's share in each state comes from the 27 state summaries.
 
 These add at most 27 table rows to a page. The state page gains two panels of cards, and
-no map. The page size gate keeps running on every build.
+no map.
+
+The restyled tables are the larger risk. The São Paulo state deputy page holds 1,346
+candidates, and it sits at 92% of the size limit. Its class strings appear twice, in the
+HTML and in the page's React payload. So the tables take their styles from a few
+component classes in `globals.css`, such as one class for a results row, instead of a
+string of utilities on every cell. The foundation PR measures that page with the new
+classes before the other PRs start. If the page still exceeds the limit, the fix shortens
+the table's markup. The limit does not move.
 
 ## Risks / Trade-offs
 
-- [Title case mangles a name] → The rule changes only case. The review in decision 7
-  covers every real name before the merge, and the sources page says that the names were
-  recased.
+- [Title case mangles a name] → The rule changes only case. The three review lists in
+  decision 7 cover the words where the rule is most likely to fail, and the sources page
+  says that the names were recased.
 - [Fonts slow the first visit] → Two Latin files with one axis each, and `swap`, so the
   text shows at once in the fallback. A task records their size in the PR.
 - [The President card's color surprises a visitor] → On Pernambuco's page, Lula leads but
   takes the second color, because he came second in Brazil. The legend names the
   colors, and the color matches the President map one click away.
-- [A hidden tab hides text from find-in-page] → `hidden="until-found"` where the browser
-  supports it, and every race keeps its own page with the full results.
-- [The deadline] → The work lands in three PRs, so the first ones help even if the last
-  one slips. The proposal says what happens on 2026-10-23.
+- [A hidden tab hides text from find-in-page] → `hidden="until-found"` and `beforematch`
+  where the browser supports them, and every race keeps its own page with the full
+  results.
+- [`:has()` is missing in an old browser] → Every browser since 2023 supports it. In an
+  older one, a deep link opens on the Governor tab until the script runs.
+- [The deadline] → The work lands in three PRs, and the rule in the migration plan
+  applies to each PR alone.
 - [The browser tests break on the new structure] → Each PR updates the tests it breaks.
   No test is deleted without a replacement that covers the same requirement.
 
@@ -205,6 +259,11 @@ The change ships in three PRs, each one green in CI and deployed by Vercel on me
 2. The Brazil and state pages: headline, cards, state tiles, tabs and the closest
    municipalities.
 3. The race and candidate pages, and the drill-down views' tables.
+
+Each PR merges by 2026-10-23, or it waits until the runoff change merges. If PR 3 slips,
+its requirements and tasks move to a follow-up change before the runoff change starts,
+and this change archives after PR 2. The runoff change then builds on archived specs,
+not on an open change.
 
 A rollback is a revert of the PR. No data, address or Worker change is involved. No PR
 of this change merges from 2026-10-24 to 2026-10-26.

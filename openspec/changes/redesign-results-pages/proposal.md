@@ -12,20 +12,23 @@ and approved its four main choices. This change brings them to the site (issue 2
 - Each Brazil, state, race and candidate page opens with its result. A headline states
   TSE's outcome, for example that two candidates go to the runoff. Large cards then show
   the leading candidates with their share, votes and outcome. The map, the tables and
-  the turnout follow.
+  the turnout follow. A runoff card states the runoff's date, and the header names the
+  round and its date.
 - A candidate keeps one color everywhere on a page. The race's most voted takes the
   maps' blue, the runner-up takes the maps' orange, and the others take gray. The cards,
   the share bars and the legends use the same colors as the maps.
 - The Brazil page shows the 27 states as a grid of tiles in their rough geographic
   places. Each tile takes the color of the state's most voted President candidate,
-  shaded by margin as on the maps, and links to the state. A text list of the states
-  with the leader and the share sits next to the grid.
+  shaded by margin as on the maps, and links to the state. A list under the grid names
+  each state's leader and share, and links to the state's President race page.
 - The state page switches between its Governor, Senate and President races with tabs.
-  The deputy races appear as links to their race pages, with the count of elected
-  candidates. Without JavaScript, every race shows one after another, as today.
-- The site shows candidates' ballot names in title case, for example "Flavio Bolsonaro"
-  for TSE's "FLAVIO BOLSONARO". The sources page says that TSE publishes them in
-  capitals. Search still finds a candidate by either spelling.
+  The Governor tab holds the Governor map and the municipality list. The deputy races
+  appear as links to their race pages, with the count of elected candidates. Without
+  JavaScript, every race shows one after another, as today.
+- The site shows candidates' ballot names, municipality names and the names of cities
+  abroad in title case, for example "Flavio Bolsonaro" for TSE's "FLAVIO BOLSONARO" and
+  "Abreu e Lima" for "ABREU E LIMA". The sources page says that TSE publishes them in
+  capitals. Search still finds a name by either spelling.
 - The candidate page adds the candidate's place in the race and a list of the area's
   largest municipalities with the candidate's share in each. A President candidate's
   page also lists the share in each state and counts the states that the candidate led.
@@ -52,6 +55,7 @@ None.
 - `results-maps`: a candidate keeps the maps' color outside the map, the Governor tab
   lists the closest municipalities, and the candidate page gains its place in the race,
   its largest municipalities and, for President, its share by state.
+- `site-search`: results show names in title case instead of TSE's capitals.
 
 ## Invariants
 
@@ -80,9 +84,12 @@ does not change the schema between the pipeline and the app.
 
 This change lands before the runoff change. The runoff results reuse this change's cards
 and headline, so building them twice would waste days. Like the maps, the change
-targets a merge by 2026-10-23 and leaves the runoff weekend free of deploys. If it is not
-merged by then, it waits until after the runoff, and the runoff change goes first on the
-current design.
+targets a merge by 2026-10-23 and leaves the runoff weekend free of deploys.
+
+The date applies to each of the change's three PRs alone. A PR that misses it waits until
+the runoff change merges. If the last PR misses it, its requirements and tasks move to a
+follow-up change, and this change archives without them, so the runoff change builds on
+archived specs.
 
 ## Non-goals
 

@@ -142,8 +142,9 @@ runoff weekend free of deploys.
 
 On 2026-10-08, Luiz approved a redesign, in the change `redesign-results-pages`. It has
 the same target, a merge by 2026-10-23, and lands before the runoff change, which reuses
-its result cards. If it misses that date, it waits until after the runoff, and the
-runoff change goes first on the current design.
+its result cards. The date applies to each of its three PRs alone. A PR that misses it
+waits until the runoff change merges. If the last PR misses it, its requirements move to
+a follow-up change, so the runoff change builds on archived specs.
 
 ### D15. The pre-runoff release shows official results
 
