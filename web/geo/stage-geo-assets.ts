@@ -71,7 +71,12 @@ const MAPSHAPER_VERSION = (
   createRequire(import.meta.url)('mapshaper/package.json') as { version: string }
 ).version
 
-const LISTS = new Set(['SHA256SUMS', 'manifest.json'])
+const STAGED_NAMES = new Set([
+  'SHA256SUMS',
+  'manifest.json',
+  'br.json',
+  ...Object.values(STATE_CODES).map((area) => `${area}.json`),
+])
 
 function text(value: string | Uint8Array | undefined): string {
   if (value === undefined) throw new Error('mapshaper wrote no output')
@@ -394,8 +399,13 @@ export async function stageToFolder(
   target: string,
   input: StageInput,
 ): Promise<Map<string, Uint8Array>> {
-  const existing = await readdir(target).catch(() => [] as string[])
-  const foreign = existing.filter((name) => !LISTS.has(name) && !/^[a-z]{2}\.json$/.test(name))
+  const existing = await readdir(target, { withFileTypes: true }).catch((error: unknown) => {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
+    throw error
+  })
+  const foreign = existing
+    .filter((entry) => !entry.isFile() || !STAGED_NAMES.has(entry.name))
+    .map((entry) => entry.name)
   if (foreign.length > 0) {
     throw new Error(`${target} holds ${foreign.join(', ')}, which no staging writes`)
   }

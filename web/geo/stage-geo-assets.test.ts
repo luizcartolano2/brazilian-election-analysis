@@ -343,6 +343,25 @@ describe('stageToFolder', () => {
     expect((await readdir(target)).sort()).toEqual(['package.json', 'src'])
   })
 
+  it('refuses a folder named like a staged file, and a name that no staging writes', async () => {
+    const target = await mkdtemp(path.join(os.tmpdir(), 'geo-'))
+    await mkdir(path.join(target, 'pe.json'))
+    await writeFile(path.join(target, 'zz.json'), '{}')
+
+    await expect(stageToFolder(target, input())).rejects.toThrow(
+      /holds (pe|zz)\.json, (pe|zz)\.json/,
+    )
+    expect((await readdir(target)).sort()).toEqual(['pe.json', 'zz.json'])
+  })
+
+  it('refuses a target that is a file, and keeps it', async () => {
+    const target = path.join(await mkdtemp(path.join(os.tmpdir(), 'geo-')), 'package.json')
+    await writeFile(target, '{}')
+
+    await expect(stageToFolder(target, input())).rejects.toThrow(/ENOTDIR/)
+    expect(await readFile(target, 'utf-8')).toBe('{}')
+  })
+
   it('replaces an earlier staging', async () => {
     const target = await mkdtemp(path.join(os.tmpdir(), 'geo-'))
     await writeFile(path.join(target, 'ac.json'), '{}')
