@@ -65,7 +65,7 @@ export interface PartRow {
   BOUNDS: string
 }
 
-type Files = Record<string, string | Uint8Array>
+type Files = Record<string, string | Buffer>
 
 const MAPSHAPER_VERSION = (
   createRequire(import.meta.url)('mapshaper/package.json') as { version: string }
@@ -126,7 +126,7 @@ export async function explodeSource(
       `-each "CD_MUN=+CD_MUN" -proj ${settings.projection} -explode ` +
       `-each "PART=this.id, AREA=this.area, BOUNDS=this.bounds.join(',')" ` +
       '-o format=json parts.json -o format=shapefile parts.shp',
-    { 'source.zip': zip },
+    { 'source.zip': Buffer.from(zip.buffer, zip.byteOffset, zip.byteLength) },
   )
   return {
     rows: JSON.parse(text(exploded['parts.json'])) as PartRow[],

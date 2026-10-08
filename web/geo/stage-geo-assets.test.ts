@@ -148,6 +148,12 @@ describe('stageGeoAssets', () => {
     expect(existsSync(target)).toBe(false)
   })
 
+  it('reads a source given as a plain Uint8Array, as a download gives it', async () => {
+    const files = await stageGeoAssets(input({ zip: new Uint8Array(plain.zip) }))
+
+    expect(files.has('br.json')).toBe(true)
+  })
+
   it('drops a listed far island, and records it', async () => {
     const files = await stageGeoAssets(input())
 
