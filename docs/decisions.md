@@ -136,6 +136,10 @@ methodology page rests on. Local runs are for development and cannot publish.
 The second round is on 2026-10-25. Something ships before it. There is no fixed date for
 the rest.
 
+On 2026-10-08, after the first release went live, Luiz added a second target: maps and
+a search box, in the change `add-maps-and-search`, merge by 2026-10-23. That leaves the
+runoff weekend free of deploys.
+
 ### D15. The pre-runoff release shows official results
 
 The first release explores official first-round results, down to the polling station, on
