@@ -4,6 +4,7 @@ import path from 'node:path'
 import type { DrilldownConfig } from './drilldown/config'
 import { COUNCIL } from './elections'
 import type { Manifest } from './manifest'
+import type { MapData } from './maps'
 import type { Summary } from './results'
 
 const DATA_DIR = path.join(process.cwd(), '.data')
@@ -27,10 +28,15 @@ export interface DataSourceInfo {
   workerScript: string
   /** The search index's folder in the static export, named for its content. */
   searchBase: string
+  /** Where the browser reads the pinned boundary build, and each file's SHA-256. */
+  geoBase: string
+  geoSha256: Record<string, string>
 }
 
 export interface Municipality {
   municipio: number
+  /** IBGE's code, which the boundaries carry. Cities abroad have none. */
+  ibge: number | null
   nome: string
   capital: boolean
 }
@@ -70,6 +76,19 @@ let municipalities: Record<string, Municipality[]> | undefined
 export function getMunicipalities(area: string): Municipality[] {
   municipalities ??= readJson<Record<string, Municipality[]>>('municipios.json')
   return municipalities[area] ?? []
+}
+
+const maps = new Map<string, MapData>()
+
+/** A race's values by municipality: `br` holds the President map of Brazil. */
+export function getRaceMap(area: string, race: number): MapData {
+  const key = `${area}/${race}`
+  let data = maps.get(key)
+  if (data === undefined) {
+    data = readJson<MapData>(`mapas/${key}.json`)
+    maps.set(key, data)
+  }
+  return data
 }
 
 /** What the browser needs to query this data version, with each area's races and shapes. */

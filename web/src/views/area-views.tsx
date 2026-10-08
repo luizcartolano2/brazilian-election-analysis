@@ -17,6 +17,7 @@ import {
   type StateInfo,
 } from '@/lib/elections'
 import { formatInteger, formatShare, localePath, t, type Locale } from '@/lib/i18n'
+import { hasMap, MapSection } from '@/views/map-section'
 import {
   isElected,
   raceResults,
@@ -26,6 +27,7 @@ import {
 } from '@/lib/results'
 
 const HEADLINE_SIZE = { majoritarian: 3, proportional: 5 }
+const GOVERNOR = 3
 
 function brazil(locale: Locale): string {
   return t(locale, 'area.brazil')
@@ -102,17 +104,18 @@ export function BrazilView({ locale }: { locale: Locale }) {
         results={results}
         caption={t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
       />
+      <MapSection locale={locale} area="br" areaLabel={brazil(locale)} race={info} table={false} />
       <p className="mt-4 text-sm">
         <AppLink href={localePath(locale, `/${YEAR}/${ABROAD.code}/`)} className="underline">
           {t(locale, 'brazil.abroadLink')}
         </AppLink>
       </p>
-      <StateList locale={locale} />
+      <StateList locale={locale} president={info} />
     </PageShell>
   )
 }
 
-function StateList({ locale }: { locale: Locale }) {
+function StateList({ locale, president }: { locale: Locale; president: RaceInfo }) {
   return (
     <section className="mt-8">
       <h2 className="text-xl font-semibold">{t(locale, 'brazil.statesTitle')}</h2>
@@ -122,6 +125,12 @@ function StateList({ locale }: { locale: Locale }) {
           <li key={state.code}>
             <AppLink href={localePath(locale, `/${YEAR}/${state.code}/`)} className="underline">
               {areaName(state, locale)}
+            </AppLink>
+            <AppLink
+              href={localePath(locale, `/${YEAR}/${state.code}/${president.slug}/`)}
+              className="block text-xs text-slate-600 underline"
+            >
+              {t(locale, 'brazil.statePresident')}
             </AppLink>
           </li>
         ))}
@@ -153,6 +162,7 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
   const firstInfo = knownRace(first)
   const turnout = raceResults(first, firstInfo.proportional)
   const abroad = area.code === ABROAD.code
+  const governor = races.some((race) => race.cargo === GOVERNOR) ? raceByCode(GOVERNOR) : undefined
 
   return (
     <PageShell locale={locale} path={`/${YEAR}/${area.code}/`} crumbs={areaCrumbs(locale, area)}>
@@ -208,7 +218,20 @@ export function AreaView({ locale, code }: { locale: Locale; code: string }) {
           </section>
         )
       })}
-      <MunicipalityList locale={locale} area={area} />
+      {hasMap(area.code) && governor !== undefined ? (
+        <MapSection
+          locale={locale}
+          area={area.code}
+          areaLabel={areaName(area, locale)}
+          race={governor}
+          table
+          collapsed={t(locale, 'area.municipalitiesSummary', {
+            count: formatInteger(locale, getMunicipalities(area.code).length),
+          })}
+        />
+      ) : (
+        <MunicipalityList locale={locale} area={area} />
+      )}
     </PageShell>
   )
 }
@@ -264,7 +287,20 @@ export function RaceView({ locale, code, slug }: { locale: Locale; code: string;
       crumbs={areaCrumbs(locale, area, info)}
     >
       <h1 className="text-2xl font-semibold">{title}</h1>
-      <FullResults locale={locale} info={info} results={results} caption={title} />
+      {hasMap(area.code) ? (
+        <MapSection
+          locale={locale}
+          area={area.code}
+          areaLabel={areaName(area, locale)}
+          race={info}
+          table
+        >
+          <h2 className="mt-8 text-xl font-semibold">{t(locale, 'race.candidatesTitle')}</h2>
+          <FullResults locale={locale} info={info} results={results} caption={title} />
+        </MapSection>
+      ) : (
+        <FullResults locale={locale} info={info} results={results} caption={title} />
+      )}
     </PageShell>
   )
 }

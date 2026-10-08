@@ -6,6 +6,8 @@ import { formatDateTime, formatInteger, t, type Locale, type MessageKey } from '
 import type { Manifest, ManifestSource } from '@/lib/manifest'
 import { REPOSITORY } from '@/lib/site'
 
+const IBGE_TERMS = 'https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf'
+
 // TSE's two hosts come with different terms, as DATA_LICENSE.md records.
 const HOSTS: { pattern: RegExp; title: MessageKey; terms: MessageKey }[] = [
   {
@@ -99,6 +101,37 @@ export function SourcesContent({
       <blockquote className="mt-2 border-l-2 border-slate-300 pl-3 text-sm">
         {manifest.credito[locale]}
       </blockquote>
+
+      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.boundariesTitle')}</h2>
+      <p className="mt-2 text-sm">{t(locale, 'sources.boundariesIntro')}</p>
+      <p className="mt-2 text-sm">
+        {t(locale, 'sources.boundariesTerms')}{' '}
+        <a href={IBGE_TERMS} className="underline">
+          {t(locale, 'sources.boundariesNote')}
+        </a>
+        .
+      </p>
+      <blockquote className="mt-2 border-l-2 border-slate-300 pl-3 text-sm">
+        {t(locale, 'sources.boundariesCredit')}
+      </blockquote>
+      {source.mode === 'published' ? (
+        <dl className="mt-2 text-sm">
+          <dt className="text-xs text-slate-600">{t(locale, 'sources.boundariesBuild')}</dt>
+          <dd className="font-mono break-all" data-testid="boundary-build">
+            {source.geoBase.slice(source.geoBase.lastIndexOf('/') + 1)}
+          </dd>
+          <dt className="mt-2 text-xs text-slate-600">{t(locale, 'sources.manifest')}</dt>
+          <dd>
+            <a href={`${source.geoBase}/manifest.json`} className="underline">
+              manifest.json
+            </a>
+          </dd>
+        </dl>
+      ) : (
+        <p className="mt-2 text-sm" data-testid="boundary-build">
+          {t(locale, 'sources.boundariesFixtures')}
+        </p>
+      )}
 
       <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.filesTitle')}</h2>
       <p className="mt-1 text-sm text-slate-700">

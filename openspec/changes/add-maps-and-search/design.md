@@ -74,9 +74,10 @@ mapped race and area, and adds the IBGE code to its municipality list.
 - Each page passes its values as props to a client component, which Next serializes and
   escapes. Nothing embeds an inline JSON script, because that needs
   `dangerouslySetInnerHTML`, which the lint rule bans.
-- A race page passes, per municipality, the IBGE code, the most voted, the margin and the
-  bin. The list renders the same values as HTML.
-- The Brazil page passes the same values for 5,571 municipalities, about 140 KB before
+- A race page passes, per municipality, the IBGE and TSE codes, the name, the two most
+  voted with their votes, and the valid votes. One function derives the margin and the
+  bin from them, for the map and for the list alike, and the list renders them as HTML.
+- The Brazil page passes the same values for 5,571 municipalities, 282 KB before
   compression, and shows no list. That costs less than one more request to the Worker
   for every visit to the most visited page.
 - A candidate page passes, per municipality, that candidate's votes and the valid votes.
@@ -186,10 +187,11 @@ Alternatives rejected:
 
 ### D4. Colors, bins and names
 
-Two hues from the Okabe-Ito palette, which stays distinct for common color-vision
-deficiencies, go to the first and second of the race's whole area. Each hue has three
-shades, one for each margin bin. Other leaders are a single gray, and ties use a neutral
-hatch.
+Two hues, ColorBrewer's blues and oranges, go to the first and second of the race's whole
+area. The pair stays distinct for the common color-vision deficiencies, and each hue has
+three shades, one for each margin bin. Other leaders are a single gray, and ties use a
+neutral hatch. IBGE's two lagoon areas are drawn as water, with their own legend entry on
+the maps that hold them. A municipality with no valid votes takes a pale fill.
 
 - The bins cut at 5 and 20 points, as g1's results map does. A reader who knows that
   map reads ours the same way.
@@ -272,6 +274,12 @@ their shares, and has no margin. Every table sorts by name by default. A small s
 adds a filter by name, and sorting by margin where the table has one. Without JavaScript, the table stays complete. On the
 Brazil page, each state's row gains a link to its President race page.
 
+The state page's Governor table replaces its old list of municipalities, folded under the
+same summary. Its links open each municipality's view on the Governor race. The Brazil page
+has no list, so its map's messages for a failed download and for no JavaScript point to the
+states' lists instead. The build also fails on valid votes for a number that no summary
+holds, and on a race code that the app does not know.
+
 ### D8. Worker
 
 `PREFIXES` in `worker/src/keys.ts` gains `["assets", "geo", "ibge-2025"]`. The prefix
@@ -283,9 +291,9 @@ content type, so the boundaries use that extension.
 
 ### D9. A size gate on the static export
 
-A script runs after `next build` in the web CI job and fails when any HTML file in the
-export exceeds 2.5 MB. Today's largest page is 2.06 MB, so the gate leaves room for the
-municipality table that São Paulo's race pages gain.
+The build script runs a check after `next build`, so it applies in CI and on Vercel. It
+fails when any HTML file in the export exceeds 2,500,000 bytes. With its map and list,
+the largest page, São Paulo's state deputy race, is 2,423,481 bytes.
 
 ### D10. Worker requests per visit
 
