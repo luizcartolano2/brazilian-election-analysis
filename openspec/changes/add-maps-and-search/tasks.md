@@ -1,6 +1,6 @@
 ## 1. Before the work (Luiz, with help)
 
-- [ ] 1.1 Archive `add-official-results-explorer` once its tasks 6.1 and 6.3 pass, so this change's deltas have a base
+- [x] 1.1 Archive `add-official-results-explorer` once its tasks 6.1 and 6.3 pass, so this change's deltas have a base
 - [ ] 1.2 Read IBGE's terms of reuse for the municipal boundaries. In `DATA_LICENSE.md`, record the terms, the date checked and a credit line in both languages that says the boundaries were simplified, and keep the boundaries out of the project's CC BY grant. Stop the maps if the terms forbid redistribution
 
 ## 2. Web: search (the search PR)
