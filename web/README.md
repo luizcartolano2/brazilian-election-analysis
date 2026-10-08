@@ -125,9 +125,12 @@ unit tests need it installed, as above.
 
 Vercel builds a commit only when something under `web/` changed since the branch's last
 successful deployment. `vercel.json` runs `scripts/vercel-ignore-build.sh` as its Ignored
-Build Step. The script builds whenever it cannot tell, for example on a branch's first
-deployment. A skipped deployment shows as canceled and stores no output, which keeps
-Vercel's Deployment Storage down.
+Build Step. A branch's first preview compares its last commit with that commit's parent.
+Production builds whenever the script cannot tell. A skipped deployment shows as canceled
+and stores no output, which keeps Vercel's Deployment Storage down.
+
+The step assumes that the Vercel project's Root Directory is `web/`. If that setting
+moves, Vercel cannot find the script, and every commit builds again without any warning.
 
 ## Pin a new data version
 

@@ -15,8 +15,11 @@ function git(...args: string[]): string {
   return execFileSync('git', args, {
     cwd: repo,
     encoding: 'utf-8',
+    // The developer's own hooks, signing and templates stay out of the temporary repository.
     env: {
       ...process.env,
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_CONFIG_NOSYSTEM: '1',
       GIT_AUTHOR_NAME: 'Test',
       GIT_AUTHOR_EMAIL: 'test@example.com',
       GIT_COMMITTER_NAME: 'Test',
@@ -31,12 +34,12 @@ function commit(file: string): string {
   edits += 1
   writeFileSync(target, `${file} ${edits}\n`)
   git('add', '-A')
-  git('-c', 'commit.gpgsign=false', 'commit', '-q', '-m', file)
+  git('commit', '-q', '-m', file)
   return git('rev-parse', 'HEAD')
 }
 
-function decide(previous: string | undefined): number | null {
-  const env = { ...process.env }
+function decide(previous: string | undefined, target = 'production'): number | null {
+  const env: NodeJS.ProcessEnv = { ...process.env, VERCEL_ENV: target }
   delete env.VERCEL_GIT_PREVIOUS_SHA
   if (previous !== undefined) env.VERCEL_GIT_PREVIOUS_SHA = previous
   return spawnSync('sh', [SCRIPT], { cwd: path.join(repo, 'web'), env }).status
@@ -52,10 +55,28 @@ describe('the Ignored Build Step', () => {
     rmSync(repo, { recursive: true, force: true })
   })
 
-  it('builds a branch with no earlier deployment', () => {
+  it('builds production with no earlier deployment, whatever changed', () => {
     commit('web/page.tsx')
+    commit('README.md')
     expect(decide(undefined)).toBe(BUILD)
     expect(decide('')).toBe(BUILD)
+  })
+
+  it('skips the first preview of a branch whose last commit leaves web/ unchanged', () => {
+    commit('web/page.tsx')
+    commit('openspec/changes/proposal.md')
+    expect(decide(undefined, 'preview')).toBe(SKIP)
+  })
+
+  it('builds the first preview of a branch whose last commit changes web/', () => {
+    commit('README.md')
+    commit('web/page.tsx')
+    expect(decide(undefined, 'preview')).toBe(BUILD)
+  })
+
+  it('builds the first preview when the commit has no parent in the clone', () => {
+    commit('web/page.tsx')
+    expect(decide(undefined, 'preview')).toBe(BUILD)
   })
 
   it('skips when only files outside web/ changed', () => {

@@ -6,6 +6,12 @@ set -u
 
 previous="${VERCEL_GIT_PREVIOUS_SHA:-}"
 if [ -z "$previous" ]; then
+  # A preview's first push compares with its parent commit, as a missed preview is harmless.
+  # Production always builds here, because it has no earlier deployment to fall back on.
+  if [ "${VERCEL_ENV:-}" = "preview" ] && git diff --quiet HEAD^ HEAD -- . 2>/dev/null; then
+    echo "First preview of this branch, and its last commit leaves web/ unchanged: skipping."
+    exit 0
+  fi
   echo "No earlier deployment on this branch: building."
   exit 1
 fi
