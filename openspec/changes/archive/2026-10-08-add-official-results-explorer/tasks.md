@@ -61,6 +61,6 @@
 
 ## 6. Launch (Luiz, with help)
 
-- [ ] 6.1 Create the Vercel project on `web/`, add `eleicoes.luizcartolano.com`, and add the CNAME at GoDaddy
+- [x] 6.1 Create the Vercel project on `web/`, add `eleicoes.luizcartolano.com`, and add the CNAME at GoDaddy
 - [x] 6.2 Add to the README that the GoDaddy CNAME must be deleted before the Vercel project is ever removed
-- [ ] 6.3 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view; follow the TSE link from a governor view and from the council view, and make sure that each opens the same station in that race
+- [x] 6.3 Open the live site in both languages on a phone, and spot-check three stations against TSE's own station view; follow the TSE link from a governor view and from the council view, and make sure that each opens the same station in that race
