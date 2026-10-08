@@ -156,21 +156,9 @@ test('without JavaScript no search box shows, and the Brazil page is a click awa
 for (const [label, query, option, address, row] of [
   ['a municipality', 'recife', /^RECIFE/, '/2026/municipio/?uf=pe&mu=25313', null],
   ['a city abroad', 'katmandu', /^KATMANDU/, '/2026/municipio/?uf=zz&mu=29173', null],
-  ['a President candidacy', 'lula', /^LULA PT · 13/, '/2026/#candidato-13', 'candidato-13'],
-  [
-    'a Governor candidacy',
-    'raquel lyra',
-    /^RAQUEL LYRA/,
-    '/2026/pe/governador/#candidato-55',
-    'candidato-55',
-  ],
-  [
-    'a Senate candidacy',
-    'humberto',
-    /^HUMBERTO COSTA/,
-    '/2026/pe/senador/#candidato-130',
-    'candidato-130',
-  ],
+  ['a President candidacy', 'lula', /^LULA PT · 13/, '/2026/presidente/13/', null],
+  ['a Governor candidacy', 'raquel lyra', /^RAQUEL LYRA/, '/2026/pe/governador/55/', null],
+  ['a Senate candidacy', 'humberto', /^HUMBERTO COSTA/, '/2026/pe/senador/130/', null],
   [
     'a deputy candidacy',
     'abimael',

@@ -160,5 +160,22 @@
   "sources.boundariesNote": "IBGE's methodological note 01/2026",
   "sources.boundariesCredit": "Municipal boundaries: IBGE, Malha Municipal Digital 2025, under a license compatible with CC BY 4.0. Geometry simplified and reprojected by this project. Approximate boundaries, not official ones.",
   "sources.boundariesBuild": "Boundary build",
-  "sources.boundariesFixtures": "This is a test build, with the boundaries of a few municipalities."
+  "sources.boundariesFixtures": "This is a test build, with the boundaries of a few municipalities.",
+  "map.shareHeading": "Share of the votes by municipality",
+  "map.shareTitle": "{candidate} · {race} · {area} · round 1",
+  "map.shareStatement": "Shades show {candidate}'s share of the valid votes in each municipality.",
+  "map.shareTwoChoices": "Each voter chose two candidates for two seats, so Senate shares run lower, and the shades rise in steps of 5 points.",
+  "map.step": "{from} to {to}%",
+  "map.stepLast": "{from}% or more",
+  "map.votesCount": "{votes} votes",
+  "map.votes": "Votes",
+  "map.share": "Share",
+  "map.sortShare": "By share",
+  "map.tableCaptionShare": "{candidate}: votes and share of the valid votes in each municipality",
+  "candidate.share": "Share of valid votes",
+  "candidate.outcome": "TSE's outcome",
+  "candidate.underAppeal": "This candidacy's votes are under appeal. TSE records them as “{status}” and does not count them among the valid votes, so the page shows no share and no map.",
+  "candidate.twoChoices": "Each voter chose two candidates for two seats. The share is of all the valid votes in the race.",
+  "candidate.oneMunicipality": "This race has a single municipality, so the page shows no map.",
+  "candidate.allCandidates": "See every candidate for {race} · {area}"
 }

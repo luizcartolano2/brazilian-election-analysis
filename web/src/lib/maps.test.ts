@@ -8,6 +8,8 @@ import {
   mapRows,
   PARTY_LIST,
   raceUnits,
+  shareMap,
+  stepOf,
   type MapRow,
   type VoteTotal,
 } from './maps'
@@ -262,5 +264,38 @@ describe('mapRows and fillOf', () => {
     expect(fillOf(at(52, 48), 'margin')).toMatchObject({ bin: 0 })
     expect(fillOf(at(53, 48), 'margin')).toMatchObject({ bin: 1 })
     expect(fillOf(at(60, 40), 'margin')).toMatchObject({ bin: 2 })
+  })
+})
+
+describe('shareMap and stepOf', () => {
+  const votes = {
+    numbers: [13, 22],
+    rows: [
+      [2611606, 25313, 'RECIFE', 1000, 450, 550],
+      [2605459, 30015, 'NORONHA', 0, 0, 0],
+    ] as [number, number, string, number, ...number[]][],
+  }
+
+  it('takes one candidate column, with the valid votes', () => {
+    const map = shareMap(votes, 22, 'SECOND (PL)', 10)
+
+    expect(map?.kind).toBe('share')
+    expect(map?.units).toEqual(['SECOND (PL)'])
+    expect(map?.rows[0]).toEqual([2611606, 25313, 'RECIFE', 0, 550, -1, 0, 1000])
+    expect(shareMap(votes, 99, 'NOBODY', 10)).toBeNull()
+  })
+
+  it('cuts President and Governor shares in steps of 10, and the Senate in steps of 5', () => {
+    const at = (share: number): MapRow => [1, 1, 'X', 0, share, -1, 0, 100]
+
+    expect([0, 9, 10, 49, 50, 97].map((share) => stepOf(at(share), 10))).toEqual([0, 0, 1, 4, 5, 5])
+    expect([4, 5, 24, 25, 60].map((share) => stepOf(at(share), 5))).toEqual([0, 1, 4, 5, 5])
+  })
+
+  it('leaves a municipality with no valid votes unfilled', () => {
+    const map = shareMap(votes, 13, 'FIRST (PT)', 10)
+
+    expect(fillOf(map?.rows[1] as MapRow, 'share', 10)).toEqual({ kind: 'none' })
+    expect(fillOf(map?.rows[0] as MapRow, 'share', 10)).toEqual({ kind: 'share', step: 4 })
   })
 })

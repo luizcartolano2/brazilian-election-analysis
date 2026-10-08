@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { mkdtemp, readdir, readFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -16,6 +17,12 @@ const FIXTURES_GEO = path.join(import.meta.dirname, '..', 'fixtures-geo')
 
 function sha256(bytes: Uint8Array): string {
   return createHash('sha256').update(bytes).digest('hex')
+}
+
+function summaries(area: string): Summary {
+  return JSON.parse(
+    readFileSync(path.join(FIXTURES, '2026', 't1', 'resumo', `${area}.json`), 'utf-8'),
+  ) as Summary
 }
 
 describe('readBoundaries', () => {
@@ -117,13 +124,28 @@ describe('buildMaps on the fixtures', () => {
 
   it('writes a map for each race of each state', async () => {
     expect((await readdir(path.join(out, 'pe'))).sort()).toEqual([
+      '1-votos.json',
       '1.json',
+      '3-votos.json',
       '3.json',
+      '5-votos.json',
       '5.json',
       '6.json',
       '7.json',
     ])
     expect((await read('pe', 5)).kind).toBe('senate')
+  })
+
+  it("writes each President candidate's votes in every municipality of Brazil", async () => {
+    const votes = JSON.parse(await readFile(path.join(out, 'br', '1-votos.json'), 'utf-8')) as {
+      numbers: number[]
+      rows: unknown[][]
+    }
+    const brazil = summaries('br').corridas.find((race) => race.cargo === 1)
+    const valid = (brazil?.candidatos ?? []).filter((candidate) => candidate.destino === 'Válido')
+
+    expect(votes.numbers.sort()).toEqual(valid.map((candidate) => candidate.numero).sort())
+    expect(votes.rows).toHaveLength(8)
   })
 
   it('fails and names a municipality that its state file lacks', async () => {

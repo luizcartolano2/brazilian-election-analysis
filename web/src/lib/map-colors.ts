@@ -9,6 +9,8 @@ export const SHADES: readonly [Shades, Shades] = [
   ['#fdd0a2', '#f16913', '#a63603'],
 ]
 export const SENATE_SHADE = [SHADES[0][1], SHADES[1][1]] as const
+// ColorBrewer's greens, a hue apart from the two candidate colors, for a share's six steps.
+export const SHARE_SHADES = ['#edf8e9', '#c7e9c0', '#a1d99b', '#74c476', '#31a354', '#006d2c']
 export const OTHER = '#bdbdbd'
 export const NO_VOTES = '#f1f5f9'
 export const WATER = '#dbeafe'
@@ -18,6 +20,8 @@ export function fillColor(fill: Fill, patternId: string): string {
   switch (fill.kind) {
     case 'leader':
       return fill.bin === null ? SENATE_SHADE[fill.color] : SHADES[fill.color][fill.bin]
+    case 'share':
+      return SHARE_SHADES[fill.step] ?? OTHER
     case 'tie':
       return `url(#${patternId})`
     case 'other':

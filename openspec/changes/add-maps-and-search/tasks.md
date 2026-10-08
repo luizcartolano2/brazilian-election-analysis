@@ -48,10 +48,10 @@
 
 ## 7. Web: candidate pages (the candidate pages PR)
 
-- [ ] 7.1 Add `/2026/presidente/<numero>/` and `/2026/<uf>/<cargo>/<numero>/` in both route trees, generated from the summaries. Test on the fixtures that each majoritarian candidacy gets a page in each language, and that a page's address opens the same candidate
-- [ ] 7.2 Show the ballot name, number, party, votes, share and outcome, the share map in the steps of its race, and the table of votes and share per municipality, grouped by state for President. Test a Governor candidate, a President candidate, a Senate candidate with 5-point steps and the two-choice statement, a candidacy under appeal with no share map, and a Federal District candidate with no share map
-- [ ] 7.3 Link each candidate in a President, Governor or Senate race table to their page, and point search results for these candidacies to their pages. Test one link in each race, and one search result
-- [ ] 7.4 Add candidate pages to the 360-pixel test, the production-headers test and the language-switch test. Record the build time and the size of the static export in the PR
+- [x] 7.1 Add `/2026/presidente/<numero>/` and `/2026/<uf>/<cargo>/<numero>/` in both route trees, generated from the summaries. Test on the fixtures that each majoritarian candidacy gets a page in each language, and that a page's address opens the same candidate
+- [x] 7.2 Show the ballot name, number, party, votes, share and outcome, the share map in the steps of its race, and the table of votes and share per municipality, grouped by state for President. Test a Governor candidate, a President candidate, a Senate candidate with 5-point steps and the two-choice statement, a candidacy under appeal with no share map, and a Federal District candidate with no share map
+- [x] 7.3 Link each candidate in a President, Governor or Senate race table to their page, and point search results for these candidacies to their pages. Test one link in each race, and one search result
+- [x] 7.4 Add candidate pages to the 360-pixel test, the production-headers test and the language-switch test. Record the build time and the size of the static export in the PR
 
 ## 8. Launch (Luiz, with help)
 

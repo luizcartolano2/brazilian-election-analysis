@@ -1,5 +1,5 @@
 /** The site search: the index files' format and field allowlist, matching, ranking and links. */
-import { PRESIDENT, raceByCode, YEAR } from './elections'
+import { CANDIDATE_PAGE_RACES, candidatePath, PRESIDENT, raceByCode, YEAR } from './elections'
 import type { Locale } from './i18n'
 import { localePath } from './paths'
 
@@ -166,7 +166,10 @@ export function candidateRowId(number: number): string {
   return `candidato-${number}`
 }
 
-/** Where a hit leads. Candidacies go to their row on the race page, which holds every candidate. */
+/**
+ * Where a hit leads. President, Governor and Senate candidacies have their own pages. A deputy
+ * candidacy goes to its row on the race page, which holds every candidate.
+ */
 export function hitHref(hit: Hit, locale: Locale): string {
   if (hit.kind === 'municipality') {
     const query = new URLSearchParams({ uf: hit.area, mu: String(hit.municipality) })
@@ -174,6 +177,9 @@ export function hitHref(hit: Hit, locale: Locale): string {
   }
   const race = raceByCode(hit.race)
   if (race === undefined) throw new Error(`the search index holds an unknown race, ${hit.race}`)
+  if (CANDIDATE_PAGE_RACES.has(race.code)) {
+    return localePath(locale, candidatePath(race, hit.area, hit.number))
+  }
   const page = hit.race === PRESIDENT ? `/${YEAR}/` : `/${YEAR}/${hit.area}/${race.slug}/`
   return `${localePath(locale, page)}#${candidateRowId(hit.number)}`
 }

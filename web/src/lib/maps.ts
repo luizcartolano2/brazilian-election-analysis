@@ -6,8 +6,11 @@ export const PARTY_LIST = 2
 const ANNULLED = 6
 const ANNULLED_SUB_JUDICE = 7
 
-/** A most-voted map shades by margin. A Senate map does not, because two win. */
-export type MapKind = 'margin' | 'senate'
+/**
+ * A most-voted map shades by margin. A Senate map does not, because two win. A share map
+ * shades one candidate's share of the valid votes.
+ */
+export type MapKind = 'margin' | 'senate' | 'share'
 
 /**
  * One municipality: its IBGE and TSE codes, its name, its two most voted as indexes into
@@ -29,6 +32,53 @@ export interface MapData {
   /** Most voted in the race's whole area first, so the first two take the two colors. */
   units: string[]
   rows: MapRow[]
+  /** A share map's step, in percentage points: 10 for President and Governor, 5 for Senate. */
+  step?: number
+}
+
+/** The steps of a share map: six, the last of them open. */
+export const SHARE_STEPS = 6
+
+/**
+ * Each candidate's votes by municipality in one race: the IBGE and TSE codes, the name, the
+ * valid votes, then one column per number in `numbers`.
+ */
+export interface CandidateVotes {
+  numbers: number[]
+  rows: [number, number, string, number, ...number[]][]
+}
+
+/** One candidate's column as a share map. A row's leader is the candidate, with its votes. */
+export function shareMap(
+  votes: CandidateVotes,
+  numero: number,
+  label: string,
+  step: number,
+): MapData | null {
+  const column = votes.numbers.indexOf(numero)
+  if (column === -1) return null
+  return {
+    kind: 'share',
+    step,
+    units: [label],
+    rows: votes.rows.map(([ibge, municipio, nome, valid, ...counts]) => [
+      ibge,
+      municipio,
+      nome,
+      0,
+      counts[column] ?? 0,
+      -1,
+      0,
+      valid,
+    ]),
+  }
+}
+
+/** A share's step, from 0 for under one step up to the last, which has no upper limit. */
+export function stepOf(row: MapRow, step: number): number {
+  const [, , , , votes, , , valid] = row
+  const percent = valid > 0 ? (votes / valid) * 100 : 0
+  return Math.min(SHARE_STEPS - 1, Math.floor(percent / step))
 }
 
 /** A vote row's type and number, and the unit it counts for. */
@@ -232,11 +282,19 @@ export function binOf(margin: number): 0 | 1 | 2 {
 }
 
 export type Fill =
-  { kind: 'leader'; color: 0 | 1; bin: 0 | 1 | 2 | null } | { kind: 'other' | 'tie' | 'none' }
+  | { kind: 'leader'; color: 0 | 1; bin: 0 | 1 | 2 | null }
+  | { kind: 'share'; step: number }
+  | { kind: 'other' | 'tie' | 'none' }
 
-/** How a municipality is drawn: a leader's color and shade, gray, the tie style, or nothing. */
-export function fillOf(row: MapRow, kind: MapKind): Fill {
-  const [, , , first, firstVotes, second, secondVotes] = row
+/**
+ * How a municipality is drawn: a leader's color and shade, a share's step, gray, the tie
+ * style, or nothing.
+ */
+export function fillOf(row: MapRow, kind: MapKind, step = 10): Fill {
+  const [, , , first, firstVotes, second, secondVotes, valid] = row
+  if (kind === 'share') {
+    return valid > 0 ? { kind: 'share', step: stepOf(row, step) } : { kind: 'none' }
+  }
   if (first === -1) return { kind: 'none' }
   if (second !== -1 && firstVotes === secondVotes) return { kind: 'tie' }
   if (first !== 0 && first !== 1) return { kind: 'other' }
