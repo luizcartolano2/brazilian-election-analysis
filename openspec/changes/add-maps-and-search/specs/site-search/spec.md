@@ -7,31 +7,42 @@ part of its name, without knowing which state or race page holds it.
 
 ### Requirement: A search box on every page
 Every page SHALL offer a search box that finds municipalities, cities abroad and every
-candidacy on the ballot in the pinned data version. A municipality result SHALL name its
-state. A candidacy result SHALL show the ballot name, number, party, race, area and TSE's
-outcome. Matching SHALL ignore case and accents, and SHALL accept part of a name. A
-candidacy SHALL also match its full ballot number.
+candidacy in the pinned summaries. The summaries leave out Fernando de Noronha's
+Conselheiro Distrital race, so its candidacies are not in the search. A municipality
+result SHALL name its state. A candidacy result SHALL show the ballot name, number,
+party, race, area and TSE's outcome. Each President candidacy SHALL appear once, for
+Brazil. Matching SHALL ignore case and accents, and SHALL accept part of a name. A
+candidacy SHALL also match its full ballot number. The list SHALL show at most 20
+results, and SHALL say when more match.
 
 #### Scenario: A name without accents
 - **WHEN** a visitor types "sao jose"
-- **THEN** the results include every municipality named São José, each with its state
+- **THEN** the results include every municipality whose name holds "São José", each with its state
 
 #### Scenario: A city abroad
 - **WHEN** a visitor types "lisboa"
-- **THEN** the results include Lisbon's votes abroad
+- **THEN** the results include Lisbon's votes abroad, under TSE's Portuguese name
 
 #### Scenario: A ballot number
 - **WHEN** a visitor types a deputy candidate's full ballot number
 - **THEN** the results include that candidacy
 
+#### Scenario: A President candidate
+- **WHEN** a visitor types the ballot name of a President candidate
+- **THEN** that candidacy appears once, for Brazil
+
 #### Scenario: Characters with meaning elsewhere
 - **WHEN** a visitor types quotes, `%`, `_` or `*`
 - **THEN** they match only those characters in names
 
+#### Scenario: Too many matches
+- **WHEN** more than 20 entries match
+- **THEN** 20 results show, with a note that more match
+
 ### Requirement: Where a result leads
 A municipality result SHALL open that municipality's view. A city abroad SHALL open its
-view. A candidacy for President, Governor or Senate SHALL open its candidate page. Any
-other candidacy SHALL open its race page, scrolled to its row.
+view. A candidacy for President, Governor or Senate SHALL open its candidate page. A
+deputy candidacy SHALL open its race page, scrolled to its row.
 
 #### Scenario: A deputy candidate
 - **WHEN** a visitor chooses a state deputy candidacy from the results
@@ -63,12 +74,17 @@ first time a visitor focuses the search box.
 ### Requirement: Search works with a keyboard and a screen reader
 A visitor SHALL be able to type, move through the results with the arrow keys, open one
 with Enter, and close the list with Escape. A screen reader SHALL announce the number of
-results. The results SHALL use the visitor's language for race and area names.
+results. The results SHALL use the visitor's language for race and state names. Names
+of municipalities, cities abroad and candidates stay as TSE writes them.
 
 #### Scenario: Keyboard only
 - **WHEN** a visitor types a name, presses the down arrow twice and then Enter
 - **THEN** the second result opens
 
+#### Scenario: English race names
+- **WHEN** a visitor on an English page finds a Senate candidacy
+- **THEN** the result names the race "Senator"
+
 #### Scenario: Without JavaScript
 - **WHEN** a page is loaded with JavaScript disabled
-- **THEN** no search box is shown, and the page still links to every state
+- **THEN** no search box is shown, and the page still links to the Brazil page, which lists every state

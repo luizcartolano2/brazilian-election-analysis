@@ -2,24 +2,43 @@
 
 ### Requirement: Map boundaries come from storage
 The protected publish workflow SHALL stage IBGE's 2025 municipal boundaries, simplified
-to TopoJSON, from a source file pinned by its SHA-512. It SHALL publish them under
-`assets/geo/ibge-2025/` with a `SHA256SUMS` list, by the same rules as the DuckDB assets:
-a publish SHALL NOT overwrite or delete a file there, and a retry SHALL resume an
-interrupted upload only when the files there equal the staged ones. The boundaries SHALL
-keep IBGE's municipality code for each area. A production build of the app SHALL fail
-when a boundary file that the Worker serves differs from its pinned SHA-256.
-`DATA_LICENSE.md` SHALL record IBGE's terms and credit line before the first publish.
+to TopoJSON, from a source file pinned by its SHA-512. Each staging run SHALL publish to
+its own path, `assets/geo/ibge-2025/<YYYYMMDD>-<short commit>-<run id>/`, with a
+`manifest.json` that records the source URL and SHA-512, the commit, the `mapshaper`
+version, the simplification settings and every polygon part it dropped. A `SHA256SUMS`
+list goes last. A publish SHALL NOT overwrite or delete a file there, and a retry SHALL
+resume an interrupted upload only when the files there equal the staged ones. The
+boundaries SHALL keep IBGE's municipality code for each area.
+
+Before the upload, the staging job SHALL check the boundaries against the pinned data
+version's municipality list. Every municipality with an IBGE code needs a boundary, and
+every boundary needs a municipality, except IBGE's two lagoon areas in Rio Grande do Sul.
+The job SHALL also fail when it drops a polygon part that is not on the written list of
+expected parts.
+
+A production build of the app SHALL fail when a boundary file that the Worker serves
+differs from its pinned SHA-256. Before the first publish, `DATA_LICENSE.md` SHALL record
+IBGE's terms and a credit line that says the boundaries were simplified, and SHALL keep
+the boundaries out of this project's own CC BY grant.
 
 #### Scenario: A different source file
 - **WHEN** the IBGE file that the workflow downloads differs from its pinned SHA-512
 - **THEN** the workflow fails and stages nothing
+
+#### Scenario: A municipality lost in simplification
+- **WHEN** a staged boundary build has no area for a municipality in the pinned data version
+- **THEN** the staging job fails before any upload, and names the municipality
+
+#### Scenario: An unexpected dropped island
+- **WHEN** the staging script drops a polygon part that is not on the written list
+- **THEN** the staging job fails before any upload, and names the municipality and the part
 
 #### Scenario: A published boundary file differs
 - **WHEN** a production build finds that the Worker serves a boundary file that differs from its pin
 - **THEN** the build fails
 
 #### Scenario: A complete boundary path
-- **WHEN** a publish finds `SHA256SUMS` already under `assets/geo/ibge-2025/`
+- **WHEN** a publish finds `SHA256SUMS` already under its boundary build path
 - **THEN** it fails without writing
 
 ## MODIFIED Requirements
@@ -36,7 +55,7 @@ Other methods SHALL get 405.
 - **THEN** the Worker returns it with its content type
 
 #### Scenario: A boundary file
-- **WHEN** a browser requests a file that exists under `assets/geo/ibge-2025/`
+- **WHEN** a browser requests a file that exists under a boundary build path in `assets/geo/`
 - **THEN** the Worker returns it with its content type
 
 #### Scenario: A listing request
@@ -64,5 +83,5 @@ asset path or a map boundary path as immutable and cacheable for one year.
 - **THEN** the response has `Cache-Control: public, max-age=31536000, immutable`
 
 #### Scenario: Cache headers on a boundary file
-- **WHEN** the Worker returns a file under `assets/geo/ibge-2025/`
+- **WHEN** the Worker returns a file under a boundary build path in `assets/geo/`
 - **THEN** the response has `Cache-Control: public, max-age=31536000, immutable`
