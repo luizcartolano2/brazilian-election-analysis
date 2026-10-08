@@ -59,6 +59,13 @@ describe('buildSearchIndex', () => {
     const { candidatos } = buildSearchIndex(summaries, MUNICIPALITIES)
     expect(JSON.stringify(candidatos)).not.toContain('00000000000')
   })
+
+  it('fails on a race the app does not know', () => {
+    const summaries = fixtureSummaries()
+    const race = summaries.get('pe')?.corridas[1]
+    if (race !== undefined) race.cargo = 99
+    expect(() => buildSearchIndex(summaries, MUNICIPALITIES)).toThrow(/pe.json holds race 99/)
+  })
 })
 
 describe('checkIndexFile', () => {

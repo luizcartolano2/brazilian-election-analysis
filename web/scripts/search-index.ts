@@ -1,5 +1,5 @@
 /** Builds the search index from the verified summaries and municipality list. */
-import { PRESIDENT } from '../src/lib/elections'
+import { PRESIDENT, raceByCode } from '../src/lib/elections'
 import type { Summary } from '../src/lib/results'
 import {
   CANDIDACY_FIELDS,
@@ -34,6 +34,9 @@ export function buildSearchIndex(
   for (const area of [...summaries.keys()].sort()) {
     for (const race of (summaries.get(area) as Summary).corridas) {
       if ((race.cargo === PRESIDENT) !== (area === 'br')) continue
+      if (raceByCode(race.cargo) === undefined) {
+        throw new Error(`${area}.json holds race ${race.cargo}, which the app does not know`)
+      }
       for (const candidate of race.candidatos) {
         candidatos.linhas.push([
           candidate.nome,

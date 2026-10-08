@@ -228,10 +228,16 @@ come from `br.json` only.
 
 - The browser loads both files on the first focus of the search box. It normalizes names
   once with NFD, removes the marks, and lowercases them.
-- A result matches when each typed word appears in the normalized name, or when the
-  query equals a ballot number. Names that start with the query rank first, then names
-  where a word starts with it, then the rest. Capitals and candidates with more votes
-  break ties. The list shows at most 20 results and says when there are more.
+- Matching starts at two typed characters. A result matches when each typed word
+  appears in the normalized name, or when the query equals a ballot number. A full
+  ballot number ranks first. Names that start with the query rank next, then names where
+  a word starts with it, then the rest. Within a rank, municipalities come before
+  candidacies, and capitals and candidates with more votes break ties. The list shows at
+  most 20 results and says when there are more.
+- A full ballot number lists every candidacy that holds it, even past 20. Each state
+  numbers its own candidacies. On the pinned data, 77 numbers belong to more than 20
+  candidacies, and some recur in all 27 states. A cap of 20 hides some of them, and no
+  longer query reaches the hidden ones.
 - The box follows the WAI-ARIA combobox pattern, with a live region for the result count.
 
 The index comes from the app's own origin. Only GitHub Actions publishes to R2, and the

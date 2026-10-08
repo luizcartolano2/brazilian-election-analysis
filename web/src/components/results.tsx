@@ -1,5 +1,6 @@
 import { formatInteger, formatShare, t, type Locale, type MessageKey } from '@/lib/i18n'
 import { isElected, isInRunoff, type CandidateRow, type RaceResults } from '@/lib/results'
+import { candidateRowId } from '@/lib/search'
 
 const OUTCOME_KEYS: Record<string, MessageKey> = {
   Eleito: 'outcome.elected',
@@ -14,6 +15,13 @@ const OUTCOME_KEYS: Record<string, MessageKey> = {
 export function outcomeLabel(locale: Locale, outcome: string): string {
   const key = OUTCOME_KEYS[outcome]
   return key === undefined ? outcome : t(locale, key)
+}
+
+/** Every known outcome's label, for client code that gets no message files. */
+export function outcomeLabels(locale: Locale): Record<string, string> {
+  return Object.fromEntries(
+    Object.keys(OUTCOME_KEYS).map((outcome) => [outcome, outcomeLabel(locale, outcome)]),
+  )
 }
 
 export function Outcome({ locale, outcome }: { locale: Locale; outcome: string }) {
@@ -40,11 +48,6 @@ function ShareBar({ part, whole }: { part: number; whole: number }) {
       <div className="h-full rounded bg-slate-700" style={{ width }} />
     </div>
   )
-}
-
-/** The id of a candidacy's row in a race's full results, which search links to. */
-export function candidateRowId(number: number): string {
-  return `candidato-${number}`
 }
 
 export function CandidateTable({

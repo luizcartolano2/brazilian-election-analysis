@@ -24,8 +24,22 @@ test('a page load requests no search index, and the first focus does', async ({ 
   await page.goto('/2026/pe/')
   await page.waitForLoadState('networkidle')
   expect(requested).toEqual([])
-  await searchBox(page).focus()
-  await expect.poll(() => requested.length).toBe(2)
+  await searchBox(page).click()
+  await page.waitForLoadState('networkidle')
+  expect(requested).toHaveLength(2)
+})
+
+test('the box keeps its place before the scripts run', async ({ page }) => {
+  await page.route('**/*', (route) =>
+    route.request().resourceType() === 'script' ? route.abort() : route.fallback(),
+  )
+  await page.goto('/2026/pe/')
+  const before = await page.locator('main').boundingBox()
+  await page.unrouteAll()
+  await page.goto('/2026/pe/')
+  await expect(searchBox(page)).toBeVisible()
+  const after = await page.locator('main').boundingBox()
+  expect(after?.y).toBe(before?.y)
 })
 
 test('the down arrow twice and Enter open the second result', async ({ page }) => {
@@ -43,9 +57,51 @@ test('the down arrow twice and Enter open the second result', async ({ page }) =
 test('Escape closes the list', async ({ page }) => {
   await page.goto('/2026/')
   await type(page, 'recife')
+  await expect(searchBox(page)).toHaveAttribute('aria-controls', /list/)
   await searchBox(page).press('Escape')
   await expect(page.getByRole('listbox')).toHaveCount(0)
   await expect(searchBox(page)).toHaveAttribute('aria-expanded', 'false')
+  await expect(searchBox(page)).not.toHaveAttribute('aria-controls')
+})
+
+test('the arrow keys keep the active result in view', async ({ page }) => {
+  await page.goto('/2026/')
+  await type(page, 'da')
+  await expect(page.getByRole('option')).toHaveCount(20)
+  for (let step = 0; step < 20; step++) await searchBox(page).press('ArrowDown')
+  await expect(page.getByRole('option').last()).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('option').last()).toBeInViewport()
+})
+
+test('a press on the note under the results keeps the list open', async ({ page }) => {
+  await page.goto('/2026/')
+  await type(page, 'da')
+  await page
+    .getByTestId('site-search')
+    .getByRole('paragraph')
+    .filter({ hasText: 'Há mais de 20 resultados' })
+    .hover()
+  await page.mouse.down()
+  await page.mouse.up()
+  await expect(page.getByRole('listbox')).toBeVisible()
+  await expect(searchBox(page)).toBeFocused()
+})
+
+test('an index that fails to load says so, and a click on the box tries again', async ({
+  page,
+}) => {
+  const failed = 'A busca não carregou. Clique na caixa para tentar de novo.'
+  await page.route('**/busca/**', (route) => route.abort())
+  await page.goto('/2026/')
+  await searchBox(page).click()
+  await expect(page.getByTestId('site-search').getByRole('status')).toHaveText(failed)
+  const message = page.getByTestId('site-search').getByRole('paragraph').filter({ hasText: failed })
+  await expect(message).toBeVisible()
+  await page.unroute('**/busca/**')
+  await searchBox(page).click()
+  await expect(message).toHaveCount(0)
+  await searchBox(page).fill('recife')
+  await expect(page.getByRole('option', { name: /^RECIFE/ })).toBeVisible()
 })
 
 test('the result count is announced', async ({ page }) => {
@@ -61,8 +117,12 @@ test('the result count is announced', async ({ page }) => {
 test('an English page names the race in English', async ({ page }) => {
   await page.goto('/en/2026/')
   await type(page, 'humberto')
-  await expect(page.getByRole('option', { name: /HUMBERTO COSTA/ })).toContainText('Senator')
-  await expect(page.getByRole('option', { name: /HUMBERTO COSTA/ })).toContainText('Pernambuco')
+  const senator = page.getByRole('option', { name: /HUMBERTO COSTA/ })
+  await expect(senator).toContainText('Senator')
+  await expect(senator).toContainText('Pernambuco')
+  await expect(senator).toContainText('Elected')
+  await searchBox(page).fill('katmandu')
+  await expect(page.getByRole('option', { name: /KATMANDU/ })).toContainText('Abroad')
 })
 
 test('each President candidacy appears once', async ({ page }) => {
@@ -142,7 +202,9 @@ test.describe('with the list open', () => {
     await page.goto('/en/2026/se/')
     const index = page.waitForResponse((response) => response.url().endsWith('/candidatos.json'))
     await type(page, 'santos')
-    expect((await index).headers()['cache-control']).toBe('public, max-age=31536000, immutable')
+    const response = await index
+    expect(new URL(response.url()).origin).toBe(new URL(page.url()).origin)
+    expect(response.headers()['cache-control']).toBe('public, max-age=31536000, immutable')
     expect(await page.evaluate(() => window.__violations)).toEqual([])
     expect(errors).toEqual([])
   })

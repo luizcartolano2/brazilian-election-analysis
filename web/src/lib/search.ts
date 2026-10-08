@@ -1,6 +1,7 @@
 /** The site search: the index files' format and field allowlist, matching, ranking and links. */
 import { PRESIDENT, raceByCode, YEAR } from './elections'
-import { localePath, type Locale } from './i18n'
+import type { Locale } from './i18n'
+import { localePath } from './paths'
 
 export const MUNICIPALITY_FIELDS = ['nome', 'area', 'municipio', 'capital'] as const
 export const CANDIDACY_FIELDS = [
@@ -139,7 +140,10 @@ function compare(a: { entry: Entry; tier: number }, b: { entry: Entry; tier: num
   return a.entry.key.localeCompare(b.entry.key) || first.area.localeCompare(second.area)
 }
 
-/** At most MAX_RESULTS hits, best first, and whether more matched. */
+/**
+ * At most MAX_RESULTS hits, best first, and whether more matched. A full ballot number lists
+ * every candidacy that holds it, even past the cap, because each state numbers its own.
+ */
 export function search(index: SearchIndex, text: string): { hits: Hit[]; more: boolean } {
   const query = normalize(text)
   if (query.length < MIN_QUERY_LENGTH) return { hits: [], more: false }
@@ -150,10 +154,16 @@ export function search(index: SearchIndex, text: string): { hits: Hit[]; more: b
     if (rank !== null) matches.push({ entry, tier: rank })
   }
   matches.sort(compare)
+  const shown = Math.max(MAX_RESULTS, matches.filter((match) => match.tier === 0).length)
   return {
-    hits: matches.slice(0, MAX_RESULTS).map((match) => match.entry.hit),
-    more: matches.length > MAX_RESULTS,
+    hits: matches.slice(0, shown).map((match) => match.entry.hit),
+    more: matches.length > shown,
   }
+}
+
+/** The id of a candidacy's row in a race's full results. */
+export function candidateRowId(number: number): string {
+  return `candidato-${number}`
 }
 
 /** Where a hit leads. Candidacies go to their row on the race page, which holds every candidate. */
@@ -162,10 +172,8 @@ export function hitHref(hit: Hit, locale: Locale): string {
     const query = new URLSearchParams({ uf: hit.area, mu: String(hit.municipality) })
     return `${localePath(locale, `/${YEAR}/municipio/`)}?${query.toString()}`
   }
-  const anchor = `#candidato-${hit.number}`
   const race = raceByCode(hit.race)
-  if (hit.race === PRESIDENT || race === undefined) {
-    return `${localePath(locale, `/${YEAR}/`)}${anchor}`
-  }
-  return `${localePath(locale, `/${YEAR}/${hit.area}/${race.slug}/`)}${anchor}`
+  if (race === undefined) throw new Error(`the search index holds an unknown race, ${hit.race}`)
+  const page = hit.race === PRESIDENT ? `/${YEAR}/` : `/${YEAR}/${hit.area}/${race.slug}/`
+  return `${localePath(locale, page)}#${candidateRowId(hit.number)}`
 }

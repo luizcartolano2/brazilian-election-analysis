@@ -1,6 +1,8 @@
 import en from '../../messages/en.json'
 import pt from '../../messages/pt.json'
 
+export { localePath } from './paths'
+
 export type Locale = 'pt' | 'en'
 
 export const LOCALES: readonly Locale[] = ['pt', 'en']
@@ -36,9 +38,4 @@ export function formatDateTime(locale: Locale, iso: string): string {
     timeStyle: 'short',
     timeZone: 'America/Sao_Paulo',
   }).format(new Date(iso))
-}
-
-/** The address of a page in a locale. `path` is the Portuguese address, such as `/2026/pe/`. */
-export function localePath(locale: Locale, path: string): string {
-  return locale === 'pt' ? path : `/en${path}`
 }

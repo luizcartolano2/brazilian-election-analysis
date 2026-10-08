@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   CANDIDACY_FIELDS,
+  candidateRowId,
   hitHref,
   MAX_RESULTS,
   MUNICIPALITY_FIELDS,
@@ -29,6 +30,7 @@ const CANDIDACIES: CandidacyEntry[] = [
   ['ZÉ DO RECIFE', 4040, 'MDB', 6, 'pe', 'Suplente', 12_000],
   ['RECIFENSE', 5050, 'PSB', 6, 'pe', 'Não eleito', 30_000],
   ['ANA 100%', 1100, 'PSOL', 6, 'sp', 'Não eleito', 900],
+  ['ZÉ "DO POVO"', 1200, 'PV', 6, 'sp', 'Não eleito', 800],
 ]
 
 function index(extra: CandidacyEntry[] = []) {
@@ -76,9 +78,10 @@ describe('search', () => {
   it('treats quotes, %, _ and * as plain characters', () => {
     expect(names("d'oeste")).toEqual(["SANTA BÁRBARA D'OESTE"])
     expect(names('100%')).toEqual(['ANA 100%'])
+    expect(names('"do')).toEqual(['ZÉ "DO POVO"'])
     expect(names('a_a')).toEqual([])
-    expect(names('*')).toEqual([])
-    expect(names('%%')).toEqual([])
+    expect(names('a*')).toEqual([])
+    expect(names('a%')).toEqual([])
   })
 
   it('needs every typed word, in any order', () => {
@@ -107,6 +110,21 @@ describe('search', () => {
       ['LULA FILHO', 88888, 'PT', 7, 'ce', 'Eleito', 90_000],
     ]
     expect(names('lula', extra)).toEqual(['LULA', 'LULA FILHO', 'LULA DA SILVA'])
+  })
+
+  it('lists every candidacy that holds a ballot number, even past 20', () => {
+    const extra: CandidacyEntry[] = Array.from({ length: 26 }, (_, n) => [
+      `CANDIDATO ${n}`,
+      4444,
+      'PT',
+      6,
+      `s${String.fromCharCode(97 + n)}`,
+      'Não eleito',
+      n,
+    ])
+    const found = search(index(extra), '4444')
+    expect(found.hits).toHaveLength(26)
+    expect(found.more).toBe(false)
   })
 
   it('waits for two characters', () => {
@@ -144,5 +162,13 @@ describe('hitHref', () => {
     expect(lula && hitHref(lula, 'pt')).toBe('/2026/#candidato-13')
     expect(deputy && hitHref(deputy, 'pt')).toBe('/2026/pe/deputado-estadual/#candidato-22622')
     expect(senator && hitHref(senator, 'en')).toBe('/en/2026/pe/senador/#candidato-130')
+    expect(deputy && hitHref(deputy, 'pt').endsWith(`#${candidateRowId(22622)}`)).toBe(true)
+  })
+
+  it('refuses a race the app does not know', () => {
+    const [deputy] = search(index(), 'abimael').hits
+    expect(() => deputy && hitHref({ ...deputy, race: 99 } as typeof deputy, 'pt')).toThrow(
+      /unknown race, 99/,
+    )
   })
 })
