@@ -79,8 +79,9 @@ The app is a Vercel project with `web/` as its root directory. A CNAME record at
 where the DNS for `luizcartolano.com` lives, points `eleicoes.luizcartolano.com` at it.
 The Worker uses its `workers.dev` address and needs no DNS record.
 
-Delete the GoDaddy CNAME record before you remove the Vercel project, or the domain from
-it. A record that points at Vercel with no project behind it can let someone else claim
+Before you remove the Vercel project, or the domain from it, delete the GoDaddy CNAME
+record. If you close the Vercel account, or Vercel suspends the project, delete the record
+too. A record that points at Vercel with no project behind it can let someone else claim
 the subdomain and serve pages under it.
 
 ## Working on it
