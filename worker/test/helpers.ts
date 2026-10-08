@@ -5,6 +5,8 @@ export const VERSION = "v/20261005-abc1234-17";
 export const PARQUET_FILE = `${VERSION}/2026/t1/votos/cargo=3/uf=AC.parquet`;
 export const JSON_FILE = `${VERSION}/2026/t1/resumo/br.json`;
 export const WASM_FILE = "assets/duckdb-wasm/1.29.0/duckdb-eh.wasm";
+export const GEO_BUILD = "assets/geo/ibge-2025/20261010-abc1234-37000000000";
+export const GEO_FILE = `${GEO_BUILD}/br.json`;
 export const SIZE = 4096;
 export const BYTES = Uint8Array.from({ length: SIZE }, (_, index) => index % 251);
 
@@ -12,7 +14,9 @@ export const PRODUCTION = "https://eleicoes.luizcartolano.com";
 export const IMMUTABLE = "public, max-age=31536000, immutable";
 
 export async function seed(): Promise<void> {
-  await Promise.all([PARQUET_FILE, JSON_FILE, WASM_FILE].map((key) => env.DATA.put(key, BYTES)));
+  await Promise.all(
+    [PARQUET_FILE, JSON_FILE, WASM_FILE, GEO_FILE].map((key) => env.DATA.put(key, BYTES)),
+  );
 }
 
 /** Goes through the Worker's fetch entry point with the environment from `wrangler.jsonc`. */

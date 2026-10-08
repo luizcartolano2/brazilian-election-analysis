@@ -1,4 +1,7 @@
-/** Serves published data versions and the query engine's WebAssembly file from R2, read only. */
+/**
+ * Serves published data versions, the query engine's WebAssembly files and the map boundaries
+ * from R2, read only.
+ */
 
 import { corsHeaders, PREFLIGHT_HEADERS } from "./cors";
 import { keyFromUrl } from "./keys";
