@@ -26,6 +26,21 @@
   }
 }
 
+/* Before the tabs' script runs, only the first race shows, or the one the address names. */
+@media (scripting: enabled) {
+  .race-tabs:not([data-ready]) > [data-panel]:not(:first-of-type) {
+    display: none;
+  }
+
+  .race-tabs:not([data-ready]):has(> [data-panel]:target) > [data-panel] {
+    display: none;
+  }
+
+  .race-tabs:not([data-ready]):has(> [data-panel]:target) > [data-panel]:target {
+    display: block;
+  }
+}
+
 /* One short class per table instead of utilities on every cell: a deputy race page holds over a thousand rows. */
 @layer components {
   .results-table {

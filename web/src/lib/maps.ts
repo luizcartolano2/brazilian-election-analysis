@@ -124,6 +124,22 @@ export interface RaceUnits {
   mapping: UnitOf[]
 }
 
+/**
+ * Each candidate's map color, by ballot number: 0 and 1 for the two most voted in
+ * `colorRace`, as on the race's maps. Every other candidate is absent and takes the gray.
+ */
+export function candidateRanks(
+  race: SummaryRace,
+  colorRace: SummaryRace = race,
+): ReadonlyMap<number, 0 | 1> {
+  const { mapping } = raceUnits(race, false, new Map(), colorRace)
+  return new Map(
+    mapping
+      .filter(([, , unit]) => unit < 2)
+      .map(([, numero, unit]) => [numero, unit === 0 ? 0 : 1] as const),
+  )
+}
+
 /** A state with more than one municipality. The Federal District has one, and abroad none. */
 export function isMappedArea(area: string, municipalities: number): boolean {
   return area !== 'zz' && municipalities > 1
@@ -306,6 +322,16 @@ export function mapRows(
 export function marginPoints(row: MapRow): number {
   const [, , , , firstVotes, , secondVotes, valid] = row
   return valid > 0 ? ((firstVotes - secondVotes) / valid) * 100 : 0
+}
+
+/** The rows with the smallest margin between the two most voted, ties first, then by name. */
+export function closestRows(data: MapData, count: number): MapRow[] {
+  return data.rows
+    .filter(([, , , first, , second, , valid]) => first >= 0 && second >= 0 && valid > 0)
+    .map((row) => ({ row, margin: marginPoints(row) }))
+    .sort((a, b) => a.margin - b.margin || a.row[2].localeCompare(b.row[2], 'pt-BR'))
+    .slice(0, count)
+    .map(({ row }) => row)
 }
 
 /** 0 under 5 points, 1 from 5 to under 20, 2 from 20 up. */

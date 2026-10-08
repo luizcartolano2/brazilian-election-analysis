@@ -31,6 +31,7 @@ export function FullResults({
   results,
   caption,
   candidateHref,
+  ranks,
 }: {
   locale: Locale
   info: RaceInfo
@@ -38,6 +39,8 @@ export function FullResults({
   caption: string
   /** A candidacy's own page, in the races that have them. */
   candidateHref?: (number: number) => string
+  /** The maps' color of each candidate, in a majoritarian race. */
+  ranks?: ReadonlyMap<number, 0 | 1>
 }) {
   return (
     <>
@@ -50,6 +53,7 @@ export function FullResults({
           caption={caption}
           withRowIds
           candidateHref={candidateHref}
+          ranks={ranks}
         />
       </div>
       <UnderAppealTable locale={locale} results={results} candidateHref={candidateHref} />

@@ -20,20 +20,17 @@ test('each language formats the same share its own way', async ({ page }) => {
   expect(english).toBe(portuguese?.replace(',', '.'))
 })
 
-test('Brazil offers the state list for the state races, and marks the runoff', async ({ page }) => {
+test('Brazil offers the states as tiles, and marks the runoff', async ({ page }) => {
   await page.goto('/2026/')
-  const states = page.locator('section', {
-    has: page.getByRole('heading', { name: 'Governador, Senado e deputados' }),
-  })
-  await expect(states.getByRole('link', { name: 'Pernambuco' })).toHaveAttribute(
-    'href',
-    '/2026/pe/',
-  )
-  await expect(states.getByRole('link', { name: 'Exterior' })).toHaveCount(0)
+  const tiles = page.getByTestId('state-tiles')
+  await expect(tiles.locator('[data-state="pe"]')).toHaveAttribute('href', '/2026/pe/')
+  await expect(tiles.locator('[data-state="zz"]')).toHaveCount(0)
   await expect(
     page.getByRole('link', { name: 'Votos para presidente no exterior' }),
   ).toHaveAttribute('href', '/2026/zz/')
-  await expect(page.getByText('2º turno', { exact: true })).toHaveCount(2)
+  await expect(page.getByTestId('result-cards').getByText('2º turno', { exact: true })).toHaveCount(
+    2,
+  )
   const response = await page.goto('/2026/br/governador/')
   expect(response?.status()).toBe(404)
 })
@@ -45,8 +42,12 @@ test('a fixtures build says so on every page', async ({ page }) => {
   }
 })
 
-test('a state page names the race its turnout comes from', async ({ page }) => {
+test('each race on a state page names the race its turnout comes from', async ({ page }) => {
   await page.goto('/2026/pe/')
+  await expect(
+    page.getByRole('heading', { name: 'Eleitores e comparecimento · Governador' }),
+  ).toBeVisible()
+  await page.getByRole('tab', { name: 'Presidente' }).click()
   await expect(
     page.getByRole('heading', { name: 'Eleitores e comparecimento · Presidente' }),
   ).toBeVisible()
@@ -55,6 +56,7 @@ test('a state page names the race its turnout comes from', async ({ page }) => {
 test('a state page counts every candidate its race page lists', async ({ page }) => {
   const senate = summary('pe').corridas.find((entry) => entry.cargo === 5)
   await page.goto('/2026/pe/')
+  await page.getByRole('tab', { name: 'Senador' }).click()
   await expect(
     page.locator('[data-race="senador"]').getByRole('link', { name: /^Ver todos os/ }),
   ).toHaveText(`Ver todos os ${senate?.candidatos.length} candidatos`)

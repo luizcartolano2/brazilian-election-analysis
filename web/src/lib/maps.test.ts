@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   CANDIDATE,
+  candidateRanks,
+  closestRows,
   checkRaceSums,
   isMappedArea,
   federationLabel,
@@ -326,5 +328,60 @@ describe('names in title case', () => {
       rows: [[2611606, 25313, 'RECIFE', 20, 10]],
     })
     expect(votes.rows[0]?.[2]).toBe('Recife')
+  })
+})
+
+describe('candidateRanks', () => {
+  const candidate = (numero: number, votos: number) => ({
+    numero,
+    nome: `C${numero}`,
+    partido: 'P',
+    votos,
+    destino: VALID,
+    resultado: '',
+  })
+
+  it('colors a state’s President candidates by their rank in Brazil', () => {
+    const brazil = race({
+      cargo: 1,
+      candidatos: [candidate(22, 900), candidate(13, 800), candidate(30, 10)],
+    })
+    const state = race({
+      cargo: 1,
+      candidatos: [candidate(13, 90), candidate(22, 40), candidate(30, 30)],
+    })
+    const ranks = candidateRanks(state, brazil)
+    expect(ranks.get(22)).toBe(0)
+    expect(ranks.get(13)).toBe(1)
+    expect(ranks.has(30)).toBe(false)
+  })
+})
+
+describe('closestRows', () => {
+  const row = (municipio: number, nome: string, first: number, second: number): MapRow => [
+    municipio,
+    municipio,
+    nome,
+    0,
+    first,
+    1,
+    second,
+    first + second,
+  ]
+
+  it('orders by margin, puts a tie first, and keeps the count', () => {
+    const data = {
+      kind: 'margin' as const,
+      units: ['A (P)', 'B (Q)'],
+      rows: [
+        row(1, 'Wide', 90, 10),
+        row(2, 'Close', 51, 49),
+        row(3, 'Tie', 50, 50),
+        row(4, 'Middle', 60, 40),
+        [5, 5, 'Alone', 0, 10, -1, 0, 10] as MapRow,
+      ],
+    }
+    expect(closestRows(data, 3).map((entry) => entry[2])).toEqual(['Tie', 'Close', 'Middle'])
+    expect(closestRows(data, 10)).toHaveLength(4)
   })
 })

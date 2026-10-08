@@ -65,8 +65,9 @@ test('each state on the Brazil page links to its President race page, which list
   page,
 }) => {
   await page.goto('/2026/')
-  const pernambuco = page.getByRole('listitem').filter({ hasText: 'Pernambuco' })
-  await pernambuco.getByRole('link', { name: 'presidente por município' }).click()
+  const list = page.getByTestId('state-list')
+  await list.locator('summary').click()
+  await list.getByRole('link', { name: 'Pernambuco' }).click()
 
   await expect(page).toHaveURL('/2026/pe/presidente/')
   await expect(rows(page).filter({ hasText: 'Recife' })).toHaveCount(1)

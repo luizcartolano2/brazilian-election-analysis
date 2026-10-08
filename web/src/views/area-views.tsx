@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
 import { AppLink } from '@/components/app-link'
 import { FullResults, RaceNote } from '@/components/race-results'
-import { CandidateTable, EligibleGapNote } from '@/components/results'
+import { ResultCards } from '@/components/result-cards'
+import { EligibleGapNote } from '@/components/results'
 import { PageShell } from '@/components/page-shell'
+import { RaceTabs, type RacePanel } from '@/components/race-tabs'
 import { getMunicipalities, getSummary } from '@/lib/data'
 import {
   ABROAD,
@@ -10,16 +13,18 @@ import {
   CANDIDATE_PAGE_RACES,
   candidatePath,
   areaName,
+  PRESIDENT,
+  proportionalRaces,
   raceByCode,
   raceBySlug,
   raceName,
-  STATES,
   YEAR,
   type RaceInfo,
   type StateInfo,
 } from '@/lib/elections'
+import { headlineText, raceHeadline } from '@/lib/headline'
 import { formatInteger, formatShare, localePath, t, type Locale } from '@/lib/i18n'
-import { hasMap, MapSection } from '@/views/map-section'
+import { candidateRanks } from '@/lib/maps'
 import {
   isElected,
   raceResults,
@@ -27,9 +32,13 @@ import {
   type RaceResults,
   type SummaryRace,
 } from '@/lib/results'
+import { ClosestMunicipalities } from '@/views/closest-municipalities'
+import { hasMap, MapSection } from '@/views/map-section'
+import { StateTiles } from '@/views/state-tiles'
 
-const HEADLINE_SIZE = { majoritarian: 3, proportional: 5 }
 const GOVERNOR = 3
+// The order of a state page's tabs. The deputy races follow them as links.
+const TAB_RACES = [GOVERNOR, 5, PRESIDENT]
 
 function brazil(locale: Locale): string {
   return t(locale, 'area.brazil')
@@ -46,34 +55,36 @@ function TurnoutSummary({
   results: RaceResults
 }) {
   const totals = results.totals
+  const stats = [
+    { key: 'totals.eligible', value: totals.eligible, share: null },
+    {
+      key: 'totals.attendance',
+      value: totals.attendance,
+      share: formatShare(locale, totals.attendance, totals.eligible),
+    },
+    {
+      key: 'totals.abstention',
+      value: totals.abstention,
+      share: formatShare(locale, totals.abstention, totals.eligible),
+    },
+  ] as const
   return (
-    <section className="mt-3 rounded bg-slate-50 p-3">
-      <h2 className="text-xs font-medium text-slate-600">
+    <section className="bg-surface mt-5 rounded-2xl p-4">
+      <h3 className="text-muted font-sans text-sm font-semibold">
         {t(locale, 'area.turnoutTitle', { race: raceName(info, locale) })}
-      </h2>
-      <dl className="mt-1 grid grid-cols-3 gap-2 text-sm">
-        <div>
-          <dt className="text-xs text-slate-600">{t(locale, 'totals.eligible')}</dt>
-          <dd className="font-medium tabular-nums">{formatInteger(locale, totals.eligible)}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-slate-600">{t(locale, 'totals.attendance')}</dt>
-          <dd className="font-medium tabular-nums">
-            {formatInteger(locale, totals.attendance)}
-            <span className="block text-xs font-normal text-slate-600">
-              {formatShare(locale, totals.attendance, totals.eligible)}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs text-slate-600">{t(locale, 'totals.abstention')}</dt>
-          <dd className="font-medium tabular-nums">
-            {formatInteger(locale, totals.abstention)}
-            <span className="block text-xs font-normal text-slate-600">
-              {formatShare(locale, totals.abstention, totals.eligible)}
-            </span>
-          </dd>
-        </div>
+      </h3>
+      <dl className="mt-2 grid grid-cols-3 gap-3">
+        {stats.map((stat) => (
+          <div key={stat.key}>
+            <dt className="text-muted text-xs">{t(locale, stat.key)}</dt>
+            <dd className="font-display text-xl font-bold tabular-nums sm:text-2xl">
+              {formatInteger(locale, stat.value)}
+              {stat.share !== null && (
+                <span className="text-muted block font-sans text-xs font-normal">{stat.share}</span>
+              )}
+            </dd>
+          </div>
+        ))}
       </dl>
       <EligibleGapNote locale={locale} results={results} />
     </section>
@@ -96,59 +107,75 @@ function knownRace(race: SummaryRace): RaceInfo {
   return info
 }
 
-/** Brazil as a whole: President, with the state races offered through the state list. */
-export function BrazilView({ locale }: { locale: Locale }) {
-  const race = getSummary('br').corridas.find((entry) => entry.cargo === 1)
+function brazilPresident(): SummaryRace {
+  const race = getSummary('br').corridas.find((entry) => entry.cargo === PRESIDENT)
   if (race === undefined) throw new Error('br.json has no presidential race')
+  return race
+}
+
+/** A majoritarian race's map colors: Brazil's ranking for President, the state's otherwise. */
+function ranksOf(race: SummaryRace): ReadonlyMap<number, 0 | 1> {
+  return candidateRanks(race, race.cargo === PRESIDENT ? brazilPresident() : race)
+}
+
+function headlineOf(locale: Locale, info: RaceInfo, results: RaceResults): string {
+  const headline = raceHeadline(results, info.proportional)
+  return headline === null
+    ? raceName(info, locale)
+    : headlineText(locale, headline, raceName(info, locale))
+}
+
+/** Brazil as a whole: President, with the state races offered through the state tiles. */
+export function BrazilView({ locale }: { locale: Locale }) {
+  const race = brazilPresident()
   const info = knownRace(race)
   const results = raceResults(race, info.proportional)
+  const ranks = ranksOf(race)
   return (
-    <PageShell locale={locale} path={`/${YEAR}/`}>
-      <h1 className="text-2xl font-semibold">{t(locale, 'brazil.title')}</h1>
-      <p className="mt-1 text-sm text-slate-700">{t(locale, 'brazil.intro')}</p>
-      <TurnoutSummary locale={locale} info={info} results={results} />
-      <h2 className="mt-6 text-xl font-semibold">
+    <PageShell locale={locale} path={`/${YEAR}/`} wide>
+      <p className="text-muted text-xs font-bold tracking-widest uppercase">
         {t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
-      </h2>
-      <FullResults
+      </p>
+      <h1 className="mt-2 text-4xl font-extrabold sm:text-5xl">
+        {headlineOf(locale, info, results)}
+      </h1>
+      <p className="text-muted mt-2 text-sm">{t(locale, 'brazil.intro')}</p>
+      <ResultCards
         locale={locale}
-        info={info}
         results={results}
-        caption={t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
+        ranks={ranks}
         candidateHref={candidateHref(locale, info, 'br')}
       />
-      <MapSection locale={locale} area="br" areaLabel={brazil(locale)} race={info} table={false} />
-      <p className="mt-4 text-sm">
+      <TurnoutSummary locale={locale} info={info} results={results} />
+      <div className="mt-2 grid items-start gap-x-8 lg:grid-cols-[3fr_2fr]">
+        <MapSection
+          locale={locale}
+          area="br"
+          areaLabel={brazil(locale)}
+          race={info}
+          table={false}
+        />
+        <div className="mt-8">
+          <StateTiles locale={locale} />
+        </div>
+      </div>
+      <section className="mt-10">
+        <h2 className="text-2xl font-extrabold">{t(locale, 'brazil.fullResultsTitle')}</h2>
+        <FullResults
+          locale={locale}
+          info={info}
+          results={results}
+          caption={t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
+          candidateHref={candidateHref(locale, info, 'br')}
+          ranks={ranks}
+        />
+      </section>
+      <p className="mt-6 text-sm">
         <AppLink href={localePath(locale, `/${YEAR}/${ABROAD.code}/`)} className="underline">
           {t(locale, 'brazil.abroadLink')}
         </AppLink>
       </p>
-      <StateList locale={locale} president={info} />
     </PageShell>
-  )
-}
-
-function StateList({ locale, president }: { locale: Locale; president: RaceInfo }) {
-  return (
-    <section id="estados" className="mt-8 scroll-mt-4">
-      <h2 className="text-xl font-semibold">{t(locale, 'brazil.statesTitle')}</h2>
-      <p className="mt-1 text-sm text-slate-700">{t(locale, 'brazil.statesNote')}</p>
-      <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-3">
-        {STATES.map((state) => (
-          <li key={state.code}>
-            <AppLink href={localePath(locale, `/${YEAR}/${state.code}/`)} className="underline">
-              {areaName(state, locale)}
-            </AppLink>
-            <AppLink
-              href={localePath(locale, `/${YEAR}/${state.code}/${president.slug}/`)}
-              className="block text-xs text-slate-600 underline"
-            >
-              {t(locale, 'brazil.statePresident')}
-            </AppLink>
-          </li>
-        ))}
-      </ul>
-    </section>
   )
 }
 
@@ -162,95 +189,195 @@ function areaCrumbs(locale: Locale, area: StateInfo, race?: RaceInfo) {
   ]
 }
 
+/** One majoritarian race of a state: its headline, cards, turnout and a link to all candidates. */
+function RacePanelContent({
+  locale,
+  area,
+  race,
+  children,
+}: {
+  locale: Locale
+  area: StateInfo
+  race: SummaryRace
+  children?: ReactNode
+}) {
+  const info = knownRace(race)
+  const results = raceResults(race, info.proportional)
+  return (
+    <>
+      <h2 className="text-muted text-xs font-bold tracking-widest uppercase">
+        {raceName(info, locale)}
+      </h2>
+      <h3 className="mt-2 text-3xl font-extrabold sm:text-4xl" data-testid="headline">
+        {headlineOf(locale, info, results)}
+      </h3>
+      <RaceNote locale={locale} info={info} results={results} />
+      <ResultCards
+        locale={locale}
+        results={results}
+        ranks={ranksOf(race)}
+        candidateHref={candidateHref(locale, info, area.code)}
+      />
+      <TurnoutSummary locale={locale} info={info} results={results} />
+      <p className="mt-4 text-sm font-semibold">
+        <AppLink
+          href={localePath(locale, `/${YEAR}/${area.code}/${info.slug}/`)}
+          className="underline"
+        >
+          {t(locale, 'area.fullResults', {
+            count: formatInteger(
+              locale,
+              results.candidates.length + results.candidatesUnderAppeal.length,
+            ),
+          })}
+        </AppLink>
+      </p>
+      {children}
+    </>
+  )
+}
+
+/** The votes cast abroad: President only, in full, with no tabs. */
+function AbroadView({ locale, area }: { locale: Locale; area: StateInfo }) {
+  const race = getSummary(area.code).corridas.find((entry) => entry.cargo === PRESIDENT)
+  if (race === undefined) throw new Error(`${area.code}.json has no presidential race`)
+  const info = knownRace(race)
+  const results = raceResults(race, info.proportional)
+  const ranks = ranksOf(race)
+  return (
+    <PageShell
+      locale={locale}
+      path={`/${YEAR}/${area.code}/`}
+      crumbs={areaCrumbs(locale, area)}
+      wide
+    >
+      <h1 className="text-4xl font-extrabold">{areaName(area, locale)}</h1>
+      <p className="text-muted mt-2 text-sm">{t(locale, 'area.abroadIntro')}</p>
+      <h2 className="mt-6 text-3xl font-extrabold" data-testid="headline">
+        {headlineOf(locale, info, results)}
+      </h2>
+      <ResultCards
+        locale={locale}
+        results={results}
+        ranks={ranks}
+        candidateHref={candidateHref(locale, info, area.code)}
+      />
+      <TurnoutSummary locale={locale} info={info} results={results} />
+      <section className="mt-10" data-race={info.slug}>
+        <h2 className="text-2xl font-extrabold">{raceName(info, locale)}</h2>
+        <FullResults
+          locale={locale}
+          info={info}
+          results={results}
+          caption={raceName(info, locale)}
+          candidateHref={candidateHref(locale, info, area.code)}
+          ranks={ranks}
+        />
+      </section>
+      <MunicipalityList locale={locale} area={area} />
+    </PageShell>
+  )
+}
+
 /**
- * A state, or votes abroad. Abroad has only President, shown in full. A state shows the
- * leaders of each race, and its full results are one page per race.
+ * A state, or the votes cast abroad. A state shows Governor, Senate and President as tabs, with
+ * the Governor map, and links to its deputy races, whose full results are their own pages.
  */
 export function AreaView({ locale, code }: { locale: Locale; code: string }) {
   const area = areaByCode(code)
   if (area === undefined) notFound()
+  if (area.code === ABROAD.code) return <AbroadView locale={locale} area={area} />
   const races = getSummary(area.code).corridas
-  const first = races[0]
-  if (first === undefined) throw new Error(`${area.code}.json has no races`)
-  const firstInfo = knownRace(first)
-  const turnout = raceResults(first, firstInfo.proportional)
-  const abroad = area.code === ABROAD.code
-  const governor = races.some((race) => race.cargo === GOVERNOR) ? raceByCode(GOVERNOR) : undefined
+  const governor = raceByCode(GOVERNOR)
+
+  const panels: RacePanel[] = TAB_RACES.flatMap((cargo) => {
+    const race = races.find((entry) => entry.cargo === cargo)
+    if (race === undefined) return []
+    const info = knownRace(race)
+    const extra =
+      cargo === GOVERNOR && governor !== undefined ? (
+        hasMap(area.code) ? (
+          <div className="grid items-start gap-x-8 lg:grid-cols-[3fr_2fr]">
+            <MapSection
+              locale={locale}
+              area={area.code}
+              areaLabel={areaName(area, locale)}
+              race={governor}
+              table
+              collapsed={t(locale, 'area.municipalitiesSummary', {
+                count: formatInteger(locale, getMunicipalities(area.code).length),
+              })}
+            />
+            <ClosestMunicipalities locale={locale} area={area.code} race={governor} />
+          </div>
+        ) : (
+          <MunicipalityList locale={locale} area={area} />
+        )
+      ) : null
+    return [
+      {
+        slug: info.slug,
+        label: raceName(info, locale),
+        content: (
+          <RacePanelContent locale={locale} area={area} race={race}>
+            {extra}
+          </RacePanelContent>
+        ),
+      },
+    ]
+  })
+  const deputies = proportionalRaces(races.map((race) => race.cargo)).map((info) => {
+    const race = races.find((entry) => entry.cargo === info.code) as SummaryRace
+    const candidates = raceResults(race, info.proportional).candidates
+    return {
+      info,
+      elected: candidates.filter((candidate) => isElected(candidate.outcome)).length,
+      leader: candidates[0]?.name,
+    }
+  })
 
   return (
-    <PageShell locale={locale} path={`/${YEAR}/${area.code}/`} crumbs={areaCrumbs(locale, area)}>
-      <h1 className="text-2xl font-semibold">{areaName(area, locale)}</h1>
-      <p className="mt-1 text-sm text-slate-700">
-        {t(locale, abroad ? 'area.abroadIntro' : 'area.intro')}
-      </p>
-      <TurnoutSummary locale={locale} info={firstInfo} results={turnout} />
-      {races.map((race) => {
-        const info = knownRace(race)
-        const results = raceResults(race, info.proportional)
-        const title = raceName(info, locale)
-        if (abroad) {
-          return (
-            <section key={race.cargo} className="mt-6">
-              <h2 className="text-xl font-semibold">{title}</h2>
-              <FullResults
-                locale={locale}
-                info={info}
-                results={results}
-                caption={title}
-                candidateHref={candidateHref(locale, info, area.code)}
-              />
-            </section>
-          )
-        }
-        const size = info.proportional ? HEADLINE_SIZE.proportional : HEADLINE_SIZE.majoritarian
-        const elected = results.candidates.filter((candidate) => isElected(candidate.outcome))
-        return (
-          <section key={race.cargo} className="mt-6" data-race={info.slug}>
-            <h2 className="text-xl font-semibold">{title}</h2>
-            <RaceNote locale={locale} info={info} results={results} />
-            {info.proportional && elected.length > 0 && (
-              <p className="mt-1 text-sm text-slate-700">
-                {t(locale, 'area.electedCount', { count: String(elected.length) })}
-              </p>
-            )}
-            <div className="mt-2">
-              <CandidateTable
-                locale={locale}
-                candidates={results.candidates.slice(0, size)}
-                validVotes={results.totals.valid}
-                caption={t(locale, 'area.leadersCaption', { race: title })}
-                candidateHref={candidateHref(locale, info, area.code)}
-              />
-            </div>
-            <p className="mt-2 text-sm">
-              <AppLink
-                href={localePath(locale, `/${YEAR}/${area.code}/${info.slug}/`)}
-                className="underline"
-              >
-                {t(locale, 'area.fullResults', {
-                  count: formatInteger(
-                    locale,
-                    results.candidates.length + results.candidatesUnderAppeal.length,
-                  ),
-                })}
-              </AppLink>
-            </p>
-          </section>
-        )
-      })}
-      {hasMap(area.code) && governor !== undefined ? (
-        <MapSection
-          locale={locale}
-          area={area.code}
-          areaLabel={areaName(area, locale)}
-          race={governor}
-          table
-          collapsed={t(locale, 'area.municipalitiesSummary', {
-            count: formatInteger(locale, getMunicipalities(area.code).length),
-          })}
-        />
-      ) : (
-        <MunicipalityList locale={locale} area={area} />
+    <PageShell
+      locale={locale}
+      path={`/${YEAR}/${area.code}/`}
+      crumbs={areaCrumbs(locale, area)}
+      wide
+    >
+      <h1 className="text-4xl font-extrabold sm:text-5xl">{areaName(area, locale)}</h1>
+      <p className="text-muted mt-2 text-sm">{t(locale, 'area.intro')}</p>
+      <RaceTabs
+        label={t(locale, 'area.racesLabel', { area: areaName(area, locale) })}
+        panels={panels}
+      />
+      {deputies.length > 0 && (
+        <section className="mt-10" data-testid="deputies">
+          <h2 className="text-2xl font-extrabold">{t(locale, 'area.deputiesTitle')}</h2>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {deputies.map(({ info, elected, leader }) => (
+              <li key={info.slug}>
+                <AppLink
+                  href={localePath(locale, `/${YEAR}/${area.code}/${info.slug}/`)}
+                  className="border-line flex h-full flex-col gap-1 rounded-2xl border p-4"
+                  data-race={info.slug}
+                >
+                  <span className="flex flex-wrap items-baseline justify-between gap-x-3 font-semibold">
+                    <span className="underline">{raceName(info, locale)}</span>
+                    {elected > 0 && (
+                      <span className="text-muted text-sm font-normal">
+                        {t(locale, 'area.electedCount', { count: formatInteger(locale, elected) })}
+                      </span>
+                    )}
+                  </span>
+                  {leader !== undefined && (
+                    <span className="text-muted text-sm">
+                      {t(locale, 'map.leader')}: <span>{leader}</span>
+                    </span>
+                  )}
+                </AppLink>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </PageShell>
   )

@@ -1,5 +1,6 @@
 import { AppLink } from '@/components/app-link'
 import { formatInteger, formatShare, t, type Locale, type MessageKey } from '@/lib/i18n'
+import { candidateColor } from '@/lib/map-colors'
 import { isElected, isInRunoff, type CandidateRow, type RaceResults } from '@/lib/results'
 import { candidateRowId } from '@/lib/search'
 
@@ -42,11 +43,11 @@ export function Outcome({ locale, outcome }: { locale: Locale; outcome: string }
   )
 }
 
-function ShareBar({ part, whole }: { part: number; whole: number }) {
+function ShareBar({ part, whole, color }: { part: number; whole: number; color?: string }) {
   const width = whole > 0 ? `${((part / whole) * 100).toFixed(2)}%` : '0%'
   return (
     <span aria-hidden="true" className="share-bar">
-      <span style={{ width }} />
+      <span style={color === undefined ? { width } : { width, background: color }} />
     </span>
   )
 }
@@ -58,6 +59,7 @@ export function CandidateTable({
   caption,
   withRowIds = false,
   candidateHref,
+  ranks,
 }: {
   locale: Locale
   candidates: CandidateRow[]
@@ -67,6 +69,8 @@ export function CandidateTable({
   withRowIds?: boolean
   /** A candidacy's own page, in the races that have them. */
   candidateHref?: (number: number) => string
+  /** The maps' color of each candidate, in a majoritarian race. */
+  ranks?: ReadonlyMap<number, 0 | 1>
 }) {
   return (
     <table className="results-table">
@@ -97,7 +101,13 @@ export function CandidateTable({
                 </span>
                 <Outcome locale={locale} outcome={candidate.outcome} />
               </div>
-              <ShareBar part={candidate.votes} whole={validVotes} />
+              <ShareBar
+                part={candidate.votes}
+                whole={validVotes}
+                color={
+                  ranks === undefined ? undefined : candidateColor(ranks.get(candidate.number))
+                }
+              />
             </td>
             <td>{formatInteger(locale, candidate.votes)}</td>
             <td>{formatShare(locale, candidate.votes, validVotes)}</td>
@@ -108,7 +118,7 @@ export function CandidateTable({
   )
 }
 
-function CandidateName({
+export function CandidateName({
   candidate,
   href,
 }: {

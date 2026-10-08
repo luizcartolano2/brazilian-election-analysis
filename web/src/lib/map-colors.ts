@@ -16,6 +16,11 @@ export const NO_VOTES = '#f1f5f9'
 export const WATER = '#dbeafe'
 export const TIE_PATTERN = 'map-tie'
 
+/** A candidate's mark outside a map: the darkest shade of its map color, or the others' gray. */
+export function candidateColor(rank: 0 | 1 | undefined): string {
+  return rank === undefined ? OTHER : SHADES[rank][2]
+}
+
 export function fillColor(fill: Fill, patternId: string): string {
   switch (fill.kind) {
     case 'leader':
