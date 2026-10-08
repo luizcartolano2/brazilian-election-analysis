@@ -55,6 +55,6 @@
 
 ## 8. Launch (Luiz, with help)
 
-- [ ] 8.1 Make sure that the production build log shows 497 candidate pages in each language and that the size gate passes
-- [ ] 8.2 On `eleicoes.luizcartolano.com`, open the Brazil, a state, a race and a candidate page on a phone and a desktop, search for "sao jose" and "lisboa", and make sure that no page reports a policy violation
-- [ ] 8.3 Describe the maps, the boundaries and the search box in `web/README.md`, and update the status in `README.md`
+- [x] 8.1 Make sure that the production build log shows 497 candidate pages in each language and that the size gate passes
+- [x] 8.2 On `eleicoes.luizcartolano.com`, open the Brazil, a state, a race and a candidate page on a phone and a desktop, search for "sao jose" and "lisboa", and make sure that no page reports a policy violation
+- [x] 8.3 Describe the maps, the boundaries and the search box in `web/README.md`, and update the status in `README.md`

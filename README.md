@@ -4,7 +4,8 @@
 > começando por 2026.
 
 Analysis of Brazil's election results from official TSE data, starting with the 2026
-general election. The app will live at `eleicoes.luizcartolano.com`, in Portuguese first
+general election. The app is live at
+[eleicoes.luizcartolano.com](https://eleicoes.luizcartolano.com/2026/), in Portuguese first
 and English second.
 
 ## What it can and cannot tell you
@@ -27,14 +28,19 @@ why.
 ## Status
 
 The pipeline builds and checks the whole first round: every polling station in Brazil
-and abroad matches TSE's own totals. The Worker that serves the data to browsers is
-live, and a workflow publishes each data version. The app is built: static pages for
-Brazil, each state and each state race, and views for each municipality, zone and polling
-station that query the data in the browser. Launch comes next.
+and abroad matches TSE's own totals. The Worker serves the data to browsers, and a
+workflow publishes each data version.
+
+The site is live. It has static pages for Brazil, each state, each race and each
+President, Governor and Senate candidacy, with maps by municipality and a search box. It
+also has views for each municipality, zone and polling station, which query the data in
+the browser. The runoff on 2026-10-25 comes next.
 
 | Milestone | Target |
 |---|---|
-| Official first-round results, explorable to the polling station | Before the runoff on 2026-10-25 |
+| Official first-round results, explorable to the polling station | Live since 2026-10-08 |
+| Maps by municipality, candidate pages and search | Live since 2026-10-08 |
+| Official runoff results | The night of 2026-10-25 |
 | Cross-race estimates and first-to-second-round transfers | After the runoff |
 
 ## How it will work
