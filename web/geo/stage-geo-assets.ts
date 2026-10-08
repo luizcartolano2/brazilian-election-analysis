@@ -65,7 +65,7 @@ export interface PartRow {
   BOUNDS: string
 }
 
-type Files = Record<string, string | Uint8Array>
+type Files = Record<string, string | Buffer>
 
 const MAPSHAPER_VERSION = (
   createRequire(import.meta.url)('mapshaper/package.json') as { version: string }
@@ -126,7 +126,7 @@ export async function explodeSource(
       `-each "CD_MUN=+CD_MUN" -proj ${settings.projection} -explode ` +
       `-each "PART=this.id, AREA=this.area, BOUNDS=this.bounds.join(',')" ` +
       '-o format=json parts.json -o format=shapefile parts.shp',
-    { 'source.zip': zip },
+    { 'source.zip': Buffer.from(zip.buffer, zip.byteOffset, zip.byteLength) },
   )
   return {
     rows: JSON.parse(text(exploded['parts.json'])) as PartRow[],
@@ -302,15 +302,20 @@ export function describeSettings(settings: GeoSettings) {
   }
 }
 
+/** Fails unless the zip has the pinned SHA-512. */
+export function checkSource(zip: Uint8Array, source: GeoSource): void {
+  const sha512 = createHash('sha512').update(zip).digest('hex')
+  if (sha512 !== source.sha512) {
+    throw new Error(`the source's SHA-512 is ${sha512}, but geo-assets.ts pins ${source.sha512}`)
+  }
+}
+
 /** Every staged file by name, in memory. Writes nothing. */
 export async function stageGeoAssets(input: StageInput): Promise<Map<string, Uint8Array>> {
   const source = input.source ?? GEO_SOURCE
   const settings = input.settings ?? GEO_SETTINGS
   const lagoons = input.lagoons ?? LAGOONS
-  const sha512 = createHash('sha512').update(input.zip).digest('hex')
-  if (sha512 !== source.sha512) {
-    throw new Error(`the source's SHA-512 is ${sha512}, but geo-assets.ts pins ${source.sha512}`)
-  }
+  checkSource(input.zip, source)
 
   const { rows, parts } = await explodeSource(input.zip, source, settings, input.only)
   checkStates(rows)
@@ -437,8 +442,20 @@ export async function municipalitiesByCode(source: DataSource): Promise<Map<numb
   }
 }
 
-async function download(url: string): Promise<Uint8Array> {
-  const response = await fetch(url, { signal: AbortSignal.timeout(900_000) })
+/**
+ * The source zip from a file, or downloaded. Both give a plain Uint8Array, so a local run with
+ * a file takes the same path as the publish job's download.
+ */
+export async function loadSource(
+  file: string | undefined,
+  url: string = GEO_SOURCE.url,
+  fetchSource: typeof fetch = fetch,
+): Promise<Uint8Array> {
+  if (file !== undefined) {
+    const bytes = await readFile(file)
+    return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  }
+  const response = await fetchSource(url, { signal: AbortSignal.timeout(900_000) })
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
   return new Uint8Array(await response.arrayBuffer())
 }
@@ -482,8 +499,8 @@ export function parseCommandLine(args: string[]): {
 
 async function main(args: string[]): Promise<void> {
   const options = parseCommandLine(args)
-  const zip =
-    options.source === undefined ? await download(GEO_SOURCE.url) : await readFile(options.source)
+  const zip = await loadSource(options.source)
+  checkSource(zip, GEO_SOURCE)
   const source = options.fixtures ? fixtureSource() : publishedSource()
   const municipalities = await municipalitiesByCode(source)
   const files = await stageToFolder(path.resolve(options.target), {
