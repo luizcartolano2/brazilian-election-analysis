@@ -15,7 +15,7 @@
 ## 3. Worker (the Worker PR)
 
 - [x] 3.1 Add `assets/geo/ibge-2025` to the Worker's allowed prefixes. Test that a boundary file returns with the JSON content type and the immutable cache header, and that a key under any other `assets/` folder returns 404 without reading storage
-- [ ] 3.2 After the merge, Luiz approves the deploy. After task 4.7, make sure that the Worker serves a published boundary file with the JSON content type and the immutable cache header
+- [x] 3.2 After the merge, Luiz approves the deploy. After task 4.7, make sure that the Worker serves a published boundary file with the JSON content type and the immutable cache header
 
 ## 4. Boundary asset: staging and publishing (the asset PR)
 
@@ -25,26 +25,26 @@
 - [x] 4.4 Generate the boundaries of the fixture municipalities into `web/fixtures-geo/`, and commit them. Test that they cover every municipality in the fixtures, and that the pipeline's fixture export leaves them untouched
 - [x] 4.5 Change `upload-asset.sh` to take the asset path as its second argument, accepting only `assets/duckdb-wasm/<version>` and `assets/geo/ibge-2025/<build id>`. Test that a boundary path uploads, that any other path is refused before any call, and that every existing asset test passes with the new argument
 - [x] 4.6 Add the `geo` target to `publish-data.yml`, with a staging job that holds no secret and an upload job in `data-publish`. Run `actionlint`
-- [ ] 4.7 After the merge, Luiz runs "Publish data" with target `geo` and approves the upload. Record the run, the build id, the file sizes and the dropped parts
+- [x] 4.7 After the merge, Luiz runs "Publish data" with target `geo` and approves the upload. Record the run, the build id, the file sizes and the dropped parts
 
 ## 5. Web: map values and checks (the maps PR)
 
-- [ ] 5.1 Pin the published build in `geo-assets.ts`. In `prepare-data.ts`, fetch its files through the Worker in a production build and fail on any difference, and serve `web/fixtures-geo/` under `/_fixtures/` in a fixtures build. Test a missing file and a changed file
-- [ ] 5.2 Read `totais/municipio` and `candidatos.parquet` in `prepare-data.ts`, check each file against the manifest, add the IBGE code to the municipality list, and write `.data/mapas/<area>/<cargo>.json`. Test that a deputy candidate's party comes from the summary even when the digits suggest another, and that a federation sums its parties
-- [ ] 5.3 Check that the municipalities add up to each summary for every candidate, every party's valid candidate votes plus list votes, and the valid votes, with the cities abroad in the Brazil check. Test that a one-vote difference fails the build and names the candidate, the area and both numbers, that every difference is reported, that neither a candidate under appeal nor a party list under appeal breaks the party check, and that the Brazil check passes only with the cities abroad
-- [ ] 5.4 Repeat the join check between data and boundaries in the build. Test that a municipality without a boundary fails, and that cities abroad stay off the maps
-- [ ] 5.5 Compute the most voted, the margin, the bin and the color of each municipality. Test a 3.2-point margin in the lightest shade, a tie, a minor leader in gray, a deputy race by federation, a Senate race with one shade and no bins, and a President map of a state that keeps Brazil's top two
+- [x] 5.1 Pin the published build in `geo-assets.ts`. In `prepare-data.ts`, fetch its files through the Worker in a production build and fail on any difference, and serve `web/fixtures-geo/` under `/_fixtures/` in a fixtures build. Test a missing file and a changed file
+- [x] 5.2 Read `totais/municipio` and `candidatos.parquet` in `prepare-data.ts`, check each file against the manifest, add the IBGE code to the municipality list, and write `.data/mapas/<area>/<cargo>.json`. Test that a deputy candidate's party comes from the summary even when the digits suggest another, and that a federation sums its parties
+- [x] 5.3 Check that the municipalities add up to each summary for every candidate, every party's valid candidate votes plus list votes, and the valid votes, with the cities abroad in the Brazil check. Test that a one-vote difference fails the build and names the candidate, the area and both numbers, that every difference is reported, that neither a candidate under appeal nor a party list under appeal breaks the party check, and that the Brazil check passes only with the cities abroad
+- [x] 5.4 Repeat the join check between data and boundaries in the build. Test that a municipality without a boundary fails, and that cities abroad stay off the maps
+- [x] 5.5 Compute the most voted, the margin, the bin and the color of each municipality. Test a 3.2-point margin in the lightest shade, a tie, a minor leader in gray, a deputy race by federation, a Senate race with one shade and no bins, and a President map of a state that keeps Brazil's top two
 
 ## 6. Web: the maps (the maps PR)
 
-- [ ] 6.1 Add `d3-geo` and `topojson-client`, and the map component. It receives its values as props, fetches its boundary file near the viewport with a 30-second timeout, checks the SHA-256, and draws one SVG in a frame with the legend and the TSE and IBGE credits. Test that an altered file and a failed download each draw no map, show the message and keep the list, and that a Governor frame holds the race, the area, the round, the legend, the statement and both credits
-- [ ] 6.2 Put the President map on the Brazil page with its link to the votes abroad, the Governor map on each state page, and each race's map on its race page, with Fernando de Noronha in an inset on Pernambuco's maps. Test each page, and that the Federal District and abroad show no map
-- [ ] 6.3 Add the details on hover and on tap, and the click to the municipality's view. Test that a click on Recife opens its view on the race shown, that a tap at 360 pixels shows the details with a link, and that a swipe on the map scrolls the page
-- [ ] 6.4 Render the municipality table in the HTML of each state and race page with a map, with sorting by margin and a filter that ignores case and accents. Link each state on the Brazil page to its President race page. Test that the table is complete without JavaScript and says that the map needs it, that sorting puts the closest margin first, that a Senate table shows the two most voted with shares and no margin, that the filter keeps a name with "São" when given "sao", and that each state's link leads to its President race page
-- [ ] 6.5 List the boundaries on the sources page: IBGE's edition, terms, the simplification, and the build in use with a link to its manifest. Test that the sources page shows them
-- [ ] 6.6 Add the new messages in Portuguese and English, and make sure that the key-set test passes
-- [ ] 6.7 Add the size gate on the static export, failing above 2.5 MB of HTML per page. Test that a page over the limit fails and is named
-- [ ] 6.8 Add the mapped pages to the 360-pixel test and to the production-headers test. Measure the Brazil map at 6x CPU throttling, and the Worker requests of one municipality view, and record both in the PR
+- [x] 6.1 Add `d3-geo` and `topojson-client`, and the map component. It receives its values as props, fetches its boundary file near the viewport with a 30-second timeout, checks the SHA-256, and draws one SVG in a frame with the legend and the TSE and IBGE credits. Test that an altered file and a failed download each draw no map, show the message and keep the list, and that a Governor frame holds the race, the area, the round, the legend, the statement and both credits
+- [x] 6.2 Put the President map on the Brazil page with its link to the votes abroad, the Governor map on each state page, and each race's map on its race page, with Fernando de Noronha in an inset on Pernambuco's maps. Test each page, and that the Federal District and abroad show no map
+- [x] 6.3 Add the details on hover and on tap, and the click to the municipality's view. Test that a click on Recife opens its view on the race shown, that a tap at 360 pixels shows the details with a link, and that a swipe on the map scrolls the page
+- [x] 6.4 Render the municipality table in the HTML of each state and race page with a map, with sorting by margin and a filter that ignores case and accents. Link each state on the Brazil page to its President race page. Test that the table is complete without JavaScript and says that the map needs it, that sorting puts the closest margin first, that a Senate table shows the two most voted with shares and no margin, that the filter keeps a name with "São" when given "sao", and that each state's link leads to its President race page
+- [x] 6.5 List the boundaries on the sources page: IBGE's edition, terms, the simplification, and the build in use with a link to its manifest. Test that the sources page shows them
+- [x] 6.6 Add the new messages in Portuguese and English, and make sure that the key-set test passes
+- [x] 6.7 Add the size gate on the static export, failing above 2.5 MB of HTML per page. Test that a page over the limit fails and is named
+- [x] 6.8 Add the mapped pages to the 360-pixel test and to the production-headers test. Measure the Brazil map at 6x CPU throttling, and the Worker requests of one municipality view, and record both in the PR
 
 ## 7. Web: candidate pages (the candidate pages PR)
 

@@ -74,9 +74,10 @@ mapped race and area, and adds the IBGE code to its municipality list.
 - Each page passes its values as props to a client component, which Next serializes and
   escapes. Nothing embeds an inline JSON script, because that needs
   `dangerouslySetInnerHTML`, which the lint rule bans.
-- A race page passes, per municipality, the IBGE code, the most voted, the margin and the
-  bin. The list renders the same values as HTML.
-- The Brazil page passes the same values for 5,571 municipalities, about 140 KB before
+- A race page passes, per municipality, the IBGE and TSE codes, the name, the two most
+  voted with their votes, and the valid votes. One function derives the margin and the
+  bin from them, for the map and for the list alike, and the list renders them as HTML.
+- The Brazil page passes the same values for 5,571 municipalities, 282 KB before
   compression, and shows no list. That costs less than one more request to the Worker
   for every visit to the most visited page.
 - A candidate page passes, per municipality, that candidate's votes and the valid votes.
@@ -283,9 +284,9 @@ content type, so the boundaries use that extension.
 
 ### D9. A size gate on the static export
 
-A script runs after `next build` in the web CI job and fails when any HTML file in the
-export exceeds 2.5 MB. Today's largest page is 2.06 MB, so the gate leaves room for the
-municipality table that São Paulo's race pages gain.
+The build script runs a check after `next build`, so it applies in CI and on Vercel. It
+fails when any HTML file in the export exceeds 2,500,000 bytes. With its map and list,
+the largest page, São Paulo's state deputy race, is 2,423,481 bytes.
 
 ### D10. Worker requests per visit
 

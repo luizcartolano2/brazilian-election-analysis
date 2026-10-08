@@ -6,6 +6,7 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { DATA_VERSION, VERSION_URL } from '../src/data-version'
 import type { Municipality } from '../src/lib/data'
+import type { Run } from '../src/lib/drilldown/queries'
 import type { Summary } from '../src/lib/results'
 import { YEAR } from '../src/lib/elections'
 import {
@@ -24,6 +25,8 @@ import {
   sha256Of,
 } from './duckdb-assets'
 import { nodeRunner } from './duckdb-node'
+import { GEO_BUILD } from './geo-assets'
+import { buildMaps, readBoundaries } from './map-data'
 import { buildSearchIndex } from './search-index'
 
 export type DataMode = 'published' | 'fixtures'
@@ -168,10 +171,9 @@ async function writeSearchIndex(
 }
 
 /** The municipality list for the state pages, one entry per area, read with DuckDB. */
-async function municipalityList(file: string): Promise<Record<string, Municipality[]>> {
-  const run = await nodeRunner()
+async function municipalityList(run: Run, file: string): Promise<Record<string, Municipality[]>> {
   const rows = await run(
-    'SELECT lower(uf) AS area, municipio, nome, capital FROM read_parquet(?) ORDER BY uf, nome',
+    'SELECT lower(uf) AS area, municipio, ibge, nome, capital FROM read_parquet(?) ORDER BY uf, nome',
     [file],
   )
   const byArea: Record<string, Municipality[]> = {}
@@ -179,11 +181,32 @@ async function municipalityList(file: string): Promise<Record<string, Municipali
     const area = String(row.area)
     ;(byArea[area] ??= []).push({
       municipio: Number(row.municipio),
+      ibge: row.ibge === null ? null : Number(row.ibge),
       nome: String(row.nome),
       capital: Boolean(row.capital),
     })
   }
   return byArea
+}
+
+const FIXTURES_GEO = path.join(WEB_ROOT, 'fixtures-geo')
+
+/** The fixture boundaries' own SHA256SUMS, which pin them as the published list pins those. */
+async function fixtureGeoPins(): Promise<Record<string, string>> {
+  const sums = await readFile(path.join(FIXTURES_GEO, 'SHA256SUMS'), 'utf-8')
+  const pins: Record<string, string> = {}
+  for (const line of sums.trim().split('\n')) {
+    const [sha256, name] = line.split('  ')
+    if (sha256 !== undefined && name !== undefined && name !== 'manifest.json') pins[name] = sha256
+  }
+  return pins
+}
+
+async function publishedBoundary(geoBase: string, name: string): Promise<Uint8Array | null> {
+  const response = await fetch(`${geoBase}/${name}`, { signal: AbortSignal.timeout(120_000) })
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
+  return new Uint8Array(await response.arrayBuffer())
 }
 
 export function dataMode(env: Record<string, string | undefined>): DataMode {
@@ -217,9 +240,40 @@ async function main(): Promise<void> {
   }
   const municipalitiesFile = path.join(DATA_DIR, 'municipios.parquet')
   await writeFile(municipalitiesFile, municipalities)
-  const municipalityLists = await municipalityList(municipalitiesFile)
+  const run = await nodeRunner()
+  const municipalityLists = await municipalityList(run, municipalitiesFile)
   await writeFile(path.join(DATA_DIR, 'municipios.json'), JSON.stringify(municipalityLists))
   const searchBase = await writeSearchIndex(summaries, municipalityLists)
+
+  // A fixtures build serves its boundaries itself, as it serves its data.
+  const geoBase =
+    mode === 'fixtures' ? '/_fixtures/geo' : `${DATA_VERSION.workerUrl}/${GEO_BUILD.path}`
+  const geoSha256 = mode === 'fixtures' ? await fixtureGeoPins() : GEO_BUILD.sha256
+  const boundaries = await readBoundaries(
+    mode === 'fixtures'
+      ? (name) =>
+          readFile(path.join(FIXTURES_GEO, name)).then(
+            (bytes) => new Uint8Array(bytes),
+            () => null,
+          )
+      : (name) => publishedBoundary(geoBase, name),
+    geoSha256,
+  )
+  const parsedSummaries = new Map(
+    [...summaries].map(([area, bytes]) => [
+      area,
+      JSON.parse(new TextDecoder().decode(bytes)) as Summary,
+    ]),
+  )
+  await buildMaps({
+    run,
+    source,
+    manifest,
+    summaries: parsedSummaries,
+    municipalities: municipalityLists,
+    boundaries,
+    out: path.join(DATA_DIR, 'mapas'),
+  })
 
   // A browser Worker must load from the page's own origin, so the app serves this script.
   const workerScript = `/duckdb/${duckdbVersion}/duckdb-browser-eh.worker.js`
@@ -242,12 +296,22 @@ async function main(): Promise<void> {
       await mkdir(path.dirname(target), { recursive: true })
       await cp(asset.source, target)
     }
+    await cp(FIXTURES_GEO, path.join(fixturesDir, 'geo'), { recursive: true })
   }
 
   const version = mode === 'published' ? DATA_VERSION.name : null
   await writeFile(
     path.join(DATA_DIR, 'source.json'),
-    JSON.stringify({ mode, version, dataBase, assetBase, workerScript, searchBase }),
+    JSON.stringify({
+      mode,
+      version,
+      dataBase,
+      assetBase,
+      workerScript,
+      searchBase,
+      geoBase,
+      geoSha256,
+    }),
   )
   console.log(`data: ${mode} ${version ?? ''}, ${summaries.size} summaries checked`)
   // The DuckDB runner keeps a Node worker alive.

@@ -43,6 +43,42 @@ export const ABROAD: StateInfo = { code: 'zz', pt: 'Exterior', en: 'Abroad' }
 
 export const AREAS: readonly StateInfo[] = [...STATES, ABROAD]
 
+/** IBGE's two-digit state code to the app's area code. A municipality's code starts with it. */
+export const IBGE_STATES: Record<string, string> = {
+  '11': 'ro',
+  '12': 'ac',
+  '13': 'am',
+  '14': 'rr',
+  '15': 'pa',
+  '16': 'ap',
+  '17': 'to',
+  '21': 'ma',
+  '22': 'pi',
+  '23': 'ce',
+  '24': 'rn',
+  '25': 'pb',
+  '26': 'pe',
+  '27': 'al',
+  '28': 'se',
+  '29': 'ba',
+  '31': 'mg',
+  '32': 'es',
+  '33': 'rj',
+  '35': 'sp',
+  '41': 'pr',
+  '42': 'sc',
+  '43': 'rs',
+  '50': 'ms',
+  '51': 'mt',
+  '52': 'go',
+  '53': 'df',
+}
+
+/** The area of a municipality's IBGE code. */
+export function areaOfIbge(code: number): string | undefined {
+  return IBGE_STATES[String(code).slice(0, 2)]
+}
+
 export function areaByCode(code: string): StateInfo | undefined {
   return AREAS.find((area) => area.code === code)
 }

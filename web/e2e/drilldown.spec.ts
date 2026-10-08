@@ -181,13 +181,13 @@ test('switching language keeps the place and race', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Station 597 · Zone 3 · RECIFE' })).toBeVisible()
 })
 
-test('a state page links to each of its municipalities', async ({ page }) => {
+test('a state page links to each of its municipalities, on the Governor race of its list', async ({
+  page,
+}) => {
   await page.goto('/2026/pe/')
-  await page.getByText('Ver os 3 municípios').click()
-  await expect(page.getByRole('link', { name: 'FERNANDO DE NORONHA' })).toHaveAttribute(
-    'href',
-    '/2026/municipio/?uf=pe&mu=30015',
-  )
+  await expect(
+    page.getByTestId('municipality-table').getByRole('link', { name: 'FERNANDO DE NORONHA' }),
+  ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=30015&cargo=governador')
 })
 
 test.describe('at 360 pixels wide', () => {

@@ -70,7 +70,7 @@ test('an unknown address gets a 404 page in both languages, with the credit', as
 
 test('the Senate page says each voter chose two candidates', async ({ page }) => {
   await page.goto('/2026/pe/senador/')
-  await expect(page.getByText(/Cada eleitor escolheu dois candidatos/)).toBeVisible()
+  await expect(page.getByText(/^Cada eleitor escolheu dois candidatos, para 2 vagas/)).toBeVisible()
 })
 
 test('a deputy race shows party totals that add up to the valid votes', async ({ page }) => {

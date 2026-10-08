@@ -11,6 +11,8 @@ const PLACES = {
   assetBase: '/assets',
   workerScript: '/worker.js',
   searchBase: '/busca/0',
+  geoBase: 'https://worker.test/assets/geo/ibge-2025/20261008-e556c48-37807969229',
+  geoSha256: {},
 }
 
 const manifest = JSON.parse(
@@ -28,6 +30,23 @@ describe('the sources page', () => {
     )
     expect(html).toContain(DATA_VERSION.name)
     expect(html).toContain(`href="${VERSION_URL}/manifest.json"`)
+  })
+
+  it('names the boundary build in use, its terms and its manifest', () => {
+    const html = renderToStaticMarkup(
+      <SourcesContent
+        locale="en"
+        manifest={manifest}
+        source={{ mode: 'published', version: DATA_VERSION.name, ...PLACES }}
+      />,
+    )
+    expect(html).toContain('20261008-e556c48-37807969229')
+    expect(html).toContain(`href="${PLACES.geoBase}/manifest.json"`)
+    expect(html).toContain('compatible with CC BY 4.0')
+    expect(html).toContain(
+      'href="https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf"',
+    )
+    expect(html).toContain('simplified')
   })
 
   it('says a fixtures build is a test build, with no manifest link', () => {
