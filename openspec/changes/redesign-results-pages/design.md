@@ -39,8 +39,9 @@ Everything the new sections show already exists at build time:
 
 ### 1. The tokens live in Tailwind's theme, and the candidate colors stay in one file
 
-`app/globals.css` declares the neutral palette, the two fonts, the text sizes and the
-radii in Tailwind 4's `@theme` block. The neutrals come from the mockup:
+`app/globals.css` declares the neutral palette and the two fonts in Tailwind 4's `@theme`
+block. Text sizes, spacing and radii use Tailwind's default scales, which already form
+one set, so the change adds no token for them. The neutrals come from the mockup:
 
 | Token | Value | Use |
 |---|---|---|
@@ -57,8 +58,10 @@ Alternative: copy the map colors into CSS variables. That makes two sources for 
 color, and a test would have to keep them equal. Reading the variables back in the map
 code needs `getComputedStyle`, which does not run at build time.
 
-The page column grows from 768 pixels to 1,200. Below 768 pixels, every section is one
-column, as in the mockup.
+The page column grows from 768 pixels to 1,200. The header and footer take the wide
+column in the foundation PR. A page's content moves to it only when PR 2 or PR 3 gives
+that page its new layout, because today's single-column tables read badly at 1,200
+pixels. Below 768 pixels, every section is one column, as in the mockup.
 
 ### 2. Fonts come from npm packages, through `next/font/local`
 
@@ -182,10 +185,10 @@ Alternatives:
 ### 7. Title case is one pure function, applied where names enter the views
 
 `src/lib/names.ts` exports `displayName()`, which follows the rule in the spec. It
-splits each word into segments at a hyphen, an apostrophe, a quote mark, a parenthesis,
-a period or a slash, and applies the rule to each segment. It compares a segment
+splits each word into segments at any character that is neither a letter nor a digit,
+and applies the rule to each segment. It compares a segment
 without its ordinal marks, so "DRª" counts as "DR". The lists of particles, titles and
-acronyms are constants next to it.
+acronyms, and the pattern of a Roman numeral, are constants next to it.
 
 The function applies to candidates' ballot names, to municipality names and to the
 names of cities abroad. It runs where those names enter the views:
@@ -209,7 +212,7 @@ the PR, and Luiz reviews them:
 
 1. Each word that keeps its capitals.
 2. Each recased word of four letters or fewer, where a missed acronym hides.
-3. Each name that holds a period, a slash or a digit.
+3. Each name that holds a digit or any character that is neither a letter nor a space.
 
 ### 8. The new lists are computed at build time, and the tables stay small
 

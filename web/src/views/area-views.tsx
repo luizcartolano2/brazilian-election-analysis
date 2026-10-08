@@ -130,7 +130,7 @@ export function BrazilView({ locale }: { locale: Locale }) {
 
 function StateList({ locale, president }: { locale: Locale; president: RaceInfo }) {
   return (
-    <section className="mt-8">
+    <section id="estados" className="mt-8 scroll-mt-4">
       <h2 className="text-xl font-semibold">{t(locale, 'brazil.statesTitle')}</h2>
       <p className="mt-1 text-sm text-slate-700">{t(locale, 'brazil.statesNote')}</p>
       <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-3">

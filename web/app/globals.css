@@ -1,5 +1,62 @@
 @import 'tailwindcss';
 
-body {
-  @apply bg-white text-slate-900 antialiased;
+@custom-variant scripting (@media (scripting: enabled));
+
+@theme inline {
+  --font-sans: var(--font-public-sans), system-ui, sans-serif;
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+}
+
+@theme {
+  --color-ink: #14171a;
+  --color-muted: #4b5563;
+  --color-surface: #f3f4f1;
+  --color-line: #e3e5e0;
+}
+
+@layer base {
+  body {
+    @apply text-ink bg-white font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+}
+
+/* One short class per table instead of utilities on every cell: a deputy race page holds over a thousand rows. */
+@layer components {
+  .results-table {
+    @apply w-full table-fixed border-collapse text-sm;
+  }
+
+  .results-table tbody tr {
+    @apply border-line scroll-mt-4 border-b align-top;
+  }
+
+  .results-table tbody td {
+    @apply py-2 pr-2;
+  }
+
+  .results-table tbody td + td {
+    @apply text-right tabular-nums;
+  }
+
+  .results-table tbody td:last-child {
+    @apply pr-0;
+  }
+
+  .results-meta {
+    @apply text-muted flex flex-wrap items-center gap-x-2 text-xs;
+  }
+
+  .share-bar {
+    @apply bg-line mt-1 block h-1.5 w-full rounded-full;
+  }
+
+  .share-bar > span {
+    @apply bg-muted block h-full rounded-full;
+  }
 }

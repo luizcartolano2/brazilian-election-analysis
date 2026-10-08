@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import { displayName } from '../src/lib/names'
 import type { Summary } from '../src/lib/results'
 
 export function summary(area: string): Summary {
@@ -15,13 +16,13 @@ export function summary(area: string): Summary {
   return JSON.parse(readFileSync(file, 'utf-8')) as Summary
 }
 
-/** The valid candidate with the most votes in a race. */
+/** The valid candidate with the most votes in a race, named as the site shows it. */
 export function leader(area: string, race: number): string {
   const entry = summary(area).corridas.find((candidate) => candidate.cargo === race)
   const valid = (entry?.candidatos ?? []).filter((candidate) => candidate.destino === 'Válido')
   const top = valid.sort((a, b) => b.votos - a.votos)[0]
   if (top === undefined) throw new Error(`no candidates in ${area} race ${race}`)
-  return top.nome
+  return displayName(top.nome)
 }
 
 /** Every kind of page the build produces, in both languages. */

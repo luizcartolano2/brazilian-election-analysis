@@ -30,7 +30,7 @@ test('a Governor map frame holds the race, area, round, legend, statement and bo
   await expect(frame).toContainText('Governador · Pernambuco · 1º turno')
   await expect(frame).toContainText('As cores mostram o candidato mais votado em cada município.')
   await expect(frame).toContainText('apertada, abaixo de 5 p.p.')
-  await expect(frame).toContainText('RAQUEL LYRA (PSD)')
+  await expect(frame).toContainText('Raquel Lyra (PSD)')
   await expect(frame).toContainText('Fonte: Tribunal Superior Eleitoral (TSE)')
   await expect(frame).toContainText('Limites municipais: IBGE')
 })
@@ -39,7 +39,7 @@ test("Pernambuco's map draws Fernando de Noronha in its own box", async ({ page 
   const map = await drawnMap(page, '/2026/pe/governador/')
 
   await expect(map.locator('svg g rect')).toHaveCount(1)
-  await expect(map.locator('svg text')).toHaveText('FERNANDO DE NORONHA')
+  await expect(map.locator('svg text')).toHaveText('Fernando de Noronha')
 })
 
 test('an English map names its race, round and bins in English', async ({ page }) => {
@@ -69,7 +69,7 @@ test('each state on the Brazil page links to its President race page, which list
   await pernambuco.getByRole('link', { name: 'presidente por município' }).click()
 
   await expect(page).toHaveURL('/2026/pe/presidente/')
-  await expect(rows(page).filter({ hasText: 'RECIFE' })).toHaveCount(1)
+  await expect(rows(page).filter({ hasText: 'Recife' })).toHaveCount(1)
 })
 
 test('a state page maps its Governor race, and folds its list', async ({ page }) => {
@@ -134,8 +134,8 @@ test('a pointer on a municipality shows its details', async ({ page }) => {
   await map.locator(`path[data-ibge="${RECIFE}"]`).hover()
 
   const details = page.getByTestId('map-details')
-  await expect(details).toContainText('RECIFE')
-  await expect(details).toContainText('JOÃO CAMPOS (PSB)')
+  await expect(details).toContainText('Recife')
+  await expect(details).toContainText('João Campos (PSB)')
   await expect(details).toContainText('p.p. · clara')
 })
 
@@ -147,8 +147,8 @@ test.describe('on a phone', () => {
     await map.locator(`path[data-ibge="${RECIFE}"]`).tap()
 
     const details = page.getByTestId('map-details')
-    await expect(details).toContainText('RECIFE')
-    await expect(details.getByRole('link', { name: 'Ver RECIFE' })).toHaveAttribute(
+    await expect(details).toContainText('Recife')
+    await expect(details.getByRole('link', { name: 'Ver Recife', exact: true })).toHaveAttribute(
       'href',
       '/2026/municipio/?uf=pe&mu=25313&cargo=governador',
     )
@@ -198,21 +198,21 @@ test('without JavaScript the list is complete, and says that the map needs JavaS
     'O mapa precisa de JavaScript. A lista abaixo traz os mesmos dados.',
   )
   await expect(rows(page)).toHaveCount(3)
-  await expect(rows(page).filter({ hasText: 'RECIFE' })).toContainText('JOÃO CAMPOS (PSB)')
-  await expect(rows(page).filter({ hasText: 'RECIFE' })).toContainText('p.p.')
+  await expect(rows(page).filter({ hasText: 'Recife' })).toContainText('João Campos (PSB)')
+  await expect(rows(page).filter({ hasText: 'Recife' })).toContainText('p.p.')
   await context.close()
 })
 
 test('sorting by margin puts the closest municipality first', async ({ page }) => {
   await page.goto('/2026/pe/governador/')
-  await expect(rows(page).first()).toContainText('AGRESTINA')
-  await expect(rows(page).nth(1)).toContainText('FERNANDO DE NORONHA')
+  await expect(rows(page).first()).toContainText('Agrestina')
+  await expect(rows(page).nth(1)).toContainText('Fernando de Noronha')
 
   await page.getByRole('button', { name: 'Pela margem' }).click()
 
-  await expect(rows(page).nth(0)).toContainText('AGRESTINA')
-  await expect(rows(page).nth(1)).toContainText('RECIFE')
-  await expect(rows(page).nth(2)).toContainText('FERNANDO DE NORONHA')
+  await expect(rows(page).nth(0)).toContainText('Agrestina')
+  await expect(rows(page).nth(1)).toContainText('Recife')
+  await expect(rows(page).nth(2)).toContainText('Fernando de Noronha')
 })
 
 test('a Senate list shows the two most voted with their shares, and sorts by name only', async ({
@@ -231,7 +231,7 @@ test('the filter ignores case and accents', async ({ page }) => {
   await page.getByPlaceholder('Filtrar municípios').fill('brasileia')
 
   await expect(rows(page)).toHaveCount(1)
-  await expect(rows(page)).toContainText('BRASILÉIA')
+  await expect(rows(page)).toContainText('Brasiléia')
 })
 
 test.describe('with its map drawn, under the production headers', () => {

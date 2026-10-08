@@ -24,7 +24,8 @@ number, the share of valid votes, the votes and TSE's outcome, and SHALL link to
 candidate's page. A card for a candidate whom TSE sends to the runoff SHALL state the
 runoff's date. A proportional race shows no cards. On the Brazil, votes-abroad and race
 pages, the full results, the turnout and the map SHALL follow on the same page. The page
-header SHALL name the round shown and its date.
+header SHALL name the round shown and its date, and SHALL link to the list of states on
+the Brazil page.
 
 #### Scenario: The Brazil page
 - **WHEN** a visitor opens the Brazil page and TSE marks two President candidates for the runoff
@@ -57,6 +58,10 @@ header SHALL name the round shown and its date.
 #### Scenario: The runoff date
 - **WHEN** a card shows a candidate whom TSE sends to the runoff
 - **THEN** the card states that the runoff is on 25 October 2026, and the header names the first round and 4 October 2026
+
+#### Scenario: The header's link to the states
+- **WHEN** a visitor on a state page follows the header's link to the states
+- **THEN** the Brazil page opens at its list of states
 
 ### Requirement: The states at a glance
 The Brazil page SHALL show the 27 states as a grid of tiles, each placed at its rough
@@ -121,12 +126,15 @@ abroad in title case: each word starts with a capital letter and continues in lo
 case. The Portuguese particles "da", "das", "de", "do", "dos" and "e" SHALL stay in
 lower case unless they start the name, and so SHALL a "d" before an apostrophe, as in
 "Pau d'Arco". A word with no vowel, such as PT or BH, SHALL keep its capitals, except
-the abbreviated titles CMDT, DR, JR, SGT and SR, which take title case. An acronym that
+the abbreviated titles CMDT, DR, JR, PR, SGT and SR, which take title case. The vowels are
+A, E, I, O, U and Y, with or without an accent. A Roman numeral of two letters or more,
+written with I, V and X, such as II or XV, SHALL keep its capitals. An acronym that
 holds a vowel SHALL keep its capitals when it is on a written list, which holds at least
 PCO, PSOL, PSTU, CUT, ONG, SAMU and COHAB. Every other word takes title case, a party
-name that is also a common word, such as NOVO, included. A letter after a hyphen, an
-apostrophe, a quote mark, an opening parenthesis, a period or a slash SHALL start in
-capitals.
+name that is also a common word, such as NOVO, included. A letter after any character
+that is neither a letter nor a digit, such as a hyphen, an apostrophe, a quote mark, a
+parenthesis, a period or a slash, SHALL start in capitals. So a particle right after
+such a character, as in "(DO POVO)", starts in capitals too.
 
 The rule SHALL apply wherever one of these names appears, page titles, maps and search
 results included. The app SHALL change only the case, never a letter, an accent or the
@@ -151,8 +159,12 @@ the typed text.
 - **THEN** the site shows "Ze da ONG"
 
 #### Scenario: An abbreviated title
-- **WHEN** TSE's ballot names are "DR. ANA LIMA" and "DR.ANA LIMA"
-- **THEN** the site shows "Dr. Ana Lima" and "Dr.Ana Lima"
+- **WHEN** TSE's ballot names are "DR. ANA LIMA", "DR.ANA LIMA" and "PR. ANA LIMA"
+- **THEN** the site shows "Dr. Ana Lima", "Dr.Ana Lima" and "Pr. Ana Lima"
+
+#### Scenario: A Roman numeral
+- **WHEN** TSE's municipality names are "PEDRO II" and "PIO IX"
+- **THEN** the site shows "Pedro II" and "Pio IX"
 
 #### Scenario: Two words joined by a slash
 - **WHEN** TSE's ballot name is "LU ENFERMEIRA/PROFESSORA"

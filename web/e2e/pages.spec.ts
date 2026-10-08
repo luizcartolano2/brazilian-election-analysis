@@ -18,10 +18,20 @@ test.describe('under the production headers', () => {
   })
 
   for (const address of PAGES) {
-    test(`${address} loads with no policy violation`, async ({ page }) => {
+    test(`${address} loads with no policy violation`, async ({ page, baseURL }) => {
       const errors: string[] = []
+      const elsewhere: string[] = []
       page.on('console', (message) => {
         if (message.type() === 'error') errors.push(message.text())
+      })
+      page.on('request', (request) => {
+        const kind = request.resourceType()
+        if (
+          (kind === 'font' || kind === 'stylesheet') &&
+          new URL(request.url()).origin !== new URL(baseURL ?? '').origin
+        ) {
+          elsewhere.push(request.url())
+        }
       })
       const response = await page.goto(address)
       expect(response?.status()).toBe(200)
@@ -29,6 +39,7 @@ test.describe('under the production headers', () => {
       await page.waitForLoadState('networkidle')
       expect(await page.evaluate(() => window.__violations)).toEqual([])
       expect(errors).toEqual([])
+      expect(elsewhere).toEqual([])
     })
   }
 })

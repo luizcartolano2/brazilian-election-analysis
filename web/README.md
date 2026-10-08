@@ -90,6 +90,18 @@ writes the index into `public/busca/<hash>/`, with an allowlist of fields, and `
 marks that path immutable. The browser downloads the index the first time a visitor
 focuses the box.
 
+## Fonts and names
+
+The app uses Archivo for headings and Public Sans for text, both under the SIL Open Font
+License 1.1. The packages `@fontsource-variable/archivo` and
+`@fontsource-variable/public-sans` hold them, pinned in the lockfile. `app/fonts.ts`
+loads each package's Latin file through `next/font/local`, so the export serves the fonts
+from the app's own origin and no page requests Google.
+
+TSE writes the names of candidates, municipalities and cities abroad in capitals.
+`src/lib/names.ts` shows them in title case, and keeps acronyms such as PT and PSOL in
+capitals. The search index keeps TSE's spelling.
+
 ## Test it
 
 ```bash

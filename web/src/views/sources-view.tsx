@@ -133,6 +133,11 @@ export function SourcesContent({
         </p>
       )}
 
+      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.namesTitle')}</h2>
+      <p className="mt-1 text-sm" data-testid="names-note">
+        {t(locale, 'sources.namesNote')}
+      </p>
+
       <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.filesTitle')}</h2>
       <p className="mt-1 text-sm text-slate-700">
         {t(locale, 'sources.filesNote', { count: formatInteger(locale, sources.length) })}

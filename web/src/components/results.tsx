@@ -34,7 +34,7 @@ export function Outcome({ locale, outcome }: { locale: Locale; outcome: string }
       className={
         highlighted
           ? 'rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-900'
-          : 'text-xs text-slate-600'
+          : 'text-muted text-xs'
       }
     >
       {label}
@@ -45,9 +45,9 @@ export function Outcome({ locale, outcome }: { locale: Locale; outcome: string }
 function ShareBar({ part, whole }: { part: number; whole: number }) {
   const width = whole > 0 ? `${((part / whole) * 100).toFixed(2)}%` : '0%'
   return (
-    <div aria-hidden="true" className="mt-1 h-1.5 w-full rounded bg-slate-200">
-      <div className="h-full rounded bg-slate-700" style={{ width }} />
-    </div>
+    <span aria-hidden="true" className="share-bar">
+      <span style={{ width }} />
+    </span>
   )
 }
 
@@ -69,10 +69,10 @@ export function CandidateTable({
   candidateHref?: (number: number) => string
 }) {
   return (
-    <table className="w-full table-fixed border-collapse text-sm">
+    <table className="results-table">
       <caption className="sr-only">{caption}</caption>
       <thead>
-        <tr className="border-b border-slate-300 text-left text-xs text-slate-600">
+        <tr className="border-ink/20 text-muted border-b text-left text-xs">
           <th scope="col" className="py-1 pr-2 font-medium">
             {t(locale, 'results.candidate')}
           </th>
@@ -86,16 +86,12 @@ export function CandidateTable({
       </thead>
       <tbody>
         {candidates.map((candidate) => (
-          <tr
-            key={candidate.number}
-            id={withRowIds ? candidateRowId(candidate.number) : undefined}
-            className="scroll-mt-4 border-b border-slate-100 align-top"
-          >
-            <td className="py-2 pr-2">
+          <tr key={candidate.number} id={withRowIds ? candidateRowId(candidate.number) : undefined}>
+            <td>
               <div className="font-medium break-words">
                 <CandidateName candidate={candidate} href={candidateHref} />
               </div>
-              <div className="flex flex-wrap items-center gap-x-2 text-xs text-slate-600">
+              <div className="results-meta">
                 <span>
                   {candidate.party} · {candidate.number}
                 </span>
@@ -103,12 +99,8 @@ export function CandidateTable({
               </div>
               <ShareBar part={candidate.votes} whole={validVotes} />
             </td>
-            <td className="py-2 pr-2 text-right tabular-nums">
-              {formatInteger(locale, candidate.votes)}
-            </td>
-            <td className="py-2 text-right tabular-nums">
-              {formatShare(locale, candidate.votes, validVotes)}
-            </td>
+            <td>{formatInteger(locale, candidate.votes)}</td>
+            <td>{formatShare(locale, candidate.votes, validVotes)}</td>
           </tr>
         ))}
       </tbody>

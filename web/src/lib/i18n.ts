@@ -18,6 +18,14 @@ export function t(locale: Locale, key: MessageKey, values: Record<string, string
   return MESSAGES[locale][key].replace(/\{(\w+)\}/g, (match, name: string) => values[name] ?? match)
 }
 
+/** A calendar date such as `2026-10-04`, which has no time of day and so no time zone. */
+export function formatDate(locale: Locale, isoDate: string): string {
+  return new Intl.DateTimeFormat(NUMBER_LOCALES[locale], {
+    dateStyle: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${isoDate}T00:00:00Z`))
+}
+
 export function formatDateTime(locale: Locale, iso: string): string {
   return new Intl.DateTimeFormat(NUMBER_LOCALES[locale], {
     dateStyle: 'long',

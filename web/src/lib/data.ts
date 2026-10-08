@@ -2,9 +2,10 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { DrilldownConfig } from './drilldown/config'
-import { COUNCIL } from './elections'
+import { COUNCIL, raceByCode } from './elections'
 import type { Manifest } from './manifest'
-import type { CandidateVotes, MapData } from './maps'
+import { votesWithDisplayNames, withDisplayNames, type CandidateVotes, type MapData } from './maps'
+import { displayName } from './names'
 import type { Summary } from './results'
 
 const DATA_DIR = path.join(process.cwd(), '.data')
@@ -55,11 +56,21 @@ export function getSourceInfo(): DataSourceInfo {
   return source
 }
 
-/** `area` is `br`, a state code or `zz`, in lower case. */
+/** `area` is `br`, a state code or `zz`, in lower case. Candidates' names come in title case. */
 export function getSummary(area: string): Summary {
   let summary = summaries.get(area)
   if (summary === undefined) {
-    summary = readJson<Summary>(`resumo/${area}.json`)
+    const read = readJson<Summary>(`resumo/${area}.json`)
+    summary = {
+      ...read,
+      corridas: read.corridas.map((race) => ({
+        ...race,
+        candidatos: race.candidatos.map((candidate) => ({
+          ...candidate,
+          nome: displayName(candidate.nome),
+        })),
+      })),
+    }
     summaries.set(area, summary)
   }
   return summary
@@ -72,9 +83,13 @@ export function coveredAreas(): string[] {
 
 let municipalities: Record<string, Municipality[]> | undefined
 
-/** An area's municipalities, or its cities abroad, in TSE's order of names. */
+/** An area's municipalities, or its cities abroad, in TSE's order of names, with names in title case. */
 export function getMunicipalities(area: string): Municipality[] {
-  municipalities ??= readJson<Record<string, Municipality[]>>('municipios.json')
+  municipalities ??= Object.fromEntries(
+    Object.entries(readJson<Record<string, Municipality[]>>('municipios.json')).map(
+      ([code, list]) => [code, list.map((entry) => ({ ...entry, nome: displayName(entry.nome) }))],
+    ),
+  )
   return municipalities[area] ?? []
 }
 
@@ -85,7 +100,10 @@ export function getRaceMap(area: string, race: number): MapData {
   const key = `${area}/${race}`
   let data = maps.get(key)
   if (data === undefined) {
-    data = readJson<MapData>(`mapas/${key}.json`)
+    data = withDisplayNames(
+      readJson<MapData>(`mapas/${key}.json`),
+      raceByCode(race)?.proportional ?? true,
+    )
     maps.set(key, data)
   }
   return data
@@ -98,7 +116,7 @@ export function getCandidateVotes(area: string, race: number): CandidateVotes {
   const key = `${area}/${race}-votos`
   let data = votes.get(key)
   if (data === undefined) {
-    data = readJson<CandidateVotes>(`mapas/${key}.json`)
+    data = votesWithDisplayNames(readJson<CandidateVotes>(`mapas/${key}.json`))
     votes.set(key, data)
   }
   return data
