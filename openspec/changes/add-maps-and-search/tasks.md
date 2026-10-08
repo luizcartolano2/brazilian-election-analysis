@@ -14,7 +14,8 @@
 
 ## 3. Worker (the Worker PR)
 
-- [ ] 3.1 Add `assets/geo` to the Worker's allowed prefixes. Test that a boundary file returns with the JSON content type and the immutable cache header, and that a key under any other `assets/` folder returns 404 without reading storage. After the merge, Luiz approves the deploy
+- [x] 3.1 Add `assets/geo/ibge-2025` to the Worker's allowed prefixes. Test that a boundary file returns with the JSON content type and the immutable cache header, and that a key under any other `assets/` folder returns 404 without reading storage
+- [ ] 3.2 After the merge, Luiz approves the deploy. After task 4.7, make sure that the Worker serves a published boundary file with the JSON content type and the immutable cache header
 
 ## 4. Boundary asset: staging and publishing (the asset PR)
 

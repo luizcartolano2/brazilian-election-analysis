@@ -3,8 +3,9 @@ const SEGMENT = /^[A-Za-z0-9_.=-]+$/;
 // R2 throws on a longer key instead of returning nothing, which would turn a 404 into a 500.
 const MAX_KEY_LENGTH = 1024;
 
-// Each prefix is followed by a version segment and at least one file segment.
-const PREFIXES = [["v"], ["assets", "duckdb-wasm"]];
+// Each prefix is followed by a version segment and at least one file segment. The boundary
+// prefix names its edition, so that the build id is the version segment.
+const PREFIXES = [["v"], ["assets", "duckdb-wasm"], ["assets", "geo", "ibge-2025"]];
 
 /**
  * Maps a request URL to a storage key, or null when its path is outside a version. It reads

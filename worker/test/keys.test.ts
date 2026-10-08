@@ -4,6 +4,8 @@ import { keyFromUrl } from "../src/keys";
 import {
   BYTES,
   bytesOf,
+  GEO_BUILD,
+  GEO_FILE,
   JSON_FILE,
   PARQUET_FILE,
   PRODUCTION,
@@ -23,6 +25,7 @@ describe("files inside a version", () => {
     [PARQUET_FILE, "application/vnd.apache.parquet"],
     [JSON_FILE, "application/json; charset=utf-8"],
     [WASM_FILE, "application/wasm"],
+    [GEO_FILE, "application/json; charset=utf-8"],
   ])("serves %s as %s", async (key, contentType) => {
     const response = await request(`/${key}`);
 
@@ -84,6 +87,12 @@ describe("paths that are not files", () => {
     `/${VERSION}/2026/t1/`,
     "/assets/duckdb-wasm/1.29.0",
     "/assets/duckdb-wasm/1.29.0/",
+    "/assets/geo",
+    "/assets/geo/",
+    "/assets/geo/ibge-2025",
+    "/assets/geo/ibge-2025/",
+    `/${GEO_BUILD}`,
+    `/${GEO_BUILD}/`,
   ])("returns 404 and no listing for %s", async (path) => {
     const response = await requestWith({ DATA: UNREADABLE_BUCKET }, path);
 
@@ -96,6 +105,11 @@ describe("paths that are not files", () => {
     "/data/2026/t1/resumo/br.json",
     "/assets/other/1.0.0/file.wasm",
     "/assets/1.29.0/duckdb-eh.wasm",
+    `/${GEO_FILE.replace("assets/geo/", "assets/geography/")}`,
+    `/${GEO_FILE.replace("assets/geo/", "assets/GEO/")}`,
+    `/${GEO_FILE.replace("assets/geo/", "assets/maps/")}`,
+    `/${GEO_FILE.replace("ibge-2025", "ibge-2024")}`,
+    "/assets/geo/ibge-2025/br.json",
     "/V/20261005-abc1234-17/manifest.json",
     "/vv/20261005-abc1234-17/manifest.json",
   ])("returns 404 without reading storage for %s, outside the allowed prefixes", async (path) => {
