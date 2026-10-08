@@ -111,7 +111,7 @@ Worker), D13 (only Actions publishes), D14 and D17.
 ## Impact
 
 - `web/`: `d3-geo` and `topojson-client` as dependencies, and `mapshaper` as a
-  development dependency for the boundary staging script. A map component, the
+  development dependency of `web/geo/`, the boundary staging script's own package. A map component, the
   candidate pages, the search box, new message keys, new checks in `prepare-data.ts`,
   and a size check on the static export.
 - `worker/`: the key check accepts `assets/geo/`.

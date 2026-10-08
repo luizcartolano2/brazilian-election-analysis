@@ -46,6 +46,7 @@ step fails until the two agree.
 ## Test it
 
 ```bash
+npm ci --ignore-scripts --prefix geo
 npm run lint
 npm run format:check
 npm test
@@ -56,6 +57,10 @@ npm run test:e2e
 
 The browser tests serve `out/` through `scripts/serve-out.mjs`, which applies the headers
 and redirects in `vercel.json`, so they run under the production security policy.
+
+`geo/` holds the script that stages IBGE's boundaries, with its own lockfile, so that
+`mapshaper` and its 227 packages stay out of the app's install and Vercel's build. The
+unit tests need it installed, as above.
 
 ## Pin a new data version
 

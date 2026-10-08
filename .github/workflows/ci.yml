@@ -57,12 +57,12 @@ jobs:
           REQUIRE_UPLOAD_TESTS: "1"
 
       # The app's sample data comes from the pipeline, so a schema change cannot reach one
-      # side only.
+      # side only. The export must also leave the fixture boundaries alone.
       - name: Web fixtures match the pipeline
         run: |
           uv run python tests/fixtures/export_web_fixtures.py
-          git diff --exit-code -- ../web/fixtures
-          test -z "$(git status --porcelain -- ../web/fixtures)"
+          git diff --exit-code -- ../web/fixtures ../web/fixtures-geo
+          test -z "$(git status --porcelain -- ../web/fixtures ../web/fixtures-geo)"
 
   worker:
     runs-on: ubuntu-latest
@@ -105,8 +105,11 @@ jobs:
           node-version: 22
 
       # Install scripts are third-party code, and the platform binaries arrive as packages.
-      - name: Install from the lockfile
-        run: npm ci --ignore-scripts
+      # The boundary staging tools have their own lockfile, which only the unit tests need.
+      - name: Install from the lockfiles
+        run: |
+          npm ci --ignore-scripts
+          npm ci --ignore-scripts --prefix geo
 
       - name: Lint
         run: npm run lint

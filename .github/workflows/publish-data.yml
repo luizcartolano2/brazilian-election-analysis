@@ -9,6 +9,7 @@ on:
         options:
           - data
           - duckdb-wasm
+          - geo
         default: data
 
 # Publishes wait for each other, and one in progress is never cut off. The branch is in the
@@ -154,9 +155,73 @@ jobs:
           path: duckdb-assets
 
       - name: Upload the assets
-        run: bash .github/scripts/upload-asset.sh duckdb-assets "$VERSION"
+        run: bash .github/scripts/upload-asset.sh duckdb-assets "assets/duckdb-wasm/$VERSION"
         env:
           VERSION: ${{ needs.build-assets.outputs.version }}
+          R2_ENDPOINT: https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: eleicoes-data # the bucket in worker/wrangler.jsonc
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+
+  # IBGE's municipal boundaries, checked against the SHA-512 pinned in geo-assets.ts, then
+  # projected, simplified and checked against the pinned data version's municipality list.
+  # No secret here either.
+  build-geo:
+    if: github.ref == 'refs/heads/main' && inputs.target == 'geo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
+    outputs:
+      build: ${{ steps.stage.outputs.build }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Install from the lockfiles
+        run: |
+          npm ci --ignore-scripts
+          npm ci --ignore-scripts --prefix geo
+
+      - name: Stage the boundaries
+        id: stage
+        run: |
+          npx --no-install tsx geo/stage-geo-assets.ts ../geo-assets "$GITHUB_SHA"
+          echo "build=$(date -u +%Y%m%d)-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: geo-assets
+          path: geo-assets/
+          retention-days: 1
+          if-no-files-found: error
+
+  upload-geo:
+    needs: build-geo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: data-publish
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: geo-assets
+          path: geo-assets
+
+      - name: Upload the boundaries
+        run: bash .github/scripts/upload-asset.sh geo-assets "assets/geo/ibge-2025/$BUILD"
+        env:
+          BUILD: ${{ needs.build-geo.outputs.build }}
           R2_ENDPOINT: https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           R2_BUCKET: eleicoes-data # the bucket in worker/wrangler.jsonc
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}

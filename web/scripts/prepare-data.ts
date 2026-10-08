@@ -72,30 +72,43 @@ export interface LoadedVersion {
   municipalities: Uint8Array
 }
 
-/** Reads and checks the manifest, every summary and the municipality list. Writes nothing. */
-export async function loadVersion(
+/** Reads the manifest, and checks a published one against its pinned SHA-256. */
+export async function readManifest(
   source: DataSource,
   expectedSha256: string = DATA_VERSION.manifestSha256,
-): Promise<LoadedVersion> {
+): Promise<{ manifest: Manifest; manifestBytes: Uint8Array }> {
   const manifestBytes = await source.read('manifest.json')
   const manifest =
     source.mode === 'published'
       ? verifyManifest(manifestBytes, expectedSha256)
       : parseManifest(manifestBytes ?? new Uint8Array())
+  return { manifest, manifestBytes: manifestBytes as Uint8Array }
+}
+
+/** Reads the municipality list, and checks it against the manifest. */
+export async function readMunicipalities(
+  source: DataSource,
+  manifest: Manifest,
+): Promise<Uint8Array> {
+  const municipalities = await source.read(MUNICIPALITIES)
+  verifyFile(manifest, MUNICIPALITIES, municipalities)
+  return municipalities as Uint8Array
+}
+
+/** Reads and checks the manifest, every summary and the municipality list. Writes nothing. */
+export async function loadVersion(
+  source: DataSource,
+  expectedSha256: string = DATA_VERSION.manifestSha256,
+): Promise<LoadedVersion> {
+  const { manifest, manifestBytes } = await readManifest(source, expectedSha256)
   const summaries = new Map<string, Uint8Array>()
   for (const summaryPath of summaryPaths(manifest)) {
     const bytes = await source.read(summaryPath)
     verifyFile(manifest, summaryPath, bytes)
     summaries.set(path.basename(summaryPath, '.json'), bytes as Uint8Array)
   }
-  const municipalities = await source.read(MUNICIPALITIES)
-  verifyFile(manifest, MUNICIPALITIES, municipalities)
-  return {
-    manifest,
-    manifestBytes: manifestBytes as Uint8Array,
-    summaries,
-    municipalities: municipalities as Uint8Array,
-  }
+  const municipalities = await readMunicipalities(source, manifest)
+  return { manifest, manifestBytes, summaries, municipalities }
 }
 
 async function publishedAsset(assetBase: string, assetPath: string): Promise<Uint8Array> {
@@ -110,19 +123,24 @@ async function publishedAsset(assetBase: string, assetPath: string): Promise<Uin
 }
 
 /**
- * Checks that the Worker serves the lockfile's module and the pinned extension. The build's
- * own queries then load the Worker's extension, so they never contact extensions.duckdb.org.
+ * Caches the Worker's copy of the pinned Parquet extension, so the build's own queries never
+ * contact extensions.duckdb.org.
  */
-export async function verifyPublishedAssets(assetBase: string, cacheDir?: string): Promise<void> {
-  const wasmModule = await publishedAsset(assetBase, 'duckdb-eh.wasm')
-  if (sha256Of(wasmModule) !== sha256Of(await readFile(packageFile('duckdb-eh.wasm')))) {
-    throw new Error('the published duckdb-eh.wasm differs from the one in the locked package')
-  }
+export async function cachePublishedExtension(assetBase: string, cacheDir?: string): Promise<void> {
   await cacheParquetExtension(
     await publishedAsset(assetBase, EXTENSION_PATH),
     `${assetBase}/${EXTENSION_PATH}`,
     cacheDir,
   )
+}
+
+/** Checks that the Worker serves the lockfile's module and the pinned extension. */
+export async function verifyPublishedAssets(assetBase: string, cacheDir?: string): Promise<void> {
+  const wasmModule = await publishedAsset(assetBase, 'duckdb-eh.wasm')
+  if (sha256Of(wasmModule) !== sha256Of(await readFile(packageFile('duckdb-eh.wasm')))) {
+    throw new Error('the published duckdb-eh.wasm differs from the one in the locked package')
+  }
+  await cachePublishedExtension(assetBase, cacheDir)
 }
 
 /**

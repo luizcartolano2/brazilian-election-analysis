@@ -1,7 +1,7 @@
 ## 1. Before the work (Luiz, with help)
 
 - [x] 1.1 Archive `add-official-results-explorer` once its tasks 6.1 and 6.3 pass, so this change's deltas have a base
-- [ ] 1.2 Read IBGE's terms of reuse for the municipal boundaries. In `DATA_LICENSE.md`, record the terms, the date checked and a credit line in both languages that says the boundaries were simplified, and keep the boundaries out of the project's CC BY grant. Stop the maps if the terms forbid redistribution
+- [x] 1.2 Read IBGE's terms of reuse for the municipal boundaries. In `DATA_LICENSE.md`, record the terms, the date checked and a credit line in both languages that says the boundaries were simplified, and keep the boundaries out of the project's CC BY grant. Stop the maps if the terms forbid redistribution
 
 ## 2. Web: search (the search PR)
 
@@ -19,12 +19,12 @@
 
 ## 4. Boundary asset: staging and publishing (the asset PR)
 
-- [ ] 4.1 Add `mapshaper` as a locked development dependency, and `web/scripts/geo-assets.ts` with the IBGE source URL, its SHA-512 and the list of expected dropped parts. Test that a source with another SHA-512 stops staging with no output
-- [ ] 4.2 Add `web/scripts/stage-geo-assets.ts`, which keeps the IBGE code, projects, drops far parts, simplifies, quantizes and writes `br.json` and one file per state. Test on a small synthetic shapefile that a listed far island drops and is recorded, that an unlisted one fails the run, that an island-only municipality keeps its shape, that the IBGE code is the only attribute, and that a file over its raw-byte budget fails
-- [ ] 4.3 Add the join check against the pinned `municipios.parquet`, then `manifest.json` and `SHA256SUMS`. Test that a missing municipality fails before any upload, that an unmatched area fails unless it is one of the two lagoon areas, and that two runs on the same input give the same bytes
-- [ ] 4.4 Generate the boundaries of the fixture municipalities into `web/fixtures-geo/`, and commit them. Test that they cover every municipality in the fixtures, and that the pipeline's fixture export leaves them untouched
-- [ ] 4.5 Change `upload-asset.sh` to take the asset path as its second argument, accepting only `assets/duckdb-wasm/<version>` and `assets/geo/ibge-2025/<build id>`. Test that a boundary path uploads, that any other path is refused before any call, and that every existing asset test passes with the new argument
-- [ ] 4.6 Add the `geo` target to `publish-data.yml`, with a staging job that holds no secret and an upload job in `data-publish`. Run `actionlint`
+- [x] 4.1 Add `mapshaper` as a locked development dependency of its own package, `web/geo/`, and `web/scripts/geo-assets.ts` with the IBGE source URL, its SHA-512 and the list of expected dropped parts. Test that a source with another SHA-512 stops staging with no output
+- [x] 4.2 Add `web/geo/stage-geo-assets.ts`, which keeps the IBGE code, projects, drops far parts, simplifies, quantizes and writes `br.json` and one file per state. Test on a small synthetic shapefile that a listed far island drops and is recorded, that an unlisted one fails the run, that an island-only municipality keeps its shape, that the IBGE code is the only attribute, and that a file over its raw-byte budget fails
+- [x] 4.3 Add the join check against the pinned `municipios.parquet`, then `manifest.json` and `SHA256SUMS`. Test that a missing municipality fails before any upload, that an unmatched area fails unless it is one of the two lagoon areas, and that two runs on the same input give the same bytes
+- [x] 4.4 Generate the boundaries of the fixture municipalities into `web/fixtures-geo/`, and commit them. Test that they cover every municipality in the fixtures, and that the pipeline's fixture export leaves them untouched
+- [x] 4.5 Change `upload-asset.sh` to take the asset path as its second argument, accepting only `assets/duckdb-wasm/<version>` and `assets/geo/ibge-2025/<build id>`. Test that a boundary path uploads, that any other path is refused before any call, and that every existing asset test passes with the new argument
+- [x] 4.6 Add the `geo` target to `publish-data.yml`, with a staging job that holds no secret and an upload job in `data-publish`. Run `actionlint`
 - [ ] 4.7 After the merge, Luiz runs "Publish data" with target `geo` and approves the upload. Record the run, the build id, the file sizes and the dropped parts
 
 ## 5. Web: map values and checks (the maps PR)

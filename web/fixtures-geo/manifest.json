@@ -1,0 +1,54 @@
+{
+ "edicao": "ibge-2025",
+ "fonte": {
+  "url": "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2025/Brasil/BR_Municipios_2025.zip",
+  "sha512": "d80966517d4543e717b4c54a0ad538543a4daf5409a890ed485bd6e85b4114a984fbe1b895d97c940c4c89f8f9b324e1e000a71d5a790fcd9c5d1fb378a49fd9",
+  "bytes": 237062431
+ },
+ "credito": {
+  "pt": "Limites municipais: IBGE, Malha Municipal Digital 2025, sob licença compatível com CC BY 4.0. Geometria simplificada e reprojetada por este projeto. Limites aproximados, não oficiais.",
+  "en": "Municipal boundaries: IBGE, Malha Municipal Digital 2025, under a license compatible with CC BY 4.0. Geometry simplified and reprojected by this project. Approximate boundaries, not official ones.",
+  "termos": "https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf"
+ },
+ "commit": "fixtures",
+ "versaoDados": "fixtures",
+ "mapshaper": "0.7.67",
+ "parametros": {
+  "projecao": "+proj=aea +lat_0=-12 +lon_0=-54 +lat_1=-2 +lat_2=-22 +ellps=GRS80",
+  "distanciaMaximaKm": 100,
+  "brasil": {
+   "intervaloM": 5000,
+   "quantizacao": 10000,
+   "limiteBytes": 1000000
+  },
+  "estado": {
+   "intervaloM": 400,
+   "quantizacao": 100000,
+   "limiteBytes": 600000
+  }
+ },
+ "partesRemovidas": [],
+ "areasSemMunicipio": [],
+ "arquivos": [
+  {
+   "path": "ac.json",
+   "bytes": 8280,
+   "sha256": "ebacb4df22adf16ce140e24dd51fc8ec9451f17dc29fe10a717ed4b0b6f3653c"
+  },
+  {
+   "path": "br.json",
+   "bytes": 1666,
+   "sha256": "1b025ed24b5418952360a4e8dcc6d0860f1676594628d6dd814d1ce05cdb1797"
+  },
+  {
+   "path": "pe.json",
+   "bytes": 1414,
+   "sha256": "97dddef4bb9e3d945ef1defaf40eb3eb4b2b107aa4b7132ee475a33d8e740562"
+  },
+  {
+   "path": "se.json",
+   "bytes": 1106,
+   "sha256": "b2be0ce04c320dfb990232ae5c1e5f045af221af5f3595ff57f55b6716c64e06"
+  }
+ ]
+}
