@@ -140,6 +140,12 @@ On 2026-10-08, after the first release went live, Luiz added a second target: ma
 a search box, in the change `add-maps-and-search`, merge by 2026-10-23. That leaves the
 runoff weekend free of deploys.
 
+On 2026-10-08, Luiz approved a redesign, in the change `redesign-results-pages`. It has
+the same target, a merge by 2026-10-23, and lands before the runoff change, which reuses
+its result cards. The date applies to each of its three PRs alone. A PR that misses it
+waits until the runoff change merges. If the last PR misses it, its requirements move to
+a follow-up change, so the runoff change builds on archived specs.
+
 ### D15. The pre-runoff release shows official results
 
 The first release explores official first-round results, down to the polling station, on
