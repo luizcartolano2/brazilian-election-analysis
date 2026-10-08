@@ -14,7 +14,6 @@
   "area.abroadIntro": "Votes of voters who live outside Brazil. Abroad, only the presidential race is held.",
   "area.electedCount": "{count} elected.",
   "area.fullResults": "See all {count} candidates",
-  "area.leadersCaption": "Leading candidates for {race}",
   "race.inArea": "{race} · {area}",
   "race.twoChoices": "Each voter chose two candidates, for {seats} seats. Shares are of all valid votes in the race.",
   "race.proportionalSeats": "{seats} seats, filled by proportional representation. Valid votes include the votes cast for a party's list.",
@@ -200,5 +199,7 @@
   "closest.title": "The closest races",
   "closest.note": "The five municipalities with the smallest margin between the two most voted for Governor.",
   "closest.between": "{first} and {second}",
-  "brazil.fullResultsTitle": "All candidates"
+  "brazil.fullResultsTitle": "All candidates",
+  "headline.electedSenateOne": "{names} wins a Senate seat",
+  "headline.electedSenateMany": "{names} win the Senate seats"
 }

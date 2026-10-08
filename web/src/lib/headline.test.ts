@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { headlineText, raceHeadline } from './headline'
 import type { CandidateRow, RaceResults } from './results'
 
-function results(candidates: [string, string][], seats = 1): RaceResults {
+function results(candidates: [string, string][], seats = 1, race = 3): RaceResults {
   const rows: CandidateRow[] = candidates.map(([name, outcome], index) => ({
     number: 10 + index,
     name,
@@ -11,7 +11,7 @@ function results(candidates: [string, string][], seats = 1): RaceResults {
     outcome,
   }))
   return {
-    race: 3,
+    race,
     seats,
     choicesPerVoter: 1,
     candidates: rows,
@@ -73,14 +73,15 @@ describe('raceHeadline', () => {
           ['Mendonça Filho', 'Não eleito'],
         ],
         2,
+        5,
       ),
       false,
     )
     expect(headlineText('pt', headline!, 'Senador')).toBe(
-      'Humberto Costa e Marília Arraes vencem no 1º turno',
+      'Humberto Costa e Marília Arraes vencem para o Senado',
     )
     expect(headlineText('en', headline!, 'Senator')).toBe(
-      'Humberto Costa and Marília Arraes win in the first round',
+      'Humberto Costa and Marília Arraes win the Senate seats',
     )
   })
 

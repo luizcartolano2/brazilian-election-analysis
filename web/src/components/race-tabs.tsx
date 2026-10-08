@@ -49,7 +49,7 @@ export function RaceTabs({ label, panels }: { label: string; panels: RacePanel[]
   )
   const hash = useSyncExternalStore(
     subscribeToHash,
-    () => decodeURIComponent(window.location.hash.slice(1)),
+    () => window.location.hash.slice(1),
     () => '',
   )
   const container = useRef<HTMLDivElement>(null)

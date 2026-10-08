@@ -60,6 +60,7 @@ export function CandidateTable({
   withRowIds = false,
   candidateHref,
   ranks,
+  senate = false,
 }: {
   locale: Locale
   candidates: CandidateRow[]
@@ -71,6 +72,8 @@ export function CandidateTable({
   candidateHref?: (number: number) => string
   /** The maps' color of each candidate, in a majoritarian race. */
   ranks?: ReadonlyMap<number, 0 | 1>
+  /** A Senate map colors each candidate in one shade, and so do its share bars. */
+  senate?: boolean
 }) {
   return (
     <table className="results-table">
@@ -105,7 +108,9 @@ export function CandidateTable({
                 part={candidate.votes}
                 whole={validVotes}
                 color={
-                  ranks === undefined ? undefined : candidateColor(ranks.get(candidate.number))
+                  ranks === undefined
+                    ? undefined
+                    : candidateColor(ranks.get(candidate.number), senate)
                 }
               />
             </td>

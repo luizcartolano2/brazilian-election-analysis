@@ -49,10 +49,13 @@ function TurnoutSummary({
   locale,
   info,
   results,
+  heading: Heading = 'h3',
 }: {
   locale: Locale
   info: RaceInfo
   results: RaceResults
+  /** The level that follows the caller's own headings. */
+  heading?: 'h2' | 'h3'
 }) {
   const totals = results.totals
   const stats = [
@@ -70,10 +73,10 @@ function TurnoutSummary({
   ] as const
   return (
     <section className="bg-surface mt-5 rounded-2xl p-4">
-      <h3 className="text-muted font-sans text-sm font-semibold">
+      <Heading className="text-muted font-sans text-sm font-semibold">
         {t(locale, 'area.turnoutTitle', { race: raceName(info, locale) })}
-      </h3>
-      <dl className="mt-2 grid grid-cols-3 gap-3">
+      </Heading>
+      <dl className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {stats.map((stat) => (
           <div key={stat.key}>
             <dt className="text-muted text-xs">{t(locale, stat.key)}</dt>
@@ -146,7 +149,7 @@ export function BrazilView({ locale }: { locale: Locale }) {
         ranks={ranks}
         candidateHref={candidateHref(locale, info, 'br')}
       />
-      <TurnoutSummary locale={locale} info={info} results={results} />
+      <TurnoutSummary locale={locale} info={info} results={results} heading="h2" />
       <div className="mt-2 grid items-start gap-x-8 lg:grid-cols-[3fr_2fr]">
         <MapSection
           locale={locale}

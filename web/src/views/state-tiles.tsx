@@ -72,13 +72,15 @@ export function StateTiles({ locale }: { locale: Locale }) {
       ledByOther: rank === undefined,
     }
   })
+  const brazilRanks = candidateRanks(brazil)
   const leaders = raceResults(brazil, false)
-    .candidates.slice(0, 2)
-    .map((candidate, rank) => ({
-      key: candidate.number,
-      label: `${candidate.name} (${candidate.party})`,
-      color: candidateColor(rank === 0 ? 0 : 1),
-    }))
+    .candidates.flatMap((candidate) => {
+      const rank = brazilRanks.get(candidate.number)
+      if (rank === undefined) return []
+      const label = `${candidate.name} (${candidate.party})`
+      return [{ key: candidate.number, label, rank, color: candidateColor(rank) }]
+    })
+    .sort((a, b) => a.rank - b.rank)
   const bins = {
     close: t(locale, 'map.binClose'),
     clear: t(locale, 'map.binClear'),

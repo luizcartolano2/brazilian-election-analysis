@@ -54,6 +54,7 @@ export function FullResults({
           withRowIds
           candidateHref={candidateHref}
           ranks={ranks}
+          senate={results.choicesPerVoter > 1}
         />
       </div>
       <UnderAppealTable locale={locale} results={results} candidateHref={candidateHref} />

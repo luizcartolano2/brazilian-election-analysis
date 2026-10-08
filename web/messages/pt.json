@@ -14,7 +14,6 @@
   "area.abroadIntro": "Votos de eleitores que moram fora do Brasil. No exterior, só há eleição para presidente.",
   "area.electedCount": "{count} eleitos.",
   "area.fullResults": "Ver todos os {count} candidatos",
-  "area.leadersCaption": "Mais votados para {race}",
   "race.inArea": "{race} · {area}",
   "race.twoChoices": "Cada eleitor escolheu dois candidatos, para {seats} vagas. Os percentuais são sobre todos os votos válidos da disputa.",
   "race.proportionalSeats": "{seats} vagas, preenchidas pelo sistema proporcional. Os votos válidos incluem os votos na legenda dos partidos.",
@@ -200,5 +199,7 @@
   "closest.title": "As disputas mais apertadas",
   "closest.note": "Os cinco municípios com a menor margem entre os dois mais votados para governador.",
   "closest.between": "{first} e {second}",
-  "brazil.fullResultsTitle": "Todos os candidatos"
+  "brazil.fullResultsTitle": "Todos os candidatos",
+  "headline.electedSenateOne": "{names} vence para o Senado",
+  "headline.electedSenateMany": "{names} vencem para o Senado"
 }

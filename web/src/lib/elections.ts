@@ -174,6 +174,7 @@ export function raceName(race: RaceInfo, locale: Locale): string {
 export const COUNCIL = { area: 'pe', municipality: 30015, race: 25, seats: 7, choicesPerVoter: 1 }
 
 export const PRESIDENT = 1
+export const SENATE = 5
 
 /** Election day of each round. */
 export const ROUND_DATES = { first: '2026-10-04', runoff: '2026-10-25' } as const

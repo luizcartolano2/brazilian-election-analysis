@@ -19,7 +19,7 @@ candidacy whose votes TSE annulled sub judice, it states TSE's status.
 
 Below the headline, cards SHALL show the leading candidates of a majoritarian race: the
 top two for President and Governor, and for the Senate the candidates that TSE elected
-plus the next most voted. Each card SHALL show the ballot name, the party, the ballot
+plus the next most voted, never fewer than two. Each card SHALL show the ballot name, the party, the ballot
 number, the share of valid votes, the votes and TSE's outcome, and SHALL link to the
 candidate's page. A card for a candidate whom TSE sends to the runoff SHALL state the
 runoff's date. A proportional race shows no cards. On the Brazil, votes-abroad and race
@@ -88,7 +88,7 @@ panel SHALL hold the race's headline, cards and turnout, and SHALL link to the r
 page. The Governor panel SHALL also hold the Governor map, its list of municipalities and
 the closest municipalities. The deputy races SHALL appear after the tabs as links to
 their race pages, each with the count of candidates that TSE elected, when TSE elected
-any. The page SHALL open on the Governor tab. When the address ends in a race's fragment,
+any, and with the race's most voted candidate. The page SHALL open on the Governor tab. When the address ends in a race's fragment,
 for example `#senador`, the page SHALL open on that race's tab, and choosing a tab SHALL
 set that fragment. The tabs SHALL work with a keyboard: the arrow keys move between tabs,
 and a screen reader announces the tab list, the selected tab and its panel. Without

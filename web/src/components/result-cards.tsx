@@ -23,6 +23,7 @@ export function ResultCards({
   candidateHref?: (number: number) => string
 }) {
   const valid = results.totals.valid
+  const senate = results.choicesPerVoter > 1
   return (
     <ul
       className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-3"
@@ -38,7 +39,7 @@ export function ResultCards({
             <span
               aria-hidden="true"
               className="size-3.5 shrink-0 rounded-full"
-              style={{ background: candidateColor(ranks.get(candidate.number)) }}
+              style={{ background: candidateColor(ranks.get(candidate.number), senate) }}
             />
             <span className="font-display text-xl font-bold break-words">
               <CandidateName candidate={candidate} href={candidateHref} />

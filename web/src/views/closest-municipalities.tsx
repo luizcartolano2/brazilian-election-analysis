@@ -2,7 +2,7 @@ import { AppLink } from '@/components/app-link'
 import { getRaceMap } from '@/lib/data'
 import { YEAR, type RaceInfo } from '@/lib/elections'
 import { formatPoints, localePath, t, type Locale } from '@/lib/i18n'
-import { closestRows, marginPoints } from '@/lib/maps'
+import { closestRows, marginPoints, type MapData } from '@/lib/maps'
 import { hasMap } from '@/views/map-section'
 
 const SHOWN = 5
@@ -18,7 +18,20 @@ export function ClosestMunicipalities({
   race: RaceInfo
 }) {
   if (!hasMap(area)) return null
-  const data = getRaceMap(area, race.code)
+  return <ClosestList locale={locale} area={area} race={race} data={getRaceMap(area, race.code)} />
+}
+
+export function ClosestList({
+  locale,
+  area,
+  race,
+  data,
+}: {
+  locale: Locale
+  area: string
+  race: RaceInfo
+  data: MapData
+}) {
   const rows = closestRows(data, SHOWN)
   if (rows.length === 0) return null
   return (

@@ -1,10 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { OTHER, SHADES } from '@/lib/map-colors'
+import { OTHER, SENATE_SHADE, SHADES } from '@/lib/map-colors'
 import type { CandidateRow, RaceResults } from '@/lib/results'
 import { ResultCards } from './result-cards'
 
-function results(candidates: [string, number, string][]): RaceResults {
+function results(candidates: [string, number, string][], choicesPerVoter = 1): RaceResults {
   const rows: CandidateRow[] = candidates.map(([name, votes, outcome], index) => ({
     number: 10 + index,
     name,
@@ -14,9 +14,9 @@ function results(candidates: [string, number, string][]): RaceResults {
   }))
   const valid = rows.reduce((sum, row) => sum + row.votes, 0)
   return {
-    race: 5,
-    seats: 2,
-    choicesPerVoter: 2,
+    race: choicesPerVoter > 1 ? 5 : 3,
+    seats: choicesPerVoter,
+    choicesPerVoter,
     candidates: rows,
     candidatesUnderAppeal: [],
     parties: null,
@@ -46,12 +46,15 @@ describe('ResultCards', () => {
     const html = renderToStaticMarkup(
       <ResultCards
         locale="pt"
-        results={results([
-          ['Ana Lima', 500, 'Eleito'],
-          ['Bia Souza', 400, 'Eleito'],
-          ['Caio Reis', 300, 'Não eleito'],
-          ['Dora Melo', 100, 'Não eleito'],
-        ])}
+        results={results(
+          [
+            ['Ana Lima', 500, 'Eleito'],
+            ['Bia Souza', 400, 'Eleito'],
+            ['Caio Reis', 300, 'Não eleito'],
+            ['Dora Melo', 100, 'Não eleito'],
+          ],
+          2,
+        )}
         ranks={
           new Map([
             [10, 0],
@@ -89,6 +92,31 @@ describe('ResultCards', () => {
     expect(second).toContain('Bia Souza')
     expect(third).toContain(`background:${OTHER}`)
     expect(third).toContain('Caio Reis')
+  })
+
+  it('marks Senate candidates in the Senate map\u2019s single shade', () => {
+    const html = renderToStaticMarkup(
+      <ResultCards
+        locale="pt"
+        results={results(
+          [
+            ['Ana Lima', 500, 'Eleito'],
+            ['Bia Souza', 400, 'Eleito'],
+            ['Caio Reis', 300, 'Não eleito'],
+          ],
+          2,
+        )}
+        ranks={
+          new Map([
+            [10, 0],
+            [11, 1],
+          ])
+        }
+      />,
+    )
+    const [first, second] = cards(html)
+    expect(first).toContain(`background:${SENATE_SHADE[0]}`)
+    expect(second).toContain(`background:${SENATE_SHADE[1]}`)
   })
 
   it('states the runoff’s date on a runoff card, in each language', () => {

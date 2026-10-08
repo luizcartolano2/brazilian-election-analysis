@@ -81,12 +81,15 @@ test.describe('the Brazil page', () => {
     await list.locator('summary').click()
     const link = list.getByRole('link', { name: 'Pernambuco' })
     await expect(link).toHaveAttribute('href', '/2026/pe/presidente/')
-    const cells = await list
-      .locator('tbody tr')
-      .filter({ hasText: 'Pernambuco' })
-      .locator('td')
-      .allInnerTexts()
-    await expect(tile).toHaveAttribute('aria-label', `${cells[0]}: ${cells[1]}, ${cells[2]}`)
+    const rows = list.locator('tbody tr')
+    for (const row of await rows.all()) {
+      const cells = await row.locator('td').allInnerTexts()
+      const code = (await row.getByRole('link').getAttribute('href'))?.split('/')[2]
+      await expect(page.locator(`[data-state="${code}"]`)).toHaveAttribute(
+        'aria-label',
+        `${cells[0]}: ${cells[1]}, ${cells[2]}`,
+      )
+    }
   })
 
   test.describe('at 360 pixels wide', () => {
