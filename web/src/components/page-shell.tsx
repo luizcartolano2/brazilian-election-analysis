@@ -23,11 +23,14 @@ export function PageShell({
   locale,
   path,
   crumbs = [],
+  wide = false,
   children,
 }: {
   locale: Locale
   path: string
   crumbs?: Crumb[]
+  /** The 1,200-pixel column of a page that has its new layout. */
+  wide?: boolean
   children: ReactNode
 }) {
   const other: Locale = locale === 'pt' ? 'en' : 'pt'
@@ -79,7 +82,9 @@ export function PageShell({
           </nav>
         </div>
       </header>
-      <div className="mx-auto w-full max-w-3xl flex-1 px-4">
+      <div
+        className={`mx-auto w-full flex-1 px-4 ${wide ? 'max-w-[1200px] sm:px-6' : 'max-w-3xl'}`}
+      >
         {getSourceInfo().mode === 'fixtures' && (
           <p
             data-testid="fixtures-banner"

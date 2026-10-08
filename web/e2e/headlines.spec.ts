@@ -15,6 +15,7 @@ test.describe('without JavaScript', () => {
 
   test('the Brazil page shows the presidential results', async ({ page }) => {
     await page.goto('/2026/')
-    await expect(page.getByText(leader('br', 1), { exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(leader('br', 1))
+    await expect(page.getByTestId('result-card')).toHaveCount(2)
   })
 })
