@@ -33,7 +33,7 @@
 
 ## 5. Launch
 
-- [ ] 5.1 Merge PRs 2 to 4 by 2026-10-23, and nothing from 2026-10-24 to 2026-10-26
+- [x] 5.1 Merge PRs 2 to 4 by 2026-10-23. They merged on 2026-10-09. Issue 36 tracks the freeze from 2026-10-24 to 2026-10-26 and tasks 5.2 to 5.5, which follow TSE's files
 - [ ] 5.2 After TSE's open data holds round 2, run "Publish data" with round 2, and record the run, the version and its size
 - [ ] 5.3 Open the pin PR for round 2. Make sure that its build passes against the real version, then recut the round-2 fixtures from the real files in the same PR, and delete `build_runoff_fixtures.py`
 - [ ] 5.4 After the pin deploys, run the live checks on Chromium at desktop size and on WebKit as an iPhone 13: no security-policy violation, no horizontal scrolling, the switch, the maps and a round-2 station view working. Luiz checks the pages on a phone

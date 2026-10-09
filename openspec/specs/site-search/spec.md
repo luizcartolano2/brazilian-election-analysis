@@ -9,9 +9,10 @@ part of its name, without knowing which state or race page holds it.
 
 ### Requirement: A search box on every page
 Every page except the page for an unknown address SHALL offer a search box that finds
-municipalities, cities abroad and every candidacy in the pinned summaries. The summaries
-leave out Fernando de Noronha's Conselheiro Distrital race, so its candidacies are not in
-the search. A municipality result SHALL name its state. A candidacy result SHALL show the
+municipalities, cities abroad and every candidacy in round 1's pinned summaries. The
+summaries leave out Fernando de Noronha's Conselheiro Distrital race, so its candidacies
+are not in the search. Round 2 adds no entry, so a candidacy shows TSE's round-1 outcome
+even after round 2 is pinned. A municipality result SHALL name its state. A candidacy result SHALL show the
 ballot name, number, party, race, area and TSE's outcome. Each President candidacy SHALL
 appear once, for Brazil. Matching SHALL start at two typed characters, SHALL ignore
 case and accents, and SHALL accept part of a name. A candidacy SHALL also match its full
@@ -44,6 +45,10 @@ state numbers its own candidacies.
 - **WHEN** more than 20 entries match
 - **THEN** 20 results show, with a note that more match
 
+#### Scenario: A finalist after the runoff
+- **WHEN** round 2 is pinned and a visitor types a President finalist's ballot name
+- **THEN** that candidacy appears once, for Brazil, with TSE's round-1 outcome, and opens the candidate page that carries both rounds
+
 ### Requirement: Where a result leads
 A municipality result SHALL open that municipality's view. A city abroad SHALL open its
 view. A candidacy for President, Governor or Senate SHALL open its candidate page. A
@@ -58,8 +63,8 @@ deputy candidacy SHALL open its race page, scrolled to its row.
 - **THEN** that candidacy's page opens
 
 ### Requirement: The index holds public fields only
-The search index SHALL come from the pinned, verified summaries and municipality list
-at build time. It SHALL hold, for a candidacy, only its ballot name, number, party,
+The search index SHALL come from round 1's pinned, verified summaries and municipality
+list at build time. It SHALL hold, for a candidacy, only its ballot name, number, party,
 race, area, outcome and votes. For a municipality, it SHALL hold only the name, state,
 TSE code and whether it is a capital. It SHALL NOT hold any personal identifier, such as
 a CPF, voter-ID number, email or birth date.
