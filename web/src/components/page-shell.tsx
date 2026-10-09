@@ -6,7 +6,7 @@ import { DrilldownRoundLink } from '@/components/round-link'
 import { SiteSearch, type SearchLabels } from '@/components/site-search'
 import { getRoundSource, getSourceInfo, hasRound } from '@/lib/data'
 import { roundDate, ROUNDS, YEAR, type Round } from '@/lib/elections'
-import { formatDayMonth, localePath, t, type Locale } from '@/lib/i18n'
+import { formatDayMonth, localePath, t, type Locale, type MessageKey } from '@/lib/i18n'
 import { roundPath } from '@/lib/paths'
 import { MAX_RESULTS } from '@/lib/search'
 import { REPOSITORY } from '@/lib/site'
@@ -49,31 +49,32 @@ function RoundSwitch({ locale, links }: { locale: Locale; links: RoundLinks }) {
             <time dateTime={roundDate(round)}>{formatDayMonth(locale, roundDate(round))}</time>
           </>
         )
+        const ariaCurrent = current ? 'page' : undefined
         const races = links.drilldownRaces?.[round]
-        if (races !== undefined && !current) {
+        if (races !== undefined) {
           return (
             <Suspense
               key={round}
               fallback={
-                <a href={href} className={className}>
+                <a href={href} aria-current={ariaCurrent} className={className}>
                   {label}
                 </a>
               }
             >
-              <DrilldownRoundLink href={href} races={races} className={className}>
+              <DrilldownRoundLink
+                href={href}
+                brazil={localePath(locale, brazilRoundLinks(null).hrefs[round])}
+                races={races}
+                current={current}
+                className={className}
+              >
                 {label}
               </DrilldownRoundLink>
             </Suspense>
           )
         }
         return (
-          <Link
-            key={round}
-            href={href}
-            aria-current={current ? 'page' : undefined}
-            className={className}
-            data-round={round}
-          >
+          <Link key={round} href={href} aria-current={ariaCurrent} className={className}>
             {label}
           </Link>
         )
@@ -82,16 +83,33 @@ function RoundSwitch({ locale, links }: { locale: Locale; links: RoundLinks }) {
   )
 }
 
-/** A test build's notice. A synthetic round says that its numbers copy round 1. */
-export function FixturesNotice({ locale, synthetic }: { locale: Locale; synthetic: boolean }) {
+export type FixturesKind = 'sample' | 'synthetic' | 'empty'
+
+const FIXTURES_MESSAGES: Record<FixturesKind, MessageKey> = {
+  sample: 'site.fixturesBanner',
+  synthetic: 'site.syntheticBanner',
+  empty: 'site.testBuildBanner',
+}
+
+/**
+ * A test build's notice. A page that shows a synthetic round says that its numbers copy round
+ * 1, and a page with no numbers says only that the build is a test.
+ */
+export function FixturesNotice({ locale, kind }: { locale: Locale; kind: FixturesKind }) {
   return (
     <p
       data-testid="fixtures-banner"
       className="mt-3 rounded bg-amber-100 p-2 text-sm text-amber-900"
     >
-      {t(locale, synthetic ? 'site.syntheticBanner' : 'site.fixturesBanner')}
+      {t(locale, FIXTURES_MESSAGES[kind])}
     </p>
   )
+}
+
+function fixturesKind(shows: Round[]): FixturesKind {
+  const built = shows.filter(hasRound)
+  if (built.length === 0) return 'empty'
+  return built.some((round) => getRoundSource(round).synthetic) ? 'synthetic' : 'sample'
 }
 
 /**
@@ -104,6 +122,7 @@ export function PageShell({
   crumbs = [],
   wide = false,
   round = 1,
+  shows = [round],
   roundLinks = brazilRoundLinks(round),
   children,
 }: {
@@ -114,6 +133,8 @@ export function PageShell({
   wide?: boolean
   /** The round whose data the page shows. */
   round?: Round
+  /** Every round whose numbers the page shows, which picks a test build's notice. */
+  shows?: Round[]
   /** Where the header's choice of round leads. By default, each round's Brazil page. */
   roundLinks?: RoundLinks
   children: ReactNode
@@ -140,7 +161,9 @@ export function PageShell({
             />
           </div>
           <nav className="flex gap-4 text-sm font-semibold">
-            <Link href={`${localePath(locale, roundPath(round, `/${YEAR}/`))}#estados`}>
+            <Link
+              href={`${localePath(locale, roundPath(hasRound(round) ? round : 1, `/${YEAR}/`))}#estados`}
+            >
               {t(locale, 'nav.states')}
             </Link>
             <Link href={localePath(locale, `/${YEAR}/fontes/`)}>{t(locale, 'nav.sources')}</Link>
@@ -168,10 +191,7 @@ export function PageShell({
         className={`mx-auto w-full flex-1 px-4 ${wide ? 'max-w-[1200px] sm:px-6' : 'max-w-3xl'}`}
       >
         {getSourceInfo().mode === 'fixtures' && (
-          <FixturesNotice
-            locale={locale}
-            synthetic={hasRound(round) && getRoundSource(round).synthetic}
-          />
+          <FixturesNotice locale={locale} kind={fixturesKind(shows)} />
         )}
         {crumbs.length > 0 && (
           <nav aria-label={t(locale, 'nav.breadcrumbs')} className="text-muted pt-4 text-sm">

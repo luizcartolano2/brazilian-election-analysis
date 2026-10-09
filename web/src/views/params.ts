@@ -1,3 +1,4 @@
+import type { RoundLinks } from '@/components/page-shell'
 import { coveredAreas, hasRound } from '@/lib/data'
 import { ABROAD, PRESIDENT, raceByCode, YEAR, type Round } from '@/lib/elections'
 import { roundPath } from '@/lib/paths'
@@ -57,4 +58,19 @@ export function counterpartPath(target: Round, area?: string, slug?: string): st
     return roundPath(target, `/${YEAR}/${area}/`)
   }
   return roundPath(target, `/${YEAR}/`)
+}
+
+/** A page's address in its round, and the header's links to the same page in each round. */
+export function pageRoundLinks(
+  round: Round,
+  path: string,
+  area?: string,
+  slug?: string,
+): RoundLinks {
+  const other: Round = round === 1 ? 2 : 1
+  const hrefs = { [round]: path, [other]: counterpartPath(other, area, slug) } as Record<
+    Round,
+    string
+  >
+  return { current: round, hrefs }
 }

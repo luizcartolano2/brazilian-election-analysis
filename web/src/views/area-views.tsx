@@ -4,13 +4,14 @@ import { AppLink } from '@/components/app-link'
 import { FullResults, RaceNote } from '@/components/race-results'
 import { ResultCards } from '@/components/result-cards'
 import { EligibleGapNote } from '@/components/results'
-import { PageShell, type RoundLinks } from '@/components/page-shell'
+import { PageShell } from '@/components/page-shell'
 import { RaceTabs, type RacePanel } from '@/components/race-tabs'
 import { getMunicipalities, getSummary, hasRound } from '@/lib/data'
 import {
   ABROAD,
   areaByCode,
   CANDIDATE_PAGE_RACES,
+  colorAreaOf,
   candidatePath,
   areaName,
   PRESIDENT,
@@ -37,7 +38,7 @@ import {
 } from '@/lib/results'
 import { ClosestMunicipalities } from '@/views/closest-municipalities'
 import { hasMap, MapSection } from '@/views/map-section'
-import { counterpartPath } from '@/views/params'
+import { pageRoundLinks as roundLinks } from '@/views/params'
 import { StateTiles } from '@/views/state-tiles'
 import { WaitingView } from '@/views/waiting'
 
@@ -111,16 +112,6 @@ function candidateHref(
   return (number) => `${localePath(locale, candidatePath(race, area, number))}${section}`
 }
 
-/** The page's address in its round, and the header's links to the same page in each round. */
-function roundLinks(round: Round, path: string, area?: string, slug?: string): RoundLinks {
-  const other: Round = round === 1 ? 2 : 1
-  const hrefs = { [round]: path, [other]: counterpartPath(other, area, slug) } as Record<
-    Round,
-    string
-  >
-  return { current: round, hrefs }
-}
-
 function knownRace(race: SummaryRace): RaceInfo {
   const info = raceByCode(race.cargo)
   if (info === undefined) throw new Error(`unknown race code ${race.cargo} in the summary`)
@@ -133,13 +124,9 @@ function brazilPresident(round: Round): SummaryRace {
   return race
 }
 
-/**
- * A majoritarian race's map colors: Brazil's ranking for President, the state's otherwise. In
- * round 2 the ranking is round 1's, so a finalist keeps its color whoever wins.
- */
-function ranksOf(race: SummaryRace, area: string, round: Round): ReadonlyMap<number, 0 | 1> {
-  const colorArea = race.cargo === PRESIDENT ? 'br' : area
-  if (round === 1 && colorArea === area) return candidateRanks(race)
+/** A majoritarian race's map colors, from round 1's ranking in its color area, in either round. */
+function ranksOf(race: SummaryRace, area: string): ReadonlyMap<number, 0 | 1> {
+  const colorArea = colorAreaOf(race.cargo, area)
   const color = getSummary(colorArea, 1).corridas.find((entry) => entry.cargo === race.cargo)
   if (color === undefined) throw new Error(`${colorArea}.json has no race ${race.cargo} in round 1`)
   return candidateRanks(race, color)
@@ -188,9 +175,16 @@ export function BrazilView({ locale, round = 1 }: { locale: Locale; round?: Roun
   const race = brazilPresident(round)
   const info = knownRace(race)
   const results = raceResults(race, info.proportional)
-  const ranks = ranksOf(race, 'br', round)
+  const ranks = ranksOf(race, 'br')
   return (
-    <PageShell locale={locale} path={path} round={round} roundLinks={roundLinks(round, path)} wide>
+    <PageShell
+      locale={locale}
+      path={path}
+      round={round}
+      shows={round === 1 && hasRound(2) ? [1, 2] : [round]}
+      roundLinks={roundLinks(round, path)}
+      wide
+    >
       <p className="text-muted text-xs font-bold tracking-widest uppercase">
         {t(locale, 'race.inArea', { race: raceName(info, locale), area: brazil(locale) })}
       </p>
@@ -283,7 +277,7 @@ function RacePanelContent({
       <ResultCards
         locale={locale}
         results={results}
-        ranks={ranksOf(race, area.code, round)}
+        ranks={ranksOf(race, area.code)}
         round={round}
         candidateHref={candidateHref(locale, info, area.code, round)}
       />
@@ -312,7 +306,7 @@ function AbroadView({ locale, area, round }: { locale: Locale; area: StateInfo; 
   if (race === undefined) throw new Error(`${area.code}.json has no presidential race`)
   const info = knownRace(race)
   const results = raceResults(race, info.proportional)
-  const ranks = ranksOf(race, area.code, round)
+  const ranks = ranksOf(race, area.code)
   const path = roundPath(round, `/${YEAR}/${area.code}/`)
   return (
     <PageShell
@@ -565,7 +559,7 @@ export function RaceView({
   const race = getSummary(area.code, round).corridas.find((entry) => entry.cargo === info.code)
   if (race === undefined) notFound()
   const results = raceResults(race, info.proportional)
-  const ranks = info.proportional ? undefined : ranksOf(race, area.code, round)
+  const ranks = info.proportional ? undefined : ranksOf(race, area.code)
   const title = t(locale, 'race.inArea', {
     race: raceName(info, locale),
     area: areaName(area, locale),

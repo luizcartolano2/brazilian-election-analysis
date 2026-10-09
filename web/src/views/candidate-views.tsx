@@ -37,7 +37,7 @@ import { candidateRanks, largestMunicipalities } from '@/lib/maps'
 import { roundPath } from '@/lib/paths'
 import { raceResults, VALID, type SummaryCandidate, type SummaryRace } from '@/lib/results'
 import { hasMap, ShareMapSection } from '@/views/map-section'
-import { counterpartPath } from '@/views/params'
+import { pageRoundLinks } from '@/views/params'
 
 interface Candidacy {
   race: RaceInfo
@@ -397,18 +397,12 @@ export function CandidateView({
   // The color is round 1's, so a finalist keeps it in round 2 whoever wins.
   const rank = candidateRanks(summary).get(candidate.numero)
   const path = candidatePath(race, candidacy.area, candidate.numero)
+  // A President candidacy's race page is the Brazil page.
   const roundLinks: RoundLinks =
     runoff === undefined
-      ? {
-          current: 1,
-          hrefs: {
-            1: path,
-            2:
-              race.code === PRESIDENT
-                ? counterpartPath(2)
-                : counterpartPath(2, candidacy.area, race.slug),
-          },
-        }
+      ? race.code === PRESIDENT
+        ? pageRoundLinks(1, path)
+        : pageRoundLinks(1, path, candidacy.area, race.slug)
       : { current: null, hrefs: { 1: `${path}#turno-1`, 2: `${path}#turno-2` } }
 
   return (
@@ -416,7 +410,7 @@ export function CandidateView({
       locale={locale}
       path={path}
       crumbs={crumbs(locale, candidacy)}
-      round={runoff === undefined ? 1 : 2}
+      shows={runoff === undefined ? [1] : [1, 2]}
       roundLinks={roundLinks}
       wide
     >

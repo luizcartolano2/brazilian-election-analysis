@@ -161,6 +161,8 @@ export function SourcesContent({
       ) : (
         <p className="mt-2 text-sm" data-testid="data-version">
           {t(locale, 'sources.fixtures')}
+          {rounds.some((pinned) => pinned.version.synthetic) &&
+            ` ${t(locale, 'sources.fixturesSynthetic')}`}
         </p>
       )}
 
@@ -234,6 +236,7 @@ export function SourcesView({ locale }: { locale: Locale }) {
         { label: t(locale, 'area.brazil'), path: `/${YEAR}/` },
         { label: t(locale, 'nav.sources') },
       ]}
+      shows={ROUNDS.filter(hasRound)}
       roundLinks={brazilRoundLinks(null)}
       wide
     >

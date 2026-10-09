@@ -11,6 +11,7 @@ test('every round-2 page states the date and shows no result', async ({ page }) 
     '/2026/segundo-turno/zz/',
     '/2026/segundo-turno/pe/presidente/',
     '/2026/segundo-turno/municipio/?uf=pe&mu=25313',
+    '/2026/segundo-turno/secao/?uf=pe&mu=25313&zn=3&se=597',
   ]) {
     await page.goto(address)
     const waiting = page.getByTestId('waiting')
@@ -23,6 +24,19 @@ test('every round-2 page states the date and shows no result', async ({ page }) 
   }
   await page.goto('/en/2026/segundo-turno/')
   await expect(page.getByTestId('waiting')).toContainText('Runoff on October 25, 2026')
+})
+
+test('a waiting page names no numbers in its notice, and leads to round 1’s states', async ({
+  page,
+}) => {
+  await page.goto('/2026/segundo-turno/pe/')
+  const notice = page.getByTestId('fixtures-banner')
+  await expect(notice).toContainText('Versão de teste')
+  await expect(notice).not.toContainText('números')
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Estados' })).toHaveAttribute(
+    'href',
+    '/2026/#estados',
+  )
 })
 
 test('a race with no known runoff has no round-2 page yet', async ({ request }) => {

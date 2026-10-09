@@ -8,6 +8,7 @@ export const metadata: Metadata = pageMetadata(
   'en',
   roundPath(2, `/${YEAR}/`),
   pageTitle('en', undefined, undefined, 2),
+  2,
 )
 
 export default function Page() {

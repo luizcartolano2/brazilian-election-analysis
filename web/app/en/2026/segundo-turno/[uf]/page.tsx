@@ -10,7 +10,7 @@ export const generateStaticParams = runoffAreaParams
 
 export async function generateMetadata({ params }: { params: AreaParams }): Promise<Metadata> {
   const { uf } = await params
-  return pageMetadata('en', roundPath(2, `/${YEAR}/${uf}/`), pageTitle('en', uf, undefined, 2))
+  return pageMetadata('en', roundPath(2, `/${YEAR}/${uf}/`), pageTitle('en', uf, undefined, 2), 2)
 }
 
 export default async function Page({ params }: { params: AreaParams }) {

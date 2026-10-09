@@ -234,5 +234,8 @@
   "map.round1": "round 1",
   "map.round2": "round 2",
   "brazil.introRunoff": "Official TSE results for the runoff, held on October 25, 2026.",
-  "area.introRunoff": "Official TSE results in this state for the runoff, which decides President and, in some states, Governor."
+  "area.introRunoff": "Official TSE results in this state for the runoff, which decides President and, in some states, Governor.",
+  "site.testBuildBanner": "Test build, made from sample data.",
+  "sources.fixturesSynthetic": "This test build's round 2 is synthetic: its numbers copy round 1 and are neither official results nor a forecast.",
+  "meta.descriptionRunoff": "Official runoff results of Brazil's 2026 elections, from the whole country down to each polling station, with TSE's data."
 }

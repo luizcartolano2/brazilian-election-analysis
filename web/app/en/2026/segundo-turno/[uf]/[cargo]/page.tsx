@@ -10,7 +10,12 @@ export const generateStaticParams = runoffRaceParams
 
 export async function generateMetadata({ params }: { params: RaceParams }): Promise<Metadata> {
   const { uf, cargo } = await params
-  return pageMetadata('en', roundPath(2, `/${YEAR}/${uf}/${cargo}/`), pageTitle('en', uf, cargo, 2))
+  return pageMetadata(
+    'en',
+    roundPath(2, `/${YEAR}/${uf}/${cargo}/`),
+    pageTitle('en', uf, cargo, 2),
+    2,
+  )
 }
 
 export default async function Page({ params }: { params: RaceParams }) {

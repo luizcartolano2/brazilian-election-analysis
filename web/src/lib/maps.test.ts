@@ -18,6 +18,7 @@ import {
   votesWithDisplayNames,
   withDisplayNames,
 } from './maps'
+import { colorAreaOf } from './elections'
 import { UNDER_APPEAL, VALID, VALID_LIST, type SummaryRace } from './results'
 
 function race(overrides: Partial<SummaryRace>): SummaryRace {
@@ -402,5 +403,40 @@ describe('largestMunicipalities', () => {
       { ibge: 3, municipio: 3, nome: 'Middle', valid: 100, votes: 70 },
     ])
     expect(largestMunicipalities(votes, 99, 2)).toEqual([])
+  })
+})
+
+describe('round-2 colors', () => {
+  const race = (votes: [number, number][]) =>
+    ({
+      cargo: 1,
+      candidatos: votes.map(([numero, votos]) => ({
+        numero,
+        nome: `N${numero}`,
+        partido: 'P',
+        votos,
+        destino: 'Válido',
+        resultado: '',
+      })),
+    }) as unknown as SummaryRace
+
+  it('keeps round 1’s ranking when the round-1 runner-up wins round 2', () => {
+    const first = race([
+      [22, 500],
+      [13, 450],
+      [70, 50],
+    ])
+    const second = race([
+      [13, 560],
+      [22, 440],
+    ])
+    const ranks = candidateRanks(second, first)
+    expect(ranks.get(22)).toBe(0)
+    expect(ranks.get(13)).toBe(1)
+  })
+
+  it('colors President by Brazil and every other race by its own state', () => {
+    expect(colorAreaOf(1, 'pe')).toBe('br')
+    expect(colorAreaOf(3, 'pe')).toBe('pe')
   })
 })

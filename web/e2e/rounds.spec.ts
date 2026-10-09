@@ -38,6 +38,12 @@ test('every round-2 page says that the round is synthetic, in each language', as
   }
   await page.goto('/en/2026/segundo-turno/')
   await expect(page.getByTestId('fixtures-banner')).toContainText('this round 2 is synthetic')
+  // Round-1 pages that show round 2's numbers say so too, and other round-1 pages do not.
+  for (const address of ['/2026/', '/2026/fontes/']) {
+    await page.goto(address)
+    await expect(page.getByTestId('fixtures-banner'), address).toContainText('2º turno é sintético')
+  }
+  await expect(page.getByTestId('data-version')).toContainText('2º turno desta versão de teste')
   await page.goto('/2026/pe/')
   await expect(page.getByTestId('fixtures-banner')).not.toContainText('sintético')
 })
@@ -117,6 +123,17 @@ test('a round-2 station view reads round 2, and links to TSE under its election'
   await expect(page.locator('header + div a[href^="/2026/secao/"]')).toHaveCount(0)
 })
 
+test('a round-2 municipality view reads round 2, and links down within round 2', async ({
+  page,
+}) => {
+  await page.goto('/2026/segundo-turno/municipio/?uf=ac&mu=1015&cargo=governador')
+  await expect(page.getByRole('row', { name: /^Votos válidos/ })).toBeVisible({ timeout: 30_000 })
+  await expect(
+    page.locator('header + div a[href^="/2026/segundo-turno/zona/?uf=ac&mu=1015"]').first(),
+  ).toBeVisible()
+  await expect(page.locator('header + div a[href^="/2026/zona/"]')).toHaveCount(0)
+})
+
 test('the header switch leads to the same page in the other round', async ({ page }) => {
   const switchTo = (round: 1 | 2) =>
     page
@@ -144,6 +161,12 @@ test('the header switch leads to the same page in the other round', async ({ pag
     'href',
     '/2026/segundo-turno/secao/?uf=pe&mu=25313&zn=3&se=597',
   )
+  // The round shown keeps the place too, so following it does not lose the view.
+  await expect(switchTo(1)).toHaveAttribute(
+    'href',
+    '/2026/secao/?uf=pe&mu=25313&zn=3&se=597&cargo=senador',
+  )
+  await expect(switchTo(1)).toHaveAttribute('aria-current', 'page')
 })
 
 test('a finalist page leads with round 2, and the switch leads to its round sections', async ({

@@ -27,6 +27,7 @@ export function drilldownMetadata(locale: Locale, level: Level, round: Round): M
     locale,
     viewPath(level, round),
     round === 1 ? title : `${title} · ${t(locale, 'site.secondRound')}`,
+    round,
   )
 }
 

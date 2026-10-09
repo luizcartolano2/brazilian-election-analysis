@@ -150,3 +150,71 @@ the search shows TSE's round-1 outcome.
 #### Scenario: Rio's runoff cancelled before round one is republished
 - **WHEN** the round-2 version holds no Governor race for Rio de Janeiro, and the pinned round-1 version still marks Rio's Governor race for a runoff
 - **THEN** the build fails, until a PR pins the republished round 1
+
+### Requirement: Each page leads with its result
+The Brazil page, each state page, the votes-abroad page, each race page and each
+candidate page SHALL open with its result, before any map or table. A headline SHALL
+state TSE's outcome, and the app SHALL NOT call a candidate elected or in the runoff
+unless TSE's outcome says so. The headline takes the first form that applies:
+
+1. In a proportional race where TSE elected at least one candidate, it states how many.
+   Where TSE elected no one, it states the race and its seats, with no count.
+2. In a majoritarian race where TSE sends candidates to the runoff, it names them.
+3. In a majoritarian race where TSE elected candidates, it names them. A Senate race with
+   two elected names both.
+4. Otherwise, it names the most voted candidate as the most voted.
+
+A candidate page's headline states that candidate's own outcome from TSE. Without an
+elected or runoff outcome, it states the candidate's place in the race instead. For a
+candidacy whose votes TSE annulled sub judice, it states TSE's status.
+
+Below the headline, cards SHALL show the leading candidates of a majoritarian race: the
+top two for President and Governor, and for the Senate the candidates that TSE elected
+plus the next most voted, never fewer than two. Each card SHALL show the ballot name, the party, the ballot
+number, the share of valid votes, the votes and TSE's outcome, and SHALL link to the
+candidate's page. A card for a candidate whom TSE sends to the runoff SHALL state the
+runoff's date. A proportional race shows no cards. On the Brazil, votes-abroad and race
+pages, the full results, the turnout and the map SHALL follow on the same page. The page
+header SHALL offer both rounds, each with its day and month, and SHALL mark the round
+shown, except on a page that shows both rounds or neither. It SHALL link to the list of
+states on the Brazil page of the round shown, or of round 1 while round 2 has no results.
+
+#### Scenario: The Brazil page
+- **WHEN** a visitor opens the Brazil page and TSE marks two President candidates for the runoff
+- **THEN** the first heading names both as going to the runoff, and two cards show them before the map and the full results
+
+#### Scenario: A Governor elected in the first round
+- **WHEN** a visitor opens a state page where TSE marks one Governor candidate as elected
+- **THEN** the headline names that candidate as elected
+
+#### Scenario: A race with no outcome
+- **WHEN** no candidate in a majoritarian race carries an elected or runoff outcome from TSE
+- **THEN** the headline names the most voted candidate as the most voted, and calls no one elected
+
+#### Scenario: A deputy race page
+- **WHEN** a visitor opens a state's federal deputy race page
+- **THEN** the headline states how many candidates TSE elected, and the page shows no candidate cards
+
+#### Scenario: A deputy race with no one elected yet
+- **WHEN** no candidate in a proportional race carries an elected outcome from TSE
+- **THEN** the headline states the race and its seats, and no count of elected candidates
+
+#### Scenario: The Senate
+- **WHEN** a visitor opens a state's Senate results, where TSE elected two candidates
+- **THEN** the headline names both elected candidates, and three cards show them and the next most voted
+
+#### Scenario: A candidate page
+- **WHEN** a visitor opens the page of a Governor candidate whom TSE marks as not elected
+- **THEN** the headline states the candidate's place in the race, and calls the candidate neither elected nor in the runoff
+
+#### Scenario: The runoff date
+- **WHEN** a card shows a candidate whom TSE sends to the runoff
+- **THEN** the card states that the runoff is on 25 October 2026, and the header marks the first round, on 4 October, as the round shown
+
+#### Scenario: The header's link to the states
+- **WHEN** a visitor on a state page follows the header's link to the states
+- **THEN** the Brazil page opens at its list of states
+
+#### Scenario: The header's link to the states before round two
+- **WHEN** a visitor on a round-2 page follows the header's link to the states, and no round-2 version is pinned
+- **THEN** the round-1 Brazil page opens at its list of states

@@ -151,7 +151,7 @@ card states the runoff's date. After, it shows the round-2 headline and links to
 
 ### 6. Headlines, cards and colors in round 2
 
-`raceHeadline()` and `candidateHeadline()` take the round. In round 2, the elected form
+`headlineText()` and `candidateHeadlineText()` take the round. In round 2, the elected form
 uses new messages, "{names} vence no 2º turno" and "Vence no 2º turno". A round-2 card
 states no runoff date, because round 2 has no further round.
 
