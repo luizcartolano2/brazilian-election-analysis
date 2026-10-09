@@ -1,27 +1,8 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
-import { Drilldown } from '@/components/drilldown'
-import { PageShell } from '@/components/page-shell'
-import { getDrilldownConfig } from '@/lib/data'
-import { YEAR } from '@/lib/elections'
-import { t } from '@/lib/i18n'
-import { pageMetadata } from '@/views/metadata'
+import { DrilldownPage, drilldownMetadata } from '@/views/drilldown-page'
 
-export const metadata: Metadata = pageMetadata(
-  'pt',
-  `/${YEAR}/municipio/`,
-  t('pt', 'drilldown.municipalityTitle'),
-)
+export const metadata: Metadata = drilldownMetadata('pt', 'municipio', 1)
 
 export default function Page() {
-  return (
-    <PageShell locale="pt" path={`/${YEAR}/municipio/`} wide>
-      <noscript>
-        <p className="text-sm">{t('pt', 'drilldown.noScript')}</p>
-      </noscript>
-      <Suspense fallback={<p className="text-sm">{t('pt', 'drilldown.loading')}</p>}>
-        <Drilldown locale="pt" level="municipio" config={getDrilldownConfig()} />
-      </Suspense>
-    </PageShell>
-  )
+  return <DrilldownPage locale="pt" level="municipio" round={1} />
 }

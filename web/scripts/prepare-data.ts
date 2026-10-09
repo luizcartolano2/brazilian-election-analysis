@@ -263,10 +263,23 @@ function parseSummaries(summaries: Map<string, Uint8Array>): Map<string, Summary
   )
 }
 
+/**
+ * A fixtures build can leave round 2 out with `ELEICOES_FIXTURE_ROUNDS=1`, to show the pages that
+ * a build before the round-2 pin shows.
+ */
+export function fixtureRounds(env: Record<string, string | undefined>, mode: DataMode): Round[] {
+  const value = env.ELEICOES_FIXTURE_ROUNDS
+  if (value === undefined) return [...ROUNDS]
+  if (mode !== 'fixtures') throw new Error('ELEICOES_FIXTURE_ROUNDS applies to fixtures only')
+  if (value !== '1') throw new Error(`ELEICOES_FIXTURE_ROUNDS can only be 1, not ${value}`)
+  return [1]
+}
+
 async function main(): Promise<void> {
   const mode = dataMode(process.env)
+  const included = fixtureRounds(process.env, mode)
   const rounds: (PlannedRound & LoadedVersion & { parsed: Map<string, Summary> })[] = []
-  for (const planned of plannedRounds(mode)) {
+  for (const planned of plannedRounds(mode).filter((entry) => included.includes(entry.round))) {
     const loaded = await loadVersion(planned.source, planned.round, planned.pin?.manifestSha256)
     rounds.push({ ...planned, ...loaded, parsed: parseSummaries(loaded.summaries) })
   }

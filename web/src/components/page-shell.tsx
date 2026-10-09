@@ -2,10 +2,12 @@ import { Suspense, type ReactNode } from 'react'
 import { AppLink as Link } from '@/components/app-link'
 import { LanguageLink } from '@/components/language-link'
 import { outcomeLabels } from '@/components/results'
+import { DrilldownRoundLink } from '@/components/round-link'
 import { SiteSearch, type SearchLabels } from '@/components/site-search'
-import { getRoundSource, getSourceInfo } from '@/lib/data'
-import { ROUND_DATES, YEAR, type Round } from '@/lib/elections'
-import { formatDate, localePath, t, type Locale } from '@/lib/i18n'
+import { getRoundSource, getSourceInfo, hasRound } from '@/lib/data'
+import { roundDate, ROUNDS, YEAR, type Round } from '@/lib/elections'
+import { formatDayMonth, localePath, t, type Locale, type MessageKey } from '@/lib/i18n'
+import { roundPath } from '@/lib/paths'
 import { MAX_RESULTS } from '@/lib/search'
 import { REPOSITORY } from '@/lib/site'
 
@@ -15,16 +17,99 @@ export interface Crumb {
   path?: string
 }
 
-/** A test build's notice. A synthetic round says that its numbers copy round 1. */
-export function FixturesNotice({ locale, synthetic }: { locale: Locale; synthetic: boolean }) {
+export interface RoundLinks {
+  /** The round the page shows, or null on a page that shows both rounds or neither. */
+  current: Round | null
+  /** Each round's Portuguese address, which can end in a fragment. */
+  hrefs: Record<Round, string>
+  /** On a drill-down view, each round's races by area, so the link keeps the place. */
+  drilldownRaces?: Record<Round, Record<string, number[]> | null>
+}
+
+/** Each round's Brazil page, with the page's own round marked. */
+export function brazilRoundLinks(current: Round | null): RoundLinks {
+  return { current, hrefs: { 1: `/${YEAR}/`, 2: roundPath(2, `/${YEAR}/`) } }
+}
+
+/** The header's choice of round: two links, each with its election day. */
+function RoundSwitch({ locale, links }: { locale: Locale; links: RoundLinks }) {
+  return (
+    <nav
+      aria-label={t(locale, 'nav.rounds')}
+      className="bg-surface flex flex-wrap rounded-full p-1 text-xs font-semibold"
+      data-testid="round-switch"
+    >
+      {ROUNDS.map((round) => {
+        const current = links.current === round
+        const className = `rounded-full px-3 py-1 ${current ? 'bg-ink text-white' : 'underline-offset-2 hover:underline'}`
+        const href = localePath(locale, links.hrefs[round])
+        const label = (
+          <>
+            {t(locale, round === 1 ? 'site.firstRound' : 'site.secondRound')} ·{' '}
+            <time dateTime={roundDate(round)}>{formatDayMonth(locale, roundDate(round))}</time>
+          </>
+        )
+        const ariaCurrent = current ? 'page' : undefined
+        const races = links.drilldownRaces?.[round]
+        if (races !== undefined) {
+          return (
+            <Suspense
+              key={round}
+              fallback={
+                <a href={href} aria-current={ariaCurrent} className={className}>
+                  {label}
+                </a>
+              }
+            >
+              <DrilldownRoundLink
+                href={href}
+                brazil={localePath(locale, brazilRoundLinks(null).hrefs[round])}
+                races={races}
+                current={current}
+                className={className}
+              >
+                {label}
+              </DrilldownRoundLink>
+            </Suspense>
+          )
+        }
+        return (
+          <Link key={round} href={href} aria-current={ariaCurrent} className={className}>
+            {label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
+
+export type FixturesKind = 'sample' | 'synthetic' | 'empty'
+
+const FIXTURES_MESSAGES: Record<FixturesKind, MessageKey> = {
+  sample: 'site.fixturesBanner',
+  synthetic: 'site.syntheticBanner',
+  empty: 'site.testBuildBanner',
+}
+
+/**
+ * A test build's notice. A page that shows a synthetic round says that its numbers copy round
+ * 1, and a page with no numbers says only that the build is a test.
+ */
+export function FixturesNotice({ locale, kind }: { locale: Locale; kind: FixturesKind }) {
   return (
     <p
       data-testid="fixtures-banner"
       className="mt-3 rounded bg-amber-100 p-2 text-sm text-amber-900"
     >
-      {t(locale, synthetic ? 'site.syntheticBanner' : 'site.fixturesBanner')}
+      {t(locale, FIXTURES_MESSAGES[kind])}
     </p>
   )
+}
+
+function fixturesKind(shows: Round[]): FixturesKind {
+  const built = shows.filter(hasRound)
+  if (built.length === 0) return 'empty'
+  return built.some((round) => getRoundSource(round).synthetic) ? 'synthetic' : 'sample'
 }
 
 /**
@@ -37,6 +122,8 @@ export function PageShell({
   crumbs = [],
   wide = false,
   round = 1,
+  shows = [round],
+  roundLinks = brazilRoundLinks(round),
   children,
 }: {
   locale: Locale
@@ -46,6 +133,10 @@ export function PageShell({
   wide?: boolean
   /** The round whose data the page shows. */
   round?: Round
+  /** Every round whose numbers the page shows, which picks a test build's notice. */
+  shows?: Round[]
+  /** Where the header's choice of round leads. By default, each round's Brazil page. */
+  roundLinks?: RoundLinks
   children: ReactNode
 }) {
   const other: Locale = locale === 'pt' ? 'en' : 'pt'
@@ -60,10 +151,7 @@ export function PageShell({
             <BallotMark />
             {t(locale, 'site.name')}
           </Link>
-          <p className="bg-surface rounded-full px-3 py-1 text-xs font-semibold">
-            {t(locale, 'site.firstRound')} ·{' '}
-            <time dateTime={ROUND_DATES.first}>{formatDate(locale, ROUND_DATES.first)}</time>
-          </p>
+          <RoundSwitch locale={locale} links={roundLinks} />
           {/* Holds the box's height before the script runs, so the page does not move. */}
           <div className="min-h-11 min-w-0 flex-[999_1_16rem] noscript:hidden">
             <SiteSearch
@@ -73,7 +161,9 @@ export function PageShell({
             />
           </div>
           <nav className="flex gap-4 text-sm font-semibold">
-            <Link href={`${localePath(locale, `/${YEAR}/`)}#estados`}>
+            <Link
+              href={`${localePath(locale, roundPath(hasRound(round) ? round : 1, `/${YEAR}/`))}#estados`}
+            >
               {t(locale, 'nav.states')}
             </Link>
             <Link href={localePath(locale, `/${YEAR}/fontes/`)}>{t(locale, 'nav.sources')}</Link>
@@ -101,7 +191,7 @@ export function PageShell({
         className={`mx-auto w-full flex-1 px-4 ${wide ? 'max-w-[1200px] sm:px-6' : 'max-w-3xl'}`}
       >
         {getSourceInfo().mode === 'fixtures' && (
-          <FixturesNotice locale={locale} synthetic={getRoundSource(round).synthetic} />
+          <FixturesNotice locale={locale} kind={fixturesKind(shows)} />
         )}
         {crumbs.length > 0 && (
           <nav aria-label={t(locale, 'nav.breadcrumbs')} className="text-muted pt-4 text-sm">

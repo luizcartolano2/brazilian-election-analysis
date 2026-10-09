@@ -1,6 +1,6 @@
 /** A race's headline, built from TSE's outcomes only. It never compares votes to name a winner. */
 import { NUMBER_LOCALES } from './format'
-import { ROUND_DATES, SENATE } from './elections'
+import { ROUND_DATES, SENATE, type Round } from './elections'
 import { formatDate, formatInteger, formatOrdinal, t, type Locale } from './i18n'
 import { isElected, isInRunoff, VALID, type RaceResults, type SummaryCandidate } from './results'
 
@@ -40,7 +40,12 @@ function joinNames(locale: Locale, names: string[]): string {
 }
 
 /** Portuguese marks gender in "eleito" and "eleita", and the summaries hold none, so no form uses them. */
-export function headlineText(locale: Locale, headline: Headline, race: string): string {
+export function headlineText(
+  locale: Locale,
+  headline: Headline,
+  race: string,
+  round: Round = 1,
+): string {
   switch (headline.form) {
     case 'count':
       return t(locale, 'headline.count', { race, count: formatInteger(locale, headline.count) })
@@ -57,9 +62,13 @@ export function headlineText(locale: Locale, headline: Headline, race: string): 
         ? many
           ? 'headline.electedSenateMany'
           : 'headline.electedSenateOne'
-        : many
-          ? 'headline.electedMany'
-          : 'headline.electedOne'
+        : round === 2
+          ? many
+            ? 'headline.electedRunoffMany'
+            : 'headline.electedRunoffOne'
+          : many
+            ? 'headline.electedMany'
+            : 'headline.electedOne'
       return t(locale, key, { names: joinNames(locale, headline.names) })
     }
     case 'mostVoted':
@@ -86,14 +95,22 @@ export function candidateHeadline(
   return { form: 'place', place }
 }
 
-export function candidateHeadlineText(locale: Locale, headline: CandidateHeadline): string {
+export function candidateHeadlineText(
+  locale: Locale,
+  headline: CandidateHeadline,
+  round: Round = 1,
+): string {
   switch (headline.form) {
     case 'runoff':
       return t(locale, 'candidate.headlineRunoff', {
         date: formatDate(locale, ROUND_DATES.runoff),
       })
     case 'elected':
-      return t(locale, headline.senate ? 'candidate.headlineSenate' : 'candidate.headlineElected')
+      if (headline.senate) return t(locale, 'candidate.headlineSenate')
+      return t(
+        locale,
+        round === 2 ? 'candidate.headlineElectedRunoff' : 'candidate.headlineElected',
+      )
     case 'place':
       return t(locale, 'candidate.headlinePlace', { place: formatOrdinal(locale, headline.place) })
     case 'status':

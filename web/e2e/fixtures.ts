@@ -3,17 +3,32 @@ import path from 'node:path'
 import { displayName } from '../src/lib/names'
 import type { Summary } from '../src/lib/results'
 
-export function summary(area: string): Summary {
+export function summary(area: string, round: 1 | 2 = 1): Summary {
+  const folder = round === 1 ? 'fixtures' : 'fixtures-t2'
   const file = path.join(
     import.meta.dirname,
     '..',
-    'fixtures',
+    folder,
     '2026',
-    't1',
+    `t${round}`,
     'resumo',
     `${area}.json`,
   )
   return JSON.parse(readFileSync(file, 'utf-8')) as Summary
+}
+
+/** The rounds that the build under test holds: a build before the round-2 pin has round 1 only. */
+export function builtRounds(): number[] {
+  const file = path.join(import.meta.dirname, '..', '.data', 'source.json')
+  return (JSON.parse(readFileSync(file, 'utf-8')) as { rounds: number[] }).rounds
+}
+
+/** The candidate that TSE's outcome marks as elected in a race, named as the site shows it. */
+export function elected(area: string, race: number, round: 1 | 2): string {
+  const entry = summary(area, round).corridas.find((candidate) => candidate.cargo === race)
+  const winner = entry?.candidatos.find((candidate) => candidate.resultado.startsWith('Eleito'))
+  if (winner === undefined) throw new Error(`no one elected in ${area} race ${race}`)
+  return displayName(winner.nome)
 }
 
 /** The valid candidate with the most votes in a race, named as the site shows it. */
@@ -40,4 +55,8 @@ export const PAGES = [
   '/2026/presidente/13/',
   '/2026/pe/governador/55/',
   '/en/2026/pe/senador/130/',
+  '/2026/segundo-turno/',
+  '/2026/segundo-turno/ac/',
+  '/2026/segundo-turno/zz/',
+  '/en/2026/segundo-turno/ac/governador/',
 ]

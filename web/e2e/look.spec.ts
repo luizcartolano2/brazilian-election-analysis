@@ -25,13 +25,21 @@ test('the fonts come from the site, and the text shows without them', async ({ p
   expect((await heading.boundingBox())?.height).toBeGreaterThan(10)
 })
 
-test('the header names the round and its date in each language', async ({ page }) => {
+test('the header offers both rounds with their dates, and marks the one shown', async ({
+  page,
+}) => {
   await page.goto('/2026/pe/')
-  const header = page.getByRole('banner')
-  await expect(header).toContainText('1º turno · 4 de outubro de 2026')
-  await expect(header.locator('time')).toHaveAttribute('datetime', '2026-10-04')
+  const rounds = page.getByTestId('round-switch').getByRole('link')
+  await expect(rounds).toHaveText(['1º turno · 4 de outubro', '2º turno · 25 de outubro'])
+  await expect(rounds.nth(0)).toHaveAttribute('aria-current', 'page')
+  await expect(rounds.nth(1)).not.toHaveAttribute('aria-current')
+  await expect(rounds.nth(0).locator('time')).toHaveAttribute('datetime', '2026-10-04')
+  await expect(rounds.nth(1).locator('time')).toHaveAttribute('datetime', '2026-10-25')
   await page.goto('/en/2026/pe/')
-  await expect(page.getByRole('banner')).toContainText('Round 1 · October 4, 2026')
+  await expect(page.getByTestId('round-switch').getByRole('link')).toHaveText([
+    'Round 1 · October 4',
+    'Round 2 · October 25',
+  ])
 })
 
 test('the header links to the state list', async ({ page }) => {

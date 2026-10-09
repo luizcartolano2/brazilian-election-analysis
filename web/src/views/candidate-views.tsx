@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { AppLink } from '@/components/app-link'
-import { PageShell, type Crumb } from '@/components/page-shell'
+import { PageShell, type Crumb, type RoundLinks } from '@/components/page-shell'
 import { Outcome } from '@/components/results'
 import { municipalityHref } from '@/lib/address'
 import { placeOf, sharesByState, type StateShare } from '@/lib/candidates'
-import { coveredAreas, getCandidateVotes, getSummary } from '@/lib/data'
+import { coveredAreas, getCandidateVotes, getSummary, hasRound } from '@/lib/data'
 import {
   ABROAD,
   areaByCode,
@@ -17,15 +17,27 @@ import {
   raceByCode,
   raceBySlug,
   raceName,
+  roundDate,
   YEAR,
   type RaceInfo,
+  type Round,
 } from '@/lib/elections'
 import { candidateHeadline, candidateHeadlineText } from '@/lib/headline'
-import { formatInteger, formatOrdinal, formatShare, localePath, t, type Locale } from '@/lib/i18n'
+import {
+  formatDate,
+  formatInteger,
+  formatOrdinal,
+  formatShare,
+  localePath,
+  t,
+  type Locale,
+} from '@/lib/i18n'
 import { candidateColor } from '@/lib/map-colors'
 import { candidateRanks, largestMunicipalities } from '@/lib/maps'
+import { roundPath } from '@/lib/paths'
 import { raceResults, VALID, type SummaryCandidate, type SummaryRace } from '@/lib/results'
 import { hasMap, ShareMapSection } from '@/views/map-section'
+import { pageRoundLinks } from '@/views/params'
 
 interface Candidacy {
   race: RaceInfo
@@ -33,19 +45,25 @@ interface Candidacy {
   area: string
   summary: SummaryRace
   candidate: SummaryCandidate
+  round: Round
 }
 
-function findCandidacy(area: string, slug: string, numero: string): Candidacy | undefined {
+function findCandidacy(
+  area: string,
+  slug: string,
+  numero: string,
+  round: Round = 1,
+): Candidacy | undefined {
   const race = raceBySlug(slug)
   if (race === undefined || !CANDIDATE_PAGE_RACES.has(race.code) || !/^[0-9]{1,5}$/.test(numero)) {
     return undefined
   }
   const summaryArea = race.code === PRESIDENT ? 'br' : area
   if (summaryArea !== 'br' && areaByCode(summaryArea) === undefined) return undefined
-  const summary = getSummary(summaryArea).corridas.find((entry) => entry.cargo === race.code)
+  const summary = getSummary(summaryArea, round).corridas.find((entry) => entry.cargo === race.code)
   const candidate = summary?.candidatos.find((entry) => entry.numero === Number(numero))
   if (summary === undefined || candidate === undefined) return undefined
-  return { race, area: summaryArea, summary, candidate }
+  return { race, area: summaryArea, summary, candidate, round }
 }
 
 function areaLabel(locale: Locale, area: string): string {
@@ -100,7 +118,7 @@ function Stat({
 function LargestMunicipalities({ locale, candidacy }: { locale: Locale; candidacy: Candidacy }) {
   const { race, candidate } = candidacy
   const rows = largestMunicipalities(
-    getCandidateVotes(candidacy.area, race.code),
+    getCandidateVotes(candidacy.area, race.code, candidacy.round),
     candidate.numero,
     LARGEST,
   )
@@ -130,7 +148,7 @@ function LargestMunicipalities({ locale, candidacy }: { locale: Locale; candidac
               <tr key={row.municipio} className="border-line border-b">
                 <td className="py-1.5 pr-2 break-words">
                   <AppLink
-                    href={municipalityHref(locale, area, row.municipio, race)}
+                    href={municipalityHref(locale, area, row.municipio, race, candidacy.round)}
                     className="underline"
                   >
                     {row.nome}
@@ -151,11 +169,11 @@ function LargestMunicipalities({ locale, candidacy }: { locale: Locale; candidac
   )
 }
 
-function presidentStates(numero: number) {
-  const states = coveredAreas()
+function presidentStates(numero: number, round: Round) {
+  const states = coveredAreas(round)
     .filter((area) => area !== 'br' && area !== ABROAD.code)
     .flatMap((area) => {
-      const race = getSummary(area).corridas.find((entry) => entry.cargo === PRESIDENT)
+      const race = getSummary(area, round).corridas.find((entry) => entry.cargo === PRESIDENT)
       return race === undefined ? [] : [{ area, results: raceResults(race, false) }]
     })
   return sharesByState(states, numero)
@@ -166,10 +184,12 @@ function StateShares({
   locale,
   name,
   shares,
+  round,
 }: {
   locale: Locale
   name: string
   shares: StateShare[]
+  round: Round
 }) {
   return (
     <section data-testid="state-shares">
@@ -194,7 +214,7 @@ function StateShares({
               <tr key={share.area} className="border-line border-b">
                 <td className="py-1.5 pr-2">
                   <AppLink
-                    href={localePath(locale, `/${YEAR}/${share.area}/`)}
+                    href={localePath(locale, roundPath(round, `/${YEAR}/${share.area}/`))}
                     className="underline"
                   >
                     {state === undefined ? share.area.toUpperCase() : areaName(state, locale)}
@@ -217,56 +237,34 @@ function StateShares({
   )
 }
 
-/** One President, Governor or Senate candidacy: its outcome, place, share map and largest places. */
-export function CandidateView({
+/**
+ * One round of a candidacy: its outcome, stats, share map, largest places and, for President,
+ * its share in each state. `heading` follows the page's headings above it.
+ */
+function RoundResults({
   locale,
-  area,
-  slug,
-  numero,
+  candidacy,
+  heading: Heading,
+  headlineTestId,
 }: {
   locale: Locale
-  area: string
-  slug: string
-  numero: string
+  candidacy: Candidacy
+  heading: 'h2' | 'h3'
+  headlineTestId: string
 }) {
-  const candidacy = findCandidacy(area, slug, numero)
-  if (candidacy === undefined) notFound()
-  const { race, summary, candidate } = candidacy
+  const { race, summary, candidate, round } = candidacy
   const valid = candidate.destino === VALID
   const where = areaLabel(locale, candidacy.area)
   const mapped = valid && (candidacy.area === 'br' || hasMap(candidacy.area))
   const place = valid ? placeOf(raceResults(summary, false), candidate.numero) : null
   const headline = candidateHeadline(candidate, place, race.code)
-  const rank = candidateRanks(summary).get(candidate.numero)
-  const shares = valid && race.code === PRESIDENT ? presidentStates(candidate.numero) : null
+  const shares = valid && race.code === PRESIDENT ? presidentStates(candidate.numero, round) : null
   const led = shares?.filter((share) => share.led).length ?? 0
-
   return (
-    <PageShell
-      locale={locale}
-      path={candidatePath(race, candidacy.area, candidate.numero)}
-      crumbs={crumbs(locale, candidacy)}
-      wide
-    >
-      <p className="text-muted text-xs font-bold tracking-widest uppercase">
-        {t(locale, 'race.inArea', { race: raceName(race, locale), area: where })}
-      </p>
-      <div className="mt-2 flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className="size-4 shrink-0 rounded-full"
-          style={{
-            background: candidateColor(valid ? rank : undefined, summary.escolhas_por_eleitor > 1),
-          }}
-        />
-        <h1 className="text-4xl font-extrabold break-words sm:text-5xl">{candidate.nome}</h1>
-      </div>
-      <p className="text-muted mt-1">
-        {candidate.partido} · {candidate.numero}
-      </p>
-      <h2 className="mt-4 text-2xl font-extrabold sm:text-3xl" data-testid="headline">
-        {candidateHeadlineText(locale, headline)}
-      </h2>
+    <>
+      <Heading className="mt-4 text-2xl font-extrabold sm:text-3xl" data-testid={headlineTestId}>
+        {candidateHeadlineText(locale, headline, round)}
+      </Heading>
       <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
         <Stat label={t(locale, 'results.votes')} testId="candidate-votes">
           {formatInteger(locale, candidate.votos)}
@@ -316,12 +314,16 @@ export function CandidateView({
           numero={candidate.numero}
           name={candidate.nome}
           choicesPerVoter={summary.escolhas_por_eleitor}
+          round={round}
         />
       )}
       {mapped && race.code === PRESIDENT && (
         <p className="text-muted mt-4 text-sm" data-testid="abroad-note">
           {t(locale, 'candidate.abroadNote')}{' '}
-          <AppLink href={localePath(locale, `/${YEAR}/${ABROAD.code}/`)} className="underline">
+          <AppLink
+            href={localePath(locale, roundPath(round, `/${YEAR}/${ABROAD.code}/`))}
+            className="underline"
+          >
             {t(locale, 'brazil.abroadLink')}
           </AppLink>
         </p>
@@ -329,8 +331,117 @@ export function CandidateView({
       {mapped && (
         <div className="mt-10 grid items-start gap-10 lg:grid-cols-2">
           <LargestMunicipalities locale={locale} candidacy={candidacy} />
-          {shares !== null && <StateShares locale={locale} name={candidate.nome} shares={shares} />}
+          {shares !== null && (
+            <StateShares locale={locale} name={candidate.nome} shares={shares} round={round} />
+          )}
         </div>
+      )}
+    </>
+  )
+}
+
+/** A round's section on a finalist's page, which the header's choice of round leads to. */
+function RoundSection({
+  locale,
+  candidacy,
+  headlineTestId,
+}: {
+  locale: Locale
+  candidacy: Candidacy
+  headlineTestId: string
+}) {
+  const round = candidacy.round
+  return (
+    <section
+      id={`turno-${round}`}
+      className="border-line mt-8 scroll-mt-4 border-t pt-6"
+      data-testid={`round-${round}`}
+    >
+      <h2 className="text-muted text-xs font-bold tracking-widest uppercase">
+        {t(locale, 'candidate.roundTitle', {
+          round: t(locale, round === 1 ? 'site.firstRound' : 'site.secondRound'),
+          date: formatDate(locale, roundDate(round)),
+        })}
+      </h2>
+      <RoundResults
+        locale={locale}
+        candidacy={candidacy}
+        heading="h3"
+        headlineTestId={headlineTestId}
+      />
+    </section>
+  )
+}
+
+/**
+ * One President, Governor or Senate candidacy. A finalist's page shows round 2 first, then
+ * round 1, at the same address.
+ */
+export function CandidateView({
+  locale,
+  area,
+  slug,
+  numero,
+}: {
+  locale: Locale
+  area: string
+  slug: string
+  numero: string
+}) {
+  const candidacy = findCandidacy(area, slug, numero)
+  if (candidacy === undefined) notFound()
+  const runoff = hasRound(2) ? findCandidacy(area, slug, numero, 2) : undefined
+  const { race, summary, candidate } = candidacy
+  const valid = candidate.destino === VALID
+  const where = areaLabel(locale, candidacy.area)
+  // The color is round 1's, so a finalist keeps it in round 2 whoever wins.
+  const rank = candidateRanks(summary).get(candidate.numero)
+  const path = candidatePath(race, candidacy.area, candidate.numero)
+  // A President candidacy's race page is the Brazil page.
+  const roundLinks: RoundLinks =
+    runoff === undefined
+      ? race.code === PRESIDENT
+        ? pageRoundLinks(1, path)
+        : pageRoundLinks(1, path, candidacy.area, race.slug)
+      : { current: null, hrefs: { 1: `${path}#turno-1`, 2: `${path}#turno-2` } }
+
+  return (
+    <PageShell
+      locale={locale}
+      path={path}
+      crumbs={crumbs(locale, candidacy)}
+      shows={runoff === undefined ? [1] : [1, 2]}
+      roundLinks={roundLinks}
+      wide
+    >
+      <p className="text-muted text-xs font-bold tracking-widest uppercase">
+        {t(locale, 'race.inArea', { race: raceName(race, locale), area: where })}
+      </p>
+      <div className="mt-2 flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="size-4 shrink-0 rounded-full"
+          style={{
+            background: candidateColor(valid ? rank : undefined, summary.escolhas_por_eleitor > 1),
+          }}
+        />
+        <h1 className="text-4xl font-extrabold break-words sm:text-5xl">{candidate.nome}</h1>
+      </div>
+      <p className="text-muted mt-1">
+        {candidate.partido} · {candidate.numero}
+      </p>
+      {runoff === undefined ? (
+        <RoundResults
+          locale={locale}
+          candidacy={candidacy}
+          heading="h2"
+          headlineTestId="headline"
+        />
+      ) : (
+        <>
+          <RoundSection locale={locale} candidacy={runoff} headlineTestId="headline" />
+          <RoundSection locale={locale} candidacy={candidacy} headlineTestId="headline-1" />
+        </>
       )}
       <p className="mt-8 text-sm font-semibold">
         <AppLink href={localePath(locale, racePagePath(candidacy))} className="underline">

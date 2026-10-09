@@ -202,8 +202,20 @@ export const COUNCIL = {
 export const PRESIDENT = 1
 export const SENATE = 5
 
+/**
+ * The area whose round-1 ranking colors a race in either round: Brazil for President, so a
+ * candidate keeps one color on every page, and the race's own state otherwise.
+ */
+export function colorAreaOf(race: number, area: string): string {
+  return race === PRESIDENT ? 'br' : area
+}
+
 /** Election day of each round. */
 export const ROUND_DATES = { first: '2026-10-04', runoff: '2026-10-25' } as const
+
+export function roundDate(round: Round): string {
+  return round === 1 ? ROUND_DATES.first : ROUND_DATES.runoff
+}
 
 /** A state's proportional races, in the summary's order, which its page offers as links. */
 export function proportionalRaces(codes: number[]): RaceInfo[] {

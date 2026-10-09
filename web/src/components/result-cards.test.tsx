@@ -155,4 +155,19 @@ describe('ResultCards', () => {
     expect(cards(pt)[0]).toContain('2º turno em 25 de outubro de 2026')
     expect(cards(en)[1]).toContain('Runoff on October 25, 2026')
   })
+
+  it('states no runoff date on a round-2 card', () => {
+    const race = results([
+      ['Ana Lima', 500, '2º turno'],
+      ['Bia Souza', 400, '2º turno'],
+    ])
+    const ranks = new Map<number, 0 | 1>([
+      [10, 0],
+      [11, 1],
+    ])
+    const html = renderToStaticMarkup(
+      <ResultCards locale="pt" results={race} ranks={ranks} round={2} />,
+    )
+    expect(html).not.toContain('2º turno em')
+  })
 })

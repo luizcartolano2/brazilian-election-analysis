@@ -1,12 +1,14 @@
 import { PageShell } from '@/components/page-shell'
+import { brazilRoundLinks } from '@/components/page-shell'
 import {
   getManifest,
   getRoundSource,
   getSourceInfo,
+  hasRound,
   type DataSourceInfo,
   type RoundSourceInfo,
 } from '@/lib/data'
-import { YEAR } from '@/lib/elections'
+import { ROUNDS, YEAR, type Round } from '@/lib/elections'
 import { formatDateTime, formatInteger, t, type Locale, type MessageKey } from '@/lib/i18n'
 import type { Manifest, ManifestSource } from '@/lib/manifest'
 import { REPOSITORY } from '@/lib/site'
@@ -52,23 +54,99 @@ function SourceList({ locale, sources }: { locale: Locale; sources: ManifestSour
   )
 }
 
-/** The sources page's content, apart from the data it reads, so tests can render it. */
-export function SourcesContent({
-  locale,
-  manifest,
-  source,
-  version,
-}: {
-  locale: Locale
+/** One round's pinned data version, as the sources page lists it. */
+export interface PinnedRound {
+  round: Round
   manifest: Manifest
-  source: DataSourceInfo
   version: RoundSourceInfo
-}) {
+}
+
+function roundLabel(locale: Locale, round: Round): string {
+  return t(locale, round === 1 ? 'site.firstRound' : 'site.secondRound')
+}
+
+function sortedSources(manifest: Manifest): ManifestSource[] {
   const sources = [...manifest.fontes].sort((a, b) => a.key.localeCompare(b.key))
   const unknownHost = sources.filter((entry) => !HOSTS.some((host) => host.pattern.test(entry.url)))
   if (unknownHost.length > 0) {
     throw new Error(`no terms recorded for ${unknownHost.map((entry) => entry.url).join(', ')}`)
   }
+  return sources
+}
+
+function VersionDetails({ locale, pinned }: { locale: Locale; pinned: PinnedRound }) {
+  const { manifest, version, round } = pinned
+  return (
+    <dl className="mt-2 text-sm" data-testid={`version-round-${round}`}>
+      <dt className="text-muted text-xs">{t(locale, 'nav.rounds')}</dt>
+      <dd>{roundLabel(locale, round)}</dd>
+      <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.version')}</dt>
+      <dd
+        className="font-mono break-all"
+        data-testid={round === 1 ? 'data-version' : `data-version-${round}`}
+      >
+        {version.version}
+      </dd>
+      <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.builtAt')}</dt>
+      <dd>{formatDateTime(locale, manifest.gerado_em)}</dd>
+      <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.commit')}</dt>
+      <dd>
+        <a href={`${REPOSITORY}/commit/${manifest.commit}`} className="font-mono underline">
+          {manifest.commit.slice(0, 7)}
+        </a>
+      </dd>
+      <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.manifest')}</dt>
+      <dd>
+        <a href={`${version.dataBase}/manifest.json`} className="underline">
+          manifest.json
+        </a>
+      </dd>
+    </dl>
+  )
+}
+
+function SourceFiles({
+  locale,
+  sources,
+  heading: Heading,
+}: {
+  locale: Locale
+  sources: ManifestSource[]
+  heading: 'h3' | 'h4'
+}) {
+  return HOSTS.map((host) => {
+    const fromHost = sources.filter((entry) => host.pattern.test(entry.url))
+    if (fromHost.length === 0) return null
+    return (
+      <section key={host.title} className="mt-4">
+        <Heading className="text-base font-semibold">{t(locale, host.title)}</Heading>
+        <p className="text-muted mt-1 text-sm">{t(locale, host.terms)}</p>
+        <SourceList locale={locale} sources={fromHost} />
+      </section>
+    )
+  })
+}
+
+/** The sources page's content, apart from the data it reads, so tests can render it. */
+export function SourcesContent({
+  locale,
+  source,
+  rounds,
+}: {
+  locale: Locale
+  source: DataSourceInfo
+  /** Each round's pinned version, round 1 first. */
+  rounds: PinnedRound[]
+}) {
+  const first = rounds[0]
+  if (first?.round !== 1) throw new Error('the sources page needs round 1')
+  const files = rounds.map((pinned) => ({
+    round: pinned.round,
+    sources: sortedSources(pinned.manifest),
+  }))
+  const fileCount = files.reduce((sum, entry) => sum + entry.sources.length, 0)
+  const published =
+    source.mode === 'published' && rounds.every((pinned) => pinned.version.version !== null)
   return (
     <>
       <h1 className="text-4xl font-extrabold">{t(locale, 'sources.title')}</h1>
@@ -76,37 +154,22 @@ export function SourcesContent({
       <p className="mt-2 text-sm">{t(locale, 'sources.checks')}</p>
 
       <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.versionTitle')}</h2>
-      {source.mode === 'published' && version.version !== null ? (
-        <dl className="mt-2 text-sm">
-          <dt className="text-muted text-xs">{t(locale, 'sources.version')}</dt>
-          <dd className="font-mono break-all" data-testid="data-version">
-            {version.version}
-          </dd>
-          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.builtAt')}</dt>
-          <dd>{formatDateTime(locale, manifest.gerado_em)}</dd>
-          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.commit')}</dt>
-          <dd>
-            <a href={`${REPOSITORY}/commit/${manifest.commit}`} className="font-mono underline">
-              {manifest.commit.slice(0, 7)}
-            </a>
-          </dd>
-          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.manifest')}</dt>
-          <dd>
-            <a href={`${version.dataBase}/manifest.json`} className="underline">
-              manifest.json
-            </a>
-          </dd>
-        </dl>
+      {published ? (
+        rounds.map((pinned) => (
+          <VersionDetails key={pinned.round} locale={locale} pinned={pinned} />
+        ))
       ) : (
         <p className="mt-2 text-sm" data-testid="data-version">
           {t(locale, 'sources.fixtures')}
+          {rounds.some((pinned) => pinned.version.synthetic) &&
+            ` ${t(locale, 'sources.fixturesSynthetic')}`}
         </p>
       )}
 
       <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.licenseTitle')}</h2>
       <p className="mt-2 text-sm">{t(locale, 'sources.licenseDerived')}</p>
       <blockquote className="border-ink/20 mt-2 border-l-2 pl-3 text-sm">
-        {manifest.credito[locale]}
+        {first.manifest.credito[locale]}
       </blockquote>
 
       <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.boundariesTitle')}</h2>
@@ -147,19 +210,18 @@ export function SourcesContent({
 
       <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.filesTitle')}</h2>
       <p className="text-muted mt-1 text-sm">
-        {t(locale, 'sources.filesNote', { count: formatInteger(locale, sources.length) })}
+        {t(locale, 'sources.filesNote', { count: formatInteger(locale, fileCount) })}
       </p>
-      {HOSTS.map((host) => {
-        const fromHost = sources.filter((entry) => host.pattern.test(entry.url))
-        if (fromHost.length === 0) return null
-        return (
-          <section key={host.title} className="mt-4">
-            <h3 className="text-base font-semibold">{t(locale, host.title)}</h3>
-            <p className="text-muted mt-1 text-sm">{t(locale, host.terms)}</p>
-            <SourceList locale={locale} sources={fromHost} />
+      {files.length === 1 ? (
+        <SourceFiles locale={locale} sources={files[0]?.sources ?? []} heading="h3" />
+      ) : (
+        files.map((entry) => (
+          <section key={entry.round} className="mt-6">
+            <h3 className="text-xl font-bold">{roundLabel(locale, entry.round)}</h3>
+            <SourceFiles locale={locale} sources={entry.sources} heading="h4" />
           </section>
-        )
-      })}
+        ))
+      )}
     </>
   )
 }
@@ -174,15 +236,20 @@ export function SourcesView({ locale }: { locale: Locale }) {
         { label: t(locale, 'area.brazil'), path: `/${YEAR}/` },
         { label: t(locale, 'nav.sources') },
       ]}
+      shows={ROUNDS.filter(hasRound)}
+      roundLinks={brazilRoundLinks(null)}
       wide
     >
       {/* Prose keeps a readable line length inside the wide column. */}
       <div className="max-w-3xl">
         <SourcesContent
           locale={locale}
-          manifest={getManifest()}
           source={getSourceInfo()}
-          version={getRoundSource()}
+          rounds={ROUNDS.filter(hasRound).map((round) => ({
+            round,
+            manifest: getManifest(round),
+            version: getRoundSource(round),
+          }))}
         />
       </div>
     </PageShell>

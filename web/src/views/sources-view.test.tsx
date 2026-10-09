@@ -22,28 +22,54 @@ const FIXTURES = { version: null, dataBase: '/_fixtures/data', synthetic: false 
 const manifest = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', '..', 'fixtures', 'manifest.json'), 'utf-8'),
 ) as Manifest
+const runoffManifest = JSON.parse(
+  readFileSync(path.join(import.meta.dirname, '..', '..', 'fixtures-t2', 'manifest.json'), 'utf-8'),
+) as Manifest
 
 describe('the sources page', () => {
   it('shows the pinned version and links to its manifest', () => {
     const html = renderToStaticMarkup(
       <SourcesContent
         locale="pt"
-        manifest={manifest}
         source={{ mode: 'published', ...PLACES }}
-        version={PUBLISHED}
+        rounds={[{ round: 1, manifest: manifest, version: PUBLISHED }]}
       />,
     )
     expect(html).toContain(PINNED.name)
     expect(html).toContain(`href="${versionUrl(PINNED)}/manifest.json"`)
   })
 
+  it('lists both pinned versions, each with its round and its manifest', () => {
+    const second = {
+      version: 'round-two-version',
+      dataBase: 'https://worker.test/v/two',
+      synthetic: false,
+    }
+    const html = renderToStaticMarkup(
+      <SourcesContent
+        locale="pt"
+        source={{ mode: 'published', ...PLACES }}
+        rounds={[
+          { round: 1, manifest, version: PUBLISHED },
+          { round: 2, manifest: runoffManifest, version: second },
+        ]}
+      />,
+    )
+    expect(html).toContain('data-testid="version-round-1"')
+    expect(html).toContain('data-testid="version-round-2"')
+    expect(html).toContain('2º turno')
+    expect(html).toContain('round-two-version')
+    expect(html).toContain('href="https://worker.test/v/two/manifest.json"')
+    expect(html).toContain(`href="${versionUrl(PINNED)}/manifest.json"`)
+    expect(html).toContain('e006258')
+  })
+
   it('names the boundary build in use, its terms and its manifest', () => {
     const html = renderToStaticMarkup(
       <SourcesContent
         locale="en"
-        manifest={manifest}
         source={{ mode: 'published', ...PLACES }}
-        version={PUBLISHED}
+        rounds={[{ round: 1, manifest: manifest, version: PUBLISHED }]}
       />,
     )
     expect(html).toContain('20261008-e556c48-37807969229')
@@ -62,9 +88,8 @@ describe('the sources page', () => {
     const html = renderToStaticMarkup(
       <SourcesContent
         locale={locale}
-        manifest={manifest}
         source={{ mode: 'fixtures', ...PLACES }}
-        version={FIXTURES}
+        rounds={[{ round: 1, manifest: manifest, version: FIXTURES }]}
       />,
     )
     expect(html).toContain(phrase)
@@ -75,9 +100,8 @@ describe('the sources page', () => {
     const html = renderToStaticMarkup(
       <SourcesContent
         locale="en"
-        manifest={manifest}
         source={{ mode: 'fixtures', ...PLACES }}
-        version={FIXTURES}
+        rounds={[{ round: 1, manifest: manifest, version: FIXTURES }]}
       />,
     )
     expect(html).toContain('test build')
@@ -88,9 +112,8 @@ describe('the sources page', () => {
     const html = renderToStaticMarkup(
       <SourcesContent
         locale="en"
-        manifest={manifest}
         source={{ mode: 'fixtures', ...PLACES }}
-        version={FIXTURES}
+        rounds={[{ round: 1, manifest: manifest, version: FIXTURES }]}
       />,
     )
     expect(html).toContain('CC BY license, which the portal declares')
@@ -106,9 +129,8 @@ describe('the sources page', () => {
       renderToStaticMarkup(
         <SourcesContent
           locale="pt"
-          manifest={odd}
           source={{ mode: 'fixtures', ...PLACES }}
-          version={FIXTURES}
+          rounds={[{ round: 1, manifest: odd, version: FIXTURES }]}
         />,
       ),
     ).toThrow(/no terms recorded/)

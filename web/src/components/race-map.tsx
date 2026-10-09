@@ -16,7 +16,7 @@ import {
 import { feature, mesh } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
 import { municipalityHref } from '@/lib/address'
-import { areaByCode, areaName, areaOfIbge, raceBySlug, YEAR } from '@/lib/elections'
+import { areaByCode, areaName, areaOfIbge, raceBySlug, YEAR, type Round } from '@/lib/elections'
 import { formatInteger, formatPoints, formatShare } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
 import {
@@ -29,7 +29,7 @@ import {
   WATER,
 } from '@/lib/map-colors'
 import { binOf, fillOf, marginPoints, type MapData, type MapRow } from '@/lib/maps'
-import { localePath } from '@/lib/paths'
+import { localePath, roundPath } from '@/lib/paths'
 import { normalize } from '@/lib/search'
 
 /** The map's text in the page's language, passed in so that no message file reaches the client. */
@@ -534,6 +534,7 @@ export function RaceMap({
   data,
   boundary,
   race,
+  round = 1,
   area,
   inset,
   labels,
@@ -545,6 +546,8 @@ export function RaceMap({
   data: MapData
   boundary: { url: string; sha256: string }
   race: string
+  /** The round whose municipality views the map links to. */
+  round?: Round
   /** The state of every municipality, or nothing on the Brazil map. */
   area?: string
   /** An IBGE code drawn in its own box, such as Fernando de Noronha's. */
@@ -604,8 +607,8 @@ export function RaceMap({
   function hrefOf(row: MapRow): string {
     const state = area ?? areaOfIbge(row[0]) ?? ''
     return raceInfo === undefined
-      ? `${localePath(locale, `/${YEAR}/municipio/`)}?uf=${state}&mu=${row[1]}`
-      : municipalityHref(locale, state, row[1], raceInfo)
+      ? `${localePath(locale, roundPath(round, `/${YEAR}/municipio/`))}?uf=${state}&mu=${row[1]}`
+      : municipalityHref(locale, state, row[1], raceInfo, round)
   }
 
   function rowAt(event: MouseEvent<SVGElement>): MapRow | undefined {
