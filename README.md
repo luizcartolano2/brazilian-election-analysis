@@ -40,7 +40,7 @@ the browser. The runoff on 2026-10-25 comes next.
 |---|---|
 | Official first-round results, explorable to the polling station | Live since 2026-10-08 |
 | Maps by municipality, candidate pages and search | Live since 2026-10-08 |
-| Official runoff results | The night of 2026-10-25 |
+| Official runoff results | After TSE's open data holds round 2, within days of 2026-10-25 |
 | Cross-race estimates and first-to-second-round transfers | After the runoff |
 
 ## How it will work

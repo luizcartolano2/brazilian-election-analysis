@@ -129,6 +129,11 @@ data upgrade is a reviewed PR and a rollback is a revert.
 **Why:** "these numbers were built by commit X on a clean machine" is the claim the
 methodology page rests on. Local runs are for development and cannot publish.
 
+On 2026-10-09, the runoff change `add-runoff-results` moved the pin to one version for
+each round, because a recount of round 1, such as Rio's, must republish round 1 without
+touching round 2. Each version still holds one round, and the build fails unless the two
+pins agree on who reached round 2.
+
 ## Scope and timing
 
 ### D14. Ship something before the runoff, with no hard date
@@ -145,6 +150,11 @@ the same target, a merge by 2026-10-23, and lands before the runoff change, whic
 its result cards. The date applies to each of its three PRs alone. A PR that misses it
 waits until the runoff change merges. If the last PR misses it, its requirements move to
 a follow-up change, so the runoff change builds on archived specs.
+
+On 2026-10-09, Luiz agreed the runoff change, `add-runoff-results`. Its code merges by
+2026-10-23, and nothing deploys from 2026-10-24 to 2026-10-26. The round-2 data publishes
+after TSE's open data holds the round, and a PR pins it after the freeze. A recount of
+round 1, such as Rio's, publishes round 1 alone, outside the freeze.
 
 ### D15. The pre-runoff release shows official results
 
