@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addressQuery, parseAddress, racesFor } from './address'
+import { addressQuery, municipalityHref, parseAddress, racesFor } from './address'
 import { raceBySlug } from './elections'
 
 const AREA_RACES: Record<string, number[]> = {
@@ -70,5 +70,19 @@ describe('addressQuery', () => {
     const query = addressQuery({ area: 'pe', municipality: 25313, zone: 3, station: 597, race })
     expect(query).toBe('?uf=pe&mu=25313&zn=3&se=597&cargo=senador')
     expect(parse('secao', query.slice(1))).toMatchObject({ station: 597, race: { code: 5 } })
+  })
+})
+
+describe('municipalityHref', () => {
+  const president = raceBySlug('presidente')
+
+  it('leads to the view of the round, in each language', () => {
+    if (president === undefined) throw new Error('no President race')
+    expect(municipalityHref('pt', 'pe', 26115, president)).toBe(
+      '/2026/municipio/?uf=pe&mu=26115&cargo=presidente',
+    )
+    expect(municipalityHref('en', 'pe', 26115, president, 2)).toBe(
+      '/en/2026/segundo-turno/municipio/?uf=pe&mu=26115&cargo=presidente',
+    )
   })
 })

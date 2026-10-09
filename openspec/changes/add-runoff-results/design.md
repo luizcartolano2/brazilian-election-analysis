@@ -43,7 +43,8 @@ Rio's recount changes round 1. With one version per round, the manifest keeps it
 round 2 untouched. The cost is a second pin, which is one more line in
 `src/data-version.ts`, and a check that the two pins agree.
 
-The check runs in `prepare-data.ts` when round 2 is pinned. Each round-2 race must hold
+The check runs in `prepare-data.ts` whenever both rounds are present: when round 2 is
+pinned, and in every fixtures build, which always holds both. Each round-2 race must hold
 exactly the candidates that the round-1 version marks for a runoff in that race, and
 each race marked for a runoff must appear in round 2. So a recount that changes who
 reached round 2, such as a cancelled runoff in Rio, fails the build until both pins
@@ -79,23 +80,31 @@ the fixtures from the real files.
 export const DATA_VERSION = { name: '20261007-67d59ff-37656362427', manifestSha256: '…', workerUrl }
 
 // After
-export const DATA_VERSIONS = {
+export const WORKER_URL = 'https://eleicoes-data.luizcartolano.workers.dev'
+export const DATA_VERSIONS: { readonly 1: PinnedVersion; readonly 2: PinnedVersion | null } = {
   1: { name: '20261007-67d59ff-37656362427', manifestSha256: '…' },
   2: null, // set by the pin PR after TSE publishes round 2
-} as const
+}
 ```
 
 `prepare-data.ts` reads each pinned version and checks its manifest's year and round.
-`.data/` moves its round files under `.data/rounds/<round>/`: the summaries, the map values,
-`municipios.json` and `source.json`. Each round keeps its own `municipios.json`, because
-each version verifies its own list, and a round-1 recount must not change what round 2
-reads. The data accessors in `src/lib/data.ts` take a round, which defaults to 1.
+`.data/` moves its round files under `.data/rounds/<round>/`: the manifest, the summaries,
+the map values, `municipios.json` and a `source.json` with the version and its data base.
+Each round keeps its own `municipios.json`, because each version verifies its own list, and
+a round-1 recount must not change what round 2 reads. `.data/source.json` keeps what the
+rounds share: the mode, the rounds present, the DuckDB assets, the search index and the
+boundaries. The data accessors in `src/lib/data.ts` take a round, which defaults to 1.
 
-The drill-down configuration carries a data base for each pinned round, and
-`src/lib/drilldown/files.ts` builds the paths of the address's round. A race's TSE
+A fixtures build reads round 2 from `web/fixtures-t2/`, which the pipeline exports from its
+synthetic round 2 with `"sintetico": true` in the manifest, and serves it under
+`/_fixtures/data-t2/`. Its pages say that the round is synthetic.
+
+Each round gets its own drill-down configuration, with its data base. The address carries
+the round, and `src/lib/drilldown/files.ts` builds the paths of the address's round. The
+council of Fernando de Noronha exists in round 1 only. A race's TSE
 election code comes from the round: `RACES` in `src/lib/elections.ts` gains the round-2
-code of President (6258) and Governor (6260). The station link to TSE in
-`drilldown.tsx` and `drilldown/model.ts` reads the code of the view's round.
+code of President (6258) and Governor (6260). The station link to TSE and
+`drilldown/model.ts` read the code of the address's round.
 
 ### 4. The round-2 routes
 
@@ -144,7 +153,8 @@ states no runoff date, because round 2 has no further round.
 
 The ranks come from round 1: `candidateRanks(round2Race, round1ColorRace)`, where the color
 race is Brazil's round-1 President race or the state's round-1 Governor race. The round-2
-map values use the same color race, so the maps and the cards agree. A candidate keeps
+map values use the same color race, limited to the finalists, through `colorRaceOf()` in
+`scripts/map-data.ts`, so the maps and the cards agree. A candidate keeps
 one color across the rounds, so a reader who compares the two rounds' maps finds each
 finalist in the same color.
 

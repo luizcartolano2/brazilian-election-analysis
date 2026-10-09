@@ -1,7 +1,10 @@
 import type { Locale } from './i18n'
 
 export const YEAR = 2026
-export const ROUND = 1
+
+/** Each round is a separate data version, with its own TSE election codes. */
+export const ROUNDS = [1, 2] as const
+export type Round = (typeof ROUNDS)[number]
 
 export interface StateInfo {
   code: string
@@ -96,6 +99,8 @@ export interface RaceInfo {
   proportional: boolean
   /** TSE's election code: President, the state races, and Fernando de Noronha's council. */
   election: number
+  /** TSE's election code in round 2, which holds President and Governor only. */
+  runoffElection: number | null
 }
 
 export const RACES: readonly RaceInfo[] = [
@@ -106,6 +111,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'President',
     proportional: false,
     election: 6257,
+    runoffElection: 6258,
   },
   {
     code: 3,
@@ -114,6 +120,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'Governor',
     proportional: false,
     election: 6259,
+    runoffElection: 6260,
   },
   {
     code: 5,
@@ -122,6 +129,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'Senator',
     proportional: false,
     election: 6259,
+    runoffElection: null,
   },
   {
     code: 6,
@@ -130,6 +138,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'Federal deputy',
     proportional: true,
     election: 6259,
+    runoffElection: null,
   },
   {
     code: 7,
@@ -138,6 +147,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'State deputy',
     proportional: true,
     election: 6259,
+    runoffElection: null,
   },
   {
     code: 8,
@@ -146,6 +156,7 @@ export const RACES: readonly RaceInfo[] = [
     en: 'District deputy',
     proportional: true,
     election: 6259,
+    runoffElection: null,
   },
   {
     code: 25,
@@ -155,6 +166,7 @@ export const RACES: readonly RaceInfo[] = [
     // Its candidates run without parties, and the seven with the most votes take the seats.
     proportional: false,
     election: 6261,
+    runoffElection: null,
   },
 ]
 
@@ -166,12 +178,26 @@ export function raceBySlug(slug: string): RaceInfo | undefined {
   return RACES.find((race) => race.slug === slug)
 }
 
+/** A race's TSE election code in a round. */
+export function electionCode(race: RaceInfo, round: Round): number {
+  if (round === 1) return race.election
+  if (race.runoffElection === null) throw new Error(`${race.slug} has no round 2`)
+  return race.runoffElection
+}
+
 export function raceName(race: RaceInfo, locale: Locale): string {
   return race[locale]
 }
 
-/** Fernando de Noronha's Conselheiro Distrital race: seven seats, one choice per voter. */
-export const COUNCIL = { area: 'pe', municipality: 30015, race: 25, seats: 7, choicesPerVoter: 1 }
+/** Fernando de Noronha's Conselheiro Distrital race: seven seats, one choice per voter, one round. */
+export const COUNCIL = {
+  area: 'pe',
+  municipality: 30015,
+  race: 25,
+  seats: 7,
+  choicesPerVoter: 1,
+  round: 1,
+} as const
 
 export const PRESIDENT = 1
 export const SENATE = 5

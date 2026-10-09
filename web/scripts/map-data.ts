@@ -12,8 +12,8 @@ import {
   CANDIDATE_PAGE_RACES,
   PRESIDENT,
   raceByCode,
-  ROUND,
   YEAR,
+  type Round,
 } from '../src/lib/elections'
 import { verifyFile, type Manifest } from '../src/lib/manifest'
 import {
@@ -31,10 +31,12 @@ import { LAGOONS } from './geo-assets'
 import type { DataSource } from './prepare-data'
 import type { Summary, SummaryRace } from '../src/lib/results'
 
-const CANDIDATES = `${YEAR}/t${ROUND}/candidatos.parquet`
+function candidatesPath(round: Round): string {
+  return `${YEAR}/t${round}/candidatos.parquet`
+}
 
-function totalsPath(area: string, cargo: number): string {
-  return `${YEAR}/t${ROUND}/totais/municipio/cargo=${cargo}/uf=${area.toUpperCase()}.parquet`
+function totalsPath(round: Round, area: string, cargo: number): string {
+  return `${YEAR}/t${round}/totais/municipio/cargo=${cargo}/uf=${area.toUpperCase()}.parquet`
 }
 
 /** Fails unless every pinned boundary file arrives with its pinned SHA-256. */
@@ -93,6 +95,9 @@ export function checkBoundaries(
 }
 
 interface MapInputs {
+  round: Round
+  /** Round 1's summaries in a round-2 build, whose ranking colors round 2's maps. */
+  colorSummaries?: Map<string, Summary>
   run: Run
   source: DataSource
   manifest: Manifest
@@ -186,12 +191,35 @@ function raceOf(summary: Summary | undefined, cargo: number): SummaryRace | unde
 }
 
 /**
+ * The race whose ranking colors a race's map: Brazil's for President, so a candidate keeps one
+ * color on every map. With `colorSummaries`, round 1's race ranks round 2's finalists, so each
+ * keeps its round-1 color.
+ */
+export function colorRaceOf(
+  race: SummaryRace,
+  area: string,
+  summaries: Map<string, Summary>,
+  colorSummaries?: Map<string, Summary>,
+): SummaryRace {
+  const colorArea = race.cargo === PRESIDENT ? 'br' : area
+  const color = raceOf((colorSummaries ?? summaries).get(colorArea), race.cargo)
+  if (color === undefined) throw new Error(`${colorArea}.json has no race ${race.cargo} to rank`)
+  if (colorSummaries === undefined) return color
+  const finalists = new Set(race.candidatos.map((candidate) => candidate.numero))
+  return {
+    ...color,
+    candidatos: color.candidatos.filter((candidate) => finalists.has(candidate.numero)),
+  }
+}
+
+/**
  * Writes `<out>/<area>/<cargo>.json` for each state's races and `<out>/br/1.json` for the
  * President map of Brazil. Any difference from a summary, or a municipality without a
  * boundary, fails after every race was checked, with every difference listed.
  */
 export async function buildMaps(inputs: MapInputs): Promise<void> {
-  const { run, summaries, municipalities, boundaries, out } = inputs
+  const { round, run, summaries, municipalities, boundaries, out } = inputs
+  const candidates = candidatesPath(round)
   const brazilRace = raceOf(summaries.get('br'), PRESIDENT)
   if (brazilRace === undefined) throw new Error('br.json has no President race')
   const folder = await mkdtemp(path.join(os.tmpdir(), 'mapas-'))
@@ -205,13 +233,13 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
       .filter(([area]) => area !== 'br')
       .sort(([a], [b]) => a.localeCompare(b))
     const copies = await localCopies(inputs, folder, [
-      CANDIDATES,
+      candidates,
       ...areas.flatMap(([area, summary]) =>
-        summary.corridas.map((race) => totalsPath(area, race.cargo)),
+        summary.corridas.map((race) => totalsPath(round, area, race.cargo)),
       ),
     ])
     const copyOf = (relative: string) => copies.get(relative) as string
-    const federations = await federationsByRace(run, copyOf(CANDIDATES))
+    const federations = await federationsByRace(run, copyOf(candidates))
     for (const [area, summary] of areas) {
       if (area !== ABROAD.code) {
         const ids = boundaries.get(`${area}.json`)
@@ -225,7 +253,7 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
         const info = raceByCode(race.cargo)
         if (info === undefined) throw new Error(`${area}.json holds race ${race.cargo}`)
         const where = `${area} ${info.slug}`
-        const file = copyOf(totalsPath(area, race.cargo))
+        const file = copyOf(totalsPath(round, area, race.cargo))
         const totals = (
           await run(
             'SELECT tipo, numero, sum(votos)::DOUBLE AS votos FROM read_parquet(?) GROUP BY ALL',
@@ -247,7 +275,7 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
           race,
           info.proportional,
           federations.get(`${area}:${race.cargo}`) ?? new Map(),
-          race.cargo === PRESIDENT ? brazilRace : race,
+          colorRaceOf(race, area, summaries, inputs.colorSummaries),
         )
         // Units are whole numbers, so the mapping goes into the query as literals. A race with
         // no valid unit gets one row that matches no vote, so the query stays valid.

@@ -1,4 +1,4 @@
-import type { RaceInfo } from '../elections'
+import { electionCode, type RaceInfo, type Round } from '../elections'
 import {
   SummaryMismatch,
   UNDER_APPEAL,
@@ -51,6 +51,7 @@ const TYPE = {
  */
 export function raceFromRows(
   race: RaceInfo,
+  round: Round,
   shape: RaceShape,
   rows: VoteRow[],
   candidates: CandidateInfo[],
@@ -150,7 +151,7 @@ export function raceFromRows(
     .reduce((sum, party) => sum + party.votos_legenda, 0)
 
   return {
-    eleicao: race.election,
+    eleicao: electionCode(race, round),
     cargo: race.code,
     nome: race.pt,
     vagas: shape.seats,

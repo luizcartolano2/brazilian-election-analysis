@@ -37,7 +37,14 @@ export function PlaceSearch({
     setResult({ status: 'searching' })
     try {
       const run = await browserRunner(config)
-      const found = await searchPlaces(run, browserLocate(config), area, municipality, text)
+      const found = await searchPlaces(
+        run,
+        browserLocate(config),
+        config.round,
+        area,
+        municipality,
+        text,
+      )
       setResult({ status: 'done', ...found })
     } catch {
       setResult({ status: 'failed' })

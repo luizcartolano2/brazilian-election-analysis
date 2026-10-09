@@ -1,0 +1,45 @@
+{
+ "ano": 2026,
+ "area": "ZZ",
+ "corridas": [
+  {
+   "abstencoes": 19,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 32,
+   "brancos": 0,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "Eleito",
+     "votos": 11
+    },
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "Não eleito",
+     "votos": 1
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 13,
+   "eleicao": 6258,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 12,
+   "nulos": 1,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 12
+  }
+ ],
+ "turno": 2,
+ "versao_esquema": 1
+}

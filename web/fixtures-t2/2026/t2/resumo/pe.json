@@ -1,0 +1,45 @@
+{
+ "ano": 2026,
+ "area": "PE",
+ "corridas": [
+  {
+   "abstencoes": 1317,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 4362,
+   "brancos": 67,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "Não eleito",
+     "votos": 1493
+    },
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "Eleito",
+     "votos": 1199
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 3045,
+   "eleicao": 6258,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 2692,
+   "nulos": 286,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 2692
+  }
+ ],
+ "turno": 2,
+ "versao_esquema": 1
+}

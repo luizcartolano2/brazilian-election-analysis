@@ -1,0 +1,361 @@
+{
+ "ano": 2026,
+ "arquivos": [
+  {
+   "path": "2026/municipios.parquet",
+   "sha256": "82d455489f04e0e93dfe01d6af64076f7bfd99bd9ff4a93969b5ff236a1a8ec1",
+   "size": 870
+  },
+  {
+   "path": "2026/t2/candidatos.parquet",
+   "sha256": "11f0232d719f1a6c8c530af98f1998d9243483b18eaf569a0e5d22db6f86f5fe",
+   "size": 2188
+  },
+  {
+   "path": "2026/t2/comparecimento/uf=AC.parquet",
+   "sha256": "b634a7b8ac57050dca392a75f17d9ef68790ce684eaccc74403e70f2ec06a934",
+   "size": 1660
+  },
+  {
+   "path": "2026/t2/comparecimento/uf=PE.parquet",
+   "sha256": "ccacd83d3b0c13ba73e147c702d09122e01484617f64161292c5561ed148789e",
+   "size": 1877
+  },
+  {
+   "path": "2026/t2/comparecimento/uf=SE.parquet",
+   "sha256": "9298f4a87d471b2240c0020daa468c9e6c8ce4148332957a0bf9a42acfe8dbfd",
+   "size": 1376
+  },
+  {
+   "path": "2026/t2/comparecimento/uf=ZZ.parquet",
+   "sha256": "f8096d30a2dd5b9b0c7206436d68f82b2b15cb016fbd3432c1ac3e790252614e",
+   "size": 1376
+  },
+  {
+   "path": "2026/t2/resumo/ac.json",
+   "sha256": "8da57dadd04c927b569aff5aafea62087f494b9fabfdf53e5e5259fb8fe2f73d",
+   "size": 1487
+  },
+  {
+   "path": "2026/t2/resumo/br.json",
+   "sha256": "500ad1fc44abb3cee4e28dbea91f57141f759f9cdb56813724c622b03be5482a",
+   "size": 788
+  },
+  {
+   "path": "2026/t2/resumo/pe.json",
+   "sha256": "e07d494c43ab2e71b2e04e60728be93a8171db482ba7aa57ba3806b5f45b4cdc",
+   "size": 788
+  },
+  {
+   "path": "2026/t2/resumo/se.json",
+   "sha256": "b9b527ba61b4987aafb96280ede230a33ac287e0fefea4a23b84b2f474a54e19",
+   "size": 778
+  },
+  {
+   "path": "2026/t2/resumo/zz.json",
+   "sha256": "d8fd002afce86366c1bcd2289620ce90186da64ac7451fa9e575d636d16f68ee",
+   "size": 770
+  },
+  {
+   "path": "2026/t2/secoes/uf=AC.parquet",
+   "sha256": "2b5a60a1091ce5e4f4efca6fa1ee7b16d669ec0bd7d7c33de85d19accf828c9c",
+   "size": 2317
+  },
+  {
+   "path": "2026/t2/secoes/uf=PE.parquet",
+   "sha256": "3e2cb7fd448b472600803fe6378fd5a481092506c40930d544dc769acb0df5a1",
+   "size": 2399
+  },
+  {
+   "path": "2026/t2/secoes/uf=SE.parquet",
+   "sha256": "26bf11f92522ee8c5ec075f9fe88290292027bf0995a093e4aa6fd23977978f5",
+   "size": 1857
+  },
+  {
+   "path": "2026/t2/secoes/uf=ZZ.parquet",
+   "sha256": "36645da6779d30f08ff6574f078611e138c5de9692477302c752938d429ccfca",
+   "size": 1884
+  },
+  {
+   "path": "2026/t2/totais/municipio/cargo=1/uf=AC.parquet",
+   "sha256": "dee72cf0665772e3a69e6b2c5b80d79c0901636c315782e4bb3cf8b836297d79",
+   "size": 754
+  },
+  {
+   "path": "2026/t2/totais/municipio/cargo=1/uf=PE.parquet",
+   "sha256": "72493ebd39052c254edb1d9c59ae8fda966799f10169933903c860345f4f90ca",
+   "size": 650
+  },
+  {
+   "path": "2026/t2/totais/municipio/cargo=1/uf=SE.parquet",
+   "sha256": "2f73cf97a5904fec7b424b38ea7817d2c6a37208b36407eba9721affed46d24e",
+   "size": 594
+  },
+  {
+   "path": "2026/t2/totais/municipio/cargo=1/uf=ZZ.parquet",
+   "sha256": "57c900556d30e4a02a73c19e9ea17fd5e182c2d83d863f1001d217acfd9d3e4d",
+   "size": 584
+  },
+  {
+   "path": "2026/t2/totais/municipio/cargo=3/uf=AC.parquet",
+   "sha256": "d70a040603153e356e686f0f05acfd0a4e6eff73e405647f25fec503cdd542c0",
+   "size": 757
+  },
+  {
+   "path": "2026/t2/totais/municipio/comparecimento/uf=AC.parquet",
+   "sha256": "25e7d19514a7e8b29a35909f175f00c2a199e0ee274b3e18c67a868729dedeb9",
+   "size": 1400
+  },
+  {
+   "path": "2026/t2/totais/municipio/comparecimento/uf=PE.parquet",
+   "sha256": "ec79357fd2afaeee81d491fea51bf0b3c1cbb60ea73cd38bd286aa53c359b804",
+   "size": 1221
+  },
+  {
+   "path": "2026/t2/totais/municipio/comparecimento/uf=SE.parquet",
+   "sha256": "b7c1501144b5756ddd4dadf7937ae58b5f65a0b5162edc110b526a88d1b971e8",
+   "size": 1154
+  },
+  {
+   "path": "2026/t2/totais/municipio/comparecimento/uf=ZZ.parquet",
+   "sha256": "9d48d8219bf8cdc00e709a554dddb7ec4e51a420d860321797a9fdb773d06d0d",
+   "size": 1154
+  },
+  {
+   "path": "2026/t2/totais/zona/cargo=1/uf=AC.parquet",
+   "sha256": "3f4e5509ca1d55d3812dfc2b1574dbdc14e05b51685997b9cb8869884daae1b5",
+   "size": 881
+  },
+  {
+   "path": "2026/t2/totais/zona/cargo=1/uf=PE.parquet",
+   "sha256": "b8be561254290c1608be351e36a2f86a6d68d3dbc6ff68e203c9787fb193dae9",
+   "size": 773
+  },
+  {
+   "path": "2026/t2/totais/zona/cargo=1/uf=SE.parquet",
+   "sha256": "da7567daec7122598d64f8971b2fc2896cfb1bb9d39a8666f33c37d682dc4138",
+   "size": 710
+  },
+  {
+   "path": "2026/t2/totais/zona/cargo=1/uf=ZZ.parquet",
+   "sha256": "ba6909bd13b37286f6f603454743818c4fd0dcac28a264f4d500fd42ef5245d1",
+   "size": 702
+  },
+  {
+   "path": "2026/t2/totais/zona/cargo=3/uf=AC.parquet",
+   "sha256": "369af8d55606a050e9dcaf7c1a81160c6faf720e71233b2577159c03c7786b13",
+   "size": 884
+  },
+  {
+   "path": "2026/t2/totais/zona/comparecimento/uf=AC.parquet",
+   "sha256": "b9cb28a4211f34150a00d503a75c7cfc9a09b64cc078ae9bf870454ca60a48a1",
+   "size": 1529
+  },
+  {
+   "path": "2026/t2/totais/zona/comparecimento/uf=PE.parquet",
+   "sha256": "0c67dd23c83f7950e711eda1e1f80b628dd58fe0e98fb4d3872fceacaca4f740",
+   "size": 1339
+  },
+  {
+   "path": "2026/t2/totais/zona/comparecimento/uf=SE.parquet",
+   "sha256": "7a7a79e6d20d5e2a08e071519968352045aee5b8d73cfa7b9cda94d32e346517",
+   "size": 1264
+  },
+  {
+   "path": "2026/t2/totais/zona/comparecimento/uf=ZZ.parquet",
+   "sha256": "eaa91bc21b484feff80ed32556f7c40d33107121b63a17ba19098bdb79aafa27",
+   "size": 1264
+  },
+  {
+   "path": "2026/t2/votos/cargo=1/uf=AC.parquet",
+   "sha256": "6cd9c09e2c7f6b3cf307088a39cdae8d874fbe278592b32054cdc9972db74baf",
+   "size": 1010
+  },
+  {
+   "path": "2026/t2/votos/cargo=1/uf=PE.parquet",
+   "sha256": "20e635abd5163027cc1fb5c0215c8d963546b907636c252aa149a380b87eefd8",
+   "size": 1311
+  },
+  {
+   "path": "2026/t2/votos/cargo=1/uf=SE.parquet",
+   "sha256": "71f38e9d945b62113fa9b65d173f7256fd25680f1dd0f390ca19c0cebb11099a",
+   "size": 828
+  },
+  {
+   "path": "2026/t2/votos/cargo=1/uf=ZZ.parquet",
+   "sha256": "9b5deb9df8553bbc3ed26144eaf615438bf6697332ce3d33cad45cefc67a1bb7",
+   "size": 822
+  },
+  {
+   "path": "2026/t2/votos/cargo=3/uf=AC.parquet",
+   "sha256": "b1fdeefdc3e20f667f36ffbef07509103457809549b0a178c1ba6586b10faaf9",
+   "size": 1013
+  }
+ ],
+ "commit": "fixtures",
+ "credito": {
+  "en": "Source: Brazil's Superior Electoral Court (TSE), Open Data Portal. Processing: Brazilian Election Analysis (github.com/luizcartolano2/brazilian-election-analysis).",
+  "pt": "Fonte: Tribunal Superior Eleitoral (TSE), Portal de Dados Abertos. Processamento: Brazilian Election Analysis (github.com/luizcartolano2/brazilian-election-analysis)."
+ },
+ "estados": [
+  "AC",
+  "PE",
+  "SE",
+  "ZZ"
+ ],
+ "fontes": [
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6258_1_ac",
+   "sha512": "815e4eb0d013d7d578fae4d95401c2a0f677411e9deeb42847b92b27bb287f6de5e5a88db85df554a580f6587cc807fb37840ecb06d5e859d982a7a3458c4cc3",
+   "size": 839,
+   "url": "fixture://results/ele2026/6258/dados/ac/ac-c0001-e006258-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6258_1_br",
+   "sha512": "912a032d10ce834341a383b8e717051b501bc5daee3fc58b5caf9feceb85e4cb73332a258b10d1915766adcd5a24e3dfc520352d30db999763d86996a0ece1ff",
+   "size": 847,
+   "url": "fixture://results/ele2026/6258/dados/br/br-c0001-e006258-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6258_1_pe",
+   "sha512": "5f0003fb516a1b422e4c1019b6fb0f5c04d249ed49e7e010be253d789ba7b3f9922f5a17337f046533cdbc7986d9fc3d8155c103f15f507213b5f649430fe07e",
+   "size": 847,
+   "url": "fixture://results/ele2026/6258/dados/pe/pe-c0001-e006258-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6258_1_se",
+   "sha512": "0e3d343845661409648f2fa96383472b2e437548e3d758a8529efaec59937996bfb26e60f64d420c9d1f1fc7848790f100eee3cf7814f8aaf5f453baeebf4b68",
+   "size": 838,
+   "url": "fixture://results/ele2026/6258/dados/se/se-c0001-e006258-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6258_1_zz",
+   "sha512": "b07a68aff9763d32c2518ed362039c9c663c3ee43f571a839bea4d87cd1b2f2fa46485bc3fc316931ccaa0de1835704baf4d86a3586f84a8a1d8fdbc02a70591",
+   "size": 829,
+   "url": "fixture://results/ele2026/6258/dados/zz/zz-c0001-e006258-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "aggregate_6260_3_ac",
+   "sha512": "ed8f54f58d6d0678dcb6d9c41db27fadd1e29d79614fecfdb09990ce736a39a9ec410f0a7bdf985507718163fe306e8705deeaff6814a6a7d50808ee24774bb9",
+   "size": 851,
+   "url": "fixture://results/ele2026/6260/dados/ac/ac-c0003-e006260-u.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "candidates",
+   "sha512": "2458bff166266f5cb98eb1439d97e0b46b721e315f3b7ed144754d3dddd3ac4d6f0f4ed3a244459d2448b6f6a609ba5ba208aa3c82adc0c5d74448c4be05724f",
+   "size": 30885,
+   "url": "fixture://cdn/consulta_cand/consulta_cand_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "municipalities_6258",
+   "sha512": "04722c603ea526854c9128659560a65a3b99ec101fc7b5161e1febeb0f2c99eaba6cbaf094f5af8704142d1f94f9956a80e76d6956164e1f87514e5222f40799",
+   "size": 1629,
+   "url": "fixture://results/ele2026/6258/config/mun-e006258-cm.json"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "munzona",
+   "sha512": "01f86bd396404c92fdf07f3431af4de809b930584cfd24d95bbc2a83ad78bab85589f9a7ba7e29b1fcfedb36a882ef16530872806d07c01da762cf9b2c36414d",
+   "size": 9740,
+   "url": "fixture://cdn/votacao_candidato_munzona/votacao_candidato_munzona_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "places",
+   "sha512": "656e3239b4d8bf29feebe52c6959de0398b65e2ba25c1629ff67a13244e8e8e0790a1de8452bf05717d8ba838acb64a5adacb8e1d55efd751acfe4765f30c14e",
+   "size": 2017,
+   "url": "fixture://cdn/eleitorado_locais_votacao/eleitorado_local_votacao_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "turnout",
+   "sha512": "e2bc2e9ab54f4c23b90f2a3fe322aa0a20ff2699abd79ac636cad740cae6a5aa5d3bfe1d305b62715105ce2dd130b72d257336e8f6196e08a43617d97c075bb6",
+   "size": 3988,
+   "url": "fixture://cdn/detalhe_votacao_secao/detalhe_votacao_secao_2026.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_AC",
+   "sha512": "b0678267bf3af1c1f5bd17af6bd461c6f050e30f46261776d1b7f9b547942c68047f662eca71e37bec6ef3f25db265c8dd1d3e17ea44dc305b988b00bf2d89e1",
+   "size": 8030,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_AC.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_PE",
+   "sha512": "fd83d28b08b89a80262e4383c994e84d3df2796fa073b46ffb4d99829a8469953eafe4dc6613fe2de7910fdac49680b98dc72f810a533e1a0db55e10fb34c752",
+   "size": 36023,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_PE.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_SE",
+   "sha512": "1d77269a6c31352d4ce4ae3660fa6c8adadd8ffa557210d6269236c885b52cfe371fbd795b29cf3f83fd63321af6258736e1a90ee3e5720bf03d389c7ed1e1c6",
+   "size": 2912,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_SE.zip"
+  },
+  {
+   "downloaded_at": "2026-10-06T00:00:00Z",
+   "key": "votes_president",
+   "sha512": "d26099762b5268b05ac7740bc15b2369acb7930194462aabb75b054ed4d62ab59661c0f01e355f532430e41d1c98576c8b548a37777cd691bec03ae73f43e78d",
+   "size": 3330,
+   "url": "fixture://cdn/votacao_secao/votacao_secao_2026_BR.zip"
+  }
+ ],
+ "fontes_tse": false,
+ "gerado_em": "2026-10-06T00:00:00Z",
+ "parcial": false,
+ "sintetico": true,
+ "turno": 2,
+ "verificacoes": {
+  "agregado": [
+   [
+    "ac",
+    6258,
+    1
+   ],
+   [
+    "ac",
+    6260,
+    3
+   ],
+   [
+    "br",
+    6258,
+    1
+   ],
+   [
+    "pe",
+    6258,
+    1
+   ],
+   [
+    "se",
+    6258,
+    1
+   ],
+   [
+    "zz",
+    6258,
+    1
+   ]
+  ],
+  "municipio_zona": [
+   [
+    "AC",
+    6260,
+    3
+   ]
+  ],
+  "secao": "todas as seções e cargos"
+ },
+ "versao_esquema": 1
+}

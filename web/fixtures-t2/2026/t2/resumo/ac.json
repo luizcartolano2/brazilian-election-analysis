@@ -1,0 +1,82 @@
+{
+ "ano": 2026,
+ "area": "AC",
+ "corridas": [
+  {
+   "abstencoes": 184,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 1041,
+   "brancos": 4,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "FLAVIO BOLSONARO",
+     "numero": 22,
+     "partido": "PL",
+     "resultado": "Eleito",
+     "votos": 603
+    },
+    {
+     "destino": "Válido",
+     "nome": "LULA",
+     "numero": 13,
+     "partido": "PT",
+     "resultado": "Não eleito",
+     "votos": 182
+    }
+   ],
+   "cargo": 1,
+   "comparecimento": 857,
+   "eleicao": 6258,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Presidente",
+   "nominais": 785,
+   "nulos": 68,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 785
+  },
+  {
+   "abstencoes": 184,
+   "anulados": 0,
+   "anulados_sub_judice": 0,
+   "aptos": 1041,
+   "brancos": 5,
+   "candidatos": [
+    {
+     "destino": "Válido",
+     "nome": "MAILZA ASSIS",
+     "numero": 11,
+     "partido": "PP",
+     "resultado": "Eleito",
+     "votos": 350
+    },
+    {
+     "destino": "Válido",
+     "nome": "ALAN RICK",
+     "numero": 10,
+     "partido": "REPUBLICANOS",
+     "resultado": "Não eleito",
+     "votos": 273
+    }
+   ],
+   "cargo": 3,
+   "comparecimento": 857,
+   "eleicao": 6260,
+   "escolhas_por_eleitor": 1,
+   "legenda": 0,
+   "nome": "Governador",
+   "nominais": 623,
+   "nulos": 229,
+   "nulos_tecnicos": 0,
+   "partidos": [],
+   "vagas": 1,
+   "validos": 623
+  }
+ ],
+ "turno": 2,
+ "versao_esquema": 1
+}

@@ -1,6 +1,15 @@
-import { AREAS, COUNCIL, PRESIDENT, raceByCode, raceBySlug, YEAR, type RaceInfo } from './elections'
+import {
+  AREAS,
+  COUNCIL,
+  PRESIDENT,
+  raceByCode,
+  raceBySlug,
+  YEAR,
+  type RaceInfo,
+  type Round,
+} from './elections'
 import type { Locale } from './i18n'
-import { localePath } from './paths'
+import { localePath, roundPath } from './paths'
 
 export type Level = 'municipio' | 'zona' | 'secao'
 
@@ -12,6 +21,8 @@ export interface DrilldownAddress {
   zone: number | null
   station: number | null
   race: RaceInfo
+  /** The round whose data version the view reads. It comes from the page, not the query. */
+  round: Round
 }
 
 const LIMITS = { municipality: 99999, zone: 9999, station: 9999 }
@@ -34,9 +45,12 @@ export function racesFor(
   area: string,
   municipality: number,
   areaRaces: Record<string, number[]>,
+  round: Round = 1,
 ): RaceInfo[] {
   const codes = [...(areaRaces[area] ?? [])]
-  if (area === COUNCIL.area && municipality === COUNCIL.municipality) codes.push(COUNCIL.race)
+  if (round === COUNCIL.round && area === COUNCIL.area && municipality === COUNCIL.municipality) {
+    codes.push(COUNCIL.race)
+  }
   return codes.map((code) => raceByCode(code)).filter((race) => race !== undefined)
 }
 
@@ -49,6 +63,7 @@ export function parseAddress(
   level: Level,
   params: URLSearchParams,
   areaRaces: Record<string, number[]>,
+  round: Round = 1,
 ): DrilldownAddress | null {
   const area = single(params, 'uf')
   if (area === null || !AREA_CODES.has(area)) return null
@@ -69,12 +84,12 @@ export function parseAddress(
   }
   if (level === 'municipio' && params.has('zn')) return null
 
-  const offered = racesFor(area, municipality, areaRaces)
+  const offered = racesFor(area, municipality, areaRaces, round)
   const slug = params.has('cargo') ? single(params, 'cargo') : raceByCode(PRESIDENT)?.slug
   const race = slug === null || slug === undefined ? undefined : raceBySlug(slug)
   if (race === undefined || !offered.some((entry) => entry.code === race.code)) return null
 
-  return { level, area, municipality, zone, station, race }
+  return { level, area, municipality, zone, station, race, round }
 }
 
 /** The query string of an address, for links between views. */
@@ -94,12 +109,14 @@ export function addressQuery(address: {
   return `?${params.toString()}`
 }
 
-/** A municipality's view on one race, in a locale. */
+/** A municipality's view on one race, in a locale and a round. */
 export function municipalityHref(
   locale: Locale,
   area: string,
   municipality: number,
   race: RaceInfo,
+  round: Round = 1,
 ): string {
-  return `${localePath(locale, `/${YEAR}/municipio/`)}${addressQuery({ area, municipality, race })}`
+  const path = roundPath(round, `/${YEAR}/municipio/`)
+  return `${localePath(locale, path)}${addressQuery({ area, municipality, race })}`
 }

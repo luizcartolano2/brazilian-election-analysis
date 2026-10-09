@@ -1,8 +1,8 @@
 import type { DrilldownAddress } from '../address'
-import { PRESIDENT } from '../elections'
+import { PRESIDENT, type Round } from '../elections'
 import { displayName } from '../names'
 import { raceResults, type RaceResults } from '../results'
-import { FILES } from './files'
+import { roundFiles } from './files'
 import {
   raceFromRows,
   type CandidateInfo,
@@ -112,7 +112,11 @@ async function turnoutOf(run: Run, sql: string, params: (string | number)[]): Pr
 
 async function candidatesOf(run: Run, locate: Locate, address: DrilldownAddress) {
   const area = address.race.code === PRESIDENT ? 'BR' : address.area.toUpperCase()
-  const rows = await run(SQL.candidates, [locate(FILES.candidates()), address.race.code, area])
+  const rows = await run(SQL.candidates, [
+    locate(roundFiles(address.round).candidates()),
+    address.race.code,
+    area,
+  ])
   return rows as unknown as CandidateInfo[]
 }
 
@@ -124,8 +128,9 @@ export async function loadView(
   shape: RaceShape,
 ): Promise<ViewData> {
   const { area, municipality, zone, station, race } = address
+  const files = roundFiles(address.round)
   const [named] = await run(SQL.municipality, [
-    locate(FILES.municipalities()),
+    locate(files.municipalities()),
     municipality,
     area.toUpperCase(),
   ])
@@ -142,31 +147,31 @@ export async function loadView(
   let turnout: Turnout
   if (address.level === 'municipio') {
     turnout = await turnoutOf(run, SQL.municipalityTurnout, [
-      locate(FILES.municipalityTurnout(area)),
+      locate(files.municipalityTurnout(area)),
       municipality,
       race.code,
     ])
     rows = (await run(SQL.municipalityVotes, [
-      locate(FILES.municipalityVotes(race.code, area)),
+      locate(files.municipalityVotes(race.code, area)),
       municipality,
     ])) as unknown as VoteRow[]
     view.zones = (
-      await run(SQL.zones, [locate(FILES.zoneTurnout(area)), municipality, race.code])
+      await run(SQL.zones, [locate(files.zoneTurnout(area)), municipality, race.code])
     ).map((row) => ({ zone: Number(row.zona), eligible: Number(row.aptos) }))
   } else if (address.level === 'zona') {
     turnout = await turnoutOf(run, SQL.zoneTurnout, [
-      locate(FILES.zoneTurnout(area)),
+      locate(files.zoneTurnout(area)),
       municipality,
       zone as number,
       race.code,
     ])
     rows = (await run(SQL.zoneVotes, [
-      locate(FILES.zoneVotes(race.code, area)),
+      locate(files.zoneVotes(race.code, area)),
       municipality,
       zone as number,
     ])) as unknown as VoteRow[]
     view.stations = (
-      await run(SQL.stations, [locate(FILES.places(area)), municipality, zone as number])
+      await run(SQL.stations, [locate(files.places(area)), municipality, zone as number])
     ).map((row) => ({
       station: Number(row.secao),
       place: text(row.nome_local),
@@ -174,7 +179,7 @@ export async function loadView(
     }))
   } else {
     const [found] = await run(SQL.station, [
-      locate(FILES.places(area)),
+      locate(files.places(area)),
       municipality,
       zone as number,
       station as number,
@@ -190,14 +195,14 @@ export async function loadView(
     }
     if (view.station.aggregated) return view
     turnout = await turnoutOf(run, SQL.stationTurnout, [
-      locate(FILES.stationTurnout(area)),
+      locate(files.stationTurnout(area)),
       municipality,
       zone as number,
       station as number,
       race.code,
     ])
     rows = (await run(SQL.stationVotes, [
-      locate(FILES.stationVotes(race.code, area)),
+      locate(files.stationVotes(race.code, area)),
       municipality,
       zone as number,
       station as number,
@@ -206,7 +211,7 @@ export async function loadView(
 
   const candidates = await candidatesOf(run, locate, address)
   view.results = raceResults(
-    raceFromRows(race, shape, rows, candidates, turnout),
+    raceFromRows(race, address.round, shape, rows, candidates, turnout),
     race.proportional,
   )
   return view
@@ -229,6 +234,7 @@ const SEARCH_ROWS = 400
 export async function searchPlaces(
   run: Run,
   locate: Locate,
+  round: Round,
   area: string,
   municipality: number,
   search: string,
@@ -236,7 +242,7 @@ export async function searchPlaces(
   const term = search.trim().slice(0, 100)
   if (term === '') return { places: [], truncated: false }
   const rows = await run(SQL.places, [
-    locate(FILES.places(area)),
+    locate(roundFiles(round).places(area)),
     municipality,
     term,
     term,

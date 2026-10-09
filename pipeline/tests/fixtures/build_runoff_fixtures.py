@@ -233,6 +233,8 @@ def write_aggregate(
     blank, null = totals[BLANK_NUMBER], totals[NULL_NUMBER]
     stations = [counts for station, counts in turnout.items() if in_area(station, area)]
     document["ele"] = str(election)
+    # TSE's documents have no such key. The web export reads it to mark the round as synthetic.
+    document["sintetico"] = True
     document["carg"][0]["agr"] = [{"par": parties}]
     document["v"] = {
         "tv": str(valid + blank + null), "van": "0", "vansj": "0", "vb": str(blank),
