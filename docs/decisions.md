@@ -146,6 +146,11 @@ its result cards. The date applies to each of its three PRs alone. A PR that mis
 waits until the runoff change merges. If the last PR misses it, its requirements move to
 a follow-up change, so the runoff change builds on archived specs.
 
+On 2026-10-09, Luiz agreed the runoff change, `add-runoff-results`. Its code merges by
+2026-10-23, and nothing deploys from 2026-10-24 to 2026-10-26. The round-2 data publishes
+after TSE's open data holds the round, and a PR pins it after the freeze. A recount of
+round 1, such as Rio's, publishes round 1 alone, outside the freeze.
+
 ### D15. The pre-runoff release shows official results
 
 The first release explores official first-round results, down to the polling station, on
