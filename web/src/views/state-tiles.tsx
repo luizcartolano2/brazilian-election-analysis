@@ -1,7 +1,8 @@
 /** The Brazil page's grid of states, each in the color of its most voted President candidate. */
 import { AppLink } from '@/components/app-link'
 import { coveredAreas, getSummary } from '@/lib/data'
-import { areaName, PRESIDENT, STATES, YEAR } from '@/lib/elections'
+import { areaName, PRESIDENT, STATES, YEAR, type Round } from '@/lib/elections'
+import { roundPath } from '@/lib/paths'
 import { formatShare, localePath, t, type Locale } from '@/lib/i18n'
 import { candidateColor, OTHER, SHADES } from '@/lib/map-colors'
 import { binOf, candidateRanks } from '@/lib/maps'
@@ -38,23 +39,25 @@ const PLACES: Record<string, [column: number, row: number]> = {
   rs: [1, 7],
 }
 
-function presidentRace(area: string): SummaryRace {
-  const race = getSummary(area).corridas.find((entry) => entry.cargo === PRESIDENT)
+function presidentRace(area: string, round: Round): SummaryRace {
+  const race = getSummary(area, round).corridas.find((entry) => entry.cargo === PRESIDENT)
   if (race === undefined) throw new Error(`${area}.json has no presidential race`)
   return race
 }
 
-export function StateTiles({ locale }: { locale: Locale }) {
-  const brazil = presidentRace('br')
-  const covered = new Set(coveredAreas())
+/** In round 2 the colors keep round 1's ranking, so a finalist keeps its color whoever wins. */
+export function StateTiles({ locale, round = 1 }: { locale: Locale; round?: Round }) {
+  const brazil = presidentRace('br', round)
+  const colors = presidentRace('br', 1)
+  const covered = new Set(coveredAreas(round))
   const tiles = STATES.filter((state) => covered.has(state.code)).map((state) => {
-    const race = presidentRace(state.code)
+    const race = presidentRace(state.code, round)
     const results = raceResults(race, false)
     const [first, second] = results.candidates
     if (first === undefined) throw new Error(`${state.code}.json has no President candidate`)
     const valid = results.totals.valid
     const margin = valid > 0 ? ((first.votes - (second?.votes ?? 0)) / valid) * 100 : 0
-    const rank = candidateRanks(race, brazil).get(first.number)
+    const rank = candidateRanks(race, colors).get(first.number)
     const bin = binOf(margin)
     const share = formatShare(locale, first.votes, valid)
     const name = areaName(state, locale)
@@ -72,7 +75,7 @@ export function StateTiles({ locale }: { locale: Locale }) {
       ledByOther: rank === undefined,
     }
   })
-  const brazilRanks = candidateRanks(brazil)
+  const brazilRanks = candidateRanks(brazil, colors)
   const leaders = raceResults(brazil, false)
     .candidates.flatMap((candidate) => {
       const rank = brazilRanks.get(candidate.number)
@@ -99,7 +102,7 @@ export function StateTiles({ locale }: { locale: Locale }) {
               style={{ gridColumn: tile.place[0] + 1, gridRow: tile.place[1] + 1 }}
             >
               <AppLink
-                href={localePath(locale, `/${YEAR}/${tile.code}/`)}
+                href={localePath(locale, roundPath(round, `/${YEAR}/${tile.code}/`))}
                 aria-label={tile.label}
                 className="flex aspect-square min-h-11 flex-col items-center justify-center rounded-lg leading-tight"
                 style={{ background: tile.fill, color: tile.ink }}
@@ -162,7 +165,7 @@ export function StateTiles({ locale }: { locale: Locale }) {
               <tr key={tile.code} className="border-line border-b">
                 <td className="py-1.5 pr-2">
                   <AppLink
-                    href={localePath(locale, `/${YEAR}/${tile.code}/presidente/`)}
+                    href={localePath(locale, roundPath(round, `/${YEAR}/${tile.code}/presidente/`))}
                     className="underline"
                   >
                     {tile.name}

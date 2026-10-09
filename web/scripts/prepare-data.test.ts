@@ -12,6 +12,7 @@ import { runoffMismatches } from '../src/lib/rounds'
 import type { Summary } from '../src/lib/results'
 import {
   dataMode,
+  fixtureRounds,
   fixtureSource,
   loadVersion,
   plannedRounds,
@@ -166,6 +167,20 @@ describe('the rounds', () => {
     const first = await loadVersion(fixtureSource(FIXTURES), 1)
     const second = await loadVersion(fixtureSource(FIXTURES_T2), 2)
     expect(runoffMismatches(parsed(first.summaries), parsed(second.summaries))).toEqual([])
+  })
+})
+
+describe('fixtureRounds', () => {
+  it('builds both fixture rounds unless told to leave round 2 out', () => {
+    expect(fixtureRounds({}, 'fixtures')).toEqual([1, 2])
+    expect(fixtureRounds({ ELEICOES_FIXTURE_ROUNDS: '1' }, 'fixtures')).toEqual([1])
+  })
+
+  it('refuses another value, and a published build', () => {
+    expect(() => fixtureRounds({ ELEICOES_FIXTURE_ROUNDS: '2' }, 'fixtures')).toThrow(/only be 1/)
+    expect(() => fixtureRounds({ ELEICOES_FIXTURE_ROUNDS: '1' }, 'published')).toThrow(
+      /fixtures only/,
+    )
   })
 })
 

@@ -132,3 +132,13 @@ jobs:
 
       - name: Browser tests
         run: npm run test:e2e
+
+      # Until round 2 is pinned, the live site shows round 2's waiting content. This build has
+      # round 1 alone, as production does before the pin.
+      - name: Build against the round-1 fixtures only
+        run: npm run build
+        env:
+          ELEICOES_FIXTURE_ROUNDS: "1"
+
+      - name: Browser tests before the round-2 pin
+        run: npm run test:e2e -- e2e/waiting.spec.ts

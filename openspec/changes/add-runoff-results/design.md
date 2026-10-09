@@ -132,8 +132,9 @@ never runs them before the night.
 
 ### 5. The round switch and the link from round 1
 
-Each page passes its round-1 and round-2 addresses to `PageShell`, with `null` where the
-other round has no such page. The header's chip becomes two links, `1º turno · 4 de
+Each page passes its round-1 and round-2 addresses to `PageShell` as `roundLinks`, and
+`counterpartPath()` in `src/views/params.ts` finds the other round's page from that round's
+route parameters. The header's chip becomes two links, `1º turno · 4 de
 outubro` and `2º turno · 25 de outubro`, with the current round marked by
 `aria-current`. A missing counterpart leads to the same area in that round, else to that
 round's Brazil page. So `/2026/sp/senador/` leads to `/2026/segundo-turno/sp/`.
@@ -141,6 +142,9 @@ round's Brazil page. So `/2026/sp/senador/` leads to `/2026/segundo-turno/sp/`.
 A finalist's candidate page shows both rounds, so its two links lead to its own round
 sections, and neither carries `aria-current`. The sources page serves both rounds, so its
 links lead to each round's Brazil page, and neither carries `aria-current`.
+
+On a drill-down view the other round's link keeps the place, and drops a race that the
+other round does not hold there, so the view opens on President.
 
 The round-1 Brazil page renders a card under its candidate cards. Before round 2 is pinned, the
 card states the runoff's date. After, it shows the round-2 headline and links to it.

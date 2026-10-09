@@ -70,6 +70,11 @@ export function getSourceInfo(): DataSourceInfo {
   return source
 }
 
+/** Whether this build holds a data version for the round. Round 2 has none before its pin. */
+export function hasRound(round: Round): boolean {
+  return getSourceInfo().rounds.includes(round)
+}
+
 export function getManifest(round: Round = 1): Manifest {
   return cached(manifests, String(round), () => readJson<Manifest>(`rounds/${round}/manifest.json`))
 }

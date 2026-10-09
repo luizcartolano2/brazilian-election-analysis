@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react'
 import { RaceMap, type MapLabels } from '@/components/race-map'
 import { getCandidateVotes, getMunicipalities, getRaceMap, getSourceInfo } from '@/lib/data'
-import { raceName, type RaceInfo } from '@/lib/elections'
+import { raceName, type RaceInfo, type Round } from '@/lib/elections'
 import { t, type Locale } from '@/lib/i18n'
 import { isMappedArea, shareMap, SHARE_STEPS, type MapData } from '@/lib/maps'
 
@@ -30,10 +30,12 @@ function mapLabels(
   brazil: boolean,
   /** Whether each voter chose two candidates, as the summary says. */
   twoChoices: boolean,
+  round: Round,
   candidate?: string,
 ): MapLabels {
   const kind = data.kind
   const raceLabel = raceName(race, locale)
+  const roundLabel = t(locale, round === 1 ? 'map.round1' : 'map.round2')
   const share = candidate !== undefined
   const bins: [string, string, string] = [
     t(locale, 'map.binClose'),
@@ -42,8 +44,13 @@ function mapLabels(
   ]
   return {
     title: share
-      ? t(locale, 'map.shareTitle', { candidate, race: raceLabel, area: areaLabel })
-      : t(locale, 'map.title', { race: raceLabel, area: areaLabel }),
+      ? t(locale, 'map.shareTitle', {
+          candidate,
+          race: raceLabel,
+          area: areaLabel,
+          round: roundLabel,
+        })
+      : t(locale, 'map.title', { race: raceLabel, area: areaLabel, round: roundLabel }),
     statement: share
       ? t(locale, 'map.shareStatement', { candidate })
       : t(locale, race.proportional ? 'map.statementParty' : 'map.statement'),
@@ -90,6 +97,7 @@ function MapView({
   locale,
   area,
   race,
+  round,
   data,
   labels,
   heading,
@@ -100,6 +108,7 @@ function MapView({
   locale: Locale
   area: string
   race: RaceInfo
+  round: Round
   data: MapData
   labels: MapLabels
   heading: string
@@ -119,6 +128,7 @@ function MapView({
         data={data}
         boundary={{ url: `${source.geoBase}/${file}`, sha256 }}
         race={race.slug}
+        round={round === 1 ? undefined : round}
         area={area === 'br' ? undefined : area}
         inset={area === 'pe' ? NORONHA : undefined}
         labels={labels}
@@ -137,6 +147,7 @@ export function MapSection({
   area,
   areaLabel,
   race,
+  round = 1,
   table,
   collapsed,
   children,
@@ -145,18 +156,28 @@ export function MapSection({
   area: string
   areaLabel: string
   race: RaceInfo
+  round?: Round
   table: boolean
   collapsed?: string
   children?: ReactNode
 }) {
-  const data = getRaceMap(area, race.code)
+  const data = getRaceMap(area, race.code, round)
   return (
     <MapView
       locale={locale}
       area={area}
       race={race}
+      round={round}
       data={data}
-      labels={mapLabels(locale, race, areaLabel, data, area === 'br', data.kind === 'senate')}
+      labels={mapLabels(
+        locale,
+        race,
+        areaLabel,
+        data,
+        area === 'br',
+        data.kind === 'senate',
+        round,
+      )}
       heading={t(locale, 'map.heading', { race: raceName(race, locale) })}
       table={table}
       collapsed={collapsed}
@@ -178,6 +199,7 @@ export function ShareMapSection({
   numero,
   name,
   choicesPerVoter,
+  round = 1,
 }: {
   locale: Locale
   area: string
@@ -186,18 +208,20 @@ export function ShareMapSection({
   numero: number
   name: string
   choicesPerVoter: number
+  round?: Round
 }) {
   const twoChoices = choicesPerVoter > 1
   const step = twoChoices ? 5 : 10
-  const data = shareMap(getCandidateVotes(area, race.code), numero, name, step)
+  const data = shareMap(getCandidateVotes(area, race.code, round), numero, name, step)
   if (data === null) return null
   return (
     <MapView
       locale={locale}
       area={area}
       race={race}
+      round={round}
       data={data}
-      labels={mapLabels(locale, race, areaLabel, data, false, twoChoices, name)}
+      labels={mapLabels(locale, race, areaLabel, data, false, twoChoices, round, name)}
       heading={t(locale, 'map.shareHeading')}
       table
     />

@@ -29,6 +29,15 @@ two places:
   banner, and the step refuses to run on Vercel, where the `VERCEL` variable is set. Round
   2 of the fixtures is synthetic, so its pages say so instead.
 
+`ELEICOES_FIXTURE_ROUNDS=1` builds the fixtures without round 2, as production builds before
+the round-2 pin. CI runs `e2e/waiting.spec.ts` on that build.
+
+Round 2's pages live under `/2026/segundo-turno/`, with the same slug in English. Before the
+round-2 pin, they state the runoff's date and show no result. The Brazil page, every state,
+abroad and each state's President race have such a page, and the drill-down views show the
+same content without loading any data. The header's choice of round leads to the same page
+in the other round when it exists, else to the same area, else to that round's Brazil page.
+
 When both rounds are present, the build fails unless they agree on who reached round 2.
 Each round-2 race must hold exactly the candidates that round 1 sends to a runoff in that
 race, and each such race must appear in round 2. The search index comes from round 1 alone.

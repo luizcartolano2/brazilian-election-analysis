@@ -20,9 +20,11 @@ function candidateAddresses(): string[] {
   return addresses
 }
 
-async function drawnMap(page: Page, address: string) {
+/** The first map at `address`, or the first in one round's section of a finalist's page. */
+async function drawnMap(page: Page, address: string, round?: 1 | 2) {
   await page.goto(address)
-  const map = page.getByTestId('race-map').first()
+  const scope = round === undefined ? page : page.getByTestId(`round-${round}`)
+  const map = scope.getByTestId('race-map').first()
   await map.scrollIntoViewIfNeeded()
   await expect(map.locator('svg')).toBeVisible()
   return map
@@ -73,13 +75,14 @@ test('a Governor candidate shows votes, share and outcome, a share map and a lis
 test('a President candidate maps every state, and lists municipalities by state', async ({
   page,
 }) => {
-  const map = await drawnMap(page, '/2026/presidente/13/')
+  const map = await drawnMap(page, '/2026/presidente/13/', 1)
+  const firstRound = page.getByTestId('round-1')
 
   await expect(map.locator('svg path[data-ibge]')).toHaveCount(8)
-  await expect(page.getByText('Pernambuco · 3')).toBeVisible()
-  await page.getByText('Pernambuco · 3').click()
+  await expect(firstRound.getByText('Pernambuco · 3')).toBeVisible()
+  await firstRound.getByText('Pernambuco · 3').click()
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife', exact: true }),
+    firstRound.getByTestId('municipality-table').getByRole('link', { name: 'Recife', exact: true }),
   ).toHaveAttribute('href', '/2026/municipio/?uf=pe&mu=25313&cargo=presidente')
 })
 
@@ -111,10 +114,11 @@ test("a President candidate's filter shows its match inside the folded states", 
   page,
 }) => {
   await page.goto('/2026/presidente/13/')
-  await page.getByPlaceholder('Filtrar municípios').fill('recife')
+  const firstRound = page.getByTestId('round-1')
+  await firstRound.getByPlaceholder('Filtrar municípios').fill('recife')
 
   await expect(
-    page.getByTestId('municipality-table').getByRole('link', { name: 'Recife', exact: true }),
+    firstRound.getByTestId('municipality-table').getByRole('link', { name: 'Recife', exact: true }),
   ).toBeVisible()
 })
 
@@ -123,12 +127,16 @@ test('a President candidate page says that its map leaves out the votes abroad, 
 }) => {
   await page.goto('/2026/presidente/13/')
 
-  await expect(page.getByTestId('abroad-note')).toContainText('votos dados no exterior')
-  await expect(
-    page
-      .getByTestId('abroad-note')
-      .getByRole('link', { name: 'Votos para presidente no exterior' }),
-  ).toHaveAttribute('href', '/2026/zz/')
+  for (const [round, href] of [
+    [1, '/2026/zz/'],
+    [2, '/2026/segundo-turno/zz/'],
+  ] as const) {
+    const note = page.getByTestId(`round-${round}`).getByTestId('abroad-note')
+    await expect(note).toContainText('votos dados no exterior')
+    await expect(
+      note.getByRole('link', { name: 'Votos para presidente no exterior' }),
+    ).toHaveAttribute('href', href)
+  }
 })
 
 test('a candidacy under appeal shows its votes as under appeal, and no share map', async ({

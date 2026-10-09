@@ -1,5 +1,5 @@
 import { CandidateName, Outcome } from '@/components/results'
-import { ROUND_DATES } from '@/lib/elections'
+import { ROUND_DATES, type Round } from '@/lib/elections'
 import { formatDate, formatInteger, formatShare, t, type Locale } from '@/lib/i18n'
 import { candidateColor } from '@/lib/map-colors'
 import { isElected, isInRunoff, type CandidateRow, type RaceResults } from '@/lib/results'
@@ -21,11 +21,14 @@ export function ResultCards({
   locale,
   results,
   ranks,
+  round = 1,
   candidateHref,
 }: {
   locale: Locale
   results: RaceResults
   ranks: ReadonlyMap<number, 0 | 1>
+  /** Round 2 has no further round, so its cards state no runoff date. */
+  round?: Round
   candidateHref?: (number: number) => string
 }) {
   const valid = results.totals.valid
@@ -62,7 +65,7 @@ export function ResultCards({
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
             <Outcome locale={locale} outcome={candidate.outcome} />
-            {isInRunoff(candidate.outcome) && (
+            {round === 1 && isInRunoff(candidate.outcome) && (
               <span>
                 {t(locale, 'cards.runoffDate', {
                   date: formatDate(locale, ROUND_DATES.runoff),

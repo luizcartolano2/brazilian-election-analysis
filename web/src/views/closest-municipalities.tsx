@@ -1,7 +1,7 @@
 import { AppLink } from '@/components/app-link'
 import { municipalityHref } from '@/lib/address'
 import { getRaceMap } from '@/lib/data'
-import type { RaceInfo } from '@/lib/elections'
+import type { RaceInfo, Round } from '@/lib/elections'
 import { formatPoints, t, type Locale } from '@/lib/i18n'
 import { closestRows, marginPoints, type MapData } from '@/lib/maps'
 import { hasMap } from '@/views/map-section'
@@ -13,24 +13,36 @@ export function ClosestMunicipalities({
   locale,
   area,
   race,
+  round = 1,
 }: {
   locale: Locale
   area: string
   race: RaceInfo
+  round?: Round
 }) {
   if (!hasMap(area)) return null
-  return <ClosestList locale={locale} area={area} race={race} data={getRaceMap(area, race.code)} />
+  return (
+    <ClosestList
+      locale={locale}
+      area={area}
+      race={race}
+      round={round}
+      data={getRaceMap(area, race.code, round)}
+    />
+  )
 }
 
 export function ClosestList({
   locale,
   area,
   race,
+  round = 1,
   data,
 }: {
   locale: Locale
   area: string
   race: RaceInfo
+  round?: Round
   data: MapData
 }) {
   const rows = closestRows(data, SHOWN)
@@ -49,7 +61,7 @@ export function ClosestList({
             >
               <span>
                 <AppLink
-                  href={municipalityHref(locale, area, municipio, race)}
+                  href={municipalityHref(locale, area, municipio, race, round)}
                   className="font-semibold underline"
                 >
                   {name}

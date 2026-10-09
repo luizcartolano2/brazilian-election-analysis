@@ -21,15 +21,15 @@
 
 ## 4. Web: round-2 pages (the web pages PR)
 
-- [ ] 4.1 Add the round-2 routes in both languages, rendering the round-1 views with the round. Before the pin, the state route lists every state and abroad, and the race route lists each state's President race. Test the Brazil, state, abroad and race pages and the three drill-down views of round 2 on the fixtures, and a state page with both races: Governor tab first, a map in each panel, and the closest municipalities in the Governor panel. Test that every round-2 page of the fixture build shows the synthetic mark
-- [ ] 4.2 Render the waiting content on every round-2 page in a build with no round-2 pin. Test that the Brazil, a state, a race and the station pages state the date and show no vote count or share, and that the station view requests no data
-- [ ] 4.3 Make the header's chip a switch between the rounds, with each page's counterpart. Test a state with a runoff, `/2026/sp/senador/` leading to the round-2 page of São Paulo, `aria-current`, a finalist's page whose links lead to its own round sections, the sources page, and both languages
-- [ ] 4.4 Add the round-2 card below the candidate cards of the round-1 Brazil page. Test it before and after a round-2 pin
-- [ ] 4.5 Make the headlines, cards and ranks round-aware. Test "vence no 2º turno" in both languages, no runoff date on a round-2 card, and that the round-1 runner-up keeps the second color when it wins round 2
-- [ ] 4.6 Draw the round-2 maps, from the map values that task 3.4 builds with the round-1 color race. Test the President and Governor maps of the runoff fixture state, and no map for an area with one municipality
-- [ ] 4.7 Add the round-2 section to a finalist's candidate page. Test a President finalist's page with its round-2 state shares, states led and note on the votes abroad, a finalist in an area with one municipality with no map and no list, a non-finalist's page with round 1 only, and that the headline is the round-2 one
-- [ ] 4.8 List both pinned versions, each with its round, on the sources page, with a test in `sources-view.test.tsx`
-- [ ] 4.9 Record in the PR the largest exported page and the largest finalist's page, against the 2.5 MB page size gate. Make sure that the gate passes
+- [x] 4.1 Add the round-2 routes in both languages, rendering the round-1 views with the round. Before the pin, the state route lists every state and abroad, and the race route lists each state's President race. Test the Brazil, state, abroad and race pages and the three drill-down views of round 2 on the fixtures, and a state page with both races: Governor tab first, a map in each panel, and the closest municipalities in the Governor panel. Test that every round-2 page of the fixture build shows the synthetic mark
+- [x] 4.2 Render the waiting content on every round-2 page in a build with no round-2 pin. Test that the Brazil, a state, a race and the station pages state the date and show no vote count or share, and that the station view requests no data
+- [x] 4.3 Make the header's chip a switch between the rounds, with each page's counterpart. Test a state with a runoff, `/2026/sp/senador/` leading to the round-2 page of São Paulo, `aria-current`, a finalist's page whose links lead to its own round sections, the sources page, and both languages
+- [x] 4.4 Add the round-2 card below the candidate cards of the round-1 Brazil page. Test it before and after a round-2 pin
+- [x] 4.5 Make the headlines, cards and ranks round-aware. Test "vence no 2º turno" in both languages, no runoff date on a round-2 card, and that the round-1 runner-up keeps the second color when it wins round 2
+- [x] 4.6 Draw the round-2 maps, from the map values that task 3.4 builds with the round-1 color race. Test the President and Governor maps of the runoff fixture state, and no map for an area with one municipality
+- [x] 4.7 Add the round-2 section to a finalist's candidate page. Test a President finalist's page with its round-2 state shares, states led and note on the votes abroad, a finalist in an area with one municipality with no map and no list (the fixtures have no such runoff, so the round-1 test of the shared component covers it), a non-finalist's page with round 1 only, and that the headline is the round-2 one
+- [x] 4.8 List both pinned versions, each with its round, on the sources page, with a test in `sources-view.test.tsx`
+- [x] 4.9 Record in the PR the largest exported page and the largest finalist's page, against the 2.5 MB page size gate. Make sure that the gate passes
 
 ## 5. Launch
 

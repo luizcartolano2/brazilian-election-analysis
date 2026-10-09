@@ -26,6 +26,15 @@ export function formatDate(locale: Locale, isoDate: string): string {
   }).format(new Date(`${isoDate}T00:00:00Z`))
 }
 
+/** A date with no year, such as "4 de outubro". */
+export function formatDayMonth(locale: Locale, isoDate: string): string {
+  return new Intl.DateTimeFormat(NUMBER_LOCALES[locale], {
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${isoDate}T00:00:00Z`))
+}
+
 export function formatDateTime(locale: Locale, iso: string): string {
   return new Intl.DateTimeFormat(NUMBER_LOCALES[locale], {
     dateStyle: 'long',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { headlineText, raceHeadline } from './headline'
+import { candidateHeadlineText, headlineText, raceHeadline } from './headline'
 import type { CandidateRow, RaceResults } from './results'
 
 function results(candidates: [string, string][], seats = 1, race = 3): RaceResults {
@@ -132,5 +132,28 @@ describe('raceHeadline', () => {
 
   it('has no headline for a race with no candidates', () => {
     expect(raceHeadline(results([]), false)).toBeNull()
+  })
+})
+
+describe('round 2', () => {
+  it('says that the elected candidate wins in the second round, in each language', () => {
+    const headline = raceHeadline(
+      results([
+        ['Ana Lima', 'Eleito'],
+        ['Bia Souza', 'Não eleito'],
+      ]),
+      false,
+    )
+    if (headline === null) throw new Error('no headline')
+    expect(headlineText('pt', headline, 'Governador', 2)).toBe('Ana Lima vence no 2º turno')
+    expect(headlineText('en', headline, 'Governor', 2)).toBe('Ana Lima wins the runoff')
+    expect(headlineText('pt', headline, 'Governador')).toBe('Ana Lima vence no 1º turno')
+  })
+
+  it('leads a finalist page with its round-2 win, in each language', () => {
+    const elected = { form: 'elected', senate: false } as const
+    expect(candidateHeadlineText('pt', elected, 2)).toBe('Vence no 2º turno')
+    expect(candidateHeadlineText('en', elected, 2)).toBe('Wins the runoff')
+    expect(candidateHeadlineText('pt', elected)).toBe('Vence no 1º turno')
   })
 })

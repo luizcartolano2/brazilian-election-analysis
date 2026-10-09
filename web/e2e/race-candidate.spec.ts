@@ -51,9 +51,9 @@ test.describe('a race page', () => {
 })
 
 test.describe('a candidate page', () => {
-  test('states a runoff with its date', async ({ page }) => {
+  test('states a runoff with its date, in the round-1 section of a finalist', async ({ page }) => {
     await page.goto('/2026/ac/governador/11/')
-    await expect(page.getByTestId('headline')).toHaveText(
+    await expect(page.getByTestId('headline-1')).toHaveText(
       'Vai ao 2º turno, em 25 de outubro de 2026',
     )
   })
@@ -87,7 +87,7 @@ test.describe('a candidate page', () => {
         share: formatShare('pt', (row[4 + column] as number) ?? 0, row[3]),
       }))
     await page.goto('/2026/presidente/13/')
-    const rows = page.getByTestId('largest').locator('tbody tr')
+    const rows = page.getByTestId('round-1').getByTestId('largest').locator('tbody tr')
     await expect(rows).toHaveCount(Math.min(6, votes.rows.length))
     for (const [index, entry] of expected.entries()) {
       await expect(rows.nth(index)).toContainText(entry.name)
@@ -123,10 +123,11 @@ test.describe('a candidate page', () => {
     const led = states.filter((state) => state.led).length
 
     await page.goto('/2026/presidente/13/')
-    await expect(page.getByTestId('states-led')).toHaveText(
+    const firstRound = page.getByTestId('round-1')
+    await expect(firstRound.getByTestId('states-led')).toHaveText(
       `${led} ${led === 1 ? 'estado' : 'estados'}`,
     )
-    const links = page.getByTestId('state-shares').locator('tbody tr a')
+    const links = firstRound.getByTestId('state-shares').locator('tbody tr a')
     await expect(links).toHaveCount(states.length)
     for (const [index, area] of order.entries()) {
       await expect(links.nth(index)).toHaveAttribute('href', `/2026/${area}/`)
