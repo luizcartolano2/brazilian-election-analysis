@@ -156,6 +156,12 @@ On 2026-10-09, Luiz agreed the runoff change, `add-runoff-results`. Its code mer
 after TSE's open data holds the round, and a PR pins it after the freeze. A recount of
 round 1, such as Rio's, publishes round 1 alone, outside the freeze.
 
+On 2026-10-09, Luiz agreed `shrink-page-payloads`, which moves the Brazil map's values and
+the candidate pages' share maps and lists out of the pages. Its code merges by 2026-10-16,
+so that it runs in production for a week before the freeze. If it misses 2026-10-23, it
+waits until the round-2 pin and its live checks are done, so that the pin PR never
+changes two things at once.
+
 ### D15. The pre-runoff release shows official results
 
 The first release explores official first-round results, down to the polling station, on
