@@ -6,10 +6,10 @@
 
 ## 2. Pipeline: round 2 (the pipeline PR)
 
-- [ ] 2.1 Add `ROUNDS[2]` with President 6258, the state races 6260 and no municipal election. Test that `round_config(2)` builds the round-2 results-site and CDN URLs
-- [ ] 2.2 Add `tests/fixtures/build_runoff_fixtures.py`, which derives synthetic round-2 fixtures from the round-1 fixtures: the two most voted President candidates everywhere, one fixture state with a Governor runoff, and TSE's results-site JSON for 6258 and 6260. Mark the numbers as synthetic in the fixture README
-- [ ] 2.3 Test a round-2 build on the fixtures: a state without a Governor runoff gets President only, the runoff state gets both races, the manifest says round 2, reconciliation passes, and a station row changed by one vote fails the build
-- [ ] 2.4 Add the `round` input to the data target of `publish-data.yml` and pass it to `eleicoes build`. Run `actionlint`
+- [x] 2.1 Add `ROUNDS[2]` with President 6258, the state races 6260 and no municipal election. Test that `round_config(2)` builds the round-2 results-site and CDN URLs
+- [x] 2.2 Add `tests/fixtures/build_runoff_fixtures.py`, which derives synthetic round-2 fixtures from the round-1 fixtures: the President finalists everywhere, Acre's Governor finalists, and TSE's results-site JSON for 6258 and 6260. Mark the numbers as synthetic in the fixture README
+- [x] 2.3 Test a round-2 build on the fixtures: a state without a Governor runoff gets President only, the runoff state gets both races, the manifest says round 2, reconciliation passes, and a station row changed by one vote fails the build
+- [x] 2.4 Add the `round` input to the data target of `publish-data.yml` and pass it to `eleicoes build`. Run `actionlint`
 
 ## 3. Web: data per round (the web data PR)
 

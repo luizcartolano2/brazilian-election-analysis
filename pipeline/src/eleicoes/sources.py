@@ -39,6 +39,7 @@ ROUNDS = {
         state=6259,
         municipal=(MunicipalElection(code=6261, state="PE", municipality=30015, race=25),),
     ),
+    2: RoundConfig(year=2026, round=2, president=6258, state=6260, municipal=()),
 }
 
 

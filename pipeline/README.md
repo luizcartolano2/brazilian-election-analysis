@@ -10,6 +10,9 @@ uv sync
 uv run eleicoes build --round 1 --out dist/round-1
 ```
 
+`--round 2` builds the runoff, from the same TSE files. A state's round-2 races come from
+its round-2 vote rows, so a state with no Governor runoff gets President only.
+
 A complete build downloads about 3.5 GB into `data/cache/` and takes about four minutes
 on a laptop. For a fast local run, build a few states. A partial build skips the national
 presidential check, and its manifest says `parcial: true`, so it can never be published:
@@ -36,14 +39,21 @@ The tests build a miniature country from `tests/fixtures/data/`: a few real poll
 stations from Acre, Pernambuco, Sergipe and abroad, chosen to cover each case the rules
 must handle. Candidate identifiers in the fixtures are synthetic.
 
+The fixtures' round 2 is synthetic as a whole, because TSE publishes the runoff after
+2026-10-25. `tests/fixtures/build_runoff_fixtures.py` adds it to the same files, as TSE
+does. The President finalists and Acre's Governor finalists keep their round-1 votes at
+each station, and every other vote becomes a null vote. So the round-2 numbers copy round
+1 mechanically. They are not a forecast, and the outcomes they imply are not TSE's.
+
 To recut the fixtures after a real build has filled `data/cache/`:
 
 ```bash
 uv run python tests/fixtures/build_fixtures.py
+uv run python tests/fixtures/build_runoff_fixtures.py
 uv run python tests/fixtures/export_web_fixtures.py
 ```
 
-The second command refreshes `web/fixtures/`, the web app's sample data. CI fails when
+The last command refreshes `web/fixtures/`, the web app's sample data. CI fails when
 that folder differs from what the pipeline produces.
 
 ## Publish it
@@ -51,7 +61,7 @@ that folder differs from what the pipeline produces.
 Only the "Publish data" workflow writes to storage, and only from `main`:
 
 1. In GitHub, open Actions, then "Publish data", then "Run workflow" on `main`, with
-   target `data`.
+   target `data` and the round to build. Each version holds one round.
 2. The build job runs the tests and a complete build against TSE's files, with no
    secret. Its summary shows the duration, the peak disk use and the output size.
 3. The upload job waits for Luiz's approval in the `data-publish` environment. Approve

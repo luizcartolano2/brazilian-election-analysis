@@ -513,8 +513,8 @@
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "candidates",
-   "sha512": "6e12c34542d4e6f14e907d4fd8f0846f4dd49039e97992acf98abeeb11cbd2110262ae60b7f49453a16eb98d131109d0f773b0d386e8f9c42b549e5266c6355f",
-   "size": 30492,
+   "sha512": "2458bff166266f5cb98eb1439d97e0b46b721e315f3b7ed144754d3dddd3ac4d6f0f4ed3a244459d2448b6f6a609ba5ba208aa3c82adc0c5d74448c4be05724f",
+   "size": 30885,
    "url": "fixture://cdn/consulta_cand/consulta_cand_2026.zip"
   },
   {
@@ -534,8 +534,8 @@
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "munzona",
-   "sha512": "24f4580e28a9389b79cea92625efa9f630a4dab041b8acd78d0cbf72d83ddea56885b325da373f060f45eb37d71519ce17542b84d4e43df2c2ca5b2252e7c830",
-   "size": 9654,
+   "sha512": "01f86bd396404c92fdf07f3431af4de809b930584cfd24d95bbc2a83ad78bab85589f9a7ba7e29b1fcfedb36a882ef16530872806d07c01da762cf9b2c36414d",
+   "size": 9740,
    "url": "fixture://cdn/votacao_candidato_munzona/votacao_candidato_munzona_2026.zip"
   },
   {
@@ -548,15 +548,15 @@
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "turnout",
-   "sha512": "30911a0611093eddec8c946172ed7eb1fc42950379f2b727b8b39b893fb80729aae6d05e71108a49129e7d282746e53748d274d52ed91ab4fffe9417f35c9c58",
-   "size": 3404,
+   "sha512": "e2bc2e9ab54f4c23b90f2a3fe322aa0a20ff2699abd79ac636cad740cae6a5aa5d3bfe1d305b62715105ce2dd130b72d257336e8f6196e08a43617d97c075bb6",
+   "size": 3988,
    "url": "fixture://cdn/detalhe_votacao_secao/detalhe_votacao_secao_2026.zip"
   },
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "votes_AC",
-   "sha512": "e7230f307dab55e841e3adb7215d4c731300ac854e3d52540c0cbd1db07a160401c92985d0c3402b2ef9b2482fc5259726768cd6528e7be0c9ad36cafbbcec01",
-   "size": 7807,
+   "sha512": "b0678267bf3af1c1f5bd17af6bd461c6f050e30f46261776d1b7f9b547942c68047f662eca71e37bec6ef3f25db265c8dd1d3e17ea44dc305b988b00bf2d89e1",
+   "size": 8030,
    "url": "fixture://cdn/votacao_secao/votacao_secao_2026_AC.zip"
   },
   {
@@ -576,8 +576,8 @@
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "votes_president",
-   "sha512": "6c16a2cfa548b34f00c9666048403b5174912a95204ef2b1e44ce259abf2f6a0a3ff9de807a40b65cbb58e82a58d53f7413f8ae89ff656d60dc2ee7d779e9028",
-   "size": 2499,
+   "sha512": "d26099762b5268b05ac7740bc15b2369acb7930194462aabb75b054ed4d62ab59661c0f01e355f532430e41d1c98576c8b548a37777cd691bec03ae73f43e78d",
+   "size": 3330,
    "url": "fixture://cdn/votacao_secao/votacao_secao_2026_BR.zip"
   }
  ],

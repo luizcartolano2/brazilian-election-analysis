@@ -63,9 +63,11 @@ def tse(tmp_path) -> Tse:
     return Tse(data=data, root=tmp_path / "tse")
 
 
-def run_build(tse: Tse, tmp_path: Path, name: str = "out", states=None) -> Path:
+def run_build(
+    tse: Tse, tmp_path: Path, name: str = "out", states=None, round_number: int = 1
+) -> Path:
     options = BuildOptions(
-        round_number=1,
+        round_number=round_number,
         out_dir=tmp_path / name,
         work_dir=tmp_path / f"work-{name}",
         commit="test",
@@ -83,3 +85,12 @@ def built(tmp_path_factory) -> Path:
     data = tmp_path / "fixtures"
     shutil.copytree(FIXTURES, data)
     return run_build(Tse(data=data, root=tmp_path / "tse"), tmp_path)
+
+
+@pytest.fixture(scope="session")
+def built_runoff(tmp_path_factory) -> Path:
+    """One complete round-2 build of the unmodified fixtures, shared by read-only tests."""
+    tmp_path = tmp_path_factory.mktemp("built-runoff")
+    data = tmp_path / "fixtures"
+    shutil.copytree(FIXTURES, data)
+    return run_build(Tse(data=data, root=tmp_path / "tse"), tmp_path, round_number=2)

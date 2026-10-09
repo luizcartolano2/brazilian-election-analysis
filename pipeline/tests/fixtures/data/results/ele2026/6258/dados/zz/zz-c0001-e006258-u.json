@@ -1,0 +1,59 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "22",
+         "nmu": "FLAVIO BOLSONARO",
+         "st": "Eleito",
+         "vap": "11"
+        }
+       ],
+       "n": "22",
+       "sg": "PL",
+       "tval": "0"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "13",
+         "nmu": "LULA",
+         "st": "Não eleito",
+         "vap": "1"
+        }
+       ],
+       "n": "13",
+       "sg": "PT",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "1",
+   "nmn": "Presidente",
+   "nv": "1"
+  }
+ ],
+ "e": {
+  "c": "13",
+  "te": "32"
+ },
+ "ele": "6258",
+ "v": {
+  "tv": "13",
+  "van": "0",
+  "vansj": "0",
+  "vb": "0",
+  "vl": "0",
+  "vn": "1",
+  "vnom": "12",
+  "vnt": "0",
+  "vv": "12"
+ }
+}

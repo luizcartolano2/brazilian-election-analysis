@@ -63,11 +63,13 @@ cancelled, need no list in code.
 job passes it to `eleicoes build --round`.
 
 The round-2 fixtures come from a new script, `tests/fixtures/build_runoff_fixtures.py`. It
-derives them from the round-1 fixtures: it keeps the two most voted President candidates
-in each fixture station and, in one fixture state, the two most voted Governor
-candidates. It splits each station's valid votes between them with a fixed rule, writes
-`NR_TURNO` 2, and writes TSE's results-site JSON for 6258 and 6260 to match. The numbers
-are synthetic and say so in the fixture README. After TSE publishes round 2, a task recuts
+derives them from the round-1 fixtures, and adds them to the same files, as TSE does. The
+finalists are the candidates that round 1 sends to the runoff: the President finalists,
+and the Governor finalists of Acre, the one fixture state with a Governor runoff. Each
+finalist keeps its round-1 votes at each station, and every other vote becomes a null
+vote. The script writes TSE's results-site JSON for 6258 and 6260 to match. The rule
+copies round 1 mechanically, so the numbers never forecast the runoff, and the fixture
+README says that they are synthetic. After TSE publishes round 2, a task recuts
 the fixtures from the real files.
 
 ### 3. The app's pins and data

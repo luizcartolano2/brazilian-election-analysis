@@ -11,6 +11,13 @@ on:
           - duckdb-wasm
           - geo
         default: data
+      round:
+        description: The election round to build, for the data target only
+        type: choice
+        options:
+          - "1"
+          - "2"
+        default: "1"
 
 # Publishes wait for each other, and one in progress is never cut off. The branch is in the
 # name, so a run started on another branch cannot replace a publish waiting on main.
@@ -56,15 +63,18 @@ jobs:
         run: echo "version=$(date -u +%Y%m%d)-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Build and reconcile against TSE
+        env:
+          ROUND: ${{ inputs.round }}
         run: |
           baseline=$(df --output=used -B1M / | tail -1)
           (while sleep 5; do df --output=used -B1M / | tail -1; done) > "$RUNNER_TEMP/disk.log" &
           SECONDS=0
-          uv run eleicoes build --round 1 --out dist --commit "$GITHUB_SHA"
+          uv run eleicoes build --round "$ROUND" --out dist --commit "$GITHUB_SHA"
           peak=$(sort -n "$RUNNER_TEMP/disk.log" | tail -1)
           {
             echo "### Build"
             echo
+            echo "- Round: $ROUND"
             echo "- Duration: $((SECONDS / 60)) min $((SECONDS % 60)) s"
             echo "- Peak disk use above the start: $(( ${peak:-$baseline} - baseline )) MB"
             echo "- Output: $(du -sm dist | cut -f1) MB in $(find dist -type f | wc -l) files"
