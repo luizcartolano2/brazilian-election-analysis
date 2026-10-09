@@ -33,6 +33,6 @@
 ## 5. Launch
 
 - [x] 5.1 In each PR, record the largest exported page and its size, and make sure that the page size gate passes
-- [ ] 5.2 Merge each PR by 2026-10-23, or hold it until the runoff change merges. If PR 3 misses the date, move its requirements and tasks to a follow-up change, and archive this change after PR 2
-- [ ] 5.3 Merge no PR of this change from 2026-10-24 to 2026-10-26
-- [ ] 5.4 After the last PR deploys, run the live checks on Chromium at desktop size and on WebKit as an iPhone 13: no security-policy violation, no horizontal scrolling, the tabs and the state tiles working. Luiz checks the pages on his phone
+- [x] 5.2 Merge each PR by 2026-10-23, or hold it until the runoff change merges. If PR 3 misses the date, move its requirements and tasks to a follow-up change, and archive this change after PR 2
+- [x] 5.3 Merge no PR of this change from 2026-10-24 to 2026-10-26
+- [x] 5.4 After the last PR deploys, run the live checks on Chromium at desktop size and on WebKit as an iPhone 13: no security-policy violation, no horizontal scrolling, the tabs and the state tiles working. Luiz checks the pages on his phone
