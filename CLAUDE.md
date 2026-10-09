@@ -33,10 +33,10 @@ Breaking one of these is a bug even when the screen looks right.
   pipeline fails. It never drops or adjusts rows to make the numbers agree.
 - **Only GitHub Actions publishes data.** Each publish writes a new, immutable version
   with a manifest of sources and checksums. Nothing overwrites a published version.
-- **At run time the app reads only pinned data.** That is its pinned data version and its
-  pinned map boundary build, both through the Worker, and files that its build derived
-  from the pinned version, served from its own origin. The browser never requests TSE
-  directly.
+- **At run time the app reads only pinned data.** That is its pinned data version for each
+  round and its pinned map boundary build, all through the Worker, and files that its
+  build derived from the pinned versions, served from its own origin. The browser never
+  requests TSE directly.
 - **TSE gets credit wherever its data appears**, as CC BY requires. Use the credit line in
   `DATA_LICENSE.md`.
 - **Every user-facing string exists in Portuguese and English.** Portuguese is the

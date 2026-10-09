@@ -129,6 +129,11 @@ data upgrade is a reviewed PR and a rollback is a revert.
 **Why:** "these numbers were built by commit X on a clean machine" is the claim the
 methodology page rests on. Local runs are for development and cannot publish.
 
+On 2026-10-09, the runoff change `add-runoff-results` moved the pin to one version for
+each round, because a recount of round 1, such as Rio's, must republish round 1 without
+touching round 2. Each version still holds one round, and the build fails unless the two
+pins agree on who reached round 2.
+
 ## Scope and timing
 
 ### D14. Ship something before the runoff, with no hard date

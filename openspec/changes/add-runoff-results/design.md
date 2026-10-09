@@ -39,8 +39,18 @@ A publish builds one round, and the app pins one version for each round.
 Alternative: one version holding both rounds, under `2026/t1/` and `2026/t2/`. That needs
 a multi-round build, a manifest with a list of rounds, and a rebuild of round 2 whenever
 Rio's recount changes round 1. With one version per round, the manifest keeps its
-`"turno"`, the build keeps its single round, and a recount of round 1 leaves round 2
-alone. The cost is a second pin, which is one more line in `src/data-version.ts`.
+`"turno"`, the build keeps its single round, and a recount of round 1 leaves the data of
+round 2 untouched. The cost is a second pin, which is one more line in
+`src/data-version.ts`, and a check that the two pins agree.
+
+The check runs in `prepare-data.ts` when round 2 is pinned. Each round-2 race must hold
+exactly the candidates that the round-1 version marks for a runoff in that race, and
+each race marked for a runoff must appear in round 2. So a recount that changes who
+reached round 2, such as a cancelled runoff in Rio, fails the build until both pins
+agree with TSE.
+
+D13 said that the app pins one data version. This change amends D13 to one version per
+round, and `CLAUDE.md`'s run-time invariant with it.
 
 ### 2. The pipeline's round 2
 
@@ -74,34 +84,54 @@ export const DATA_VERSIONS = {
 ```
 
 `prepare-data.ts` reads each pinned version and checks its manifest's year and round.
-`.data/` moves its round files under `.data/rounds/<round>/`: the summaries, the map values
-and `source.json`. `municipios.json` stays shared, because the municipality list does not
-change between rounds. The data accessors in `src/lib/data.ts` take a round, which
-defaults to 1.
+`.data/` moves its round files under `.data/rounds/<round>/`: the summaries, the map values,
+`municipios.json` and `source.json`. Each round keeps its own `municipios.json`, because
+each version verifies its own list, and a round-1 recount must not change what round 2
+reads. The data accessors in `src/lib/data.ts` take a round, which defaults to 1.
 
 The drill-down configuration carries a data base for each pinned round, and
-`src/lib/drilldown/files.ts` builds the paths of the address's round.
+`src/lib/drilldown/files.ts` builds the paths of the address's round. A race's TSE
+election code comes from the round: `RACES` in `src/lib/elections.ts` gains the round-2
+code of President (6258) and Governor (6260). The station link to TSE in
+`drilldown.tsx` and `drilldown/model.ts` reads the code of the view's round.
 
 ### 4. The round-2 routes
 
-Each round-1 route gets a round-2 twin under `app/(pt)/2026/segundo-turno/` and
-`app/en/2026/segundo-turno/`, and each twin renders the same view with `round={2}`. When
-round 2 is not pinned, the dynamic twins' `generateStaticParams()` return no entry, and
-`/2026/segundo-turno/` renders the waiting page.
+Each round-1 area, race and drill-down route gets a round-2 twin under
+`app/(pt)/2026/segundo-turno/` and `app/en/2026/segundo-turno/`, and each twin renders
+the same view with `round={2}`. The candidate and sources routes get no twin.
 
-Next.js's static export can reject an empty `generateStaticParams()` for a dynamic route.
-The first task finds out. If it does reject one, the round-2 dynamic routes stay out of
-the build until the pin PR adds them, behind a check that fails the build when round 2 is
-pinned and they are missing.
+A spike on 2026-10-09 showed that the static export rejects an empty
+`generateStaticParams()`. Next 16 stops the build with "returned an empty array from
+`generateStaticParams()`. With `output: export`, at least one route must be generated."
+
+So the twins never return an empty list. Before the pin, the state twin lists every
+state and abroad, and the race twin lists each state's President race, because round 2
+holds President everywhere. Each of these pages, the Brazil page and the drill-down
+twins render the waiting content. After the pin, the lists come from the round-2
+summaries, which hold the same addresses plus the Governor runoffs. So no round-2
+address disappears at the pin. The check in decision 1 fails the build if the round-2
+version lacks an area.
+
+Alternative: one placeholder parameter that renders the waiting content. It writes an
+address that never holds a result. Alternative: the pin PR adds the dynamic twins,
+behind a check that fails the build when round 2 is pinned and they are missing. Their
+code then lands after the freeze, in a PR that also moves data, and the production build
+never runs them before the night.
 
 ### 5. The round switch and the link from round 1
 
 Each page passes its round-1 and round-2 addresses to `PageShell`, with `null` where the
 other round has no such page. The header's chip becomes two links, `1º turno · 4 de
 outubro` and `2º turno · 25 de outubro`, with the current round marked by
-`aria-current`. A missing counterpart leads to that round's Brazil page.
+`aria-current`. A missing counterpart leads to the same area in that round, else to that
+round's Brazil page. So `/2026/sp/senador/` leads to `/2026/segundo-turno/sp/`.
 
-The round-1 Brazil page renders a card under its cards. Before round 2 is pinned, the
+A finalist's candidate page shows both rounds, so its two links lead to its own round
+sections, and neither carries `aria-current`. The sources page serves both rounds, so its
+links lead to each round's Brazil page, and neither carries `aria-current`.
+
+The round-1 Brazil page renders a card under its candidate cards. Before round 2 is pinned, the
 card states the runoff's date. After, it shows the round-2 headline and links to it.
 
 ### 6. Headlines, cards and colors in round 2
@@ -112,22 +142,26 @@ states no runoff date, because round 2 has no further round.
 
 The ranks come from round 1: `candidateRanks(round2Race, round1ColorRace)`, where the color
 race is Brazil's round-1 President race or the state's round-1 Governor race. The round-2
-map values use the same color race, so the maps and the cards agree.
+map values use the same color race, so the maps and the cards agree. A candidate keeps
+one color across the rounds, so a reader who compares the two rounds' maps finds each
+finalist in the same color.
+
+Alternative: rank round 2 by its own result. A round-1 runner-up who wins round 2 then
+swaps colors between the rounds, and the two maps contradict each other.
 
 ### 7. A finalist's page
 
 The candidate page reads the candidacy in round 2 when round 2 is pinned and the
 candidacy appears in it. It then renders a round-2 section first: its headline, stats,
-share map and largest municipalities, then the round-1 content as today. The page's
+share map and largest municipalities, then the round-1 content as today. A President
+finalist's round-2 section also repeats the share in each state, the count of states led
+and the note on the votes abroad, each linking to round-2 pages. An area with one municipality gets no map and no list, as in round 1. The page's
 headline is the round-2 one.
 
-### 8. The swing map, later
+### 8. The swing map is a follow-up
 
-The swing map compares a finalist's share in each municipality between the two pinned
-versions, from the two `-votos.json` files that the build already writes. It uses a
-diverging palette that is neither of the candidate colors, centered on zero, with its
-own legend. It ships after round 2 is live, as its own PR, so it never delays the
-runoff results.
+The swing map between the rounds is out of this change. Its size, its framing and its
+metric need their own decisions, and issue 31 comes first. Issue 38 records them.
 
 ## Risks / Trade-offs
 
@@ -135,14 +169,17 @@ runoff results.
   same files with the same columns, filtered on `NR_TURNO`. The pin PR builds against the
   real version first, and the recut of the fixtures follows. A difference fails that
   build before anything deploys.
-- [TSE publishes later than five days] → Nothing breaks. The waiting page stays up until
+- [TSE publishes later than five days] → Nothing breaks. The waiting content stays up until
   the pin.
 - [Rio's ruling arrives after the runoff] → Round 1 republishes alone. If TSE also changes
-  round 2, round 2 republishes alone too.
+  round 2, round 2 republishes alone too. The check in decision 1 fails the build while
+  the two pins disagree.
+- [Rio's ruling arrives during the freeze] → Nothing deploys until 2026-10-27. The site
+  keeps TSE's previous round-1 count, which was official when it published. The round-1
+  republish and its pin PR follow the freeze.
 - [A finalist's page grows past the size limit] → Lula's page is 1,084,168 bytes today. A
-  round-2 share map adds about the same again, and the swing map more. The page size gate
-  fails the build first. Issue 31, which moves map values out of the page payloads, is
-  the fix if that happens, and the swing map PR measures it before it merges.
+  round-2 share map adds about the same again. The page size gate fails the build first.
+  Issue 31, which moves map values out of the page payloads, is the fix if that happens.
 - [The freeze] → The code PRs merge by 2026-10-23. The pin PR merges after 2026-10-26.
 
 ## Migration Plan
@@ -150,10 +187,9 @@ runoff results.
 1. Pipeline PR: round 2's configuration, the synthetic fixtures, and the publish input.
 2. Web data PR: the pin per round, `.data/` per round, the round-2 web fixtures, and the
    drill-down per round. Round 1 renders exactly as today.
-3. Web pages PR: the round-2 routes, the waiting page, the switch, the link from round 1,
-   the headlines, maps and candidate sections.
+3. Web pages PR: the round-2 routes, the waiting content, the switch, the link from round
+   1, the headlines, maps and candidate sections.
 4. After TSE publishes: "Publish data" with round 2, then the pin PR, then the live checks.
-5. Later: the swing map PR.
 
-Each PR reverts on its own. Before the pin, round 2 shows only the waiting page, so PRs 1
-to 3 are safe to deploy before the freeze.
+Each PR reverts on its own. Before the pin, every round-2 page shows only the waiting
+content, so PRs 1 to 3 are safe to deploy before the freeze.

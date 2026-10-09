@@ -19,31 +19,25 @@ one municipality or for the votes cast abroad.
 ### Requirement: A finalist's page carries both rounds
 Once round 2 is pinned, a finalist's candidate page SHALL show a round-2 section above
 its round-1 results: the round-2 votes, share of valid votes and TSE's outcome, the
-round-2 share map, and the round-2 largest municipalities. The page's address SHALL NOT
-change. A candidate who was not a finalist SHALL show round 1 only.
+round-2 share map, and the round-2 largest municipalities. A President finalist's
+round-2 section SHALL also show, as in round 1, the share in each state with a link to
+that state's round-2 page, the count of states led, and the note that its map leaves out
+the votes cast abroad, with a link to round 2's votes abroad. In an area with one
+municipality, the round-2 section SHALL show no map and no list of municipalities, as in
+round 1. The page's address SHALL NOT change. A
+candidate who was not a finalist SHALL show round 1 only.
 
 #### Scenario: Lula's page after the runoff
 - **WHEN** round 2 is pinned and a visitor opens `/2026/presidente/13/`
-- **THEN** the page shows Lula's round-2 results and share map first, and his round-1 results below
+- **THEN** the page shows Lula's round-2 results and share map first, and the round-1 results below
+
+#### Scenario: A Federal District finalist
+- **WHEN** round 2 is pinned and a visitor opens the page of a Governor finalist in the Federal District
+- **THEN** the round-2 section shows the votes, share and outcome, with no map and no list of municipalities
 
 #### Scenario: A candidate eliminated in round one
 - **WHEN** a visitor opens the page of a President candidate who was not a finalist
 - **THEN** the page shows round 1 only
-
-### Requirement: Swing between the rounds
-Once round 2 is pinned, a finalist's candidate page SHALL map, by municipality, the
-change in the finalist's share of the valid votes from round 1 to round 2, in
-percentage points, with a list of the municipalities as its text equivalent. The map
-SHALL state that it compares two official counts. No text or chart SHALL state or
-estimate where any voter's vote went between the rounds.
-
-#### Scenario: A finalist's swing
-- **WHEN** a finalist's share in a municipality grows from 40% in round 1 to 55% in round 2
-- **THEN** the swing map shades that municipality as a gain of 15 percentage points, and its row says so
-
-#### Scenario: No transfer claims
-- **WHEN** a visitor reads the swing map and its text
-- **THEN** nothing says how the voters of eliminated candidates voted in round 2
 
 ## MODIFIED Requirements
 
