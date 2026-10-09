@@ -65,8 +65,8 @@ At run time, the app SHALL draw a map only after its boundary file arrives and i
 SHA-256 matches the pin. Otherwise the map's place SHALL show a message in the visitor's
 language, and the list SHALL stay. A map that reads its values from a file SHALL draw
 only after that file arrives and its SHA-256 matches the page's. Otherwise the map SHALL
-show neither colors nor a list, SHALL say in the visitor's language that its values could
-not load, and SHALL offer a retry.
+show neither colors nor a list, SHALL say in the visitor's language that its values failed
+to load, and SHALL offer a retry.
 
 #### Scenario: Totals that do not add up
 - **WHEN** a candidate's votes summed over a state's municipalities differ from the state summary
