@@ -392,7 +392,7 @@ function MunicipalityList({ locale, area }: { locale: Locale; area: StateInfo })
   const abroad = area.code === ABROAD.code
   return (
     <section className="mt-8">
-      <h2 className="text-xl font-semibold">
+      <h2 className="text-2xl font-extrabold">
         {t(locale, abroad ? 'area.citiesTitle' : 'area.municipalitiesTitle')}
       </h2>
       <details className="mt-2">
@@ -418,7 +418,7 @@ function MunicipalityList({ locale, area }: { locale: Locale; area: StateInfo })
   )
 }
 
-/** Every candidate of one race in one state. */
+/** Every candidate of one race in one state, led by its headline and, in a majoritarian race, cards. */
 export function RaceView({ locale, code, slug }: { locale: Locale; code: string; slug: string }) {
   const area = areaByCode(code)
   const info = raceBySlug(slug)
@@ -426,17 +426,40 @@ export function RaceView({ locale, code, slug }: { locale: Locale; code: string;
   const race = getSummary(area.code).corridas.find((entry) => entry.cargo === info.code)
   if (race === undefined) notFound()
   const results = raceResults(race, info.proportional)
+  const ranks = info.proportional ? undefined : ranksOf(race)
   const title = t(locale, 'race.inArea', {
     race: raceName(info, locale),
     area: areaName(area, locale),
   })
+  const full = (
+    <FullResults
+      locale={locale}
+      info={info}
+      results={results}
+      caption={title}
+      candidateHref={candidateHref(locale, info, area.code)}
+      ranks={ranks}
+    />
+  )
   return (
     <PageShell
       locale={locale}
       path={`/${YEAR}/${area.code}/${info.slug}/`}
       crumbs={areaCrumbs(locale, area, info)}
+      wide
     >
-      <h1 className="text-2xl font-semibold">{title}</h1>
+      <h1 className="text-muted text-xs font-bold tracking-widest uppercase">{title}</h1>
+      <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl" data-testid="headline">
+        {headlineOf(locale, info, results)}
+      </h2>
+      {ranks !== undefined && (
+        <ResultCards
+          locale={locale}
+          results={results}
+          ranks={ranks}
+          candidateHref={candidateHref(locale, info, area.code)}
+        />
+      )}
       {hasMap(area.code) ? (
         <MapSection
           locale={locale}
@@ -445,23 +468,14 @@ export function RaceView({ locale, code, slug }: { locale: Locale; code: string;
           race={info}
           table
         >
-          <h2 className="mt-8 text-xl font-semibold">{t(locale, 'race.candidatesTitle')}</h2>
-          <FullResults
-            locale={locale}
-            info={info}
-            results={results}
-            caption={title}
-            candidateHref={candidateHref(locale, info, area.code)}
-          />
+          <h2 className="mt-8 text-2xl font-extrabold">{t(locale, 'race.candidatesTitle')}</h2>
+          {full}
         </MapSection>
       ) : (
-        <FullResults
-          locale={locale}
-          info={info}
-          results={results}
-          caption={title}
-          candidateHref={candidateHref(locale, info, area.code)}
-        />
+        <section className="mt-8">
+          <h2 className="text-2xl font-extrabold">{t(locale, 'race.candidatesTitle')}</h2>
+          {full}
+        </section>
       )}
     </PageShell>
   )

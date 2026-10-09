@@ -25,14 +25,14 @@
 
 ## 4. Web: the race, candidate and drill-down pages (the last PR)
 
-- [ ] 4.1 Move each race page to the 1,200-pixel column, and lead it with its headline, and with cards in a majoritarian race. Test a Governor race page and a federal deputy race page, where the headline states the count elected and no card shows
-- [ ] 4.2 Rebuild the candidate page in the 1,200-pixel column: headline, outcome, stat tiles with the place in the race, the share map, and the largest municipalities. Test the headline of a candidate in the runoff, of an elected candidate and of a candidate with neither outcome, the place of a candidate, the largest municipalities of a fixture state, capped at six, that a candidacy under appeal shows its status, no place and no list, and that a Federal District candidate shows no list
-- [ ] 4.3 Add a President candidate's share in each state and the count of states led. Test the order from the highest share, the count, and each state's link
-- [ ] 4.4 Move the municipality, zone and station views, the sources page and every table to the tokens and the 1,200-pixel column. Make sure that the drill-down tests, the 360-pixel test and the production-headers test pass
+- [x] 4.1 Move each race page to the 1,200-pixel column, and lead it with its headline, and with cards in a majoritarian race. Test a Governor race page and a federal deputy race page, where the headline states the count elected and no card shows
+- [x] 4.2 Rebuild the candidate page in the 1,200-pixel column: headline, outcome, stat tiles with the place in the race, the share map, and the largest municipalities. Test the headline of a candidate in the runoff, of an elected candidate and of a candidate with neither outcome, the place of a candidate, the largest municipalities of a fixture state, capped at six, that a candidacy under appeal shows its status, no place and no list, and that a Federal District candidate shows no list
+- [x] 4.3 Add a President candidate's share in each state and the count of states led. Test the order from the highest share, the count, and each state's link
+- [x] 4.4 Move the municipality, zone and station views, the sources page and every table to the tokens and the 1,200-pixel column. Make sure that the drill-down tests, the 360-pixel test and the production-headers test pass
 
 ## 5. Launch
 
-- [ ] 5.1 In each PR, record the largest exported page and its size, and make sure that the page size gate passes
+- [x] 5.1 In each PR, record the largest exported page and its size, and make sure that the page size gate passes
 - [ ] 5.2 Merge each PR by 2026-10-23, or hold it until the runoff change merges. If PR 3 misses the date, move its requirements and tasks to a follow-up change, and archive this change after PR 2
 - [ ] 5.3 Merge no PR of this change from 2026-10-24 to 2026-10-26
 - [ ] 5.4 After the last PR deploys, run the live checks on Chromium at desktop size and on WebKit as an iPhone 13: no security-policy violation, no horizontal scrolling, the tabs and the state tiles working. Luiz checks the pages on his phone

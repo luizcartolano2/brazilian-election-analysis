@@ -38,7 +38,7 @@ function SourceList({ locale, sources }: { locale: Locale; sources: ManifestSour
           ) : (
             <span>{fileName(entry.url)}</span>
           )}{' '}
-          <span className="text-xs text-slate-600">
+          <span className="text-muted text-xs">
             {formatInteger(locale, entry.size)} B · {formatDateTime(locale, entry.downloaded_at)}
           </span>
         </li>
@@ -64,26 +64,26 @@ export function SourcesContent({
   }
   return (
     <>
-      <h1 className="text-2xl font-semibold">{t(locale, 'sources.title')}</h1>
+      <h1 className="text-4xl font-extrabold">{t(locale, 'sources.title')}</h1>
       <p className="mt-2 text-sm">{t(locale, 'sources.intro')}</p>
       <p className="mt-2 text-sm">{t(locale, 'sources.checks')}</p>
 
-      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.versionTitle')}</h2>
+      <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.versionTitle')}</h2>
       {source.mode === 'published' && source.version !== null ? (
         <dl className="mt-2 text-sm">
-          <dt className="text-xs text-slate-600">{t(locale, 'sources.version')}</dt>
+          <dt className="text-muted text-xs">{t(locale, 'sources.version')}</dt>
           <dd className="font-mono break-all" data-testid="data-version">
             {source.version}
           </dd>
-          <dt className="mt-2 text-xs text-slate-600">{t(locale, 'sources.builtAt')}</dt>
+          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.builtAt')}</dt>
           <dd>{formatDateTime(locale, manifest.gerado_em)}</dd>
-          <dt className="mt-2 text-xs text-slate-600">{t(locale, 'sources.commit')}</dt>
+          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.commit')}</dt>
           <dd>
             <a href={`${REPOSITORY}/commit/${manifest.commit}`} className="font-mono underline">
               {manifest.commit.slice(0, 7)}
             </a>
           </dd>
-          <dt className="mt-2 text-xs text-slate-600">{t(locale, 'sources.manifest')}</dt>
+          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.manifest')}</dt>
           <dd>
             <a href={`${VERSION_URL}/manifest.json`} className="underline">
               manifest.json
@@ -96,13 +96,13 @@ export function SourcesContent({
         </p>
       )}
 
-      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.licenseTitle')}</h2>
+      <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.licenseTitle')}</h2>
       <p className="mt-2 text-sm">{t(locale, 'sources.licenseDerived')}</p>
-      <blockquote className="mt-2 border-l-2 border-slate-300 pl-3 text-sm">
+      <blockquote className="border-ink/20 mt-2 border-l-2 pl-3 text-sm">
         {manifest.credito[locale]}
       </blockquote>
 
-      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.boundariesTitle')}</h2>
+      <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.boundariesTitle')}</h2>
       <p className="mt-2 text-sm">{t(locale, 'sources.boundariesIntro')}</p>
       <p className="mt-2 text-sm">
         {t(locale, 'sources.boundariesTerms')}{' '}
@@ -111,16 +111,16 @@ export function SourcesContent({
         </a>
         .
       </p>
-      <blockquote className="mt-2 border-l-2 border-slate-300 pl-3 text-sm">
+      <blockquote className="border-ink/20 mt-2 border-l-2 pl-3 text-sm">
         {t(locale, 'sources.boundariesCredit')}
       </blockquote>
       {source.mode === 'published' ? (
         <dl className="mt-2 text-sm">
-          <dt className="text-xs text-slate-600">{t(locale, 'sources.boundariesBuild')}</dt>
+          <dt className="text-muted text-xs">{t(locale, 'sources.boundariesBuild')}</dt>
           <dd className="font-mono break-all" data-testid="boundary-build">
             {source.geoBase.slice(source.geoBase.lastIndexOf('/') + 1)}
           </dd>
-          <dt className="mt-2 text-xs text-slate-600">{t(locale, 'sources.manifest')}</dt>
+          <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.manifest')}</dt>
           <dd>
             <a href={`${source.geoBase}/manifest.json`} className="underline">
               manifest.json
@@ -133,13 +133,13 @@ export function SourcesContent({
         </p>
       )}
 
-      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.namesTitle')}</h2>
+      <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.namesTitle')}</h2>
       <p className="mt-1 text-sm" data-testid="names-note">
         {t(locale, 'sources.namesNote')}
       </p>
 
-      <h2 className="mt-6 text-xl font-semibold">{t(locale, 'sources.filesTitle')}</h2>
-      <p className="mt-1 text-sm text-slate-700">
+      <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.filesTitle')}</h2>
+      <p className="text-muted mt-1 text-sm">
         {t(locale, 'sources.filesNote', { count: formatInteger(locale, sources.length) })}
       </p>
       {HOSTS.map((host) => {
@@ -148,7 +148,7 @@ export function SourcesContent({
         return (
           <section key={host.title} className="mt-4">
             <h3 className="text-base font-semibold">{t(locale, host.title)}</h3>
-            <p className="mt-1 text-sm text-slate-700">{t(locale, host.terms)}</p>
+            <p className="text-muted mt-1 text-sm">{t(locale, host.terms)}</p>
             <SourceList locale={locale} sources={fromHost} />
           </section>
         )
@@ -167,8 +167,12 @@ export function SourcesView({ locale }: { locale: Locale }) {
         { label: t(locale, 'area.brazil'), path: `/${YEAR}/` },
         { label: t(locale, 'nav.sources') },
       ]}
+      wide
     >
-      <SourcesContent locale={locale} manifest={getManifest()} source={getSourceInfo()} />
+      {/* Prose keeps a readable line length inside the wide column. */}
+      <div className="max-w-3xl">
+        <SourcesContent locale={locale} manifest={getManifest()} source={getSourceInfo()} />
+      </div>
     </PageShell>
   )
 }

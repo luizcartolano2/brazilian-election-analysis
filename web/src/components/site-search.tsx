@@ -79,7 +79,7 @@ function HitLabel({ locale, labels, hit }: { locale: Locale; labels: SearchLabel
     return (
       <>
         <span className="font-medium break-words">{displayName(hit.name)}</span>{' '}
-        <span className="text-xs text-slate-600">· {areaLabel(locale, labels, hit.area)}</span>
+        <span className="text-muted text-xs">· {areaLabel(locale, labels, hit.area)}</span>
       </>
     )
   }
@@ -93,7 +93,7 @@ function HitLabel({ locale, labels, hit }: { locale: Locale; labels: SearchLabel
   return (
     <>
       <span className="block font-medium break-words">{displayName(hit.name)}</span>
-      <span className="block text-xs text-slate-600">{details.join(' · ')}</span>
+      <span className="text-muted block text-xs">{details.join(' · ')}</span>
     </>
   )
 }
@@ -240,7 +240,7 @@ export function SiteSearch({
         // Keeps the focus in the box when a press lands on an option, the scrollbar or the note.
         <div
           onMouseDown={(event) => event.preventDefault()}
-          className="absolute right-0 left-0 z-10 mt-1 rounded border border-slate-200 bg-white text-sm shadow-lg"
+          className="border-line absolute right-0 left-0 z-10 mt-1 rounded border bg-white text-sm shadow-lg"
         >
           {found.hits.length > 0 ? (
             <ul ref={listRef} id={listId} role="listbox" className="max-h-96 overflow-y-auto">
@@ -252,23 +252,21 @@ export function SiteSearch({
                   aria-selected={index === active}
                   data-href={hitHref(hit, locale)}
                   onClick={() => go(hit)}
-                  className={`cursor-pointer px-2 py-1.5 ${index === active ? 'bg-slate-100' : ''}`}
+                  className={`cursor-pointer px-2 py-1.5 ${index === active ? 'bg-surface' : ''}`}
                 >
                   <HitLabel locale={locale} labels={labels} hit={hit} />
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="px-2 py-1.5 text-slate-600">{labels.none}</p>
+            <p className="text-muted px-2 py-1.5">{labels.none}</p>
           )}
           {found.more && (
-            <p className="border-t border-slate-100 px-2 py-1.5 text-xs text-slate-600">
-              {labels.more}
-            </p>
+            <p className="border-line text-muted border-t px-2 py-1.5 text-xs">{labels.more}</p>
           )}
         </div>
       )}
-      {loaded.status === 'failed' && <p className="mt-1 text-xs text-slate-700">{labels.failed}</p>}
+      {loaded.status === 'failed' && <p className="text-muted mt-1 text-xs">{labels.failed}</p>}
       <p role="status" className="sr-only">
         {status}
       </p>

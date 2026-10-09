@@ -45,7 +45,8 @@ test("a page's address opens the same candidate in a new browser", async ({ brow
   await page.goto('/2026/pe/senador/130/')
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Humberto Costa')
-  await expect(page.getByText('PT · 130 · Senador · Pernambuco')).toBeVisible()
+  await expect(page.getByText('Senador · Pernambuco', { exact: true })).toBeVisible()
+  await expect(page.getByText('PT · 130', { exact: true })).toBeVisible()
   await context.close()
 })
 
@@ -172,5 +173,6 @@ test('switching language keeps the candidate page', async ({ page }) => {
   await page.getByRole('link', { name: 'English' }).click()
 
   await expect(page).toHaveURL('/en/2026/pe/senador/130/')
-  await expect(page.getByText('PT · 130 · Senator · Pernambuco')).toBeVisible()
+  await expect(page.getByText('Senator · Pernambuco', { exact: true })).toBeVisible()
+  await expect(page.getByText('PT · 130', { exact: true })).toBeVisible()
 })

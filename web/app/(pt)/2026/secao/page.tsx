@@ -15,7 +15,7 @@ export const metadata: Metadata = pageMetadata(
 
 export default function Page() {
   return (
-    <PageShell locale="pt" path={`/${YEAR}/secao/`}>
+    <PageShell locale="pt" path={`/${YEAR}/secao/`} wide>
       <noscript>
         <p className="text-sm">{t('pt', 'drilldown.noScript')}</p>
       </noscript>

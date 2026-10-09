@@ -157,7 +157,7 @@ export function UnderAppealTable({
   return (
     <section className="mt-6">
       <h3 className="text-base font-semibold">{t(locale, 'results.underAppealTitle')}</h3>
-      <p className="mt-1 text-sm text-slate-700">{t(locale, 'results.underAppealNote')}</p>
+      <p className="text-muted mt-1 text-sm">{t(locale, 'results.underAppealNote')}</p>
       <table className="mt-2 w-full table-fixed border-collapse text-sm">
         <caption className="sr-only">{t(locale, 'results.underAppealTitle')}</caption>
         <thead className="sr-only">
@@ -171,13 +171,13 @@ export function UnderAppealTable({
             <tr
               key={`c${candidate.number}`}
               id={candidateRowId(candidate.number)}
-              className="scroll-mt-4 border-b border-slate-100"
+              className="border-line scroll-mt-4 border-b"
             >
               <td className="py-1.5 pr-2">
                 <span className="font-medium break-words">
                   <CandidateName candidate={candidate} href={candidateHref} />
                 </span>{' '}
-                <span className="text-xs text-slate-600">
+                <span className="text-muted text-xs">
                   {candidate.party} · {candidate.number}
                 </span>{' '}
                 <Outcome locale={locale} outcome={candidate.outcome} />
@@ -188,10 +188,10 @@ export function UnderAppealTable({
             </tr>
           ))}
           {results.partiesUnderAppeal.map((party) => (
-            <tr key={`p${party.number}`} className="border-b border-slate-100">
+            <tr key={`p${party.number}`} className="border-line border-b">
               <td className="py-1.5 pr-2">
                 {t(locale, 'results.listOf', { party: party.party })}{' '}
-                <span className="text-xs text-slate-600">{party.number}</span>
+                <span className="text-muted text-xs">{party.number}</span>
               </td>
               <td className="w-28 py-1.5 text-right tabular-nums">
                 {formatInteger(locale, party.listVotes)}
@@ -199,7 +199,7 @@ export function UnderAppealTable({
             </tr>
           ))}
           {results.otherUnderAppeal > 0 && (
-            <tr className="border-b border-slate-100">
+            <tr className="border-line border-b">
               <td className="py-1.5 pr-2">{t(locale, 'results.otherUnderAppeal')}</td>
               <td className="w-28 py-1.5 text-right tabular-nums">
                 {formatInteger(locale, results.otherUnderAppeal)}
@@ -221,11 +221,11 @@ export function PartyTable({ locale, results }: { locale: Locale; results: RaceR
   return (
     <section className="mt-6">
       <h3 className="text-base font-semibold">{t(locale, 'results.partiesTitle')}</h3>
-      <p className="mt-1 text-sm text-slate-700">{t(locale, 'results.partiesNote')}</p>
+      <p className="text-muted mt-1 text-sm">{t(locale, 'results.partiesNote')}</p>
       <table className="mt-2 w-full table-fixed border-collapse text-sm">
         <caption className="sr-only">{t(locale, 'results.partiesTitle')}</caption>
         <thead>
-          <tr className="border-b border-slate-300 text-left text-xs text-slate-600">
+          <tr className="border-ink/20 text-muted border-b text-left text-xs">
             <th scope="col" className="py-1 pr-2 font-medium">
               {t(locale, 'results.party')}
             </th>
@@ -242,10 +242,10 @@ export function PartyTable({ locale, results }: { locale: Locale; results: RaceR
         </thead>
         <tbody>
           {results.parties.map((party) => (
-            <tr key={party.number} className="border-b border-slate-100">
+            <tr key={party.number} className="border-line border-b">
               <td className="py-1.5 pr-2 break-words">
                 <span className="font-medium">{party.party}</span>{' '}
-                <span className="text-xs text-slate-600">{party.number}</span>
+                <span className="text-muted text-xs">{party.number}</span>
               </td>
               <td className="py-1.5 pr-2 text-right tabular-nums">
                 {formatInteger(locale, party.candidateVotes)}
@@ -255,15 +255,13 @@ export function PartyTable({ locale, results }: { locale: Locale; results: RaceR
               </td>
               <td className="py-1.5 text-right tabular-nums">
                 {formatInteger(locale, party.total)}
-                <div className="text-xs text-slate-600">
-                  {formatShare(locale, party.total, valid)}
-                </div>
+                <div className="text-muted text-xs">{formatShare(locale, party.total, valid)}</div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="mt-2 text-sm text-slate-700" data-testid="party-sum">
+      <p className="text-muted mt-2 text-sm" data-testid="party-sum">
         {t(locale, 'results.partySum', {
           candidates: formatInteger(locale, candidateVotes),
           list: formatInteger(locale, listVotes),
@@ -304,14 +302,14 @@ export function TotalsTable({ locale, results }: { locale: Locale; results: Race
         <caption className="text-left text-base font-semibold">{t(locale, 'totals.title')}</caption>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.key} className="border-b border-slate-100">
+            <tr key={row.key} className="border-line border-b">
               <th scope="row" className="py-1.5 pr-2 text-left font-normal">
                 {t(locale, row.key)}
               </th>
               <td className="w-28 py-1.5 pr-2 text-right tabular-nums">
                 {formatInteger(locale, row.value)}
               </td>
-              <td className="w-16 py-1.5 text-right text-slate-600 tabular-nums">
+              <td className="text-muted w-16 py-1.5 text-right tabular-nums">
                 {row.whole > 0 ? formatShare(locale, row.value, row.whole) : ''}
               </td>
             </tr>
@@ -329,7 +327,7 @@ export function EligibleGapNote({ locale, results }: { locale: Locale; results: 
   const gap = totals.eligible - totals.attendance - totals.abstention
   if (gap === 0) return null
   return (
-    <p className="mt-2 text-xs text-slate-600">
+    <p className="text-muted mt-2 text-xs">
       {t(locale, 'totals.eligibleGap', { count: formatInteger(locale, gap) })}
     </p>
   )
