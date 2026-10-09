@@ -15,8 +15,9 @@ import {
 import type { DrilldownConfig } from '@/lib/drilldown/config'
 import { browserLocate, browserRunner } from '@/lib/drilldown/browser'
 import { loadView, NotFound, type ViewData } from '@/lib/drilldown/queries'
-import { areaByCode, areaName, raceName, YEAR } from '@/lib/elections'
+import { areaByCode, areaName, raceName, YEAR, type Round } from '@/lib/elections'
 import { formatInteger, localePath, t, type Locale } from '@/lib/i18n'
+import { roundPath } from '@/lib/paths'
 import { stationLinkOf } from '@/lib/tse-link'
 
 type State =
@@ -31,8 +32,13 @@ const VIEW_PATH: Record<Level, string> = {
   secao: `/${YEAR}/secao/`,
 }
 
-function viewHref(locale: Locale, level: Level, address: Parameters<typeof addressQuery>[0]) {
-  return `${localePath(locale, VIEW_PATH[level])}${addressQuery(address)}`
+function viewHref(
+  locale: Locale,
+  round: Round,
+  level: Level,
+  address: Parameters<typeof addressQuery>[0],
+) {
+  return `${localePath(locale, roundPath(round, VIEW_PATH[level]))}${addressQuery(address)}`
 }
 
 function Notice({ children }: { children: ReactNode }) {
@@ -87,7 +93,10 @@ export function Drilldown({
       <Notice>
         <p data-testid="invalid-address">{t(locale, 'drilldown.invalid')}</p>
         <p className="mt-2">
-          <AppLink href={localePath(locale, `/${YEAR}/`)} className="underline">
+          <AppLink
+            href={localePath(locale, roundPath(config.round, `/${YEAR}/`))}
+            className="underline"
+          >
             {t(locale, 'drilldown.backToBrazil')}
           </AppLink>
         </p>
@@ -118,7 +127,10 @@ export function Drilldown({
       <Notice>
         <p data-testid="missing-place">{t(locale, 'drilldown.missing')}</p>
         <p className="mt-2">
-          <AppLink href={localePath(locale, `/${YEAR}/${address.area}/`)} className="underline">
+          <AppLink
+            href={localePath(locale, roundPath(config.round, `/${YEAR}/${address.area}/`))}
+            className="underline"
+          >
             {areaName(area, locale)}
           </AppLink>
         </p>
@@ -157,13 +169,19 @@ function ViewBody({
       <nav aria-label={t(locale, 'nav.breadcrumbs')} className="text-muted text-sm">
         <ol className="flex flex-wrap gap-1">
           <li>
-            <AppLink href={localePath(locale, `/${YEAR}/`)} className="underline">
+            <AppLink
+              href={localePath(locale, roundPath(config.round, `/${YEAR}/`))}
+              className="underline"
+            >
               {t(locale, 'area.brazil')}
             </AppLink>
           </li>
           <li>
             ›{' '}
-            <AppLink href={localePath(locale, `/${YEAR}/${area.code}/`)} className="underline">
+            <AppLink
+              href={localePath(locale, roundPath(config.round, `/${YEAR}/${area.code}/`))}
+              className="underline"
+            >
               {areaName(area, locale)}
             </AppLink>
           </li>
@@ -172,7 +190,10 @@ function ViewBody({
             {address.level === 'municipio' ? (
               <span aria-current="page">{data.municipalityName}</span>
             ) : (
-              <AppLink href={viewHref(locale, 'municipio', place)} className="underline">
+              <AppLink
+                href={viewHref(locale, config.round, 'municipio', place)}
+                className="underline"
+              >
                 {data.municipalityName}
               </AppLink>
             )}
@@ -184,7 +205,7 @@ function ViewBody({
                 <span aria-current="page">{zoneLabel}</span>
               ) : (
                 <AppLink
-                  href={viewHref(locale, 'zona', { ...place, zone: address.zone })}
+                  href={viewHref(locale, config.round, 'zona', { ...place, zone: address.zone })}
                   className="underline"
                 >
                   {zoneLabel}
@@ -229,7 +250,7 @@ function ViewBody({
                   </span>
                 ) : (
                   <AppLink
-                    href={viewHref(locale, address.level, { ...address, race })}
+                    href={viewHref(locale, config.round, address.level, { ...address, race })}
                     className="border-ink/20 rounded border px-2 py-1"
                   >
                     {raceName(race, locale)}
@@ -249,7 +270,7 @@ function ViewBody({
           {data.station.principal !== null && address.zone !== null && (
             <p className="mt-2">
               <AppLink
-                href={viewHref(locale, 'secao', {
+                href={viewHref(locale, config.round, 'secao', {
                   ...place,
                   zone: address.zone,
                   station: data.station.principal,
@@ -288,7 +309,7 @@ function ViewBody({
               {data.zones.map((zone) => (
                 <li key={zone.zone}>
                   <AppLink
-                    href={viewHref(locale, 'zona', { ...place, zone: zone.zone })}
+                    href={viewHref(locale, config.round, 'zona', { ...place, zone: zone.zone })}
                     className="underline"
                   >
                     {t(locale, 'drilldown.zone', { zone: String(zone.zone) })}
@@ -307,7 +328,9 @@ function ViewBody({
             config={config}
             area={address.area}
             municipality={address.municipality}
-            stationHref={(zone, station) => viewHref(locale, 'secao', { ...place, zone, station })}
+            stationHref={(zone, station) =>
+              viewHref(locale, config.round, 'secao', { ...place, zone, station })
+            }
           />
         </>
       )}
@@ -319,7 +342,7 @@ function ViewBody({
             {data.stations.map((station) => (
               <li key={station.station}>
                 <AppLink
-                  href={viewHref(locale, 'secao', {
+                  href={viewHref(locale, config.round, 'secao', {
                     ...place,
                     zone: address.zone,
                     station: station.station,

@@ -70,11 +70,6 @@ export function getSourceInfo(): DataSourceInfo {
   return source
 }
 
-/** Whether this build holds a data version for the round. */
-export function hasRound(round: Round): boolean {
-  return getSourceInfo().rounds.includes(round)
-}
-
 export function getManifest(round: Round = 1): Manifest {
   return cached(manifests, String(round), () => readJson<Manifest>(`rounds/${round}/manifest.json`))
 }
@@ -163,7 +158,7 @@ export function getDrilldownConfig(round: Round = 1): DrilldownConfig {
     )
   }
   const councilArea = shapes[COUNCIL.area]
-  if (round === 1 && councilArea !== undefined) {
+  if (round === COUNCIL.round && councilArea !== undefined) {
     councilArea[COUNCIL.race] = { seats: COUNCIL.seats, choicesPerVoter: COUNCIL.choicesPerVoter }
   }
   return {

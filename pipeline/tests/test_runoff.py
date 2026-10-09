@@ -128,3 +128,14 @@ def test_round_two_urls():
 def test_round_three_is_not_configured():
     with pytest.raises(ValueError, match="round 3"):
         round_config(3)
+
+
+def test_the_synthetic_aggregates_carry_their_mark(tse):
+    for relative in (
+        "6258/dados/br/br-c0001-e006258-u.json",
+        "6260/dados/ac/ac-c0003-e006260-u.json",
+    ):
+        assert json.loads(tse.aggregate_path(relative).read_text())["sintetico"] is True
+    assert "sintetico" not in json.loads(
+        tse.aggregate_path("6257/dados/br/br-c0001-e006257-u.json").read_text()
+    )

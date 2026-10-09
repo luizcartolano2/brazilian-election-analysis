@@ -13,13 +13,25 @@ from published import publish_fixtures
 
 from eleicoes.build import Build, BuildOptions
 from eleicoes.download import Downloader
+from eleicoes.sources import Bases, aggregate_source, round_config
 
 HERE = Path(__file__).parent
 WEB = HERE.parents[2] / "web"
 TARGETS = {1: WEB / "fixtures", 2: WEB / "fixtures-t2"}
-# build_runoff_fixtures.py makes round 2 up, so the app marks its pages as synthetic.
-SYNTHETIC_ROUNDS = {2}
 CLOCK = "2026-10-06T00:00:00Z"
+
+
+def is_synthetic(round_number: int) -> bool:
+    """`build_runoff_fixtures.py` marks the aggregates it makes up. A round cut from TSE's own
+    files carries no mark, so the app's pages stop calling it synthetic."""
+    config = round_config(round_number)
+    source = aggregate_source(config, Bases(), config.president, 1, "br", "br")
+    document = json.loads(
+        (HERE / "data" / "results" / source.url.removeprefix(Bases().results + "/")).read_text(
+            encoding="utf-8"
+        )
+    )
+    return document.get("sintetico") is True
 
 
 def main() -> None:
@@ -49,7 +61,7 @@ def export(round_number: int, target: Path) -> None:
                 .replace(bases.cdn, "fixture://cdn")
                 .replace(bases.results, "fixture://results")
             )
-        if round_number in SYNTHETIC_ROUNDS:
+        if is_synthetic(round_number):
             manifest["sintetico"] = True
         manifest_path.write_text(
             json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=1) + "\n",

@@ -191,14 +191,10 @@ export async function verifyPublishedAssets(assetBase: string, cacheDir?: string
  * browser can cache it for good. Returns that path.
  */
 async function writeSearchIndex(
-  summaries: Map<string, Uint8Array>,
+  summaries: Map<string, Summary>,
   municipalities: Record<string, Municipality[]>,
 ): Promise<string> {
-  const parsed = new Map<string, Summary>()
-  for (const [area, bytes] of summaries) {
-    parsed.set(area, JSON.parse(new TextDecoder().decode(bytes)) as Summary)
-  }
-  const index = buildSearchIndex(parsed, municipalities)
+  const index = buildSearchIndex(summaries, municipalities)
   const municipios = JSON.stringify(index.municipios)
   const candidatos = JSON.stringify(index.candidatos)
   const hash = sha256Of(new TextEncoder().encode(`${municipios}\n${candidatos}`)).slice(0, 16)
@@ -319,9 +315,10 @@ async function main(): Promise<void> {
     const municipalityLists = await municipalityList(run, municipalitiesFile)
     await writeFile(path.join(roundDir, 'municipios.json'), JSON.stringify(municipalityLists))
     // Search leads to round-1 pages, and candidate pages carry both rounds.
-    if (round.round === 1) searchBase = await writeSearchIndex(round.summaries, municipalityLists)
+    if (round.round === 1) searchBase = await writeSearchIndex(round.parsed, municipalityLists)
     await buildMaps({
       round: round.round,
+      colorSummaries: round.round === 2 ? first.parsed : undefined,
       run,
       source: round.source,
       manifest: round.manifest,

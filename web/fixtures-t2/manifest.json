@@ -207,43 +207,43 @@
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "aggregate_6258_1_ac",
-   "sha512": "0a0550012460b10c33f9cb6735be8d32cdda847b47b8489006801398679c184168a0a6395991aed7e7be726c38387f7c946034bfd6dc42f0e53bfc6fc1962a0b",
-   "size": 819,
+   "sha512": "815e4eb0d013d7d578fae4d95401c2a0f677411e9deeb42847b92b27bb287f6de5e5a88db85df554a580f6587cc807fb37840ecb06d5e859d982a7a3458c4cc3",
+   "size": 839,
    "url": "fixture://results/ele2026/6258/dados/ac/ac-c0001-e006258-u.json"
   },
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "aggregate_6258_1_br",
-   "sha512": "f6f65bbc17b3bb1ead590881a8a37222b979e4ff7d816ebbe85a3f0336d689d98f30a74070834a64e21a5ce19262fc2fff9ab393dc12bd5463a1be2ff818e937",
-   "size": 827,
+   "sha512": "912a032d10ce834341a383b8e717051b501bc5daee3fc58b5caf9feceb85e4cb73332a258b10d1915766adcd5a24e3dfc520352d30db999763d86996a0ece1ff",
+   "size": 847,
    "url": "fixture://results/ele2026/6258/dados/br/br-c0001-e006258-u.json"
   },
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "aggregate_6258_1_pe",
-   "sha512": "3664ce6a17d1cac62928f5bc452876e41a1155a7467a478877a16fe941a566456c44315a10e5f7a600407eb7142a8edd2d96669cba743f62e68f03262cfc8346",
-   "size": 827,
+   "sha512": "5f0003fb516a1b422e4c1019b6fb0f5c04d249ed49e7e010be253d789ba7b3f9922f5a17337f046533cdbc7986d9fc3d8155c103f15f507213b5f649430fe07e",
+   "size": 847,
    "url": "fixture://results/ele2026/6258/dados/pe/pe-c0001-e006258-u.json"
   },
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "aggregate_6258_1_se",
-   "sha512": "ecda2fedd6d7e208aeb4bc0988fb072ba1abc87a42560f78cb8efaf4c1b41fbe4a6f962118f3f93ba408159a5aa3d1eda9e308a7092ff0eeace502dab3ca7611",
-   "size": 818,
+   "sha512": "0e3d343845661409648f2fa96383472b2e437548e3d758a8529efaec59937996bfb26e60f64d420c9d1f1fc7848790f100eee3cf7814f8aaf5f453baeebf4b68",
+   "size": 838,
    "url": "fixture://results/ele2026/6258/dados/se/se-c0001-e006258-u.json"
   },
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "aggregate_6258_1_zz",
-   "sha512": "0f925b397f62afcf63a42fbce177d5cd55f5b6db94f952ef0e74c29a140c83bbcef435c590607b0018935e3d81d6db63693463f019b45373fbbe5b2420bf90bf",
-   "size": 809,
+   "sha512": "b07a68aff9763d32c2518ed362039c9c663c3ee43f571a839bea4d87cd1b2f2fa46485bc3fc316931ccaa0de1835704baf4d86a3586f84a8a1d8fdbc02a70591",
+   "size": 829,
    "url": "fixture://results/ele2026/6258/dados/zz/zz-c0001-e006258-u.json"
   },
   {
    "downloaded_at": "2026-10-06T00:00:00Z",
    "key": "aggregate_6260_3_ac",
-   "sha512": "48e8e712e32841a1caf6cfcf0d709ea3ba14fb6f5d081b4d9db4c1dd2824328662d868678bd53f6f358b796c399c7dfa4d0317c62c84ac8e370cb388394a5f37",
-   "size": 831,
+   "sha512": "ed8f54f58d6d0678dcb6d9c41db27fadd1e29d79614fecfdb09990ce736a39a9ec410f0a7bdf985507718163fe306e8705deeaff6814a6a7d50808ee24774bb9",
+   "size": 851,
    "url": "fixture://results/ele2026/6260/dados/ac/ac-c0003-e006260-u.json"
   },
   {

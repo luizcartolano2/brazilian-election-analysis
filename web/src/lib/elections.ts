@@ -189,8 +189,15 @@ export function raceName(race: RaceInfo, locale: Locale): string {
   return race[locale]
 }
 
-/** Fernando de Noronha's Conselheiro Distrital race: seven seats, one choice per voter. */
-export const COUNCIL = { area: 'pe', municipality: 30015, race: 25, seats: 7, choicesPerVoter: 1 }
+/** Fernando de Noronha's Conselheiro Distrital race: seven seats, one choice per voter, one round. */
+export const COUNCIL = {
+  area: 'pe',
+  municipality: 30015,
+  race: 25,
+  seats: 7,
+  choicesPerVoter: 1,
+  round: 1,
+} as const
 
 export const PRESIDENT = 1
 export const SENATE = 5

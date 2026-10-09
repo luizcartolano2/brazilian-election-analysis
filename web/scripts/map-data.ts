@@ -96,6 +96,8 @@ export function checkBoundaries(
 
 interface MapInputs {
   round: Round
+  /** Round 1's summaries in a round-2 build, whose ranking colors round 2's maps. */
+  colorSummaries?: Map<string, Summary>
   run: Run
   source: DataSource
   manifest: Manifest
@@ -189,6 +191,28 @@ function raceOf(summary: Summary | undefined, cargo: number): SummaryRace | unde
 }
 
 /**
+ * The race whose ranking colors a race's map: Brazil's for President, so a candidate keeps one
+ * color on every map. With `colorSummaries`, round 1's race ranks round 2's finalists, so each
+ * keeps its round-1 color.
+ */
+export function colorRaceOf(
+  race: SummaryRace,
+  area: string,
+  summaries: Map<string, Summary>,
+  colorSummaries?: Map<string, Summary>,
+): SummaryRace {
+  const colorArea = race.cargo === PRESIDENT ? 'br' : area
+  const color = raceOf((colorSummaries ?? summaries).get(colorArea), race.cargo)
+  if (color === undefined) throw new Error(`${colorArea}.json has no race ${race.cargo} to rank`)
+  if (colorSummaries === undefined) return color
+  const finalists = new Set(race.candidatos.map((candidate) => candidate.numero))
+  return {
+    ...color,
+    candidatos: color.candidatos.filter((candidate) => finalists.has(candidate.numero)),
+  }
+}
+
+/**
  * Writes `<out>/<area>/<cargo>.json` for each state's races and `<out>/br/1.json` for the
  * President map of Brazil. Any difference from a summary, or a municipality without a
  * boundary, fails after every race was checked, with every difference listed.
@@ -251,7 +275,7 @@ export async function buildMaps(inputs: MapInputs): Promise<void> {
           race,
           info.proportional,
           federations.get(`${area}:${race.cargo}`) ?? new Map(),
-          race.cargo === PRESIDENT ? brazilRace : race,
+          colorRaceOf(race, area, summaries, inputs.colorSummaries),
         )
         // Units are whole numbers, so the mapping goes into the query as literals. A race with
         // no valid unit gets one row that matches no vote, so the query stays valid.

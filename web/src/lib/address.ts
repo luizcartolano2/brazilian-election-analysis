@@ -9,7 +9,7 @@ import {
   type Round,
 } from './elections'
 import type { Locale } from './i18n'
-import { localePath } from './paths'
+import { localePath, roundPath } from './paths'
 
 export type Level = 'municipio' | 'zona' | 'secao'
 
@@ -40,10 +40,7 @@ function wholeNumber(value: string | null, max: number): number | null {
   return number >= 1 && number <= max ? number : null
 }
 
-/**
- * The races a municipality offers: its area's races, plus the council in Fernando de Noronha,
- * which has no round 2.
- */
+/** The races a municipality offers: its area's races, plus the council in Fernando de Noronha. */
 export function racesFor(
   area: string,
   municipality: number,
@@ -51,7 +48,7 @@ export function racesFor(
   round: Round = 1,
 ): RaceInfo[] {
   const codes = [...(areaRaces[area] ?? [])]
-  if (round === 1 && area === COUNCIL.area && municipality === COUNCIL.municipality) {
+  if (round === COUNCIL.round && area === COUNCIL.area && municipality === COUNCIL.municipality) {
     codes.push(COUNCIL.race)
   }
   return codes.map((code) => raceByCode(code)).filter((race) => race !== undefined)
@@ -112,12 +109,14 @@ export function addressQuery(address: {
   return `?${params.toString()}`
 }
 
-/** A municipality's view on one race, in a locale. */
+/** A municipality's view on one race, in a locale and a round. */
 export function municipalityHref(
   locale: Locale,
   area: string,
   municipality: number,
   race: RaceInfo,
+  round: Round = 1,
 ): string {
-  return `${localePath(locale, `/${YEAR}/municipio/`)}${addressQuery({ area, municipality, race })}`
+  const path = roundPath(round, `/${YEAR}/municipio/`)
+  return `${localePath(locale, path)}${addressQuery({ area, municipality, race })}`
 }

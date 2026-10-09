@@ -86,13 +86,16 @@ describe('loadVersion', () => {
     }
   })
 
-  it('refuses a version of another year or round', async () => {
+  it.each([
+    ['ano', 2022, /holds 2022 round 1/],
+    ['turno', 2, /holds 2026 round 2/],
+  ] as const)('refuses a version whose %s is %s', async (field, value, message) => {
     const source = published((files) => {
       const manifest = JSON.parse(new TextDecoder().decode(files.get('manifest.json')))
-      manifest.turno = 2
+      manifest[field] = value
       files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
     })
-    await expect(loadVersion(source, 1, await pinOf(source))).rejects.toThrow(/round 2/)
+    await expect(loadVersion(source, 1, await pinOf(source))).rejects.toThrow(message)
   })
 
   it('reads only the summaries of the round the app shows', async () => {

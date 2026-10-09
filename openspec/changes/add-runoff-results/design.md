@@ -43,7 +43,8 @@ Rio's recount changes round 1. With one version per round, the manifest keeps it
 round 2 untouched. The cost is a second pin, which is one more line in
 `src/data-version.ts`, and a check that the two pins agree.
 
-The check runs in `prepare-data.ts` when round 2 is pinned. Each round-2 race must hold
+The check runs in `prepare-data.ts` whenever both rounds are present: when round 2 is
+pinned, and in every fixtures build, which always holds both. Each round-2 race must hold
 exactly the candidates that the round-1 version marks for a runoff in that race, and
 each race marked for a runoff must appear in round 2. So a recount that changes who
 reached round 2, such as a cancelled runoff in Rio, fails the build until both pins
@@ -152,7 +153,8 @@ states no runoff date, because round 2 has no further round.
 
 The ranks come from round 1: `candidateRanks(round2Race, round1ColorRace)`, where the color
 race is Brazil's round-1 President race or the state's round-1 Governor race. The round-2
-map values use the same color race, so the maps and the cards agree. A candidate keeps
+map values use the same color race, limited to the finalists, through `colorRaceOf()` in
+`scripts/map-data.ts`, so the maps and the cards agree. A candidate keeps
 one color across the rounds, so a reader who compares the two rounds' maps finds each
 finalist in the same color.
 

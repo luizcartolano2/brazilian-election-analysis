@@ -62,6 +62,7 @@ None.
   from round 1, a pinned version per round, and round-aware headlines.
 - `results-maps`: the round-2 maps, the round-1 colors in round 2, and the round-2
   section of a candidate page.
+- `site-search`: the index keeps coming from round 1 alone.
 
 ## Invariants
 
