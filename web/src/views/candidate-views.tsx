@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { AppLink } from '@/components/app-link'
 import { PageShell, type Crumb } from '@/components/page-shell'
 import { Outcome } from '@/components/results'
+import { municipalityHref } from '@/lib/address'
 import { placeOf, sharesByState, type StateShare } from '@/lib/candidates'
 import { coveredAreas, getCandidateVotes, getSummary } from '@/lib/data'
 import {
@@ -85,15 +86,14 @@ function Stat({
   return (
     <div className="bg-surface rounded-2xl p-4">
       <dt className="text-muted text-xs">{label}</dt>
-      <dd className="font-display mt-1 text-2xl font-bold tabular-nums" data-testid={testId}>
+      <dd
+        className="font-display mt-1 text-xl font-bold tabular-nums sm:text-2xl"
+        data-testid={testId}
+      >
         {children}
       </dd>
     </div>
   )
-}
-
-function municipalityHref(locale: Locale, area: string, municipio: number, race: RaceInfo) {
-  return `${localePath(locale, `/${YEAR}/municipio/`)}?uf=${area}&mu=${municipio}&cargo=${race.slug}`
 }
 
 /** The area's municipalities with the most valid votes, with the candidate's share in each. */
@@ -288,11 +288,13 @@ export function CandidateView({
             })}
           </Stat>
         )}
-        <Stat label={t(locale, 'candidate.outcome')}>
-          <span className="font-sans text-base font-normal">
-            <Outcome locale={locale} outcome={candidate.resultado} />
-          </span>
-        </Stat>
+        {candidate.resultado !== '' && (
+          <Stat label={t(locale, 'candidate.outcome')}>
+            <span className="font-sans text-base font-normal">
+              <Outcome locale={locale} outcome={candidate.resultado} />
+            </span>
+          </Stat>
+        )}
       </dl>
       {!valid && (
         <p className="text-muted mt-4 text-sm" data-testid="under-appeal">

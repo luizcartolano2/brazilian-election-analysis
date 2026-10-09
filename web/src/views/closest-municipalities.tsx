@@ -1,7 +1,8 @@
 import { AppLink } from '@/components/app-link'
+import { municipalityHref } from '@/lib/address'
 import { getRaceMap } from '@/lib/data'
-import { YEAR, type RaceInfo } from '@/lib/elections'
-import { formatPoints, localePath, t, type Locale } from '@/lib/i18n'
+import type { RaceInfo } from '@/lib/elections'
+import { formatPoints, t, type Locale } from '@/lib/i18n'
 import { closestRows, marginPoints, type MapData } from '@/lib/maps'
 import { hasMap } from '@/views/map-section'
 
@@ -48,7 +49,7 @@ export function ClosestList({
             >
               <span>
                 <AppLink
-                  href={`${localePath(locale, `/${YEAR}/municipio/`)}?uf=${area}&mu=${municipio}&cargo=${race.slug}`}
+                  href={municipalityHref(locale, area, municipio, race)}
                   className="font-semibold underline"
                 >
                   {name}

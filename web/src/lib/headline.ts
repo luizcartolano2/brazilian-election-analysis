@@ -79,10 +79,10 @@ export function candidateHeadline(
   place: number | null,
   race: number,
 ): CandidateHeadline {
-  if (candidate.destino !== VALID || place === null)
-    return { form: 'status', status: candidate.destino }
+  if (candidate.destino !== VALID) return { form: 'status', status: candidate.destino }
   if (isInRunoff(candidate.resultado)) return { form: 'runoff' }
   if (isElected(candidate.resultado)) return { form: 'elected', senate: race === SENATE }
+  if (place === null) throw new Error(`candidate ${candidate.numero} is valid but has no place`)
   return { form: 'place', place }
 }
 

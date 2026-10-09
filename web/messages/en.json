@@ -209,12 +209,12 @@
   "candidate.headlineStatus": "Votes under appeal: {status}",
   "candidate.place": "Place",
   "candidate.placeValue": "{place} place",
-  "candidate.statesLed": "Most voted in",
+  "candidate.statesLed": "Led in",
   "candidate.statesOne": "{count} state",
   "candidate.statesMany": "{count} states",
   "candidate.largestTitle": "In the largest municipalities",
   "candidate.largestNote": "The municipalities with the most valid votes, with {name}'s share in each.",
   "candidate.statesTitle": "By state",
-  "candidate.statesNote": "{name}'s share of the valid votes in each state, from the highest to the lowest. The states where the candidate was the most voted are marked.",
-  "candidate.ledMark": "most voted"
+  "candidate.statesNote": "{name}'s share of the valid votes in each state, from the highest to the lowest. The states the candidate led are marked.",
+  "candidate.ledMark": "led"
 }

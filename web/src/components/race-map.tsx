@@ -15,7 +15,7 @@ import {
 } from 'react'
 import { feature, mesh } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
-import { addressQuery } from '@/lib/address'
+import { municipalityHref } from '@/lib/address'
 import { areaByCode, areaName, areaOfIbge, raceBySlug, YEAR } from '@/lib/elections'
 import { formatInteger, formatPoints, formatShare } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
@@ -603,11 +603,9 @@ export function RaceMap({
 
   function hrefOf(row: MapRow): string {
     const state = area ?? areaOfIbge(row[0]) ?? ''
-    const query =
-      raceInfo === undefined
-        ? `?uf=${state}&mu=${row[1]}`
-        : addressQuery({ area: state, municipality: row[1], race: raceInfo })
-    return `${localePath(locale, `/${YEAR}/municipio/`)}${query}`
+    return raceInfo === undefined
+      ? `${localePath(locale, `/${YEAR}/municipio/`)}?uf=${state}&mu=${row[1]}`
+      : municipalityHref(locale, state, row[1], raceInfo)
   }
 
   function rowAt(event: MouseEvent<SVGElement>): MapRow | undefined {

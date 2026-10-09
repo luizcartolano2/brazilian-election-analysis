@@ -124,3 +124,22 @@ test.describe('a candidate page', () => {
     }
   })
 })
+
+test('a wide map frame puts its legend beside the map, a narrow one below it', async ({ page }) => {
+  const layout = async () => {
+    const map = page.getByTestId('race-map').first()
+    await map.scrollIntoViewIfNeeded()
+    await expect(map.locator('svg')).toBeVisible()
+    const legend = await map.locator('xpath=ancestor::figure').locator('figcaption').boundingBox()
+    const drawn = await map.boundingBox()
+    if (legend === null || drawn === null) throw new Error('the map frame has no box')
+    return { legend, drawn }
+  }
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('/2026/pe/governador/')
+  const wide = await layout()
+  expect(wide.legend.x).toBeGreaterThanOrEqual(wide.drawn.x + wide.drawn.width)
+  await page.goto('/2026/pe/')
+  const narrow = await layout()
+  expect(narrow.legend.y).toBeGreaterThanOrEqual(narrow.drawn.y + narrow.drawn.height)
+})
