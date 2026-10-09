@@ -113,7 +113,7 @@ function MapView({
   if (sha256 === undefined) throw new Error(`the pinned boundary build has no ${file}`)
   return (
     <section className="mt-8" data-map={`${area}-${race.slug}`}>
-      <h2 className="text-xl font-semibold">{heading}</h2>
+      <h2 className="text-2xl font-extrabold">{heading}</h2>
       <RaceMap
         locale={locale}
         data={data}

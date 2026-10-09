@@ -3,6 +3,7 @@ import {
   CANDIDATE,
   candidateRanks,
   closestRows,
+  largestMunicipalities,
   checkRaceSums,
   isMappedArea,
   federationLabel,
@@ -383,5 +384,23 @@ describe('closestRows', () => {
     }
     expect(closestRows(data, 3).map((entry) => entry[2])).toEqual(['Tie', 'Close', 'Middle'])
     expect(closestRows(data, 10)).toHaveLength(4)
+  })
+})
+
+describe('largestMunicipalities', () => {
+  it('takes the municipalities with the most valid votes, capped, with the candidate’s votes', () => {
+    const votes = {
+      numbers: [13, 22],
+      rows: [
+        [1, 1, 'Small', 10, 4, 6],
+        [2, 2, 'Big', 1000, 600, 400],
+        [3, 3, 'Middle', 100, 30, 70],
+      ] as [number, number, string, number, ...number[]][],
+    }
+    expect(largestMunicipalities(votes, 22, 2)).toEqual([
+      { ibge: 2, municipio: 2, nome: 'Big', valid: 1000, votes: 400 },
+      { ibge: 3, municipio: 3, nome: 'Middle', valid: 100, votes: 70 },
+    ])
+    expect(largestMunicipalities(votes, 99, 2)).toEqual([])
   })
 })

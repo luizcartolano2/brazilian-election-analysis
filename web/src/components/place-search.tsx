@@ -46,7 +46,7 @@ export function PlaceSearch({
 
   return (
     <section className="mt-8">
-      <h2 className="text-xl font-semibold">{t(locale, 'search.title')}</h2>
+      <h2 className="text-2xl font-extrabold">{t(locale, 'search.title')}</h2>
       <form onSubmit={submit} className="mt-2 flex flex-wrap gap-2">
         <label className="sr-only" htmlFor="place-search">
           {t(locale, 'search.label')}
@@ -58,14 +58,14 @@ export function PlaceSearch({
           maxLength={100}
           onChange={(event) => setText(event.target.value)}
           placeholder={t(locale, 'search.label')}
-          className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1 text-sm"
+          className="border-ink/20 min-w-0 flex-1 rounded border px-2 py-1 text-sm"
         />
-        <button type="submit" className="rounded border border-slate-400 px-3 py-1 text-sm">
+        <button type="submit" className="border-ink/30 rounded border px-3 py-1 text-sm">
           {t(locale, 'search.button')}
         </button>
       </form>
       {result.status === 'searching' && (
-        <p className="mt-2 text-sm text-slate-600">{t(locale, 'search.searching')}</p>
+        <p className="text-muted mt-2 text-sm">{t(locale, 'search.searching')}</p>
       )}
       {result.status === 'failed' && (
         <p role="alert" className="mt-2 text-sm">
@@ -88,11 +88,11 @@ export function PlaceSearch({
               {result.places.map((place) => (
                 <li key={`${place.zone}-${place.place}-${place.address}`}>
                   <p className="font-medium break-words">{place.place}</p>
-                  <p className="break-words text-slate-700">
+                  <p className="text-muted break-words">
                     {[place.address, place.neighborhood].filter(Boolean).join(' · ')}
                   </p>
                   <p className="mt-1 flex flex-wrap gap-x-3">
-                    <span className="text-slate-600">{t(locale, 'search.stations')}:</span>
+                    <span className="text-muted">{t(locale, 'search.stations')}:</span>
                     {place.stations.map((station) => (
                       <AppLink
                         key={station.station}

@@ -1,4 +1,6 @@
-import { AREAS, COUNCIL, PRESIDENT, raceByCode, raceBySlug, type RaceInfo } from './elections'
+import { AREAS, COUNCIL, PRESIDENT, raceByCode, raceBySlug, YEAR, type RaceInfo } from './elections'
+import type { Locale } from './i18n'
+import { localePath } from './paths'
 
 export type Level = 'municipio' | 'zona' | 'secao'
 
@@ -90,4 +92,14 @@ export function addressQuery(address: {
   }
   params.set('cargo', address.race.slug)
   return `?${params.toString()}`
+}
+
+/** A municipality's view on one race, in a locale. */
+export function municipalityHref(
+  locale: Locale,
+  area: string,
+  municipality: number,
+  race: RaceInfo,
+): string {
+  return `${localePath(locale, `/${YEAR}/municipio/`)}${addressQuery({ area, municipality, race })}`
 }

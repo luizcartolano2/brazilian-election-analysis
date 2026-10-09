@@ -17,6 +17,15 @@ export function formatShare(locale: Locale, part: number, whole: number): string
   }).format(part / whole)
 }
 
+const ENGLISH_SUFFIXES: Record<string, string> = { one: 'st', two: 'nd', few: 'rd', other: 'th' }
+
+/** A place in a ranking: `3º` in Portuguese, `3rd` in English. */
+export function formatOrdinal(locale: Locale, place: number): string {
+  if (locale === 'pt') return `${place}º`
+  const form = new Intl.PluralRules('en-US', { type: 'ordinal' }).select(place)
+  return `${place}${ENGLISH_SUFFIXES[form] ?? 'th'}`
+}
+
 /** Percentage points with one decimal, such as `3,9` or `3.9`. */
 export function formatPoints(locale: Locale, points: number): string {
   return new Intl.NumberFormat(NUMBER_LOCALES[locale], {

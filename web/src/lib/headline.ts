@@ -1,8 +1,8 @@
 /** A race's headline, built from TSE's outcomes only. It never compares votes to name a winner. */
 import { NUMBER_LOCALES } from './format'
-import { SENATE } from './elections'
-import { formatInteger, t, type Locale } from './i18n'
-import { isElected, isInRunoff, type RaceResults } from './results'
+import { ROUND_DATES, SENATE } from './elections'
+import { formatDate, formatInteger, formatOrdinal, t, type Locale } from './i18n'
+import { isElected, isInRunoff, VALID, type RaceResults, type SummaryCandidate } from './results'
 
 export type Headline =
   | { form: 'count'; count: number }
@@ -64,5 +64,39 @@ export function headlineText(locale: Locale, headline: Headline, race: string): 
     }
     case 'mostVoted':
       return t(locale, 'headline.mostVoted', { name: headline.name })
+  }
+}
+
+export type CandidateHeadline =
+  | { form: 'runoff' }
+  | { form: 'elected'; senate: boolean }
+  | { form: 'place'; place: number }
+  | { form: 'status'; status: string }
+
+/** A candidate page's headline: its own outcome from TSE, or else its place in the race. */
+export function candidateHeadline(
+  candidate: SummaryCandidate,
+  place: number | null,
+  race: number,
+): CandidateHeadline {
+  if (candidate.destino !== VALID) return { form: 'status', status: candidate.destino }
+  if (isInRunoff(candidate.resultado)) return { form: 'runoff' }
+  if (isElected(candidate.resultado)) return { form: 'elected', senate: race === SENATE }
+  if (place === null) throw new Error(`candidate ${candidate.numero} is valid but has no place`)
+  return { form: 'place', place }
+}
+
+export function candidateHeadlineText(locale: Locale, headline: CandidateHeadline): string {
+  switch (headline.form) {
+    case 'runoff':
+      return t(locale, 'candidate.headlineRunoff', {
+        date: formatDate(locale, ROUND_DATES.runoff),
+      })
+    case 'elected':
+      return t(locale, headline.senate ? 'candidate.headlineSenate' : 'candidate.headlineElected')
+    case 'place':
+      return t(locale, 'candidate.headlinePlace', { place: formatOrdinal(locale, headline.place) })
+    case 'status':
+      return t(locale, 'candidate.headlineStatus', { status: headline.status })
   }
 }

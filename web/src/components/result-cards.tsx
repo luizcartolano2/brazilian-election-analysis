@@ -4,10 +4,16 @@ import { formatDate, formatInteger, formatShare, t, type Locale } from '@/lib/i1
 import { candidateColor } from '@/lib/map-colors'
 import { isElected, isInRunoff, type CandidateRow, type RaceResults } from '@/lib/results'
 
-/** The two most voted, or every candidate TSE elected and the next one, as in a Senate race. */
+/**
+ * Every candidate TSE elected and the most voted of the others, in vote order, or the two
+ * most voted when TSE elected no one. An elected candidate is shown however many votes it had.
+ */
 export function leadingCandidates(results: RaceResults): CandidateRow[] {
-  const elected = results.candidates.filter((candidate) => isElected(candidate.outcome)).length
-  return results.candidates.slice(0, Math.max(2, elected + 1))
+  const elected = results.candidates.filter((candidate) => isElected(candidate.outcome))
+  if (elected.length === 0) return results.candidates.slice(0, 2)
+  const next = results.candidates.find((candidate) => !isElected(candidate.outcome))
+  const shown = new Set(next === undefined ? elected : [...elected, next])
+  return results.candidates.filter((candidate) => shown.has(candidate))
 }
 
 /** The leading candidates of a majoritarian race, each in its map color. */

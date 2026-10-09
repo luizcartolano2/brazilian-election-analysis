@@ -94,6 +94,28 @@ describe('ResultCards', () => {
     expect(third).toContain('Caio Reis')
   })
 
+  it('shows every elected Senate candidate, however many votes it had, and the next most voted', () => {
+    const html = renderToStaticMarkup(
+      <ResultCards
+        locale="pt"
+        results={results(
+          [
+            ['Ana Lima', 500, 'Não eleito'],
+            ['Bia Souza', 400, 'Eleito'],
+            ['Caio Reis', 300, 'Não eleito'],
+            ['Dora Melo', 200, 'Não eleito'],
+            ['Eva Rios', 100, 'Eleito'],
+          ],
+          2,
+        )}
+        ranks={new Map()}
+      />,
+    )
+    expect(
+      cards(html).map((card) => /Ana Lima|Bia Souza|Caio Reis|Dora Melo|Eva Rios/.exec(card)?.[0]),
+    ).toEqual(['Ana Lima', 'Bia Souza', 'Eva Rios'])
+  })
+
   it('marks Senate candidates in the Senate map\u2019s single shade', () => {
     const html = renderToStaticMarkup(
       <ResultCards

@@ -2,7 +2,7 @@ import en from '../../messages/en.json'
 import pt from '../../messages/pt.json'
 import { NUMBER_LOCALES } from './format'
 
-export { formatInteger, formatPoints, formatShare } from './format'
+export { formatInteger, formatOrdinal, formatPoints, formatShare } from './format'
 export { localePath } from './paths'
 
 export type Locale = 'pt' | 'en'

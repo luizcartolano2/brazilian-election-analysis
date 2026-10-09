@@ -324,6 +324,34 @@ export function marginPoints(row: MapRow): number {
   return valid > 0 ? ((firstVotes - secondVotes) / valid) * 100 : 0
 }
 
+export interface MunicipalityVotes {
+  ibge: number
+  municipio: number
+  nome: string
+  valid: number
+  votes: number
+}
+
+/** The municipalities with the most valid votes, with one candidate's votes in each. */
+export function largestMunicipalities(
+  votes: CandidateVotes,
+  numero: number,
+  count: number,
+): MunicipalityVotes[] {
+  const column = votes.numbers.indexOf(numero)
+  if (column === -1) return []
+  return votes.rows
+    .map(([ibge, municipio, nome, valid, ...counts]) => ({
+      ibge,
+      municipio,
+      nome,
+      valid,
+      votes: counts[column] ?? 0,
+    }))
+    .sort((a, b) => b.valid - a.valid || a.municipio - b.municipio)
+    .slice(0, count)
+}
+
 /** The rows with the smallest margin between the two most voted, ties first, then by name. */
 export function closestRows(data: MapData, count: number): MapRow[] {
   return data.rows

@@ -19,7 +19,7 @@ export default function GlobalNotFound() {
           <main className="py-10">
             {LOCALES.map((locale) => (
               <section key={locale} lang={locale === 'pt' ? 'pt-BR' : 'en'} className="mb-8">
-                <h1 className="text-2xl font-semibold">{t(locale, 'notFound.title')}</h1>
+                <h1 className="text-4xl font-extrabold">{t(locale, 'notFound.title')}</h1>
                 <p className="mt-2">{t(locale, 'notFound.body')}</p>
                 <p className="mt-2">
                   <a href={localePath(locale, '/2026/')} className="underline">

@@ -201,5 +201,20 @@
   "closest.between": "{first} e {second}",
   "brazil.fullResultsTitle": "Todos os candidatos",
   "headline.electedSenateOne": "{names} vence para o Senado",
-  "headline.electedSenateMany": "{names} vencem para o Senado"
+  "headline.electedSenateMany": "{names} vencem para o Senado",
+  "candidate.headlineRunoff": "Vai ao 2º turno, em {date}",
+  "candidate.headlineElected": "Vence no 1º turno",
+  "candidate.headlineSenate": "Vence para o Senado",
+  "candidate.headlinePlace": "Termina em {place} lugar",
+  "candidate.headlineStatus": "Votos sob recurso: {status}",
+  "candidate.place": "Posição",
+  "candidate.placeValue": "{place} lugar",
+  "candidate.statesLed": "Liderou em",
+  "candidate.statesOne": "{count} estado",
+  "candidate.statesMany": "{count} estados",
+  "candidate.largestTitle": "Nos maiores municípios",
+  "candidate.largestNote": "Os municípios com mais votos válidos, com a parcela de {name} em cada um.",
+  "candidate.statesTitle": "Por estado",
+  "candidate.statesNote": "A parcela de {name} nos votos válidos de cada estado, da maior para a menor. Os estados em que liderou estão marcados.",
+  "candidate.ledMark": "liderou"
 }

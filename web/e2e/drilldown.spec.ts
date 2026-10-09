@@ -184,7 +184,9 @@ test('switching language keeps the place and race', async ({ page }) => {
   await page.goto(STATION)
   await page.getByRole('link', { name: 'English' }).click()
   await expect(page).toHaveURL(/\/en\/2026\/secao\/\?uf=pe&mu=25313&zn=3&se=597&cargo=governador$/)
-  await expect(page.getByRole('heading', { name: 'Station 597 · Zone 3 · RECIFE' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Station 597 · Zone 3 · Recife', exact: true }),
+  ).toBeVisible()
 })
 
 test('a state page links to each of its municipalities, on the Governor race of its list', async ({

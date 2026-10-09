@@ -36,7 +36,7 @@ function viewHref(locale: Locale, level: Level, address: Parameters<typeof addre
 }
 
 function Notice({ children }: { children: ReactNode }) {
-  return <div className="mt-4 rounded bg-slate-50 p-4 text-sm">{children}</div>
+  return <div className="bg-surface mt-4 rounded p-4 text-sm">{children}</div>
 }
 
 /** A municipality, zone or polling station, read in the browser from the pinned version. */
@@ -106,7 +106,7 @@ export function Drilldown({
         <button
           type="button"
           onClick={() => setAttempt((count) => count + 1)}
-          className="mt-3 rounded border border-slate-400 px-3 py-1"
+          className="border-ink/30 mt-3 rounded border px-3 py-1"
         >
           {t(locale, 'drilldown.retry')}
         </button>
@@ -153,7 +153,7 @@ function ViewBody({
 
   return (
     <>
-      <nav aria-label={t(locale, 'nav.breadcrumbs')} className="text-sm text-slate-600">
+      <nav aria-label={t(locale, 'nav.breadcrumbs')} className="text-muted text-sm">
         <ol className="flex flex-wrap gap-1">
           <li>
             <AppLink href={localePath(locale, `/${YEAR}/`)} className="underline">
@@ -198,10 +198,10 @@ function ViewBody({
           )}
         </ol>
       </nav>
-      <h1 className="mt-3 text-2xl font-semibold break-words">{title}</h1>
+      <h1 className="mt-3 text-4xl font-extrabold break-words">{title}</h1>
 
       {data.station !== null && (
-        <section className="mt-2 text-sm text-slate-700">
+        <section className="text-muted mt-2 text-sm">
           <p>
             <span className="font-medium">{t(locale, 'drilldown.place')}:</span>{' '}
             {data.station.place}
@@ -232,13 +232,13 @@ function ViewBody({
           {racesFor(address.area, address.municipality, config.areaRaces).map((race) => (
             <li key={race.code}>
               {race.code === address.race.code ? (
-                <span aria-current="page" className="rounded bg-slate-800 px-2 py-1 text-white">
+                <span aria-current="page" className="bg-ink rounded px-2 py-1 text-white">
                   {raceName(race, locale)}
                 </span>
               ) : (
                 <AppLink
                   href={viewHref(locale, address.level, { ...address, race })}
-                  className="rounded border border-slate-300 px-2 py-1"
+                  className="border-ink/20 rounded border px-2 py-1"
                 >
                   {raceName(race, locale)}
                 </AppLink>
@@ -273,14 +273,14 @@ function ViewBody({
       ) : (
         data.results !== null && (
           <section className="mt-4">
-            <h2 className="text-xl font-semibold">{raceName(address.race, locale)}</h2>
+            <h2 className="text-2xl font-extrabold">{raceName(address.race, locale)}</h2>
             <FullResults
               locale={locale}
               info={address.race}
               results={data.results}
               caption={`${raceName(address.race, locale)} · ${title}`}
             />
-            <p className="mt-2 text-sm text-slate-600" data-testid="zero-votes">
+            <p className="text-muted mt-2 text-sm" data-testid="zero-votes">
               {t(locale, 'drilldown.zeroVotes')}
             </p>
           </section>
@@ -290,7 +290,7 @@ function ViewBody({
       {address.level === 'municipio' && (
         <>
           <section className="mt-8">
-            <h2 className="text-xl font-semibold">{t(locale, 'drilldown.zonesTitle')}</h2>
+            <h2 className="text-2xl font-extrabold">{t(locale, 'drilldown.zonesTitle')}</h2>
             <ul className="mt-2 grid grid-cols-2 gap-1 text-sm sm:grid-cols-3">
               {data.zones.map((zone) => (
                 <li key={zone.zone}>
@@ -300,7 +300,7 @@ function ViewBody({
                   >
                     {t(locale, 'drilldown.zone', { zone: String(zone.zone) })}
                   </AppLink>{' '}
-                  <span className="text-xs text-slate-600">
+                  <span className="text-muted text-xs">
                     {t(locale, 'drilldown.zoneEligible', {
                       count: formatInteger(locale, zone.eligible),
                     })}
@@ -321,7 +321,7 @@ function ViewBody({
 
       {address.level === 'zona' && address.zone !== null && (
         <section className="mt-8">
-          <h2 className="text-xl font-semibold">{t(locale, 'drilldown.stationsTitle')}</h2>
+          <h2 className="text-2xl font-extrabold">{t(locale, 'drilldown.stationsTitle')}</h2>
           <ul className="mt-2 space-y-1 text-sm">
             {data.stations.map((station) => (
               <li key={station.station}>
@@ -335,7 +335,7 @@ function ViewBody({
                 >
                   {t(locale, 'drilldown.station', { station: String(station.station) })}
                 </AppLink>{' '}
-                <span className="text-xs text-slate-600">
+                <span className="text-muted text-xs">
                   {station.place}
                   {station.aggregated && ` · ${t(locale, 'drilldown.aggregatedMark')}`}
                 </span>

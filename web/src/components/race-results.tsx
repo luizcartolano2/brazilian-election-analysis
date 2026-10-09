@@ -22,7 +22,7 @@ export function RaceNote({
     notes.push(t(locale, 'race.manySeatsOneChoice', { seats }))
   }
   if (notes.length === 0) return null
-  return <p className="mt-1 text-sm text-slate-700">{notes.join(' ')}</p>
+  return <p className="text-muted mt-1 text-sm">{notes.join(' ')}</p>
 }
 
 export function FullResults({

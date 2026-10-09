@@ -15,7 +15,7 @@ import {
 } from 'react'
 import { feature, mesh } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
-import { addressQuery } from '@/lib/address'
+import { municipalityHref } from '@/lib/address'
 import { areaByCode, areaName, areaOfIbge, raceBySlug, YEAR } from '@/lib/elections'
 import { formatInteger, formatPoints, formatShare } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
@@ -181,7 +181,7 @@ function Swatch({ color, pattern = false }: { color: string; pattern?: boolean }
   return (
     <span
       aria-hidden="true"
-      className="inline-block h-3 w-3 rounded-sm border border-slate-300 align-middle"
+      className="border-ink/20 inline-block h-3 w-3 rounded-sm border align-middle"
       style={{
         background: pattern
           ? 'repeating-linear-gradient(45deg, #e2e8f0 0 2px, #64748b 2px 4px)'
@@ -203,8 +203,8 @@ function Legend({
 }) {
   const colored = data.kind === 'share' ? [] : data.units.slice(0, 2)
   return (
-    <figcaption className="mt-2 space-y-1 text-xs text-slate-700">
-      <p className="text-sm font-medium text-slate-900">{labels.title}</p>
+    <figcaption className="text-muted mt-2 space-y-1 text-xs @3xl:mt-0">
+      <p className="text-ink text-sm font-medium">{labels.title}</p>
       <p>{labels.statement}</p>
       {labels.twoChoices !== null && <p>{labels.twoChoices}</p>}
       <ul className="flex flex-wrap gap-x-4 gap-y-1">
@@ -246,7 +246,7 @@ function Legend({
       </ul>
       {data.kind === 'margin' && <p>{labels.binsLegend}</p>}
       {labels.credits.map((credit) => (
-        <p key={credit} className="text-slate-600">
+        <p key={credit} className="text-muted">
           {credit}
         </p>
       ))}
@@ -427,12 +427,12 @@ function MunicipalityTable({
     return (
       // Styles sit on the table, so each of up to 5,571 rows carries no class.
       <table
-        className={`w-full text-sm ${share ? '[&_td:nth-child(2)]:text-right [&_td:nth-child(2)]:tabular-nums' : ''} [&_a]:underline [&_small]:block [&_small]:text-xs [&_small]:text-slate-600 [&_tbody_tr]:border-b [&_tbody_tr]:border-slate-100 [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums`}
+        className={`w-full text-sm ${share ? '[&_td:nth-child(2)]:text-right [&_td:nth-child(2)]:tabular-nums' : ''} [&_small]:text-muted [&_tbody_tr]:border-line [&_a]:underline [&_small]:block [&_small]:text-xs [&_tbody_tr]:border-b [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums`}
         data-testid="municipality-table"
       >
-        <caption className="mb-1 text-left text-xs text-slate-600">{table.caption}</caption>
+        <caption className="text-muted mb-1 text-left text-xs">{table.caption}</caption>
         <thead>
-          <tr className="border-b border-slate-300 text-left text-xs text-slate-600">
+          <tr className="border-ink/20 text-muted border-b text-left text-xs">
             <th scope="col" className="py-1 pr-2 font-medium">
               {table.municipality}
             </th>
@@ -459,7 +459,7 @@ function MunicipalityTable({
   }
 
   const pressed = (active: boolean) =>
-    `rounded border px-2 py-1 ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`
+    `rounded border px-2 py-1 ${active ? 'border-ink bg-ink text-white' : 'border-ink/20'}`
 
   const content = (
     <>
@@ -475,7 +475,7 @@ function MunicipalityTable({
             maxLength={60}
             placeholder={table.filter}
             onChange={(event) => setQuery(event.target.value)}
-            className="h-8 min-w-0 flex-1 rounded border border-slate-300 px-2"
+            className="border-ink/20 h-8 min-w-0 flex-1 rounded border px-2"
           />
           <button
             type="button"
@@ -495,7 +495,7 @@ function MunicipalityTable({
               {share ? table.sortShare : table.sortMargin}
             </button>
           )}
-          <p role="status" className="w-full text-xs text-slate-600">
+          <p role="status" className="text-muted w-full text-xs">
             {fill(table.count, { shown: String(rows.length), total: String(data.rows.length) })}
           </p>
         </div>
@@ -603,11 +603,9 @@ export function RaceMap({
 
   function hrefOf(row: MapRow): string {
     const state = area ?? areaOfIbge(row[0]) ?? ''
-    const query =
-      raceInfo === undefined
-        ? `?uf=${state}&mu=${row[1]}`
-        : addressQuery({ area: state, municipality: row[1], race: raceInfo })
-    return `${localePath(locale, `/${YEAR}/municipio/`)}${query}`
+    return raceInfo === undefined
+      ? `${localePath(locale, `/${YEAR}/municipio/`)}?uf=${state}&mu=${row[1]}`
+      : municipalityHref(locale, state, row[1], raceInfo)
   }
 
   function rowAt(event: MouseEvent<SVGElement>): MapRow | undefined {
@@ -632,11 +630,12 @@ export function RaceMap({
     return row === undefined ? NO_VOTES : fillColor(fillOf(row, data.kind, data.step), patternId)
   }
 
+  // Beside a wide map the legend sits to the right. In a narrow column it sits below.
   const framed = (
-    <figure className="mt-3 rounded border border-slate-200 p-2">
+    <figure className="border-line mt-3 rounded-2xl border p-3 @3xl:grid @3xl:grid-cols-[3fr_2fr] @3xl:items-start @3xl:gap-x-6">
       <div ref={frame} className="relative" data-testid="race-map">
         {drawn === null ? (
-          <div className="flex aspect-[4/3] items-center justify-center rounded bg-slate-50 p-4 text-center text-sm text-slate-700">
+          <div className="bg-surface text-muted flex aspect-[4/3] items-center justify-center rounded p-4 text-center text-sm">
             {hydrated ? (
               load.status === 'failed' ? (
                 <p role="alert">{labels.failed}</p>
@@ -737,7 +736,7 @@ export function RaceMap({
         {details !== null && (
           <div
             data-testid="map-details"
-            className="absolute z-10 max-w-[16rem] rounded border border-slate-300 bg-white p-2 text-xs shadow"
+            className="border-ink/20 absolute z-10 max-w-[16rem] rounded border bg-white p-2 text-xs shadow"
             style={{
               left: Math.max(0, Math.min(details.x + 12, details.width - 260)),
               top: details.y + 12,
@@ -763,7 +762,7 @@ export function RaceMap({
 
   return (
     <>
-      {framed}
+      <div className="@container">{framed}</div>
       {children}
       {table && (
         <MunicipalityTable
