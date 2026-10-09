@@ -53,6 +53,9 @@ uv run python tests/fixtures/build_runoff_fixtures.py
 uv run python tests/fixtures/export_web_fixtures.py
 ```
 
+Run the second command only while round 2 is synthetic. Once TSE publishes round 2, the
+first command copies TSE's own round-2 rows, and the second refuses to replace them.
+
 The last command refreshes `web/fixtures/`, the web app's sample data. CI fails when
 that folder differs from what the pipeline produces.
 

@@ -1,4 +1,5 @@
 import csv
+import re
 from pathlib import Path
 
 import duckdb
@@ -46,14 +47,20 @@ def test_no_fixture_holds_a_real_cpf():
             assert found == [], f"{path} holds a number with valid CPF check digits"
 
 
-def test_no_output_holds_a_real_cpf(built):
+# A run of 11 digits inside a hex checksum passes the CPF check about 1 time in 100.
+CHECKSUM = re.compile(r"\b(?:[0-9a-f]{64}|[0-9a-f]{128})\b")
+
+
+@pytest.mark.parametrize("output", ["built", "built_runoff"])
+def test_no_output_holds_a_real_cpf(output, request):
+    built = request.getfixturevalue(output)
     con = duckdb.connect()
     for path in built.rglob("*"):
         if path.suffix == ".parquet":
             rows = con.execute(f"SELECT * FROM read_parquet({quoted(path)})").fetchall()
             text = "\n".join(";".join(str(value) for value in row) for row in rows)
         elif path.is_file():
-            text = path.read_text(encoding="utf-8")
+            text = CHECKSUM.sub("", path.read_text(encoding="utf-8"))
         else:
             continue
         assert valid_cpfs_in(text) == [], f"{path} holds a number with valid CPF check digits"

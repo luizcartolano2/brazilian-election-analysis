@@ -4,7 +4,7 @@ from pathlib import Path
 
 import duckdb
 import pytest
-from conftest import run_build
+from conftest import query, run_build
 
 from eleicoes.aggregates import ANNULLED_SUB_JUDICE, PARTY_LIST, TECHNICAL_NULL
 from eleicoes.build import BuildError
@@ -13,10 +13,6 @@ from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
 from eleicoes.sources import Bases, bulk_sources, round_config
 
 DATA = "2026/t1"
-
-
-def query(path: Path, sql: str):
-    return duckdb.connect().execute(sql.replace("FILE", f"read_parquet({quoted(path)})")).fetchall()
 
 
 def votes(built: Path, cargo: int, state: str) -> Path:

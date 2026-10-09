@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
 
+import duckdb
 import pytest
-from conftest import run_build
-from test_build import query
+from conftest import query, run_build
 
+from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
 from eleicoes.reconcile import ReconciliationFailed
 from eleicoes.sources import Bases, aggregate_source, bulk_sources, round_config
 
@@ -66,6 +67,13 @@ def test_the_candidates_are_the_finalists_of_round_two(built_runoff):
         *((6258, 1, "BR", number) for number in PRESIDENT_FINALISTS),
         *((6260, 3, "AC", number) for number in GOVERNOR_FINALISTS),
     }
+
+
+def test_round_two_candidates_keep_the_allowlist(built_runoff):
+    columns = [row[0] for row in duckdb.connect().execute(
+        f"DESCRIBE SELECT * FROM read_parquet({quoted(built_runoff / DATA / 'candidatos.parquet')})"
+    ).fetchall()]  # fmt: skip
+    assert columns == [*CANDIDATE_ALLOWLIST.values(), "destino", "resultado"]
 
 
 def test_a_round_two_station_row_changed_by_one_vote_fails_the_build(tse, tmp_path):

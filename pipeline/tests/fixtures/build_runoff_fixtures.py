@@ -7,8 +7,8 @@ import shutil
 from collections import defaultdict
 from pathlib import Path
 
-from build_fixtures import OUT, cdn_path, read_rows, results_path, write_rows
-from published import FIXTURE_STATES
+from build_fixtures import OUT, read_rows, results_path, write_rows
+from published import FIXTURE_STATES, csv_path
 
 from eleicoes.aggregates import BLANK_NUMBER, NULL_NUMBER
 from eleicoes.sources import (
@@ -41,12 +41,13 @@ Station = tuple[str, int, int, int]
 class Table:
     """One fixture CSV, without its round-2 rows, so that a rerun gives the same files."""
 
-    def __init__(self, path: Path):
-        self.path = path
-        rows = read_rows(path)
-        self.header = next(rows)
+    def __init__(self, source):
+        self.path = csv_path(OUT, source)
+        rows = list(read_rows(self.path))
+        self.header = rows[0]
         self.index = {name: position for position, name in enumerate(self.header)}
-        self.rows = [row for row in rows if self.get(row, "NR_TURNO") != "2"]
+        self.rows = [row for row in rows[1:] if self.get(row, "NR_TURNO") != "2"]
+        self.had_round_two = len(self.rows) < len(rows) - 1
         self.added: list[list[str]] = []
 
     def get(self, row: list[str], column: str) -> str:
@@ -71,10 +72,6 @@ class Table:
 
     def save(self) -> None:
         write_rows(self.path, self.header, self.rows + self.added)
-
-
-def csv_of(source) -> Path:
-    return cdn_path(source.url).with_name(source.member)
 
 
 def aggregate_path(config, election: int, race: int, area: str) -> Path:
@@ -118,7 +115,9 @@ def add_votes(
         if int(table.get(row, "CD_CARGO")) != race:
             continue
         station, number = table.station(row), int(table.get(row, "NR_VOTAVEL"))
-        first_round[station][number] = int(table.get(row, "QT_VOTOS"))
+        first_round[station][number] = first_round[station].get(number, 0) + int(
+            table.get(row, "QT_VOTOS")
+        )
         templates.setdefault(station, row)
         names[number] = (table.get(row, "NM_VOTAVEL"), table.get(row, "SQ_CANDIDATO"))
     names.setdefault(NULL_NUMBER, ("VOTO NULO", "-1"))
@@ -153,6 +152,8 @@ def add_turnout(
             continue
         if station not in votes and int(table.get(row, "QT_COMPARECIMENTO")):
             raise SystemExit(f"station {station} has attendance but no votes")
+        if station in turnout:
+            raise SystemExit(f"station {station} has two turnout rows for race {race}")
         counted = votes.get(station, {})
         blank, null = counted.get(BLANK_NUMBER, 0), counted.get(NULL_NUMBER, 0)
         table.added.append(
@@ -205,11 +206,14 @@ def add_candidates(table: Table, races: dict[tuple[str, int], tuple[int, list[in
 
 
 def write_aggregate(
-    race: int, area: str, election: int, numbers: list[int], winner: int,
+    race: int, whole_area: str, area: str, election: int, numbers: list[int], winner: int,
     votes: dict[Station, dict[int, int]], turnout: dict[Station, tuple[int, int]],
 ) -> None:  # fmt: skip
+    """Starts from the round-1 aggregate of the race's whole area, because an area's own
+    fixture aggregate leaves out a finalist with no votes at the area's fixture stations."""
     first = FIRST.president if race == PRESIDENT else FIRST.state
-    document = json.loads(aggregate_path(FIRST, first, race, area).read_text(encoding="utf-8"))
+    template = aggregate_path(FIRST, first, race, whole_area)
+    document = json.loads(template.read_text(encoding="utf-8"))
     totals: dict[int, int] = defaultdict(int)
     for station, counted in votes.items():
         if in_area(station, area):
@@ -224,7 +228,7 @@ def write_aggregate(
                     candidate.update(vap=str(totals[number]), st=OUTCOMES[number == winner][0])
                     parties.append({**party, "cand": [candidate]})
     if len(parties) != 2:
-        raise SystemExit(f"the round-1 {area} aggregate of race {race} lacks a finalist")
+        raise SystemExit(f"the round-1 {whole_area} aggregate of race {race} lacks a finalist")
     valid = sum(totals[number] for number in numbers)
     blank, null = totals[BLANK_NUMBER], totals[NULL_NUMBER]
     stations = [counts for station, counts in turnout.items() if in_area(station, area)]
@@ -256,18 +260,30 @@ def winner_of(numbers: list[int], votes: dict[Station, dict[int, int]], area: st
 
 def main() -> None:
     sources = bulk_sources(SECOND, REAL)
+    president_table = Table(sources["votes_president"])
+    state_tables = {
+        state: Table(state_votes_source(SECOND, REAL, state)) for state in FIXTURE_STATES
+    }
+    turnout_table = Table(sources["turnout"])
+    munzona_table = Table(sources["munzona"])
+    candidates_table = Table(sources["candidates"])
+    tables = [president_table, *state_tables.values(), turnout_table, munzona_table]
+    tables.append(candidates_table)
+
+    # This script writes the round-2 JSON with its rows, so round-2 rows without that JSON
+    # came from TSE through `build_fixtures.py`, and must not be replaced.
+    synthetic = OUT / "results" / SECOND.cycle / str(SECOND.president)
+    if not synthetic.exists() and any(table.had_round_two for table in tables):
+        raise SystemExit("the fixtures hold TSE's own round-2 rows: recut round 2 from them")
     for election in (SECOND.president, SECOND.state):
         shutil.rmtree(OUT / "results" / SECOND.cycle / str(election), ignore_errors=True)
 
     president = finalists(PRESIDENT, "br", FIRST.president)
     governor = finalists(GOVERNOR, RUNOFF_STATE.lower(), FIRST.state)
 
-    president_table = Table(csv_of(sources["votes_president"]))
     president_votes = add_votes(president_table, PRESIDENT, president, SECOND.president)
-    state_table = Table(csv_of(state_votes_source(SECOND, REAL, RUNOFF_STATE)))
-    governor_votes = add_votes(state_table, GOVERNOR, governor, SECOND.state)
+    governor_votes = add_votes(state_tables[RUNOFF_STATE], GOVERNOR, governor, SECOND.state)
 
-    turnout_table = Table(csv_of(sources["turnout"]))
     president_turnout = add_turnout(
         turnout_table, PRESIDENT, "br", SECOND.president, president_votes
     )
@@ -275,12 +291,10 @@ def main() -> None:
         turnout_table, GOVERNOR, RUNOFF_STATE.lower(), SECOND.state, governor_votes
     )
 
-    munzona_table = Table(csv_of(sources["munzona"]))
     add_munzona(munzona_table, governor, governor_votes)
 
     president_winner = winner_of(president, president_votes, "br")
     governor_winner = winner_of(governor, governor_votes, RUNOFF_STATE.lower())
-    candidates_table = Table(csv_of(sources["candidates"]))
     add_candidates(
         candidates_table,
         {
@@ -289,16 +303,17 @@ def main() -> None:
         },
     )
 
-    for table in (president_table, state_table, turnout_table, munzona_table, candidates_table):
+    for table in tables:
         table.save()
 
     for area in ["br", *(state.lower() for state in FIXTURE_STATES), ABROAD.lower()]:
         write_aggregate(
-            PRESIDENT, area, SECOND.president, president, president_winner,
+            PRESIDENT, "br", area, SECOND.president, president, president_winner,
             president_votes, president_turnout,
         )  # fmt: skip
+    runoff_area = RUNOFF_STATE.lower()
     write_aggregate(
-        GOVERNOR, RUNOFF_STATE.lower(), SECOND.state, governor, governor_winner,
+        GOVERNOR, runoff_area, runoff_area, SECOND.state, governor, governor_winner,
         governor_votes, governor_turnout,
     )  # fmt: skip
     municipalities = municipality_list_source(FIRST, REAL, FIRST.president)

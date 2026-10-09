@@ -6,15 +6,22 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+import duckdb
 import pytest
 from fixtures.published import csv_path, publish_fixtures
 
 from eleicoes.build import Build, BuildOptions
 from eleicoes.download import Downloader
+from eleicoes.load import quoted
 from eleicoes.sources import Bases
 
 FIXTURES = Path(__file__).parent / "fixtures" / "data"
 CLOCK = "2026-10-06T00:00:00Z"
+
+
+def query(path: Path, sql: str):
+    """Runs `sql` with `FILE` standing for the Parquet file at `path`."""
+    return duckdb.connect().execute(sql.replace("FILE", f"read_parquet({quoted(path)})")).fetchall()
 
 
 @dataclass
