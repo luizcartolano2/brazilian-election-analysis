@@ -17,7 +17,7 @@ import { browserLocate, browserRunner } from '@/lib/drilldown/browser'
 import { loadView, NotFound, type ViewData } from '@/lib/drilldown/queries'
 import { areaByCode, areaName, raceName, YEAR } from '@/lib/elections'
 import { formatInteger, localePath, t, type Locale } from '@/lib/i18n'
-import { tseStationUrl } from '@/lib/tse-link'
+import { stationLinkOf } from '@/lib/tse-link'
 
 type State =
   | { status: 'loading' }
@@ -51,7 +51,7 @@ export function Drilldown({
 }) {
   const search = useSearchParams().toString()
   const address = useMemo(
-    () => parseAddress(level, new URLSearchParams(search), config.areaRaces),
+    () => parseAddress(level, new URLSearchParams(search), config.areaRaces, config.round),
     [level, search, config],
   )
   const [attempt, setAttempt] = useState(0)
@@ -150,6 +150,7 @@ function ViewBody({
         ? `${zoneLabel} · ${data.municipalityName}`
         : `${stationLabel} · ${zoneLabel} · ${data.municipalityName}`
   const place = { area: address.area, municipality: address.municipality, race: address.race }
+  const stationLink = stationLinkOf(address)
 
   return (
     <>
@@ -207,19 +208,9 @@ function ViewBody({
             {data.station.place}
           </p>
           <p>{[data.station.address, data.station.neighborhood].filter(Boolean).join(' · ')}</p>
-          {address.station !== null && address.zone !== null && (
+          {stationLink !== null && (
             <p className="mt-1">
-              <a
-                href={tseStationUrl(
-                  address.race.election,
-                  address.area,
-                  address.municipality,
-                  address.zone,
-                  address.station,
-                )}
-                className="underline"
-                data-testid="tse-link"
-              >
+              <a href={stationLink} className="underline" data-testid="tse-link">
                 {t(locale, 'drilldown.tseLink')}
               </a>
             </p>
@@ -229,22 +220,24 @@ function ViewBody({
 
       <nav aria-label={t(locale, 'drilldown.racesTitle')} className="mt-4">
         <ul className="flex flex-wrap gap-2 text-sm">
-          {racesFor(address.area, address.municipality, config.areaRaces).map((race) => (
-            <li key={race.code}>
-              {race.code === address.race.code ? (
-                <span aria-current="page" className="bg-ink rounded px-2 py-1 text-white">
-                  {raceName(race, locale)}
-                </span>
-              ) : (
-                <AppLink
-                  href={viewHref(locale, address.level, { ...address, race })}
-                  className="border-ink/20 rounded border px-2 py-1"
-                >
-                  {raceName(race, locale)}
-                </AppLink>
-              )}
-            </li>
-          ))}
+          {racesFor(address.area, address.municipality, config.areaRaces, address.round).map(
+            (race) => (
+              <li key={race.code}>
+                {race.code === address.race.code ? (
+                  <span aria-current="page" className="bg-ink rounded px-2 py-1 text-white">
+                    {raceName(race, locale)}
+                  </span>
+                ) : (
+                  <AppLink
+                    href={viewHref(locale, address.level, { ...address, race })}
+                    className="border-ink/20 rounded border px-2 py-1"
+                  >
+                    {raceName(race, locale)}
+                  </AppLink>
+                )}
+              </li>
+            ),
+          )}
         </ul>
       </nav>
 

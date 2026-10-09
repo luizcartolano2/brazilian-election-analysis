@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { ROUND, YEAR } from './elections'
+import { YEAR, type Round } from './elections'
 
 export interface ManifestFile {
   path: string
@@ -27,6 +27,8 @@ export interface Manifest {
   credito: { pt: string; en: string }
   fontes: ManifestSource[]
   arquivos: ManifestFile[]
+  /** Set only on test fixtures that the pipeline made up rather than cut from TSE's files. */
+  sintetico?: boolean
 }
 
 export class DataVersionError extends Error {}
@@ -35,16 +37,26 @@ export function sha256(bytes: Uint8Array): string {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-export function parseManifest(bytes: Uint8Array): Manifest {
+/** Reads a manifest, and checks that it holds the year and the round it is read for. */
+export function parseManifest(bytes: Uint8Array, round: Round): Manifest {
   const manifest = JSON.parse(new TextDecoder().decode(bytes)) as Manifest
   if (!Array.isArray(manifest.arquivos) || !Array.isArray(manifest.estados)) {
     throw new DataVersionError('manifest.json has no file list or no state list')
   }
+  if (manifest.ano !== YEAR || manifest.turno !== round) {
+    throw new DataVersionError(
+      `the version for round ${round} holds ${manifest.ano} round ${manifest.turno}, not ${YEAR} round ${round}`,
+    )
+  }
   return manifest
 }
 
-/** Checks the pinned version's manifest. `bytes` is null when the version has no manifest. */
-export function verifyManifest(bytes: Uint8Array | null, expectedSha256: string): Manifest {
+/** Checks a pinned version's manifest. `bytes` is null when the version has no manifest. */
+export function verifyManifest(
+  bytes: Uint8Array | null,
+  expectedSha256: string,
+  round: Round,
+): Manifest {
   if (bytes === null) {
     throw new DataVersionError(
       'the pinned data version has no manifest.json, so it is incomplete or does not exist',
@@ -56,12 +68,7 @@ export function verifyManifest(bytes: Uint8Array | null, expectedSha256: string)
       `manifest.json has SHA-256 ${actual}, but data-version.ts pins ${expectedSha256}`,
     )
   }
-  const manifest = parseManifest(bytes)
-  if (manifest.ano !== YEAR || manifest.turno !== ROUND) {
-    throw new DataVersionError(
-      `the pinned version holds ${manifest.ano} round ${manifest.turno}, not ${YEAR} round ${ROUND}`,
-    )
-  }
+  const manifest = parseManifest(bytes, round)
   if (manifest.parcial !== false || manifest.fontes_tse !== true) {
     throw new DataVersionError('the pinned version is partial or was built from files outside TSE')
   }
@@ -82,12 +89,11 @@ export function verifyFile(manifest: Manifest, path: string, bytes: Uint8Array |
   }
 }
 
-const SUMMARY_PATH = new RegExp(`^${YEAR}/t${ROUND}/resumo/[a-z]{2}\\.json$`)
-
-/** The summaries of the year and round the app shows, and no other. */
+/** The summaries of the manifest's own year and round, and no other. */
 export function summaryPaths(manifest: Manifest): string[] {
+  const summaryPath = new RegExp(`^${YEAR}/t${manifest.turno}/resumo/[a-z]{2}\\.json$`)
   return manifest.arquivos
     .map((file) => file.path)
-    .filter((path) => SUMMARY_PATH.test(path))
+    .filter((path) => summaryPath.test(path))
     .sort()
 }

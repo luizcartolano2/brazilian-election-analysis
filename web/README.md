@@ -13,17 +13,25 @@ npm ci --ignore-scripts
 ELEICOES_DATA=fixtures npm run dev
 ```
 
-`npm run build` and `npm run dev` first run `scripts/prepare-data.ts`. That script reads the
-data version and copies its manifest and summaries into `.data/`, which the pages read at
-build time. It takes the data from one of two places:
+`npm run build` and `npm run dev` first run `scripts/prepare-data.ts`. That script reads one
+data version for each round and copies its manifest and summaries into
+`.data/rounds/<round>/`, which the pages read at build time. Each version holds one round,
+and its manifest must name the round it is read for. The script takes the data from one of
+two places:
 
-- By default, from the version that `src/data-version.ts` pins, through the Worker. The
-  build fails if the manifest is missing, if its SHA-256 differs from the pin, if it says
-  `parcial` or does not say `fontes_tse`, or if any summary differs from its manifest entry.
-- With `ELEICOES_DATA=fixtures`, from `fixtures/`, which the pipeline generates from its
-  test data. Fixtures have no published version, so only the summaries are checked
-  against their manifest. Every page then shows a test-build banner, and the step refuses
-  to run on Vercel, where the `VERCEL` variable is set.
+- By default, from the versions that `src/data-version.ts` pins, through the Worker. Round
+  2 has no pin until TSE publishes it. The build fails if a manifest is missing, if its
+  SHA-256 differs from the pin, if it says `parcial` or does not say `fontes_tse`, or if
+  any summary differs from its manifest entry.
+- With `ELEICOES_DATA=fixtures`, from `fixtures/` for round 1 and `fixtures-t2/` for round 2,
+  which the pipeline generates from its test data. Fixtures have no published version, so
+  only the summaries are checked against their manifest. Every page then shows a test-build
+  banner, and the step refuses to run on Vercel, where the `VERCEL` variable is set. Round
+  2 of the fixtures is synthetic, so its pages say so instead.
+
+When both rounds are present, the build fails unless they agree on who reached round 2.
+Each round-2 race must hold exactly the candidates that round 1 sends to a runoff in that
+race, and each such race must appear in round 2. The search index comes from round 1 alone.
 
 ## Municipality, zone and station views
 
@@ -48,7 +56,7 @@ step fails until the two agree.
 `prepare-data.ts` also builds the maps' values. It reads each race's municipality totals and
 the candidate registry from the pinned version, and checks each file against the manifest.
 It then checks that the municipalities add up to each summary. Any difference fails the
-build, and the build lists every one. The step writes `.data/mapas/`: the two most voted
+build, and the build lists every one. The step writes `.data/rounds/<round>/mapas/`: the two most voted
 in each municipality for every race map, and each President, Governor and Senate
 candidate's votes for their share map.
 
@@ -136,9 +144,11 @@ moves, Vercel cannot find the script, and every commit builds again without any 
 
 A "Publish data" run's summary shows the version and its manifest's SHA-256.
 
-1. Put both in `src/data-version.ts`.
+1. Put both in `src/data-version.ts`, under the round that the version holds.
 2. Run `npm run build` without `ELEICOES_DATA`, which checks the new version through the
-   Worker.
+   Worker. A new version of either round must agree with the other round's pin. So once
+   round 2 is pinned, a recount that changes who reached round 2 needs both new pins in
+   one PR.
 3. Open a PR. Rolling back is a PR that pins the previous version.
 
 If the Worker's origin changes, change it in `src/data-version.ts` and in the

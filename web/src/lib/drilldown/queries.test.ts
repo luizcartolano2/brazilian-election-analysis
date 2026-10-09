@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { nodeRunner } from '../../../scripts/duckdb-node'
-import { parseAddress } from '../address'
+import { parseAddress, racesFor } from '../address'
 import { COUNCIL, raceByCode } from '../elections'
 import type { Summary } from '../results'
 import { loadView, NotFound, searchPlaces, type Locate, type Run } from './queries'
@@ -167,7 +167,7 @@ describe('loadView', () => {
 
 describe('searchPlaces', () => {
   it('finds a place by part of its name, ignoring case and accents', async () => {
-    const { places, truncated } = await searchPlaces(run, locate, 'pe', 30015, 'arquipelago')
+    const { places, truncated } = await searchPlaces(run, locate, 1, 'pe', 30015, 'arquipelago')
     expect(truncated).toBe(false)
     expect(places).toHaveLength(1)
     expect(places[0]?.stations.length).toBeGreaterThan(1)
@@ -175,10 +175,43 @@ describe('searchPlaces', () => {
 
   it('treats quotes and wildcards in the search as text', async () => {
     for (const text of ["d'água", '" OR 1=1 --', '%', '_']) {
-      await expect(searchPlaces(run, locate, 'pe', 30015, text), text).resolves.toEqual({
+      await expect(searchPlaces(run, locate, 1, 'pe', 30015, text), text).resolves.toEqual({
         places: [],
         truncated: false,
       })
     }
+  })
+})
+
+describe('a round-2 view', () => {
+  const FIXTURES_T2 = path.join(import.meta.dirname, '..', '..', '..', 'fixtures-t2')
+  const locateT2: Locate = (relative) => path.join(FIXTURES_T2, relative)
+  const ROUND_TWO: Record<string, number[]> = { ac: [1, 3], pe: [1], se: [1], zz: [1] }
+  const ONE_CHOICE = { seats: 1, choicesPerVoter: 1 }
+
+  function roundTwo(query: string) {
+    const parsed = parseAddress('secao', new URLSearchParams(query), ROUND_TWO, 2)
+    if (parsed === null) throw new Error(`invalid address ${query}`)
+    return loadView(run, locateT2, parsed, ONE_CHOICE)
+  }
+
+  it('reads a station from the round-2 version, with the two finalists only', async () => {
+    const governor = await roundTwo('uf=ac&mu=1392&zn=9&se=228&cargo=governador')
+    expect(governor.results?.candidates.map((entry) => entry.number).sort()).toEqual([10, 11])
+    expect(governor.results?.totals.totalVotes).toBe(governor.results?.totals.attendance)
+    const president = await roundTwo('uf=ac&mu=1392&zn=9&se=228')
+    expect(president.results?.candidates.map((entry) => entry.number).sort()).toEqual([13, 22])
+  })
+
+  it('refuses a race that round 2 does not hold, and offers no council', () => {
+    expect(
+      parseAddress(
+        'secao',
+        new URLSearchParams('uf=pe&mu=25313&zn=3&se=597&cargo=senador'),
+        ROUND_TWO,
+        2,
+      ),
+    ).toBeNull()
+    expect(racesFor('pe', COUNCIL.municipality, ROUND_TWO, 2).map((race) => race.code)).toEqual([1])
   })
 })

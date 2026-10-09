@@ -65,6 +65,7 @@
   "sources.filesNote": "{count} files, with their size and the time they were downloaded.",
   "results.otherUnderAppeal": "Other votes under appeal",
   "site.fixturesBanner": "Test build: these numbers come from a sample of TSE's files and are not the official results.",
+  "site.syntheticBanner": "Test build: this round 2 is synthetic. Its numbers copy round 1 and are neither official results nor a forecast.",
   "area.turnoutTitle": "Voters and turnout · {race}",
   "race.manySeatsOneChoice": "{seats} seats, with one choice per voter.",
   "brazil.abroadLink": "Presidential votes cast abroad",

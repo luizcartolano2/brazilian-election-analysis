@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { DATA_VERSION } from './data-version'
+import { WORKER_URL } from './data-version'
 
 interface VercelConfig {
   ignoreCommand: string
@@ -38,10 +38,7 @@ describe('vercel.json', () => {
   const policy = header('Content-Security-Policy')
 
   it('lets the browser fetch data only from the app and the pinned Worker', () => {
-    expect(directive(policy, 'connect-src')).toEqual([
-      "'self'",
-      new URL(DATA_VERSION.workerUrl).origin,
-    ])
+    expect(directive(policy, 'connect-src')).toEqual(["'self'", new URL(WORKER_URL).origin])
   })
 
   it('keeps the rest of the policy closed', () => {

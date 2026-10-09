@@ -1,6 +1,11 @@
 import { PageShell } from '@/components/page-shell'
-import { VERSION_URL } from '@/data-version'
-import { getManifest, getSourceInfo, type DataSourceInfo } from '@/lib/data'
+import {
+  getManifest,
+  getRoundSource,
+  getSourceInfo,
+  type DataSourceInfo,
+  type RoundSourceInfo,
+} from '@/lib/data'
 import { YEAR } from '@/lib/elections'
 import { formatDateTime, formatInteger, t, type Locale, type MessageKey } from '@/lib/i18n'
 import type { Manifest, ManifestSource } from '@/lib/manifest'
@@ -52,10 +57,12 @@ export function SourcesContent({
   locale,
   manifest,
   source,
+  version,
 }: {
   locale: Locale
   manifest: Manifest
   source: DataSourceInfo
+  version: RoundSourceInfo
 }) {
   const sources = [...manifest.fontes].sort((a, b) => a.key.localeCompare(b.key))
   const unknownHost = sources.filter((entry) => !HOSTS.some((host) => host.pattern.test(entry.url)))
@@ -69,11 +76,11 @@ export function SourcesContent({
       <p className="mt-2 text-sm">{t(locale, 'sources.checks')}</p>
 
       <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.versionTitle')}</h2>
-      {source.mode === 'published' && source.version !== null ? (
+      {source.mode === 'published' && version.version !== null ? (
         <dl className="mt-2 text-sm">
           <dt className="text-muted text-xs">{t(locale, 'sources.version')}</dt>
           <dd className="font-mono break-all" data-testid="data-version">
-            {source.version}
+            {version.version}
           </dd>
           <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.builtAt')}</dt>
           <dd>{formatDateTime(locale, manifest.gerado_em)}</dd>
@@ -85,7 +92,7 @@ export function SourcesContent({
           </dd>
           <dt className="text-muted mt-2 text-xs">{t(locale, 'sources.manifest')}</dt>
           <dd>
-            <a href={`${VERSION_URL}/manifest.json`} className="underline">
+            <a href={`${version.dataBase}/manifest.json`} className="underline">
               manifest.json
             </a>
           </dd>
@@ -171,7 +178,12 @@ export function SourcesView({ locale }: { locale: Locale }) {
     >
       {/* Prose keeps a readable line length inside the wide column. */}
       <div className="max-w-3xl">
-        <SourcesContent locale={locale} manifest={getManifest()} source={getSourceInfo()} />
+        <SourcesContent
+          locale={locale}
+          manifest={getManifest()}
+          source={getSourceInfo()}
+          version={getRoundSource()}
+        />
       </div>
     </PageShell>
   )

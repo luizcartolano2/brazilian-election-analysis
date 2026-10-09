@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { DrilldownConfig } from './drilldown/config'
-import { COUNCIL, raceByCode } from './elections'
+import { COUNCIL, raceByCode, type Round } from './elections'
 import type { Manifest } from './manifest'
 import { votesWithDisplayNames, withDisplayNames, type CandidateVotes, type MapData } from './maps'
 import { displayName } from './names'
@@ -22,9 +22,9 @@ function readJson<T>(relative: string): T {
 
 export interface DataSourceInfo {
   mode: 'published' | 'fixtures'
-  version: string | null
-  /** Where the browser reads the data version and the DuckDB assets from. */
-  dataBase: string
+  /** The rounds with a data version, which .data/rounds/ holds. */
+  rounds: Round[]
+  /** Where the browser reads the DuckDB assets from. */
   assetBase: string
   workerScript: string
   /** The search index's folder in the static export, named for its content. */
@@ -32,6 +32,14 @@ export interface DataSourceInfo {
   /** Where the browser reads the pinned boundary build, and each file's SHA-256. */
   geoBase: string
   geoSha256: Record<string, string>
+}
+
+export interface RoundSourceInfo {
+  version: string | null
+  /** Where the browser reads the round's data version from. */
+  dataBase: string
+  /** True for test fixtures that the pipeline made up rather than cut from TSE's files. */
+  synthetic: boolean
 }
 
 export interface Municipality {
@@ -42,26 +50,46 @@ export interface Municipality {
   capital: boolean
 }
 
-let manifest: Manifest | undefined
-let source: DataSourceInfo | undefined
-const summaries = new Map<string, Summary>()
-
-export function getManifest(): Manifest {
-  manifest ??= readJson<Manifest>('manifest.json')
-  return manifest
+/** Reads a round's file once, and keeps it for the rest of the build. */
+function cached<T>(cache: Map<string, T>, key: string, read: () => T): T {
+  let value = cache.get(key)
+  if (value === undefined) {
+    value = read()
+    cache.set(key, value)
+  }
+  return value
 }
+
+let source: DataSourceInfo | undefined
+const manifests = new Map<string, Manifest>()
+const roundSources = new Map<string, RoundSourceInfo>()
+const summaries = new Map<string, Summary>()
 
 export function getSourceInfo(): DataSourceInfo {
   source ??= readJson<DataSourceInfo>('source.json')
   return source
 }
 
+/** Whether this build holds a data version for the round. */
+export function hasRound(round: Round): boolean {
+  return getSourceInfo().rounds.includes(round)
+}
+
+export function getManifest(round: Round = 1): Manifest {
+  return cached(manifests, String(round), () => readJson<Manifest>(`rounds/${round}/manifest.json`))
+}
+
+export function getRoundSource(round: Round = 1): RoundSourceInfo {
+  return cached(roundSources, String(round), () =>
+    readJson<RoundSourceInfo>(`rounds/${round}/source.json`),
+  )
+}
+
 /** `area` is `br`, a state code or `zz`, in lower case. Candidates' names come in title case. */
-export function getSummary(area: string): Summary {
-  let summary = summaries.get(area)
-  if (summary === undefined) {
-    const read = readJson<Summary>(`resumo/${area}.json`)
-    summary = {
+export function getSummary(area: string, round: Round = 1): Summary {
+  return cached(summaries, `${round}/${area}`, () => {
+    const read = readJson<Summary>(`rounds/${round}/resumo/${area}.json`)
+    return {
       ...read,
       corridas: read.corridas.map((race) => ({
         ...race,
@@ -71,64 +99,61 @@ export function getSummary(area: string): Summary {
         })),
       })),
     }
-    summaries.set(area, summary)
-  }
-  return summary
+  })
 }
 
-/** The state codes and `zz` that this data version covers, in lower case. */
-export function coveredAreas(): string[] {
-  return getManifest().estados.map((code) => code.toLowerCase())
+/** The state codes and `zz` that the round's data version covers, in lower case. */
+export function coveredAreas(round: Round = 1): string[] {
+  return getManifest(round).estados.map((code) => code.toLowerCase())
 }
 
-let municipalities: Record<string, Municipality[]> | undefined
+const municipalities = new Map<string, Record<string, Municipality[]>>()
 
 /** An area's municipalities, or its cities abroad, in TSE's order of names, with names in title case. */
-export function getMunicipalities(area: string): Municipality[] {
-  municipalities ??= Object.fromEntries(
-    Object.entries(readJson<Record<string, Municipality[]>>('municipios.json')).map(
-      ([code, list]) => [code, list.map((entry) => ({ ...entry, nome: displayName(entry.nome) }))],
+export function getMunicipalities(area: string, round: Round = 1): Municipality[] {
+  const byArea = cached(municipalities, String(round), () =>
+    Object.fromEntries(
+      Object.entries(
+        readJson<Record<string, Municipality[]>>(`rounds/${round}/municipios.json`),
+      ).map(([code, list]) => [
+        code,
+        list.map((entry) => ({ ...entry, nome: displayName(entry.nome) })),
+      ]),
     ),
   )
-  return municipalities[area] ?? []
+  return byArea[area] ?? []
 }
 
 const maps = new Map<string, MapData>()
 
 /** A race's values by municipality: `br` holds the President map of Brazil. */
-export function getRaceMap(area: string, race: number): MapData {
+export function getRaceMap(area: string, race: number, round: Round = 1): MapData {
   const key = `${area}/${race}`
-  let data = maps.get(key)
-  if (data === undefined) {
-    data = withDisplayNames(
-      readJson<MapData>(`mapas/${key}.json`),
+  return cached(maps, `${round}/${key}`, () =>
+    withDisplayNames(
+      readJson<MapData>(`rounds/${round}/mapas/${key}.json`),
       raceByCode(race)?.proportional ?? true,
-    )
-    maps.set(key, data)
-  }
-  return data
+    ),
+  )
 }
 
 const votes = new Map<string, CandidateVotes>()
 
 /** Each candidate's votes by municipality in a race: `br` holds President for Brazil. */
-export function getCandidateVotes(area: string, race: number): CandidateVotes {
+export function getCandidateVotes(area: string, race: number, round: Round = 1): CandidateVotes {
   const key = `${area}/${race}-votos`
-  let data = votes.get(key)
-  if (data === undefined) {
-    data = votesWithDisplayNames(readJson<CandidateVotes>(`mapas/${key}.json`))
-    votes.set(key, data)
-  }
-  return data
+  return cached(votes, `${round}/${key}`, () =>
+    votesWithDisplayNames(readJson<CandidateVotes>(`rounds/${round}/mapas/${key}.json`)),
+  )
 }
 
-/** What the browser needs to query this data version, with each area's races and shapes. */
-export function getDrilldownConfig(): DrilldownConfig {
+/** What the browser needs to query the round's data version, with each area's races and shapes. */
+export function getDrilldownConfig(round: Round = 1): DrilldownConfig {
   const source = getSourceInfo()
   const areaRaces: DrilldownConfig['areaRaces'] = {}
   const shapes: DrilldownConfig['shapes'] = {}
-  for (const area of coveredAreas()) {
-    const races = getSummary(area).corridas
+  for (const area of coveredAreas(round)) {
+    const races = getSummary(area, round).corridas
     areaRaces[area] = races.map((race) => race.cargo)
     shapes[area] = Object.fromEntries(
       races.map((race) => [
@@ -138,11 +163,12 @@ export function getDrilldownConfig(): DrilldownConfig {
     )
   }
   const councilArea = shapes[COUNCIL.area]
-  if (councilArea !== undefined) {
+  if (round === 1 && councilArea !== undefined) {
     councilArea[COUNCIL.race] = { seats: COUNCIL.seats, choicesPerVoter: COUNCIL.choicesPerVoter }
   }
   return {
-    dataBase: source.dataBase,
+    round,
+    dataBase: getRoundSource(round).dataBase,
     assetBase: source.assetBase,
     workerScript: source.workerScript,
     areaRaces,

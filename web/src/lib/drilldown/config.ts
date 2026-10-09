@@ -1,8 +1,10 @@
+import type { Round } from '../elections'
 import type { RaceShape } from './model'
 
 /** Built at build time from the checked data, and handed to the browser views as props. */
 export interface DrilldownConfig {
-  /** The data version's root, as a URL or a path on this site. */
+  round: Round
+  /** The round's data version root, as a URL or a path on this site. */
   dataBase: string
   /** The folder with DuckDB's WebAssembly module and its Parquet extension. */
   assetBase: string

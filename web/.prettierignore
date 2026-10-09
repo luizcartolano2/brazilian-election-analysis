@@ -2,6 +2,7 @@
 out
 .data
 fixtures
+fixtures-t2
 fixtures-geo
 node_modules
 package-lock.json

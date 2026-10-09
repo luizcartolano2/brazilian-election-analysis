@@ -6,7 +6,7 @@ import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 import type { Municipality } from '../src/lib/data'
 import type { Run } from '../src/lib/drilldown/queries'
-import type { MapData } from '../src/lib/maps'
+import type { CandidateVotes, MapData } from '../src/lib/maps'
 import type { Summary } from '../src/lib/results'
 import { nodeRunner } from './duckdb-node'
 import { boundaryIds, buildMaps, checkBoundaries, readBoundaries } from './map-data'
@@ -81,7 +81,7 @@ describe('buildMaps on the fixtures', () => {
   beforeAll(async () => {
     run = await nodeRunner()
     const source = fixtureSource()
-    const { manifest } = await readManifest(source)
+    const { manifest } = await readManifest(source, 1, '')
     const summaries = new Map<string, Summary>()
     for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
       const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
@@ -105,7 +105,7 @@ describe('buildMaps on the fixtures', () => {
       boundaries.set(name, new Uint8Array(await readFile(path.join(FIXTURES_GEO, name))))
     }
     out = await mkdtemp(path.join(os.tmpdir(), 'mapas-'))
-    await buildMaps({ run, source, manifest, summaries, municipalities, boundaries, out })
+    await buildMaps({ round: 1, run, source, manifest, summaries, municipalities, boundaries, out })
   }, 60_000)
 
   async function read(area: string, race: number): Promise<MapData> {
@@ -150,7 +150,7 @@ describe('buildMaps on the fixtures', () => {
 
   it('fails and names a municipality that its state file lacks', async () => {
     const source = fixtureSource()
-    const { manifest } = await readManifest(source)
+    const { manifest } = await readManifest(source, 1, '')
     const summaries = new Map<string, Summary>()
     for (const area of ['br', 'pe']) {
       const text = await readFile(
@@ -166,6 +166,7 @@ describe('buildMaps on the fixtures', () => {
 
     await expect(
       buildMaps({
+        round: 1,
         run,
         source,
         manifest,
@@ -179,7 +180,7 @@ describe('buildMaps on the fixtures', () => {
 
   it('fails and names a municipality that the Brazil file lacks', async () => {
     const source = fixtureSource()
-    const { manifest } = await readManifest(source)
+    const { manifest } = await readManifest(source, 1, '')
     const summaries = new Map<string, Summary>()
     for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
       const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
@@ -199,13 +200,22 @@ describe('buildMaps on the fixtures', () => {
     const target = await mkdtemp(path.join(os.tmpdir(), 'mapas-'))
 
     await expect(
-      buildMaps({ run, source, manifest, summaries, municipalities, boundaries, out: target }),
+      buildMaps({
+        round: 1,
+        run,
+        source,
+        manifest,
+        summaries,
+        municipalities,
+        boundaries,
+        out: target,
+      }),
     ).rejects.toThrow(/br.json: RECIFE \(2611606\) has no area/)
   })
 
   it('fails and names a municipality in the totals that the municipality list lacks', async () => {
     const source = fixtureSource()
-    const { manifest } = await readManifest(source)
+    const { manifest } = await readManifest(source, 1, '')
     const summaries = new Map<string, Summary>()
     for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
       const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
@@ -223,6 +233,7 @@ describe('buildMaps on the fixtures', () => {
 
     await expect(
       buildMaps({
+        round: 1,
         run,
         source,
         manifest,
@@ -240,5 +251,54 @@ describe('buildMaps on the fixtures', () => {
     const ids = boundaryIds(new Uint8Array(await readFile(path.join(FIXTURES_GEO, 'pe.json'))))
 
     expect(ids).toContain(2611606)
+  })
+})
+
+describe('buildMaps on the round-2 fixtures', () => {
+  const FIXTURES_T2 = path.join(import.meta.dirname, '..', 'fixtures-t2')
+  let out: string
+
+  beforeAll(async () => {
+    const run = await nodeRunner()
+    const source = fixtureSource(FIXTURES_T2)
+    const { manifest } = await readManifest(source, 2, '')
+    const summaries = new Map<string, Summary>()
+    for (const file of await readdir(path.join(FIXTURES_T2, '2026', 't2', 'resumo'))) {
+      const text = await readFile(path.join(FIXTURES_T2, '2026', 't2', 'resumo', file), 'utf-8')
+      summaries.set(path.basename(file, '.json'), JSON.parse(text) as Summary)
+    }
+    const municipalities: Record<string, Municipality[]> = {}
+    const rows = await run(
+      'SELECT lower(uf) AS area, municipio, ibge, nome, capital FROM read_parquet(?)',
+      [path.join(FIXTURES_T2, '2026', 'municipios.parquet')],
+    )
+    for (const row of rows) {
+      ;(municipalities[String(row.area)] ??= []).push({
+        municipio: Number(row.municipio),
+        ibge: row.ibge === null ? null : Number(row.ibge),
+        nome: String(row.nome),
+        capital: Boolean(row.capital),
+      })
+    }
+    const boundaries = new Map<string, Uint8Array>()
+    for (const name of ['ac.json', 'pe.json', 'se.json', 'br.json']) {
+      boundaries.set(name, new Uint8Array(await readFile(path.join(FIXTURES_GEO, name))))
+    }
+    out = await mkdtemp(path.join(os.tmpdir(), 'mapas-t2-'))
+    await buildMaps({ round: 2, run, source, manifest, summaries, municipalities, boundaries, out })
+  }, 60_000)
+
+  it('maps President everywhere and Governor only in the runoff state', async () => {
+    const written = async (area: string) => (await readdir(path.join(out, area))).sort()
+    expect(await written('ac')).toEqual(['1-votos.json', '1.json', '3-votos.json', '3.json'])
+    expect(await written('pe')).toEqual(['1-votos.json', '1.json'])
+    expect(await written('br')).toEqual(['1-votos.json', '1.json'])
+  })
+
+  it('holds the two finalists only in the candidate votes', async () => {
+    const votes = JSON.parse(
+      await readFile(path.join(out, 'ac', '3-votos.json'), 'utf-8'),
+    ) as CandidateVotes
+    expect([...votes.numbers].sort()).toEqual([10, 11])
   })
 })

@@ -3,8 +3,8 @@ import { AppLink as Link } from '@/components/app-link'
 import { LanguageLink } from '@/components/language-link'
 import { outcomeLabels } from '@/components/results'
 import { SiteSearch, type SearchLabels } from '@/components/site-search'
-import { getSourceInfo } from '@/lib/data'
-import { ROUND_DATES, YEAR } from '@/lib/elections'
+import { getRoundSource, getSourceInfo } from '@/lib/data'
+import { ROUND_DATES, YEAR, type Round } from '@/lib/elections'
 import { formatDate, localePath, t, type Locale } from '@/lib/i18n'
 import { MAX_RESULTS } from '@/lib/search'
 import { REPOSITORY } from '@/lib/site'
@@ -13,6 +13,18 @@ export interface Crumb {
   label: string
   /** The Portuguese address, or nothing for the current page. */
   path?: string
+}
+
+/** A test build's notice. A synthetic round says that its numbers copy round 1. */
+export function FixturesNotice({ locale, synthetic }: { locale: Locale; synthetic: boolean }) {
+  return (
+    <p
+      data-testid="fixtures-banner"
+      className="mt-3 rounded bg-amber-100 p-2 text-sm text-amber-900"
+    >
+      {t(locale, synthetic ? 'site.syntheticBanner' : 'site.fixturesBanner')}
+    </p>
+  )
 }
 
 /**
@@ -24,6 +36,7 @@ export function PageShell({
   path,
   crumbs = [],
   wide = false,
+  round = 1,
   children,
 }: {
   locale: Locale
@@ -31,6 +44,8 @@ export function PageShell({
   crumbs?: Crumb[]
   /** The 1,200-pixel column of a page that has its new layout. */
   wide?: boolean
+  /** The round whose data the page shows. */
+  round?: Round
   children: ReactNode
 }) {
   const other: Locale = locale === 'pt' ? 'en' : 'pt'
@@ -86,12 +101,7 @@ export function PageShell({
         className={`mx-auto w-full flex-1 px-4 ${wide ? 'max-w-[1200px] sm:px-6' : 'max-w-3xl'}`}
       >
         {getSourceInfo().mode === 'fixtures' && (
-          <p
-            data-testid="fixtures-banner"
-            className="mt-3 rounded bg-amber-100 p-2 text-sm text-amber-900"
-          >
-            {t(locale, 'site.fixturesBanner')}
-          </p>
+          <FixturesNotice locale={locale} synthetic={getRoundSource(round).synthetic} />
         )}
         {crumbs.length > 0 && (
           <nav aria-label={t(locale, 'nav.breadcrumbs')} className="text-muted pt-4 text-sm">

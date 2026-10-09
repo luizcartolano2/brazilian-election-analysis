@@ -7,7 +7,16 @@ import { displayName } from '../src/lib/names'
 import { summary } from './fixtures'
 
 function readVotes(area: string, race: number): CandidateVotes {
-  const file = path.join(import.meta.dirname, '..', '.data', 'mapas', area, `${race}-votos.json`)
+  const file = path.join(
+    import.meta.dirname,
+    '..',
+    '.data',
+    'rounds',
+    '1',
+    'mapas',
+    area,
+    `${race}-votos.json`,
+  )
   return JSON.parse(readFileSync(file, 'utf-8')) as CandidateVotes
 }
 

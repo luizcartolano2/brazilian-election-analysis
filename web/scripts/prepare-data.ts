@@ -1,14 +1,16 @@
 /**
- * Copies the pinned data version's manifest, summaries and municipality list into .data/
- * before `next build`, after checking each one, so a wrong or tampered file fails the build.
+ * Copies each pinned data version's manifest, summaries and municipality list into
+ * .data/rounds/<round>/ before `next build`, after checking each one, so a wrong or tampered
+ * file fails the build.
  */
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { DATA_VERSION, VERSION_URL } from '../src/data-version'
+import { DATA_VERSIONS, versionUrl, WORKER_URL, type PinnedVersion } from '../src/data-version'
 import type { Municipality } from '../src/lib/data'
 import type { Run } from '../src/lib/drilldown/queries'
 import type { Summary } from '../src/lib/results'
-import { YEAR } from '../src/lib/elections'
+import { ROUNDS, YEAR, type Round } from '../src/lib/elections'
+import { runoffMismatches } from '../src/lib/rounds'
 import {
   parseManifest,
   summaryPaths,
@@ -54,7 +56,7 @@ export function fixtureSource(root = path.join(WEB_ROOT, 'fixtures')): DataSourc
   }
 }
 
-export function publishedSource(baseUrl = VERSION_URL): DataSource {
+export function publishedSource(baseUrl: string): DataSource {
   return {
     mode: 'published',
     async read(relativePath) {
@@ -75,16 +77,50 @@ export interface LoadedVersion {
   municipalities: Uint8Array
 }
 
-/** Reads the manifest, and checks a published one against its pinned SHA-256. */
+/** One round that a build reads, and where the browser reads it from. */
+export interface PlannedRound {
+  round: Round
+  source: DataSource
+  pin: PinnedVersion | null
+  dataBase: string
+}
+
+const FIXTURE_DIRS: Record<Round, string> = { 1: 'fixtures', 2: 'fixtures-t2' }
+
+/**
+ * A fixtures build has no Worker, so it serves each round's files itself, from the same origin,
+ * under the same layout as a version.
+ */
+const FIXTURE_DATA: Record<Round, string> = { 1: '/_fixtures/data', 2: '/_fixtures/data-t2' }
+
+/** Every pinned round, or both rounds of the fixtures. */
+export function plannedRounds(
+  mode: DataMode,
+  versions: { 1: PinnedVersion; 2: PinnedVersion | null } = DATA_VERSIONS,
+  fixturesRoot = WEB_ROOT,
+): PlannedRound[] {
+  return ROUNDS.flatMap((round): PlannedRound[] => {
+    if (mode === 'fixtures') {
+      const source = fixtureSource(path.join(fixturesRoot, FIXTURE_DIRS[round]))
+      return [{ round, source, pin: null, dataBase: FIXTURE_DATA[round] }]
+    }
+    const pin = versions[round]
+    if (pin === null) return []
+    return [{ round, source: publishedSource(versionUrl(pin)), pin, dataBase: versionUrl(pin) }]
+  })
+}
+
+/** Reads the manifest, checks its round, and checks a published one against its pinned SHA-256. */
 export async function readManifest(
   source: DataSource,
-  expectedSha256: string = DATA_VERSION.manifestSha256,
+  round: Round,
+  expectedSha256: string,
 ): Promise<{ manifest: Manifest; manifestBytes: Uint8Array }> {
   const manifestBytes = await source.read('manifest.json')
   const manifest =
     source.mode === 'published'
-      ? verifyManifest(manifestBytes, expectedSha256)
-      : parseManifest(manifestBytes ?? new Uint8Array())
+      ? verifyManifest(manifestBytes, expectedSha256, round)
+      : parseManifest(manifestBytes ?? new Uint8Array(), round)
   return { manifest, manifestBytes: manifestBytes as Uint8Array }
 }
 
@@ -98,12 +134,16 @@ export async function readMunicipalities(
   return municipalities as Uint8Array
 }
 
-/** Reads and checks the manifest, every summary and the municipality list. Writes nothing. */
+/**
+ * Reads and checks the manifest, every summary and the municipality list. Writes nothing.
+ * `expectedSha256` is the pin, which a fixtures source does not need.
+ */
 export async function loadVersion(
   source: DataSource,
-  expectedSha256: string = DATA_VERSION.manifestSha256,
+  round: Round,
+  expectedSha256 = '',
 ): Promise<LoadedVersion> {
-  const { manifest, manifestBytes } = await readManifest(source, expectedSha256)
+  const { manifest, manifestBytes } = await readManifest(source, round, expectedSha256)
   const summaries = new Map<string, Uint8Array>()
   for (const summaryPath of summaryPaths(manifest)) {
     const bytes = await source.read(summaryPath)
@@ -218,36 +258,40 @@ export function dataMode(env: Record<string, string | undefined>): DataMode {
   return mode
 }
 
+function parseSummaries(summaries: Map<string, Uint8Array>): Map<string, Summary> {
+  return new Map(
+    [...summaries].map(([area, bytes]) => [
+      area,
+      JSON.parse(new TextDecoder().decode(bytes)) as Summary,
+    ]),
+  )
+}
+
 async function main(): Promise<void> {
   const mode = dataMode(process.env)
-  const source = mode === 'fixtures' ? fixtureSource() : publishedSource()
-  const { manifest, manifestBytes, summaries, municipalities } = await loadVersion(source)
+  const rounds: (PlannedRound & LoadedVersion & { parsed: Map<string, Summary> })[] = []
+  for (const planned of plannedRounds(mode)) {
+    const loaded = await loadVersion(planned.source, planned.round, planned.pin?.manifestSha256)
+    rounds.push({ ...planned, ...loaded, parsed: parseSummaries(loaded.summaries) })
+  }
+  const [first, second] = rounds
+  if (first?.round !== 1) throw new Error('the build has no data version for round 1')
+  if (second !== undefined) {
+    const problems = runoffMismatches(first.parsed, second.parsed)
+    if (problems.length > 0) {
+      throw new Error(`the two rounds' versions disagree:\n${problems.join('\n')}`)
+    }
+  }
+
   const duckdbVersion = duckdbPackageVersion()
-  // Fixtures have no Worker, so a fixtures build serves their files and the DuckDB assets
-  // itself, from the same origin, under the same layout.
-  const dataBase = mode === 'fixtures' ? '/_fixtures/data' : VERSION_URL
   const assetBase =
     mode === 'fixtures'
       ? `/_fixtures/assets/duckdb-wasm/${duckdbVersion}`
-      : `${DATA_VERSION.workerUrl}/assets/duckdb-wasm/${duckdbVersion}`
+      : `${WORKER_URL}/assets/duckdb-wasm/${duckdbVersion}`
   if (mode === 'published') await verifyPublishedAssets(assetBase)
 
-  await rm(DATA_DIR, { recursive: true, force: true })
-  await mkdir(path.join(DATA_DIR, 'resumo'), { recursive: true })
-  await writeFile(path.join(DATA_DIR, 'manifest.json'), manifestBytes)
-  for (const [area, bytes] of summaries) {
-    await writeFile(path.join(DATA_DIR, 'resumo', `${area}.json`), bytes)
-  }
-  const municipalitiesFile = path.join(DATA_DIR, 'municipios.parquet')
-  await writeFile(municipalitiesFile, municipalities)
-  const run = await nodeRunner()
-  const municipalityLists = await municipalityList(run, municipalitiesFile)
-  await writeFile(path.join(DATA_DIR, 'municipios.json'), JSON.stringify(municipalityLists))
-  const searchBase = await writeSearchIndex(summaries, municipalityLists)
-
   // A fixtures build serves its boundaries itself, as it serves its data.
-  const geoBase =
-    mode === 'fixtures' ? '/_fixtures/geo' : `${DATA_VERSION.workerUrl}/${GEO_BUILD.path}`
+  const geoBase = mode === 'fixtures' ? '/_fixtures/geo' : `${WORKER_URL}/${GEO_BUILD.path}`
   const geoSha256 = mode === 'fixtures' ? await fixtureGeoPins() : GEO_BUILD.sha256
   const boundaries = await readBoundaries(
     mode === 'fixtures'
@@ -259,21 +303,42 @@ async function main(): Promise<void> {
       : (name) => publishedBoundary(geoBase, name),
     geoSha256,
   )
-  const parsedSummaries = new Map(
-    [...summaries].map(([area, bytes]) => [
-      area,
-      JSON.parse(new TextDecoder().decode(bytes)) as Summary,
-    ]),
-  )
-  await buildMaps({
-    run,
-    source,
-    manifest,
-    summaries: parsedSummaries,
-    municipalities: municipalityLists,
-    boundaries,
-    out: path.join(DATA_DIR, 'mapas'),
-  })
+
+  await rm(DATA_DIR, { recursive: true, force: true })
+  const run = await nodeRunner()
+  let searchBase = ''
+  for (const round of rounds) {
+    const roundDir = path.join(DATA_DIR, 'rounds', String(round.round))
+    await mkdir(path.join(roundDir, 'resumo'), { recursive: true })
+    await writeFile(path.join(roundDir, 'manifest.json'), round.manifestBytes)
+    for (const [area, bytes] of round.summaries) {
+      await writeFile(path.join(roundDir, 'resumo', `${area}.json`), bytes)
+    }
+    const municipalitiesFile = path.join(roundDir, 'municipios.parquet')
+    await writeFile(municipalitiesFile, round.municipalities)
+    const municipalityLists = await municipalityList(run, municipalitiesFile)
+    await writeFile(path.join(roundDir, 'municipios.json'), JSON.stringify(municipalityLists))
+    // Search leads to round-1 pages, and candidate pages carry both rounds.
+    if (round.round === 1) searchBase = await writeSearchIndex(round.summaries, municipalityLists)
+    await buildMaps({
+      round: round.round,
+      run,
+      source: round.source,
+      manifest: round.manifest,
+      summaries: round.parsed,
+      municipalities: municipalityLists,
+      boundaries,
+      out: path.join(roundDir, 'mapas'),
+    })
+    await writeFile(
+      path.join(roundDir, 'source.json'),
+      JSON.stringify({
+        version: round.pin?.name ?? null,
+        dataBase: round.dataBase,
+        synthetic: round.manifest.sintetico === true,
+      }),
+    )
+  }
 
   // A browser Worker must load from the page's own origin, so the app serves this script.
   const workerScript = `/duckdb/${duckdbVersion}/duckdb-browser-eh.worker.js`
@@ -284,12 +349,12 @@ async function main(): Promise<void> {
   const fixturesDir = path.join(PUBLIC_DIR, '_fixtures')
   await rm(fixturesDir, { recursive: true, force: true })
   if (mode === 'fixtures') {
-    for (const entry of manifest.arquivos) {
-      await mkdir(path.dirname(path.join(fixturesDir, 'data', entry.path)), { recursive: true })
-      await cp(
-        path.join(WEB_ROOT, 'fixtures', entry.path),
-        path.join(fixturesDir, 'data', entry.path),
-      )
+    for (const round of rounds) {
+      for (const entry of round.manifest.arquivos) {
+        const target = path.join(PUBLIC_DIR, round.dataBase, entry.path)
+        await mkdir(path.dirname(target), { recursive: true })
+        await cp(path.join(WEB_ROOT, FIXTURE_DIRS[round.round], entry.path), target)
+      }
     }
     for (const asset of await assetFiles()) {
       const target = path.join(PUBLIC_DIR, assetBase, asset.path)
@@ -299,13 +364,11 @@ async function main(): Promise<void> {
     await cp(FIXTURES_GEO, path.join(fixturesDir, 'geo'), { recursive: true })
   }
 
-  const version = mode === 'published' ? DATA_VERSION.name : null
   await writeFile(
     path.join(DATA_DIR, 'source.json'),
     JSON.stringify({
       mode,
-      version,
-      dataBase,
+      rounds: rounds.map((round) => round.round),
       assetBase,
       workerScript,
       searchBase,
@@ -313,7 +376,10 @@ async function main(): Promise<void> {
       geoSha256,
     }),
   )
-  console.log(`data: ${mode} ${version ?? ''}, ${summaries.size} summaries checked`)
+  for (const round of rounds) {
+    const name = round.pin?.name ?? mode
+    console.log(`data: round ${round.round} ${name}, ${round.summaries.size} summaries checked`)
+  }
   // The DuckDB runner keeps a Node worker alive.
   process.exit(0)
 }

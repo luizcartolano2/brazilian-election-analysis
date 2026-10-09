@@ -65,6 +65,7 @@
   "sources.filesNote": "{count} arquivos, com o tamanho e o momento em que foram baixados.",
   "results.otherUnderAppeal": "Outros votos sub judice",
   "site.fixturesBanner": "Versão de teste: estes números vêm de uma amostra dos arquivos do TSE e não são os resultados oficiais.",
+  "site.syntheticBanner": "Versão de teste: este 2º turno é sintético. Seus números copiam o 1º turno e não são resultados oficiais nem uma previsão.",
   "area.turnoutTitle": "Eleitores e comparecimento · {race}",
   "race.manySeatsOneChoice": "{seats} vagas, com uma escolha por eleitor.",
   "brazil.abroadLink": "Votos para presidente no exterior",

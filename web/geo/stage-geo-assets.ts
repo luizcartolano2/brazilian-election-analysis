@@ -9,7 +9,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
 import mapshaper from 'mapshaper'
-import { DATA_VERSION } from '../src/data-version'
+import { DATA_VERSIONS, versionUrl, WORKER_URL } from '../src/data-version'
 import { duckdbPackageVersion, sha256Of } from '../scripts/duckdb-assets'
 import { nodeRunner } from '../scripts/duckdb-node'
 import {
@@ -421,14 +421,15 @@ export async function stageToFolder(
   return files
 }
 
-/** The municipalities with an IBGE code in a data version's checked list, with their names. */
+/**
+ * The municipalities with an IBGE code in round 1's checked list, with their names. Round 2
+ * holds the same municipalities.
+ */
 export async function municipalitiesByCode(source: DataSource): Promise<Map<number, string>> {
-  const { manifest } = await readManifest(source)
+  const { manifest } = await readManifest(source, 1, DATA_VERSIONS[1].manifestSha256)
   const municipalities = await readMunicipalities(source, manifest)
   if (source.mode === 'published') {
-    await cachePublishedExtension(
-      `${DATA_VERSION.workerUrl}/assets/duckdb-wasm/${duckdbPackageVersion()}`,
-    )
+    await cachePublishedExtension(`${WORKER_URL}/assets/duckdb-wasm/${duckdbPackageVersion()}`)
   }
   const folder = await mkdtemp(path.join(os.tmpdir(), 'geo-'))
   try {
@@ -501,12 +502,12 @@ async function main(args: string[]): Promise<void> {
   const options = parseCommandLine(args)
   const zip = await loadSource(options.source)
   checkSource(zip, GEO_SOURCE)
-  const source = options.fixtures ? fixtureSource() : publishedSource()
+  const source = options.fixtures ? fixtureSource() : publishedSource(versionUrl(DATA_VERSIONS[1]))
   const municipalities = await municipalitiesByCode(source)
   const files = await stageToFolder(path.resolve(options.target), {
     zip,
     municipalities,
-    dataVersion: options.fixtures ? 'fixtures' : DATA_VERSION.name,
+    dataVersion: options.fixtures ? 'fixtures' : DATA_VERSIONS[1].name,
     commit: options.commit,
     only: options.fixtures ? new Set(municipalities.keys()) : undefined,
   })

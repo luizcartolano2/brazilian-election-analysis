@@ -2,18 +2,22 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { DATA_VERSION, VERSION_URL } from '@/data-version'
+import { DATA_VERSIONS, versionUrl } from '@/data-version'
 import type { Manifest } from '@/lib/manifest'
 import { SourcesContent } from './sources-view'
 
+const PINNED = DATA_VERSIONS[1]
 const PLACES = {
-  dataBase: '/data',
+  rounds: [1 as const],
   assetBase: '/assets',
   workerScript: '/worker.js',
   searchBase: '/busca/0',
   geoBase: 'https://worker.test/assets/geo/ibge-2025/20261008-e556c48-37807969229',
   geoSha256: {},
 }
+
+const PUBLISHED = { version: PINNED.name, dataBase: versionUrl(PINNED), synthetic: false }
+const FIXTURES = { version: null, dataBase: '/_fixtures/data', synthetic: false }
 
 const manifest = JSON.parse(
   readFileSync(path.join(import.meta.dirname, '..', '..', 'fixtures', 'manifest.json'), 'utf-8'),
@@ -25,11 +29,12 @@ describe('the sources page', () => {
       <SourcesContent
         locale="pt"
         manifest={manifest}
-        source={{ mode: 'published', version: DATA_VERSION.name, ...PLACES }}
+        source={{ mode: 'published', ...PLACES }}
+        version={PUBLISHED}
       />,
     )
-    expect(html).toContain(DATA_VERSION.name)
-    expect(html).toContain(`href="${VERSION_URL}/manifest.json"`)
+    expect(html).toContain(PINNED.name)
+    expect(html).toContain(`href="${versionUrl(PINNED)}/manifest.json"`)
   })
 
   it('names the boundary build in use, its terms and its manifest', () => {
@@ -37,7 +42,8 @@ describe('the sources page', () => {
       <SourcesContent
         locale="en"
         manifest={manifest}
-        source={{ mode: 'published', version: DATA_VERSION.name, ...PLACES }}
+        source={{ mode: 'published', ...PLACES }}
+        version={PUBLISHED}
       />,
     )
     expect(html).toContain('20261008-e556c48-37807969229')
@@ -57,7 +63,8 @@ describe('the sources page', () => {
       <SourcesContent
         locale={locale}
         manifest={manifest}
-        source={{ mode: 'fixtures', version: null, ...PLACES }}
+        source={{ mode: 'fixtures', ...PLACES }}
+        version={FIXTURES}
       />,
     )
     expect(html).toContain(phrase)
@@ -69,7 +76,8 @@ describe('the sources page', () => {
       <SourcesContent
         locale="en"
         manifest={manifest}
-        source={{ mode: 'fixtures', version: null, ...PLACES }}
+        source={{ mode: 'fixtures', ...PLACES }}
+        version={FIXTURES}
       />,
     )
     expect(html).toContain('test build')
@@ -81,7 +89,8 @@ describe('the sources page', () => {
       <SourcesContent
         locale="en"
         manifest={manifest}
-        source={{ mode: 'fixtures', version: null, ...PLACES }}
+        source={{ mode: 'fixtures', ...PLACES }}
+        version={FIXTURES}
       />,
     )
     expect(html).toContain('CC BY license, which the portal declares')
@@ -98,7 +107,8 @@ describe('the sources page', () => {
         <SourcesContent
           locale="pt"
           manifest={odd}
-          source={{ mode: 'fixtures', version: null, ...PLACES }}
+          source={{ mode: 'fixtures', ...PLACES }}
+          version={FIXTURES}
         />,
       ),
     ).toThrow(/no terms recorded/)

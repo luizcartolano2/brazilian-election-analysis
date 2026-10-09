@@ -61,8 +61,8 @@ jobs:
       - name: Web fixtures match the pipeline
         run: |
           uv run python tests/fixtures/export_web_fixtures.py
-          git diff --exit-code -- ../web/fixtures ../web/fixtures-geo
-          test -z "$(git status --porcelain -- ../web/fixtures ../web/fixtures-geo)"
+          git diff --exit-code -- ../web/fixtures ../web/fixtures-t2 ../web/fixtures-geo
+          test -z "$(git status --porcelain -- ../web/fixtures ../web/fixtures-t2 ../web/fixtures-geo)"
 
   worker:
     runs-on: ubuntu-latest
