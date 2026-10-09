@@ -1,0 +1,59 @@
+{
+ "carg": [
+  {
+   "agr": [
+    {
+     "par": [
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "11",
+         "nmu": "MAILZA ASSIS",
+         "st": "Eleito",
+         "vap": "350"
+        }
+       ],
+       "n": "11",
+       "sg": "PP",
+       "tval": "0"
+      },
+      {
+       "cand": [
+        {
+         "dvt": "Válido",
+         "n": "10",
+         "nmu": "ALAN RICK",
+         "st": "Não eleito",
+         "vap": "273"
+        }
+       ],
+       "n": "10",
+       "sg": "REPUBLICANOS",
+       "tval": "0"
+      }
+     ]
+    }
+   ],
+   "cd": "3",
+   "nmn": "Governador",
+   "nv": "1"
+  }
+ ],
+ "e": {
+  "c": "857",
+  "te": "1041"
+ },
+ "ele": "6260",
+ "v": {
+  "tv": "857",
+  "van": "0",
+  "vansj": "0",
+  "vb": "5",
+  "vl": "0",
+  "vn": "229",
+  "vnom": "623",
+  "vnt": "0",
+  "vv": "623"
+ }
+}

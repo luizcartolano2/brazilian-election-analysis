@@ -1,22 +1,22 @@
 ## 1. Before the work (Luiz, with help)
 
-- [ ] 1.1 Merge the archive of `redesign-results-pages` (PR 35), so this change's deltas have their base
+- [x] 1.1 Merge the archive of `redesign-results-pages` (PR 35), so this change's deltas have their base
 - [x] 1.2 In `docs/decisions.md`, amend D13 to one pinned version per round, and add to D14 this change's order and dates: code by 2026-10-23, no deploy from 2026-10-24 to 2026-10-26, the round-2 publish and pin after TSE's files hold round 2. Update the run-time invariant in `CLAUDE.md` and the runoff milestone in `README.md`
 - [x] 1.3 Find out whether the static export accepts an empty `generateStaticParams()` for a dynamic route. It does not, so decision 4 of the design lists the round-2 addresses that exist before the pin
 
 ## 2. Pipeline: round 2 (the pipeline PR)
 
-- [ ] 2.1 Add `ROUNDS[2]` with President 6258, the state races 6260 and no municipal election. Test that `round_config(2)` builds the round-2 results-site and CDN URLs
-- [ ] 2.2 Add `tests/fixtures/build_runoff_fixtures.py`, which derives synthetic round-2 fixtures from the round-1 fixtures: the two most voted President candidates everywhere, one fixture state with a Governor runoff, and TSE's results-site JSON for 6258 and 6260. Mark the numbers as synthetic in the fixture README
-- [ ] 2.3 Test a round-2 build on the fixtures: a state without a Governor runoff gets President only, the runoff state gets both races, the manifest says round 2, reconciliation passes, and a station row changed by one vote fails the build
-- [ ] 2.4 Add the `round` input to the data target of `publish-data.yml` and pass it to `eleicoes build`. Run `actionlint`
+- [x] 2.1 Add `ROUNDS[2]` with President 6258, the state races 6260 and no municipal election. Test that `round_config(2)` builds the round-2 results-site and CDN URLs
+- [x] 2.2 Add `tests/fixtures/build_runoff_fixtures.py`, which derives synthetic round-2 fixtures from the round-1 fixtures: the President finalists everywhere, Acre's Governor finalists, and TSE's results-site JSON for 6258 and 6260. Mark the numbers as synthetic in the fixture README
+- [x] 2.3 Test a round-2 build on the fixtures: a state without a Governor runoff gets President only, the runoff state gets both races, the manifest says round 2, reconciliation passes, and a station row changed by one vote fails the build
+- [x] 2.4 Add the `round` input to the data target of `publish-data.yml` and pass it to `eleicoes build`. Run `actionlint`
 
 ## 3. Web: data per round (the web data PR)
 
 - [ ] 3.1 Replace `DATA_VERSION` with `DATA_VERSIONS`, a pin for round 1 and an optional one for round 2. Test that a version whose manifest names another year or round fails the build, and that no round-2 pin builds
 - [ ] 3.2 When round 2 is pinned, make the build fail unless the two pins agree: each round-2 race holds exactly the candidates that round 1 marks for a runoff in that race, and each race marked for a runoff appears in round 2. Test a matching pair, a round-2 race with another candidate, and a cancelled Rio runoff against a round-1 version that still marks it
 - [ ] 3.3 Move `.data/` round files, `municipios.json` included, under `.data/rounds/<round>/`, and give the data accessors a round that defaults to 1. Keep the search index on round 1 alone. Make sure that every round-1 page renders the same HTML as before, apart from the build's hashes
-- [ ] 3.4 Export the round-2 web fixtures from the pipeline's round-2 fixtures into `web/fixtures-t2/`, and let `ELEICOES_DATA=fixtures` read both rounds. Test that the fixture build holds round-2 summaries and map values
+- [ ] 3.4 Export the round-2 web fixtures from the pipeline's round-2 fixtures into `web/fixtures-t2/`, and let `ELEICOES_DATA=fixtures` read both rounds. Mark every round-2 page of a fixture build as synthetic test data, in both languages, because the synthetic round 2 names a winner. Test that the fixture build holds round-2 summaries and map values, and shows the mark
 - [ ] 3.5 Give the drill-down configuration a data base per pinned round, and build the address's round into its file paths. Give `RACES` in `src/lib/elections.ts` the round-2 election codes, and make the station link to TSE in `drilldown.tsx` and `drilldown/model.ts` use the view's round. Test a round-2 station view on the fixtures, with its TSE link under 6258 for President and 6260 for Governor
 
 ## 4. Web: round-2 pages (the web pages PR)
@@ -35,6 +35,6 @@
 
 - [ ] 5.1 Merge PRs 2 to 4 by 2026-10-23, and nothing from 2026-10-24 to 2026-10-26
 - [ ] 5.2 After TSE's open data holds round 2, run "Publish data" with round 2, and record the run, the version and its size
-- [ ] 5.3 Open the pin PR for round 2. Make sure that its build passes against the real version, then recut the round-2 fixtures from the real files in the same PR
+- [ ] 5.3 Open the pin PR for round 2. Make sure that its build passes against the real version, then recut the round-2 fixtures from the real files in the same PR, and delete `build_runoff_fixtures.py`
 - [ ] 5.4 After the pin deploys, run the live checks on Chromium at desktop size and on WebKit as an iPhone 13: no security-policy violation, no horizontal scrolling, the switch, the maps and a round-2 station view working. Luiz checks the pages on a phone
 - [ ] 5.5 If TSE recounts Rio's round 1, run "Publish data" with round 1 and open a pin PR for it, outside the freeze
