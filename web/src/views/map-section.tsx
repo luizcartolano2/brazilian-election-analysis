@@ -1,10 +1,16 @@
 /** A race's map by municipality, with its text in the page's language. */
 import type { ReactNode } from 'react'
-import { RaceMap, type MapLabels } from '@/components/race-map'
-import { getCandidateVotes, getMunicipalities, getRaceMap, getSourceInfo } from '@/lib/data'
+import { RaceMap, type MapFrame, type MapLabels, type MapSource } from '@/components/race-map'
+import {
+  getCandidateVotes,
+  getMunicipalities,
+  getRaceMap,
+  getSourceInfo,
+  getValuesFile,
+} from '@/lib/data'
 import { raceName, type RaceInfo, type Round } from '@/lib/elections'
-import { t, type Locale } from '@/lib/i18n'
-import { isMappedArea, shareMap, SHARE_STEPS, type MapData } from '@/lib/maps'
+import { formatInteger, t, type Locale } from '@/lib/i18n'
+import { isMappedArea, shareMap, SHARE_STEPS } from '@/lib/maps'
 
 // Fernando de Noronha lies about 350 km off the coast, and would widen Pernambuco's maps.
 const NORONHA = 2605459
@@ -26,7 +32,7 @@ function mapLabels(
   locale: Locale,
   race: RaceInfo,
   areaLabel: string,
-  data: MapData,
+  data: MapFrame,
   brazil: boolean,
   /** Whether each voter chose two candidates, as the summary says. */
   twoChoices: boolean,
@@ -65,7 +71,16 @@ function mapLabels(
     water: t(locale, 'map.water'),
     loading: t(locale, 'map.loading'),
     failed: t(locale, brazil ? 'map.failedBrazil' : 'map.failed'),
-    noScript: t(locale, brazil ? 'map.noScriptBrazil' : 'map.noScript'),
+    // A share map's list loads with it, so neither reads without JavaScript.
+    noScript: t(
+      locale,
+      brazil ? 'map.noScriptBrazil' : share ? 'map.noScriptList' : 'map.noScript',
+    ),
+    valuesFailed: t(locale, 'map.valuesFailed'),
+    retry: t(locale, 'map.retry'),
+    siteUpdated: t(locale, 'map.siteUpdated'),
+    reload: t(locale, 'map.reload'),
+    listLoading: t(locale, 'map.listLoading'),
     credits: [t(locale, 'footer.credit'), t(locale, 'sources.boundariesCredit')],
     points: t(locale, 'map.points'),
     view: t(locale, 'map.view'),
@@ -98,7 +113,7 @@ function MapView({
   area,
   race,
   round,
-  data,
+  mapSource,
   labels,
   heading,
   table,
@@ -109,7 +124,7 @@ function MapView({
   area: string
   race: RaceInfo
   round: Round
-  data: MapData
+  mapSource: MapSource
   labels: MapLabels
   heading: string
   table: boolean
@@ -125,7 +140,7 @@ function MapView({
       <h2 className="text-2xl font-extrabold">{heading}</h2>
       <RaceMap
         locale={locale}
-        data={data}
+        source={mapSource}
         boundary={{ url: `${source.geoBase}/${file}`, sha256 }}
         race={race.slug}
         round={round === 1 ? undefined : round}
@@ -162,13 +177,19 @@ export function MapSection({
   children?: ReactNode
 }) {
   const data = getRaceMap(area, race.code, round)
+  // The Brazil map has no list, so the page carries only its file's address and pin.
+  const { rows: _rows, ...frame } = data
+  const mapSource: MapSource =
+    area === 'br'
+      ? { kind: 'file', ...getValuesFile('br', String(race.code), round), frame }
+      : { kind: 'inline', data }
   return (
     <MapView
       locale={locale}
       area={area}
       race={race}
       round={round}
-      data={data}
+      mapSource={mapSource}
       labels={mapLabels(
         locale,
         race,
@@ -212,18 +233,29 @@ export function ShareMapSection({
 }) {
   const twoChoices = choicesPerVoter > 1
   const step = twoChoices ? 5 : 10
-  const data = shareMap(getCandidateVotes(area, race.code, round), numero, name, step)
-  if (data === null) return null
+  // The build reads the race's votes to decide, so a candidacy with no column requests nothing.
+  const votes = getCandidateVotes(area, race.code, round)
+  if (shareMap(votes, numero, name, step) === null) return null
+  const frame: MapFrame = { kind: 'share', step, units: [name] }
+  const mapSource: MapSource = {
+    kind: 'file',
+    ...getValuesFile(area, `${race.code}-votos`, round),
+    frame,
+    share: { numero, label: name, step },
+  }
   return (
     <MapView
       locale={locale}
       area={area}
       race={race}
       round={round}
-      data={data}
-      labels={mapLabels(locale, race, areaLabel, data, false, twoChoices, round, name)}
+      mapSource={mapSource}
+      labels={mapLabels(locale, race, areaLabel, frame, false, twoChoices, round, name)}
       heading={t(locale, 'map.shareHeading')}
       table
+      collapsed={t(locale, 'map.listSummary', {
+        count: formatInteger(locale, votes.rows.length),
+      })}
     />
   )
 }

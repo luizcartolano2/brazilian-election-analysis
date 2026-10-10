@@ -237,5 +237,12 @@
   "area.introRunoff": "Official TSE results in this state for the runoff, which decides President and, in some states, Governor.",
   "site.testBuildBanner": "Test build, made from sample data.",
   "sources.fixturesSynthetic": "This test build's round 2 is synthetic: its numbers copy round 1 and are neither official results nor a forecast.",
-  "meta.descriptionRunoff": "Official runoff results of Brazil's 2026 elections, from the whole country down to each polling station, with TSE's data."
+  "meta.descriptionRunoff": "Official runoff results of Brazil's 2026 elections, from the whole country down to each polling station, with TSE's data.",
+  "map.noScriptList": "The map and the list of municipalities need JavaScript.",
+  "map.valuesFailed": "The map's numbers did not load.",
+  "map.retry": "Try again",
+  "map.siteUpdated": "The site was updated since this page opened.",
+  "map.reload": "Reload the page",
+  "map.listSummary": "List of the {count} municipalities",
+  "map.listLoading": "Loading the list…"
 }

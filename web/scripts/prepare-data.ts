@@ -30,6 +30,7 @@ import { nodeRunner } from './duckdb-node'
 import { GEO_BUILD } from './geo-assets'
 import { buildMaps, readBoundaries } from './map-data'
 import { buildSearchIndex } from './search-index'
+import { writeValuesFiles } from './values-files'
 
 export type DataMode = 'published' | 'fixtures'
 
@@ -314,6 +315,7 @@ async function main(): Promise<void> {
   )
 
   await rm(DATA_DIR, { recursive: true, force: true })
+  await rm(path.join(PUBLIC_DIR, 'mapas'), { recursive: true, force: true })
   const run = await nodeRunner()
   let searchBase = ''
   for (const round of rounds) {
@@ -340,6 +342,12 @@ async function main(): Promise<void> {
       boundaries,
       out: path.join(roundDir, 'mapas'),
     })
+    const valuesFiles = await writeValuesFiles(
+      path.join(roundDir, 'mapas'),
+      PUBLIC_DIR,
+      round.round,
+    )
+    await writeFile(path.join(roundDir, 'mapas-files.json'), JSON.stringify(valuesFiles))
     await writeFile(
       path.join(roundDir, 'source.json'),
       JSON.stringify({
