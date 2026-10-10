@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "tsx scripts/prepare-data.ts && next dev",
     "prepare-data": "tsx scripts/prepare-data.ts",
-    "build": "tsx scripts/prepare-data.ts && next build && tsx scripts/page-size.ts out",
+    "build": "tsx scripts/prepare-data.ts && next build && tsx scripts/prune-payloads.ts out && tsx scripts/page-size.ts out",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -42,6 +42,11 @@ export interface RoundSourceInfo {
   synthetic: boolean
 }
 
+export interface ValuesFile {
+  url: string
+  sha256: string
+}
+
 export interface Municipality {
   municipio: number
   /** IBGE's code, which the boundaries carry. Cities abroad have none. */
@@ -135,6 +140,21 @@ export function getRaceMap(area: string, race: number, round: Round = 1): MapDat
       raceByCode(race)?.proportional ?? true,
     ),
   )
+}
+
+const valuesFiles = new Map<string, Record<string, ValuesFile>>()
+
+/**
+ * A map's values file in the static export: `br/1` for the Brazil map, `<area>/<race>-votos`
+ * for a race's votes. The page carries its address and SHA-256, never its rows.
+ */
+export function getValuesFile(area: string, name: string, round: Round = 1): ValuesFile {
+  const files = cached(valuesFiles, String(round), () =>
+    readJson<Record<string, ValuesFile>>(`rounds/${round}/mapas-files.json`),
+  )
+  const file = files[`${area}/${name}`]
+  if (file === undefined) throw new Error(`round ${round} has no values file ${area}/${name}`)
+  return file
 }
 
 const votes = new Map<string, CandidateVotes>()

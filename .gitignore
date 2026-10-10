@@ -26,6 +26,7 @@ node_modules/
 /web/public/duckdb/
 /web/public/_fixtures/
 /web/public/busca/
+/web/public/mapas/
 .next/
 out/
 *.tsbuildinfo
