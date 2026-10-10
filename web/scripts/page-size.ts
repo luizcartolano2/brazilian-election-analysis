@@ -38,7 +38,11 @@ export async function oversizedPages(folder: string, limit = MAX_PAGE_BYTES): Pr
     const html = (await stat(file)).size
     const files = []
     for (const url of valuesFilesOf(await readFile(file, 'utf-8'))) {
-      files.push({ url, bytes: await sizeOf(url) })
+      try {
+        files.push({ url, bytes: await sizeOf(url) })
+      } catch {
+        throw new Error(`${path.relative(folder, file)} loads ${url}, which the export lacks`)
+      }
     }
     const bytes = html + files.reduce((sum, item) => sum + item.bytes, 0)
     if (bytes > limit) found.push({ page: path.relative(folder, file), bytes, html, files })

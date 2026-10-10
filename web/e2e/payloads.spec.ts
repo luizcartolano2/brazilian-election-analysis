@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { expect, test, type Page } from '@playwright/test'
 
 const RECIFE_IBGE = '2611606'
@@ -23,11 +24,22 @@ test('each round’s Brazil page carries its map’s file, and no municipality�
     const html = await (await request.get(address)).text()
     expect(html, address).toMatch(new RegExp(`/mapas/t${round}/br/1\\.[0-9a-f]{16}\\.json`))
     expect(html, address).not.toContain(RECIFE_IBGE)
+    const file = /\/mapas\/t[12]\/br\/1\.[0-9a-f]{16}\.json/.exec(html)?.[0] as string
+    const bytes = await (await request.get(file)).body()
+    expect(html, address).toContain(createHash('sha256').update(bytes).digest('hex'))
     await page.goto(address)
     const map = page.getByTestId('race-map').first()
     await map.scrollIntoViewIfNeeded()
     await expect(map.locator(`path[data-ibge="${RECIFE_IBGE}"]`)).toBeVisible()
   }
+})
+
+test('a click on the Brazil map opens the municipality’s view', async ({ page }) => {
+  await page.goto('/2026/')
+  const map = page.getByTestId('race-map').first()
+  await map.scrollIntoViewIfNeeded()
+  await map.locator(`path[data-ibge="${RECIFE_IBGE}"]`).click()
+  await expect(page).toHaveURL(/\/2026\/municipio\/\?uf=pe&mu=25313&cargo=presidente$/)
 })
 
 test('a candidate page without JavaScript keeps its results and says what needs it', async ({
@@ -51,6 +63,16 @@ test('a values file that fails its check shows no map and no list, and a retry r
   page,
 }) => {
   let first = true
+  // Records the cache mode of each values request, which the network layer does not show.
+  await page.addInitScript(() => {
+    const original = window.fetch
+    const modes: string[] = []
+    Object.assign(window, { __valuesCacheModes: modes })
+    window.fetch = (input, init) => {
+      if (String(input).includes('/mapas/')) modes.push(init?.cache ?? 'default')
+      return original(input, init)
+    }
+  })
   await page.route('**/mapas/t1/pe/3-votos.*.json', async (route) => {
     if (first) {
       first = false
@@ -62,12 +84,19 @@ test('a values file that fails its check shows no map and no list, and a retry r
   await page.goto('/2026/pe/governador/55/')
   const map = page.getByTestId('race-map').first()
   await expect(map.getByRole('alert')).toHaveText('Os números do mapa não carregaram.')
+  await expect(map.locator('svg')).toHaveCount(0)
   await page.getByTestId('municipality-list').locator('summary').click()
   await expect(page.getByTestId('municipality-table')).toHaveCount(0)
   await map.getByRole('button', { name: 'Tentar de novo' }).click()
   await map.scrollIntoViewIfNeeded()
   await expect(map.locator('svg')).toBeVisible()
   await expect(page.getByTestId('municipality-table')).toBeVisible()
+  // The retry asks the site again, past the browser's cache.
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { __valuesCacheModes: string[] }).__valuesCacheModes,
+    ),
+  ).toEqual(['default', 'reload'])
 })
 
 test('a values file gone after a deploy offers to reload the page', async ({ page }) => {
@@ -89,6 +118,33 @@ test('a candidate’s list is complete before its boundary file arrives', async 
   await list.locator('summary').click()
   await expect(page.getByTestId('municipality-table').locator('tbody tr')).toHaveCount(3)
   await expect(page.getByTestId('race-map').first().locator('svg')).toHaveCount(0)
+})
+
+test('a candidate’s list sorts by share', async ({ page }) => {
+  await page.goto('/2026/pe/governador/55/')
+  await page.getByTestId('municipality-list').locator('summary').click()
+  await page.getByRole('button', { name: 'Pela parcela' }).click()
+  const shares = await page
+    .getByTestId('municipality-table')
+    .locator('tbody tr td:last-child')
+    .allTextContents()
+  const values = shares.map((text) => Number(text.replace('%', '').replace(',', '.')))
+  expect(values).toEqual([...values].sort((a, b) => b - a))
+})
+
+test('moving from one candidate to another shows the second candidate’s map', async ({ page }) => {
+  await page.goto('/2026/presidente/70/')
+  await page.getByTestId('municipality-list').locator('summary').first().click()
+  await expect(page.getByTestId('municipality-table').first()).toContainText(
+    'Escritor Augusto Cury',
+  )
+  await page.getByRole('combobox').fill('renan')
+  await page.getByRole('option').first().click()
+  await expect(page).toHaveURL(/\/2026\/presidente\/14\/$/)
+  await page.getByTestId('municipality-list').locator('summary').first().click()
+  const caption = page.getByTestId('municipality-table').first().locator('caption')
+  await expect(caption).toContainText('Renan Santos')
+  await expect(caption).not.toContainText('Augusto Cury')
 })
 
 test('a candidacy under appeal requests no values file', async ({ page }) => {

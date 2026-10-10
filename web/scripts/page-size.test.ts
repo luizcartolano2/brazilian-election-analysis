@@ -42,6 +42,26 @@ describe('oversizedPages', () => {
   })
 })
 
+describe('a page under the limit alone', () => {
+  it('fails once its values files take it over the limit', async () => {
+    const page = `<p>${FILE}</p>`
+    const folder = await exported({ 'index.html': page, [FILE.slice(1)]: 'x'.repeat(80) })
+    expect(page.length).toBeLessThan(100)
+    const [found] = await oversizedPages(folder, 100)
+    expect(found).toEqual({
+      page: 'index.html',
+      bytes: page.length + 80,
+      html: page.length,
+      files: [{ url: FILE, bytes: 80 }],
+    })
+  })
+
+  it('names the page when a values file it loads is missing', async () => {
+    const folder = await exported({ 'index.html': `<p>${FILE}</p>` })
+    await expect(oversizedPages(folder, 100)).rejects.toThrow(`index.html loads ${FILE}`)
+  })
+})
+
 describe('valuesFilesOf', () => {
   it('finds the values files that a page names, and nothing else', () => {
     expect(valuesFilesOf(`"url":"${FILE}","boundary":"/_fixtures/geo/pe.json"`)).toEqual([FILE])

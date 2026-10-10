@@ -10,7 +10,7 @@ import {
 } from '@/lib/data'
 import { raceName, type RaceInfo, type Round } from '@/lib/elections'
 import { formatInteger, t, type Locale } from '@/lib/i18n'
-import { isMappedArea, shareMap, SHARE_STEPS } from '@/lib/maps'
+import { isMappedArea, SHARE_STEPS } from '@/lib/maps'
 
 // Fernando de Noronha lies about 350 km off the coast, and would widen Pernambuco's maps.
 const NORONHA = 2605459
@@ -138,7 +138,13 @@ function MapView({
   return (
     <section className="mt-8" data-map={`${area}-${race.slug}`}>
       <h2 className="text-2xl font-extrabold">{heading}</h2>
+      {/* A new source remounts the map, so it never shows the values of the page before. */}
       <RaceMap
+        key={
+          mapSource.kind === 'file'
+            ? `${mapSource.url}#${mapSource.share?.numero ?? ''}`
+            : `${area}-${race.slug}-${round}`
+        }
         locale={locale}
         source={mapSource}
         boundary={{ url: `${source.geoBase}/${file}`, sha256 }}
@@ -235,7 +241,7 @@ export function ShareMapSection({
   const step = twoChoices ? 5 : 10
   // The build reads the race's votes to decide, so a candidacy with no column requests nothing.
   const votes = getCandidateVotes(area, race.code, round)
-  if (shareMap(votes, numero, name, step) === null) return null
+  if (!votes.numbers.includes(numero)) return null
   const frame: MapFrame = { kind: 'share', step, units: [name] }
   const mapSource: MapSource = {
     kind: 'file',

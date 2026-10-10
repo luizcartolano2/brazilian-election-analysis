@@ -875,8 +875,13 @@ export function RaceMap({
         <p className="text-muted text-sm">{labels.noScript}</p>
       </noscript>
     ) : (
-      <p className="text-muted text-sm" role={values.status === 'loading' ? undefined : 'alert'}>
-        {values.status === 'loading' ? labels.listLoading : labels.valuesFailed}
+      // The map's place already announces a failure, so the list only names it.
+      <p className="text-muted text-sm">
+        {values.status === 'loading'
+          ? labels.listLoading
+          : values.status === 'gone'
+            ? labels.siteUpdated
+            : labels.valuesFailed}
       </p>
     )
 

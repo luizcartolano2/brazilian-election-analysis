@@ -7,6 +7,7 @@ import path from 'node:path'
 import type { ValuesFile } from '../src/lib/data'
 import type { Round } from '../src/lib/elections'
 import {
+  isMappedArea,
   votesWithDisplayNames,
   withDisplayNames,
   type CandidateVotes,
@@ -19,24 +20,31 @@ export type ValuesFiles = Record<string, ValuesFile>
 
 const VOTES = /^(\d+)-votos\.json$/
 
-/** The maps whose values leave the page: Brazil's President map and every race's votes. */
-function loadsFromFile(area: string, file: string): boolean {
-  return VOTES.test(file) || (area === 'br' && file === '1.json')
+/**
+ * The maps that a page loads from a file: each round's Brazil map, the President share maps
+ * of Brazil, and the Governor and Senate share maps of each state with a map. A state has no
+ * President candidate pages, and a state with one municipality has no share map.
+ */
+export function loadsFromFile(area: string, name: string, municipalities: number): boolean {
+  if (area === 'br') return name === '1' || name === '1-votos'
+  return name !== '1-votos' && name.endsWith('-votos') && isMappedArea(area, municipalities)
 }
 
 /**
- * Copies those maps from a round's `mapas/` folder into `<publicDir>/mapas/t<round>/`, with
- * municipality names in title case. The name and the pin both hash the final bytes.
+ * Copies the maps that `wanted` names from a round's `mapas/` folder into
+ * `<publicDir>/mapas/t<round>/`, with municipality names in title case. The name and the pin
+ * both hash the final bytes.
  */
 export async function writeValuesFiles(
   mapsDir: string,
   publicDir: string,
   round: Round,
+  wanted: (area: string, name: string) => boolean,
 ): Promise<ValuesFiles> {
   const files: ValuesFiles = {}
   for (const area of (await readdir(mapsDir)).sort()) {
     for (const file of (await readdir(path.join(mapsDir, area))).sort()) {
-      if (!loadsFromFile(area, file)) continue
+      if (!file.endsWith('.json') || !wanted(area, path.basename(file, '.json'))) continue
       const read = JSON.parse(await readFile(path.join(mapsDir, area, file), 'utf-8')) as unknown
       const shown = VOTES.test(file)
         ? votesWithDisplayNames(read as CandidateVotes)

@@ -30,7 +30,7 @@ import { nodeRunner } from './duckdb-node'
 import { GEO_BUILD } from './geo-assets'
 import { buildMaps, readBoundaries } from './map-data'
 import { buildSearchIndex } from './search-index'
-import { writeValuesFiles } from './values-files'
+import { loadsFromFile, writeValuesFiles } from './values-files'
 
 export type DataMode = 'published' | 'fixtures'
 
@@ -346,6 +346,7 @@ async function main(): Promise<void> {
       path.join(roundDir, 'mapas'),
       PUBLIC_DIR,
       round.round,
+      (area, name) => loadsFromFile(area, name, municipalityLists[area]?.length ?? 0),
     )
     await writeFile(path.join(roundDir, 'mapas-files.json'), JSON.stringify(valuesFiles))
     await writeFile(
