@@ -22,7 +22,7 @@ page.
 
 #### Scenario: On a phone
 - **WHEN** a visitor opens the playground at 360 pixels wide and runs a query whose result has twelve columns
-- **THEN** every control is reachable without horizontal scrolling of the page, and the result scrolls sideways inside its own frame
+- **THEN** every control is reachable without horizontal scrolling of the page, the result scrolls sideways inside its own frame, and the caption stays whole on the screen while the rows scroll
 
 ### Requirement: The visitor chooses the data first
 The page SHALL let the visitor choose one or both pinned rounds, one or more races, and
@@ -94,6 +94,10 @@ results pages count them.
 #### Scenario: A race the choice does not hold
 - **WHEN** the data choice holds several races
 - **THEN** the form offers only those races, and builds its query over one of them
+
+#### Scenario: Two municipalities with one name
+- **WHEN** a visitor uses the form for a candidate's votes by municipality, with Brazil chosen
+- **THEN** two municipalities that share a name, such as Bom Jesus in Goiás and in Piauí, appear as two rows, each with its state and its own share
 
 #### Scenario: A share that ends in five
 - **WHEN** a candidate has 41 of a municipality's 4,000 valid votes
@@ -193,10 +197,16 @@ lines when it is longer, with a button that shows the rest. The result table's c
 SHALL state that a visitor's query produced the result from TSE's official data. It SHALL
 also name each data version that the run read, with its round, and carry the TSE credit
 line. The caption SHALL be part of the table, so a capture of the table alone keeps it.
+When the result scrolls sideways, the caption SHALL stay whole within the frame's visible
+width.
 
 #### Scenario: A cropped capture
 - **WHEN** someone captures only the result table
 - **THEN** the capture shows that a visitor's query produced it, the data version and the TSE credit
+
+#### Scenario: A long query
+- **WHEN** a query holds seventeen lines
+- **THEN** the frame shows its first four lines, and a button that names the other thirteen and shows them
 
 #### Scenario: A query of invented numbers
 - **WHEN** a query selects a candidate's name and a number of votes that it invents

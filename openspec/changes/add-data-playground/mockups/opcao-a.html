@@ -61,10 +61,10 @@ pre.sql.ro { background: var(--surface); }
 .frame-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
 .scroll { overflow-x: auto; margin-top: 12px; }
 table.res { width: 100%; border-collapse: collapse; font-size: 14px; }
-table.res caption { caption-side: top; text-align: left; background: var(--surface); border: 1px solid var(--line); border-bottom: 0; border-radius: 10px 10px 0 0; padding: 10px 12px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+table.res caption { position: sticky; left: 0; max-width: var(--visible, none); caption-side: top; text-align: left; background: var(--surface); border: 1px solid var(--line); border-bottom: 0; border-radius: 10px 10px 0 0; padding: 10px 12px; font-size: 12px; color: var(--muted); line-height: 1.5; }
 table.res caption b { color: var(--ink); }
 table.res th { text-align: left; font-family: ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 600; border: 1px solid var(--line); border-width: 1px 0; padding: 8px 12px; background: #fff; }
-table.res td { border-bottom: 1px solid var(--line); padding: 7px 12px; }
+table.res td { border-bottom: 1px solid var(--line); padding: 7px 12px; white-space: nowrap; }
 table.res td.n, table.res th.n { text-align: right; font-variant-numeric: tabular-nums; }
 table.res tr.more td { color: var(--muted); text-align: center; font-size: 12px; }
 .frame-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }
@@ -94,6 +94,7 @@ pre.engine { background: #fff; border: 1px solid #fecaca; border-radius: 8px; pa
 pre.csv { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 12px; line-height: 1.55; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .states { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
 @media (max-width: 720px) {
+  .frame { --visible: calc(100vw - 32px - 28px - 2px); }
   .bar { padding: 10px 16px; }
   main { padding: 12px 16px 24px; }
   h1 { font-size: 30px; }
@@ -126,27 +127,27 @@ formulário ou escreva em SQL.</p><div class="card"><div class="data">
 <div class="row" style="justify-content:space-between"><div class="tabs"><span class="on">Montar consulta</span><span>Escrever SQL</span></div><div class="select" style="min-width:auto">Exemplos</div></div>
 <div style="margin-top:16px"><div class="form">
 <label>Pergunta</label><div class="select">Votos de um candidato</div>
-<label>Candidato</label><div class="select">13 · LULA (PT)</div>
+<label>Candidato</label><div class="select">13 · Lula (PT)</div>
 <label>Nível</label><div class="select">Município</div>
 <label>Ordem</label><div class="select">Mais votos primeiro</div>
 <label>Linhas</label><div class="select">100</div>
 </div></div>
 <div class="label" style="margin:16px 0 6px">SQL que o formulário escreveu</div>
 <pre class="sql ro">WITH validos AS (
-  SELECT municipio, sum(votos) AS validos
+  SELECT turno, uf, municipio, sum(votos) AS validos
   FROM votos_municipio
   WHERE cargo = 1 AND tipo IN (1, 2)
-  GROUP BY municipio
+  GROUP BY turno, uf, municipio
 )
-SELECT m.nome AS municipio,
+SELECT v.uf, m.nome AS municipio,
        sum(v.votos) AS votos,
-       ((sum(v.votos)::BIGINT * 20000 + any_value(d.validos))
-         // (2 * any_value(d.validos))) / 100 AS percentual_validos
+       ((sum(v.votos)::BIGINT * 20000 + d.validos)
+         // (2 * d.validos)) / 100 AS percentual_validos
 FROM votos_municipio v
-JOIN validos d USING (municipio)
+JOIN validos d USING (turno, uf, municipio)
 JOIN municipios m ON m.municipio = v.municipio
 WHERE v.cargo = 1 AND v.tipo = 1 AND v.numero = 13
-GROUP BY m.nome
+GROUP BY v.turno, v.uf, v.municipio, m.nome, d.validos
 ORDER BY votos DESC
 LIMIT 100</pre>
 <div class="row" style="margin-top:14px"><span class="btn dark">▶ Executar</span><span class="hint">Ctrl+Enter · baixa 70 kB</span></div>
@@ -157,7 +158,7 @@ LIMIT 100</pre>
 <section class="result"><div class="frame">
 <div class="frame-top"><div class="label">Resultado</div><span class="btn light" style="padding:6px 12px;font-size:13px">Copiar link</span></div>
 <pre class="sql ro folded" style="margin-top:8px">WITH validos AS (
-  SELECT municipio, sum(votos) AS validos
+  SELECT turno, uf, municipio, sum(votos) AS validos
   FROM votos_municipio
   WHERE cargo = 1 AND tipo IN (1, 2)</pre><span class="fold">▸ Mostrar a consulta inteira · mais 13 linhas</span>
 <div class="scroll"><table class="res">
@@ -165,8 +166,8 @@ LIMIT 100</pre>
 1º turno: versão 20261007-67d59ff-37656362427<br>
 Fonte: Tribunal Superior Eleitoral (TSE), Portal de Dados Abertos. Processamento: Brazilian Election
 Analysis (github.com/luizcartolano2/brazilian-election-analysis).</caption>
-<thead><tr><th>municipio</th><th class="n">votos</th><th class="n">percentual_validos</th></tr></thead>
-<tbody><tr><td>RIO BRANCO</td><td class='n'>56.423</td><td class='n'>27,28</td></tr><tr><td>CRUZEIRO DO SUL</td><td class='n'>12.368</td><td class='n'>24,91</td></tr><tr><td>TARAUACÁ</td><td class='n'>8.099</td><td class='n'>37,66</td></tr><tr><td>FEIJÓ</td><td class='n'>7.435</td><td class='n'>42,99</td></tr><tr><td>SENA MADUREIRA</td><td class='n'>5.787</td><td class='n'>24,48</td></tr><tr><td>BRASILÉIA</td><td class='n'>3.965</td><td class='n'>25,77</td></tr><tr><td>SENADOR GUIOMARD</td><td class='n'>3.536</td><td class='n'>24,29</td></tr><tr><td>MÂNCIO LIMA</td><td class='n'>3.481</td><td class='n'>29,78</td></tr><tr><td>XAPURI</td><td class='n'>3.366</td><td class='n'>34,33</td></tr><tr><td>MARECHAL THAUMATURGO</td><td class='n'>3.365</td><td class='n'>37,07</td></tr><tr class='more'><td colspan='3'>⋯ mais 12 linhas</td></tr></tbody></table></div>
+<thead><tr><th>uf</th><th>municipio</th><th class='n'>votos</th><th class='n'>percentual_validos</th></tr></thead>
+<tbody><tr><td>AC</td><td>RIO BRANCO</td><td class='n'>56.423</td><td class='n'>27,28</td></tr><tr><td>AC</td><td>CRUZEIRO DO SUL</td><td class='n'>12.368</td><td class='n'>24,91</td></tr><tr><td>AC</td><td>TARAUACÁ</td><td class='n'>8.099</td><td class='n'>37,66</td></tr><tr><td>AC</td><td>FEIJÓ</td><td class='n'>7.435</td><td class='n'>42,99</td></tr><tr><td>AC</td><td>SENA MADUREIRA</td><td class='n'>5.787</td><td class='n'>24,48</td></tr><tr><td>AC</td><td>BRASILÉIA</td><td class='n'>3.965</td><td class='n'>25,77</td></tr><tr><td>AC</td><td>SENADOR GUIOMARD</td><td class='n'>3.536</td><td class='n'>24,29</td></tr><tr><td>AC</td><td>MÂNCIO LIMA</td><td class='n'>3.481</td><td class='n'>29,78</td></tr><tr><td>AC</td><td>XAPURI</td><td class='n'>3.366</td><td class='n'>34,33</td></tr><tr><td>AC</td><td>MARECHAL THAUMATURGO</td><td class='n'>3.365</td><td class='n'>37,07</td></tr><tr class='more'><td colspan='4'>⋯ mais 12 linhas</td></tr></tbody></table></div>
 <div class="frame-foot"><span class="hint">22 linhas · 0,3 s · arquivos baixados: votos_municipio, municipios (70 kB)</span>
 <span class="btn dark">Baixar CSV</span></div>
 </div></section></main>

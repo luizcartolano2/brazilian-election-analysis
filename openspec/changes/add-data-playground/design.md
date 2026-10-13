@@ -209,7 +209,11 @@ codes from fixed lists and with whole numbers, such as a candidate's number from
 - The levels read the smallest table that answers them. The state and municipality
   levels read `votos_municipio` or `comparecimento_municipio`, the zone level reads the
   zone totals, and the station level reads `votos_secao` or `comparecimento_secao`.
-- The municipality level joins `municipios` for the name.
+- The form groups by the TSE code, the state and the round, never by name, as `CLAUDE.md`
+  requires for joins. Six municipalities are named Bom Jesus, so a grouping by name merges
+  their votes and picks one of their valid totals. Each row shows the state beside the
+  name, and the round when both rounds are chosen.
+- The municipality level joins `municipios` on the code for the name.
 - Valid votes are the votes of types 1 and 2. The share is
   `((votos::BIGINT * 20000 + validos) // (2 * validos)) / 100`, which rounds half up in
   whole numbers, as `formatShare` prints it. `round(100.0 * votos / validos, 2)` rounds
@@ -243,11 +247,19 @@ the Worker marks versions as immutable, and the page checks each SHA-256 again.
 
 ### 8. The frame and its caption
 
-The frame shows the query in a read-only block above the table. The table's own
-`<caption>` holds three lines: "Resultado de uma consulta de visitante sobre dados
-oficiais do TSE", each data version with its round, and the credit line from
-`DATA_LICENSE.md`. The caption sits inside the table's border, so a capture of the table
-keeps it.
+The frame shows the query in a read-only block above the table. A query longer than four
+lines shows its first four, and a button that names how many lines remain shows the
+rest. The table's own `<caption>` holds three lines: "Resultado de uma consulta de
+visitante sobre dados oficiais do TSE", each data version with its round, and the credit
+line from `DATA_LICENSE.md`. The caption sits inside the table's border, so a capture of
+the table keeps it.
+
+A caption is as wide as its table, so it scrolls with a wide table's rows. The caption is
+therefore sticky at the frame's left edge, and no wider than the frame's visible width.
+In `mockups/resultado-largo-celular-rolado.png`, the rows of a twelve-column result have
+scrolled 400 pixels, and the caption still spans pixels 31 to 329 of the 360-pixel screen.
+The caption, not the query, is the guard that D17 rests on, because the fold can hide
+the end of a query.
 
 ### 9. The CSV file
 
@@ -311,6 +323,10 @@ the pinned version, through the form's own query. On 2026-10-13, Luiz chose layo
 | B. The form and the SQL side by side, chosen | `mockups/opcao-b-desktop.png` | `mockups/opcao-b-celular.png` |
 | C. Steps in one column | `mockups/opcao-c-desktop.png` | `mockups/opcao-c-celular.png` |
 
+The phone images are drawn at 360 CSS pixels, the width of the site's phone rule.
+`mockups/resultado-largo-celular.png` adds a result of twelve columns in layout B, and
+`mockups/resultado-largo-celular-rolado.png` shows it with its rows scrolled.
+
 The states sheet, `mockups/estados-desktop.png`, shows the question before a large
 download, the progress with its cancel button, a cancelled run, an error, a refused read,
 a large result, a link from an earlier version, an invalid link, the question before
@@ -337,12 +353,14 @@ In layout B, and in each state of the states sheet:
 - The editor is a `textarea` in the site's monospace font, with no new dependency.
   Ctrl+Enter or Cmd+Enter runs it.
 - The result frame shows the query's first four lines, and a button shows the rest. The
-  caption sits inside the table.
+  caption sits inside the table, and stays whole while a wide result's rows scroll.
 - While a run downloads, the page shows the bytes received over the bytes needed and a
   cancel button. While the query runs, it shows the elapsed seconds.
 - Numbers in the table use the visitor's language's separators. The CSV keeps raw values.
-- Data values show as the files hold them, for example a municipality's name in capitals.
-  The `results-explorer` delta makes this the one exception to names in title case.
+- Text values show as the query returns them, for example a municipality's name in
+  capitals. The `results-explorer` delta makes this the one exception to names in title
+  case. A name that the page writes itself, such as a candidate in the form's picker,
+  keeps title case.
 
 The mockups' HTML sits beside each image, and loads the site's fonts from
 `web/node_modules`.
@@ -362,8 +380,9 @@ things at once (D14).
   needs] → Each file costs one request per visit, and the whole round is 525 requests.
   The browser's cache serves repeat visits.
 - [A capture shows numbers that a visitor invented, on the site's page] → The caption
-  says that a visitor's query produced them, and the frame shows the query. The page
-  cannot stop a capture that crops the caption, as with any other screenshot.
+  says that a visitor's query produced them, and it stays whole on any screen. The frame
+  shows the query's first four lines and a button for the rest. The page cannot stop a
+  capture that crops the caption, as with any other screenshot.
 - [A DuckDB-WASM update changes how the locked settings behave] → The browser tests of
   each refusal in the spec run on every PR, in the real engine.
 - [A pipeline change adds or renames a column] → The pipeline's contract test fails

@@ -48,8 +48,9 @@ results included. The app SHALL change only the case, never a letter, an accent 
 word order. The sources page SHALL say that TSE publishes these names in capitals and
 that the site shows them in title case. Search SHALL find a name whatever the case of
 the typed text.
-A playground result SHALL show values as the published files hold them, because a
-visitor's query can compute or combine names, and the table and its CSV agree.
+A playground result SHALL show each text value as the query returns it, without changing
+its case, because a visitor's query can compute or combine names, and so the table and
+its CSV hold the same text.
 
 #### Scenario: A two-word name
 - **WHEN** TSE's ballot name is "FLAVIO BOLSONARO"

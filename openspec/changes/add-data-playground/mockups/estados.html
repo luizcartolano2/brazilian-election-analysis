@@ -61,10 +61,10 @@ pre.sql.ro { background: var(--surface); }
 .frame-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
 .scroll { overflow-x: auto; margin-top: 12px; }
 table.res { width: 100%; border-collapse: collapse; font-size: 14px; }
-table.res caption { caption-side: top; text-align: left; background: var(--surface); border: 1px solid var(--line); border-bottom: 0; border-radius: 10px 10px 0 0; padding: 10px 12px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+table.res caption { position: sticky; left: 0; max-width: var(--visible, none); caption-side: top; text-align: left; background: var(--surface); border: 1px solid var(--line); border-bottom: 0; border-radius: 10px 10px 0 0; padding: 10px 12px; font-size: 12px; color: var(--muted); line-height: 1.5; }
 table.res caption b { color: var(--ink); }
 table.res th { text-align: left; font-family: ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 600; border: 1px solid var(--line); border-width: 1px 0; padding: 8px 12px; background: #fff; }
-table.res td { border-bottom: 1px solid var(--line); padding: 7px 12px; }
+table.res td { border-bottom: 1px solid var(--line); padding: 7px 12px; white-space: nowrap; }
 table.res td.n, table.res th.n { text-align: right; font-variant-numeric: tabular-nums; }
 table.res tr.more td { color: var(--muted); text-align: center; font-size: 12px; }
 .frame-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }
@@ -94,6 +94,7 @@ pre.engine { background: #fff; border: 1px solid #fecaca; border-radius: 8px; pa
 pre.csv { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 12px; line-height: 1.55; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .states { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
 @media (max-width: 720px) {
+  .frame { --visible: calc(100vw - 32px - 28px - 2px); }
   .bar { padding: 10px 16px; }
   main { padding: 12px 16px 24px; }
   h1 { font-size: 30px; }
@@ -122,7 +123,7 @@ formulário ou escreva em SQL.</p><div class="states">
 <b>Esta consulta vai baixar 78,7 MB.</b> Ela cita <span class="mono">votos_secao</span> com deputado federal e
 deputado estadual para todo o Brasil. Num celular, isso pode demorar e gastar seu plano de dados.
 <div class="row" style="margin-top:10px"><span class="btn dark">Baixar e executar</span><span class="btn light">Voltar</span></div></div></div>
-<div class="state"><h3>Baixando, com cancelar</h3><div class="notice gray">Baixando 31,2 de 78,7 MB · 14 de 54 arquivos
+<div class="state"><h3>Baixando, com cancelar</h3><div class="notice gray">Baixando 31,2 de 78,7 MB · 14 de 53 arquivos
 <div class="progress"><span style="width:40%"></span></div>
 <span class="btn light" style="padding:6px 14px">■ Cancelar</span></div></div>
 <div class="state"><h3>Executando, com cancelar</h3><div class="notice gray">Executando a consulta · 4 s
@@ -148,10 +149,10 @@ listados em <u>Fontes</u>.</div></div>
 <div class="state"><h3>Início do CSV baixado</h3><pre class="csv"># Fonte: Tribunal Superior Eleitoral (TSE), Portal de Dados Abertos. Processamento: Brazilian Election Analysis (github.com/luizcartolano2/brazilian-election-analysis).
 # 1º turno: versão 20261007-67d59ff-37656362427
 # Consulta: https://eleicoes.luizcartolano.com/2026/consultas/#c=eyJ2IjoxLCJ2ZXJzb2VzIjp7IjEiOiIyMDI2MTAwNy02N2Q1OWZm…
-municipio,votos,percentual_validos
-RIO BRANCO,56423,27.28
-CRUZEIRO DO SUL,12368,24.91
-TARAUACÁ,8099,37.66
+uf,municipio,votos,percentual_validos
+AC,RIO BRANCO,56423,27.28
+AC,CRUZEIRO DO SUL,12368,24.91
+AC,TARAUACÁ,8099,37.66
 …</pre>
 <p class="hint">No Excel em português, importe com Dados › De texto/CSV e escolha vírgula como separador.</p></div>
 </div></div></main>
