@@ -28,7 +28,15 @@ import {
   SHARE_SHADES,
   WATER,
 } from '@/lib/map-colors'
-import { binOf, fillOf, marginPoints, type MapData, type MapRow } from '@/lib/maps'
+import {
+  binOf,
+  fillOf,
+  marginPoints,
+  shareMap,
+  type CandidateVotes,
+  type MapData,
+  type MapRow,
+} from '@/lib/maps'
 import { localePath, roundPath } from '@/lib/paths'
 import { normalize } from '@/lib/search'
 
@@ -52,6 +60,12 @@ export interface MapLabels {
   loading: string
   failed: string
   noScript: string
+  /** A map that loads its values from a file: the file failed, or the site moved on. */
+  valuesFailed: string
+  retry: string
+  siteUpdated: string
+  reload: string
+  listLoading: string
   /** The TSE and IBGE credit lines, as DATA_LICENSE.md gives them. */
   credits: string[]
   /** Holds `{points}`. */
@@ -81,6 +95,26 @@ export interface MapLabels {
 
 type Load = { status: 'idle' | 'loading' | 'failed' } | { status: 'ready'; topology: Topology }
 
+/** A map's kind, units and step: everything but its rows, so its legend draws without them. */
+export type MapFrame = Omit<MapData, 'rows'>
+
+/** A share map's candidate, whose column its race's votes file holds. */
+export interface ShareColumn {
+  numero: number
+  label: string
+  step: number
+}
+
+/** What a map draws: its values, or a file that holds them, which the map checks first. */
+export type MapSource =
+  | { kind: 'inline'; data: MapData }
+  | { kind: 'file'; url: string; sha256: string; frame: MapFrame; share?: ShareColumn }
+
+type Values = { status: 'loading' | 'failed' | 'gone' } | { status: 'ready'; data: MapData }
+
+/** A values file that the deployment no longer serves, because a later build renamed it. */
+export class GoneError extends Error {}
+
 interface Drawn {
   width: number
   height: number
@@ -108,15 +142,39 @@ function noSubscription() {
   return () => {}
 }
 
-/** Downloads a boundary file, and refuses it unless its SHA-256 matches the pin. */
-async function loadTopology(url: string, sha256: string): Promise<Topology> {
-  const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) })
+/**
+ * Downloads a file and refuses it unless its SHA-256 matches the pin. `reload` skips the
+ * browser's cache, which keeps a values file for a year, so a retry never rereads a bad copy.
+ */
+async function loadChecked(url: string, sha256: string, reload = false): Promise<unknown> {
+  const response = await fetch(url, {
+    cache: reload ? 'reload' : 'default',
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  })
+  if (response.status === 404) throw new GoneError(`${url} is no longer served`)
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
   const bytes = await response.arrayBuffer()
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))
   const hex = [...digest].map((byte) => byte.toString(16).padStart(2, '0')).join('')
   if (hex !== sha256) throw new Error(`${url} differs from its pinned SHA-256`)
-  return JSON.parse(new TextDecoder().decode(bytes)) as Topology
+  return JSON.parse(new TextDecoder().decode(bytes))
+}
+
+async function loadTopology(url: string, sha256: string): Promise<Topology> {
+  return (await loadChecked(url, sha256)) as Topology
+}
+
+/** A file source's values: the map itself, or a share map built from its race's votes. */
+export async function loadValues(
+  source: Extract<MapSource, { kind: 'file' }>,
+  reload = false,
+): Promise<MapData> {
+  const read = await loadChecked(source.url, source.sha256, reload)
+  if (source.share === undefined) return read as MapData
+  const { numero, label, step } = source.share
+  const data = shareMap(read as CandidateVotes, numero, label, step)
+  if (data === null) throw new Error(`${source.url} has no column for ${numero}`)
+  return data
 }
 
 /** The boundary file's coordinates are already projected, so the browser only scales them. */
@@ -196,7 +254,7 @@ function Legend({
   labels,
   water,
 }: {
-  data: MapData
+  data: MapFrame
   labels: MapLabels
   /** Whether the map holds a lagoon, which Rio Grande do Sul and Brazil do. */
   water: boolean
@@ -265,7 +323,7 @@ function DetailsText({
   row,
 }: {
   locale: Locale
-  data: MapData
+  data: MapFrame
   labels: MapLabels
   row: MapRow
 }) {
@@ -340,7 +398,6 @@ function MunicipalityTable({
   labels,
   hrefOf,
   hydrated,
-  collapsed,
   byState,
 }: {
   locale: Locale
@@ -348,7 +405,6 @@ function MunicipalityTable({
   labels: MapLabels
   hrefOf: (row: MapRow) => string
   hydrated: boolean
-  collapsed?: string
   /** Groups the rows under each state, in folded sections, for a list of all of Brazil. */
   byState: boolean
 }) {
@@ -461,7 +517,7 @@ function MunicipalityTable({
   const pressed = (active: boolean) =>
     `rounded border px-2 py-1 ${active ? 'border-ink bg-ink text-white' : 'border-ink/20'}`
 
-  const content = (
+  return (
     <>
       {hydrated && (
         <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
@@ -515,14 +571,6 @@ function MunicipalityTable({
       )}
     </>
   )
-
-  if (collapsed === undefined) return <div className="mt-6">{content}</div>
-  return (
-    <details className="mt-6">
-      <summary className="cursor-pointer text-sm underline">{collapsed}</summary>
-      <div className="mt-2">{content}</div>
-    </details>
-  )
 }
 
 /**
@@ -531,7 +579,7 @@ function MunicipalityTable({
  */
 export function RaceMap({
   locale,
-  data,
+  source,
   boundary,
   race,
   round = 1,
@@ -543,7 +591,7 @@ export function RaceMap({
   children,
 }: {
   locale: Locale
-  data: MapData
+  source: MapSource
   boundary: { url: string; sha256: string }
   race: string
   /** The round whose municipality views the map links to. */
@@ -569,6 +617,36 @@ export function RaceMap({
   const pointer = useRef('mouse')
   const [load, setLoad] = useState<Load>({ status: 'idle' })
   const [details, setDetails] = useState<Details | null>(null)
+  const [fetched, setFetched] = useState<Values>({ status: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const values: Values = source.kind === 'inline' ? { status: 'ready', data: source.data } : fetched
+  const data = values.status === 'ready' ? values.data : null
+  const frameOf: MapFrame = source.kind === 'inline' ? source.data : source.frame
+
+  // A file's values load with the page, so the list is in the page before a visitor scrolls.
+  const fileSource = source.kind === 'file' ? source : null
+  useEffect(() => {
+    if (fileSource === null) return
+    let cancelled = false
+    loadValues(fileSource, attempt > 0).then(
+      (loaded) => {
+        if (!cancelled) setFetched({ status: 'ready', data: loaded })
+      },
+      (error: unknown) => {
+        if (!cancelled) setFetched({ status: error instanceof GoneError ? 'gone' : 'failed' })
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+    // The source is plain data from the page, so its address and pin identify it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileSource?.url, fileSource?.sha256, attempt])
+
+  function retry() {
+    setFetched({ status: 'loading' })
+    setAttempt((count) => count + 1)
+  }
 
   useEffect(() => {
     const element = frame.current
@@ -601,7 +679,7 @@ export function RaceMap({
     () => (load.status === 'ready' ? draw(load.topology, inset, area === undefined) : null),
     [load, inset, area],
   )
-  const rowsByIbge = useMemo(() => new Map(data.rows.map((row) => [row[0], row])), [data.rows])
+  const rowsByIbge = useMemo(() => new Map((data?.rows ?? []).map((row) => [row[0], row])), [data])
   const raceInfo = raceBySlug(race)
 
   function hrefOf(row: MapRow): string {
@@ -630,23 +708,41 @@ export function RaceMap({
   function colorOf(id: number): string {
     if (LAGOONS.has(id)) return WATER
     const row = rowsByIbge.get(id)
-    return row === undefined ? NO_VOTES : fillColor(fillOf(row, data.kind, data.step), patternId)
+    return row === undefined
+      ? NO_VOTES
+      : fillColor(fillOf(row, frameOf.kind, frameOf.step), patternId)
   }
 
   // Beside a wide map the legend sits to the right. In a narrow column it sits below.
   const framed = (
     <figure className="border-line mt-3 rounded-2xl border p-3 @3xl:grid @3xl:grid-cols-[3fr_2fr] @3xl:items-start @3xl:gap-x-6">
       <div ref={frame} className="relative" data-testid="race-map">
-        {drawn === null ? (
-          <div className="bg-surface text-muted flex aspect-[4/3] items-center justify-center rounded p-4 text-center text-sm">
-            {hydrated ? (
-              load.status === 'failed' ? (
-                <p role="alert">{labels.failed}</p>
-              ) : (
-                <p>{labels.loading}</p>
-              )
-            ) : (
+        {drawn === null || data === null ? (
+          <div className="bg-surface text-muted flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded p-4 text-center text-sm">
+            {!hydrated ? (
               <noscript>{labels.noScript}</noscript>
+            ) : values.status === 'failed' ? (
+              <>
+                <p role="alert">{labels.valuesFailed}</p>
+                <button type="button" onClick={retry} className="text-ink underline">
+                  {labels.retry}
+                </button>
+              </>
+            ) : values.status === 'gone' ? (
+              <>
+                <p role="alert">{labels.siteUpdated}</p>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="text-ink underline"
+                >
+                  {labels.reload}
+                </button>
+              </>
+            ) : load.status === 'failed' ? (
+              <p role="alert">{labels.failed}</p>
+            ) : (
+              <p>{labels.loading}</p>
             )}
           </div>
         ) : (
@@ -745,7 +841,7 @@ export function RaceMap({
               top: details.y + 12,
             }}
           >
-            <DetailsText locale={locale} data={data} labels={labels} row={details.row} />
+            <DetailsText locale={locale} data={frameOf} labels={labels} row={details.row} />
             {details.pinned && (
               <span className="mt-1 flex gap-3">
                 <a href={hrefOf(details.row)} className="underline">
@@ -759,25 +855,49 @@ export function RaceMap({
           </div>
         )}
       </div>
-      <Legend data={data} labels={labels} water={area === undefined || area === 'rs'} />
+      <Legend data={frameOf} labels={labels} water={area === undefined || area === 'rs'} />
     </figure>
   )
+
+  // A file's list waits for its values, but its summary is in the page from the start.
+  const list =
+    data !== null ? (
+      <MunicipalityTable
+        locale={locale}
+        data={data}
+        labels={labels}
+        hrefOf={hrefOf}
+        hydrated={hydrated}
+        byState={area === undefined}
+      />
+    ) : !hydrated ? (
+      <noscript>
+        <p className="text-muted text-sm">{labels.noScript}</p>
+      </noscript>
+    ) : (
+      // The map's place already announces a failure, so the list only names it.
+      <p className="text-muted text-sm">
+        {values.status === 'loading'
+          ? labels.listLoading
+          : values.status === 'gone'
+            ? labels.siteUpdated
+            : labels.valuesFailed}
+      </p>
+    )
 
   return (
     <>
       <div className="@container">{framed}</div>
       {children}
-      {table && (
-        <MunicipalityTable
-          locale={locale}
-          data={data}
-          labels={labels}
-          hrefOf={hrefOf}
-          hydrated={hydrated}
-          collapsed={collapsed}
-          byState={area === undefined}
-        />
-      )}
+      {table &&
+        (collapsed === undefined ? (
+          <div className="mt-6">{list}</div>
+        ) : (
+          <details className="mt-6" data-testid="municipality-list">
+            <summary className="cursor-pointer text-sm underline">{collapsed}</summary>
+            <div className="mt-2">{list}</div>
+          </details>
+        ))}
     </>
   )
 }

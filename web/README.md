@@ -70,12 +70,24 @@ in each municipality for every race map, and each President, Governor and Senate
 candidate's votes for their share map.
 
 The browser draws a map with `d3-geo` and `topojson-client` from a boundary file. It draws
-only after the file's SHA-256 matches the pin, and shows a message otherwise. Every page
-with a map also lists its municipalities in its HTML, so the numbers read without
+only after the file's SHA-256 matches the pin, and shows a message otherwise. State and
+race pages also list their municipalities in their HTML, so the numbers read without
 JavaScript.
 
-`npm run build` ends with `scripts/page-size.ts`, which fails when any page exceeds
-2,500,000 bytes.
+The Brazil pages' President maps and the candidate pages' share maps keep their values out
+of the page. `prepare-data.ts` writes each round's Brazil map and each race's votes by
+municipality to `public/mapas/t<round>/<area>/`, with a name and a pin that both hash the
+file's final bytes, and Vercel caches them for good. The page carries only the file's
+address and SHA-256. The browser requests the file when the page loads, checks it, and
+builds a candidate's share map and its list of municipalities from it, so a candidate
+page's list needs JavaScript. A file that fails its check offers a retry that skips the
+browser's cache, and a file that a later deploy renamed offers to reload the page.
+
+`npm run build` then runs `scripts/prune-payloads.ts`, which deletes each page's
+`__next._full.txt`, `__next._tree.txt` and segment files. The app's links never prefetch,
+so client navigation reads each page's `index.txt` alone. It ends with
+`scripts/page-size.ts`, which fails when a page exceeds 2,500,000 bytes, counting its HTML
+and the values files it loads.
 
 ## Boundaries
 

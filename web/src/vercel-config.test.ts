@@ -58,10 +58,13 @@ describe('vercel.json', () => {
     }
   })
 
-  it('lets browsers keep the search index for good, because its path names its content', () => {
-    const rule = config.headers.find((entry) => entry.source === '/busca/(.*)')
-    expect(rule?.headers).toEqual([
-      { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-    ])
-  })
+  it.each(['/busca/(.*)', '/mapas/(.*)'])(
+    'lets browsers keep %s for good, because each path names its content',
+    (source) => {
+      const rule = config.headers.find((entry) => entry.source === source)
+      expect(rule?.headers).toEqual([
+        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+      ])
+    },
+  )
 })

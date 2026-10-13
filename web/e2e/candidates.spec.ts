@@ -79,6 +79,7 @@ test('a President candidate maps every state, and lists municipalities by state'
   const firstRound = page.getByTestId('round-1')
 
   await expect(map.locator('svg path[data-ibge]')).toHaveCount(8)
+  await firstRound.getByTestId('municipality-list').locator('summary').first().click()
   await expect(firstRound.getByText('Pernambuco · 3')).toBeVisible()
   await firstRound.getByText('Pernambuco · 3').click()
   await expect(
@@ -115,6 +116,7 @@ test("a President candidate's filter shows its match inside the folded states", 
 }) => {
   await page.goto('/2026/presidente/13/')
   const firstRound = page.getByTestId('round-1')
+  await firstRound.getByTestId('municipality-list').locator('summary').first().click()
   await firstRound.getByPlaceholder('Filtrar municípios').fill('recife')
 
   await expect(

@@ -237,5 +237,12 @@
   "area.introRunoff": "Resultados oficiais do TSE neste estado no 2º turno, que decide presidente e, em alguns estados, governador.",
   "site.testBuildBanner": "Versão de teste, feita com dados de amostra.",
   "sources.fixturesSynthetic": "O 2º turno desta versão de teste é sintético: seus números copiam o 1º turno e não são resultados oficiais nem uma previsão.",
-  "meta.descriptionRunoff": "Resultados oficiais do 2º turno das eleições de 2026, do Brasil inteiro até a seção eleitoral, com dados do TSE."
+  "meta.descriptionRunoff": "Resultados oficiais do 2º turno das eleições de 2026, do Brasil inteiro até a seção eleitoral, com dados do TSE.",
+  "map.noScriptList": "O mapa e a lista de municípios precisam de JavaScript.",
+  "map.valuesFailed": "Os números do mapa não carregaram.",
+  "map.retry": "Tentar de novo",
+  "map.siteUpdated": "O site foi atualizado desde que esta página abriu.",
+  "map.reload": "Recarregar a página",
+  "map.listSummary": "Lista dos {count} municípios",
+  "map.listLoading": "Carregando a lista…"
 }
