@@ -63,7 +63,6 @@
   "sources.licenseDerived": "The files this project publishes are under CC BY 4.0. When you reuse them, credit TSE and this project:",
   "sources.filesTitle": "TSE files used",
   "sources.filesNote": "{count} files, with their size and the time they were downloaded.",
-  "results.otherUnderAppeal": "Other votes under appeal",
   "site.fixturesBanner": "Test build: these numbers come from a sample of TSE's files and are not the official results.",
   "site.syntheticBanner": "Test build: this round 2 is synthetic. Its numbers copy round 1 and are neither official results nor a forecast.",
   "area.turnoutTitle": "Voters and turnout · {race}",

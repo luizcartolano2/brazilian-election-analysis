@@ -77,8 +77,6 @@ export interface RaceResults {
   /** Null outside the proportional races. */
   parties: PartyRow[] | null
   partiesUnderAppeal: PartyRow[]
-  /** Votes under appeal that no listed candidate or party list carries. */
-  otherUnderAppeal: number
   totals: {
     valid: number
     blank: number
@@ -113,12 +111,13 @@ export class SummaryMismatch extends Error {}
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0)
 
 /**
- * A party's total counts only its valid candidate votes and its valid list votes. The
- * summary's `votos_candidatos` also counts candidates whose votes are under appeal, so it is
- * not used here: with it, a party table would add up to more than the valid votes.
+ * A party's total counts only its valid candidate votes and its valid list votes. They are
+ * summed here from the valid candidates, because older data versions also count votes under
+ * appeal in `votos_candidatos`.
  *
- * Every vote must land on a shown line. A destination this code does not know, or lines that
- * do not add up to TSE's totals, throw, so the build fails instead of showing wrong numbers.
+ * Every vote must land on a shown line, each vote under appeal included. A destination this
+ * code does not know, or lines that do not add up to TSE's totals, throw, so the build fails
+ * instead of showing wrong numbers.
  */
 export function raceResults(race: SummaryRace, proportional: boolean): RaceResults {
   const label = `race ${race.cargo}`
@@ -190,7 +189,7 @@ export function raceResults(race: SummaryRace, proportional: boolean): RaceResul
   const listedUnderAppeal =
     sum(underAppeal.map((candidate) => candidate.votos)) +
     sum(partiesUnderAppeal.map((party) => party.listVotes))
-  if (listedUnderAppeal > race.anulados_sub_judice) {
+  if (listedUnderAppeal !== race.anulados_sub_judice) {
     throw new SummaryMismatch(
       `${label}: ${listedUnderAppeal} votes under appeal listed, ${race.anulados_sub_judice} in total`,
     )
@@ -212,7 +211,6 @@ export function raceResults(race: SummaryRace, proportional: boolean): RaceResul
     candidatesUnderAppeal: underAppeal.map(candidateRow).sort(byVotesThenNumber),
     parties,
     partiesUnderAppeal,
-    otherUnderAppeal: race.anulados_sub_judice - listedUnderAppeal,
     totals: {
       valid: race.validos,
       blank: race.brancos,

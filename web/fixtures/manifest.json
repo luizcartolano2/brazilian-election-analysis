@@ -33,7 +33,7 @@
   },
   {
    "path": "2026/t1/resumo/ac.json",
-   "sha256": "2b983834871e84d5942f02291e81736f36a71b347e6a0602d4e806c60a98266c",
+   "sha256": "80a1af9a6423e6eecb1c67915a8178be86027f1d214b2651bb8830886b12e33c",
    "size": 29255
   },
   {
@@ -43,12 +43,12 @@
   },
   {
    "path": "2026/t1/resumo/pe.json",
-   "sha256": "990fb721f0bc5757376f053016067c66800ff2ace0e537305b63330e9fa31cd1",
-   "size": 60828
+   "sha256": "fd0d4c9a2b62b6f159997a35b03a19bdb4a1361cb722dbca7c4b0d6e713196d1",
+   "size": 60993
   },
   {
    "path": "2026/t1/resumo/se.json",
-   "sha256": "2e104ab0d65f0f0e465e77960b63864e6a32a2885404ada67d9fc4d49d56e64f",
+   "sha256": "eb5797691f84a1cac8dfab0c63ed67a744c026b819bc12d4b96cb7e63e8d61b8",
    "size": 19190
   },
   {

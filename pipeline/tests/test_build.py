@@ -10,6 +10,7 @@ from eleicoes.aggregates import ANNULLED_SUB_JUDICE, PARTY_LIST, TECHNICAL_NULL
 from eleicoes.build import BuildError
 from eleicoes.download import SourceUnavailable
 from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
+from eleicoes.reconcile import summary_mismatches
 from eleicoes.sources import Bases, bulk_sources, round_config
 
 DATA = "2026/t1"
@@ -105,6 +106,79 @@ def test_summaries(built):
     assert president["validos"] == sum(
         c["votos"] for c in president["candidatos"] if c["destino"] == "Válido"
     )
+
+
+def race_summary(built: Path, state: str, cargo: int) -> dict:
+    document = json.loads((built / DATA / "resumo" / f"{state}.json").read_text())
+    return next(race for race in document["corridas"] if race["cargo"] == cargo)
+
+
+def test_party_candidate_votes_count_valid_candidates_only(built):
+    """Acre's MDB has 1515 under appeal, whose votes stay out of the party's candidate votes."""
+    deputy = race_summary(built, "ac", 6)
+    mdb = next(party for party in deputy["partidos"] if party["numero"] == 15)
+    assert mdb["votos_candidatos"] == sum(
+        candidate["votos"]
+        for candidate in deputy["candidatos"]
+        if candidate["partido"] == "MDB" and candidate["destino"] == "Válido"
+    )
+    for state in ("ac", "pe", "se"):
+        for cargo in (6, 7):
+            race = race_summary(built, state, cargo)
+            lists = sum(
+                party["votos_legenda"]
+                for party in race["partidos"]
+                if party["destino"] == "Válido (legenda)"
+            )
+            candidates = sum(party["votos_candidatos"] for party in race["partidos"])
+            assert candidates + lists == race["validos"], (state, cargo)
+
+
+def test_a_summary_names_a_candidate_the_aggregate_omits(built):
+    """TSE's aggregate omits 4033 in Pernambuco. Its munzona file names the candidacy, and the
+    candidate file gives its party."""
+    deputy = race_summary(built, "pe", 6)
+    assert {
+        "numero": 4033,
+        "nome": "ZOZOI DO IBURA",
+        "partido": "PSB",
+        "votos": 13,
+        "destino": "Anulado sub judice",
+        "resultado": "",
+    } in deputy["candidatos"]
+
+
+def test_the_summary_check_names_a_vote_with_no_line(built):
+    deputy = race_summary(built, "pe", 6)
+    assert summary_mismatches(deputy, "PE") == []
+    deputy["candidatos"] = [entry for entry in deputy["candidatos"] if entry["numero"] != 4033]
+    assert [str(mismatch) for mismatch in summary_mismatches(deputy, "PE")] == [
+        "[summary] PE race 6: annulled sub judice votes on named lines is 0, TSE says 13"
+    ]
+
+
+def test_the_summary_check_adds_up_the_party_table(built):
+    deputy = race_summary(built, "ac", 6)
+    deputy["partidos"][0]["votos_candidatos"] += 1
+    valid = deputy["validos"]
+    assert [str(mismatch) for mismatch in summary_mismatches(deputy, "AC")] == [
+        f"[summary] AC race 6: party totals is {valid + 1}, TSE says {valid}"
+    ]
+
+
+def test_a_candidate_in_neither_the_aggregate_nor_the_candidate_file_stops_the_build(tse, tmp_path):
+    candidates = tse.csv_path(bulk_sources(round_config(1), Bases())["candidates"])
+
+    def renumber(row):
+        if (row["SG_UF"], row["CD_CARGO"], row["NR_CANDIDATO"]) != ("PE", "6", "4033"):
+            return False
+        row["NR_CANDIDATO"] = "4099"
+        return True
+
+    assert tse.edit_csv(candidates, renumber) == 2
+    with pytest.raises(BuildError, match="candidate 4033 is in neither the aggregate nor"):
+        run_build(tse, tmp_path)
+    assert not (tmp_path / "out").exists()
 
 
 def test_candidate_columns_are_the_allowlist_plus_tses_destination_and_outcome(built):

@@ -9,12 +9,22 @@ from eleicoes.aggregates import (
     ANNULLED_SUB_JUDICE,
     BLANK,
     CANDIDATE,
+    CANDIDATE_DESTINATIONS,
     NULL,
+    PARTY_DESTINATIONS,
     PARTY_LIST,
     TECHNICAL_NULL,
     VOTE_TYPES,
     RaceAggregate,
 )
+
+# The summary field that holds each vote type a candidate or a party list can carry.
+SUMMARY_TOTALS = {
+    CANDIDATE: "nominais",
+    PARTY_LIST: "legenda",
+    ANNULLED: "anulados",
+    ANNULLED_SUB_JUDICE: "anulados_sub_judice",
+}
 
 
 @dataclass(frozen=True)
@@ -215,4 +225,31 @@ def aggregate_mismatches(aggregate: RaceAggregate, sums: RaceSums, where: str) -
     )
     compare("attendance", attendance, aggregate.attendance)
     compare("eligible voters", eligible, aggregate.eligible)
+    return mismatches
+
+
+def summary_mismatches(race: dict, where: str) -> list[Mismatch]:
+    """Each candidate, list and annulled vote of a summary lands on a named line, and its party
+    table adds up to the valid votes. The race's totals already match TSE's."""
+    label = f"{where} race {race['cargo']}"
+    lines = dict.fromkeys(SUMMARY_TOTALS, 0)
+    for candidate in race["candidatos"]:
+        lines[CANDIDATE_DESTINATIONS[candidate["destino"]]] += candidate["votos"]
+    for party in race["partidos"]:
+        lines[PARTY_DESTINATIONS[party["destino"]]] += party["votos_legenda"]
+    mismatches = [
+        Mismatch(
+            "summary", label, f"{VOTE_TYPES[vote_type]} votes on named lines", lines[vote_type],
+            race[key],
+        )
+        for vote_type, key in SUMMARY_TOTALS.items()
+        if lines[vote_type] != race[key]
+    ]  # fmt: skip
+    if race["partidos"]:
+        party_total = sum(party["votos_candidatos"] for party in race["partidos"])
+        party_total += lines[PARTY_LIST]
+        if party_total != race["validos"]:
+            mismatches.append(
+                Mismatch("summary", label, "party totals", party_total, race["validos"])
+            )
     return mismatches

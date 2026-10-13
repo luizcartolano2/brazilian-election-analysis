@@ -92,6 +92,14 @@ test('votes under appeal appear on their own lines', async ({ page }) => {
   await expect(table.getByRole('columnheader', { name: 'Votos' })).toHaveCount(1)
 })
 
+test('a candidate under appeal whom only the per-zone file lists has a named line', async ({
+  page,
+}) => {
+  await page.goto('/2026/pe/deputado-federal/')
+  const table = page.getByRole('table', { name: 'Votos sub judice' })
+  await expect(table.getByRole('row').filter({ hasText: 'Zozoi do Ibura' })).toContainText('PSB')
+})
+
 test('every page credits TSE and the author, and sells nothing', async ({ page }) => {
   for (const address of ['/2026/pe/', '/en/2026/']) {
     await page.goto(address)

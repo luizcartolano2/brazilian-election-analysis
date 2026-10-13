@@ -621,17 +621,17 @@
    "partidos": [
     {
      "destino": "Válido (legenda)",
-     "numero": 15,
-     "sigla": "MDB",
-     "votos_candidatos": 226,
-     "votos_legenda": 1
-    },
-    {
-     "destino": "Válido (legenda)",
      "numero": 11,
      "sigla": "PP",
      "votos_candidatos": 189,
      "votos_legenda": 3
+    },
+    {
+     "destino": "Válido (legenda)",
+     "numero": 15,
+     "sigla": "MDB",
+     "votos_candidatos": 181,
+     "votos_legenda": 1
     },
     {
      "destino": "Válido (legenda)",
