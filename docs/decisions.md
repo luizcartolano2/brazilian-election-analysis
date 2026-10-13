@@ -162,6 +162,11 @@ so that it runs in production for a week before the freeze. If it misses 2026-10
 waits until the round-2 pin and its live checks are done, so that the pin PR never
 changes two things at once.
 
+On 2026-10-13, Luiz agreed `add-swing-map`, a map on each finalist's page of the change
+in its head-to-head share between the rounds. Its code merges whenever it is ready,
+outside the freeze. A guard keeps the map off the site until both pinned rounds come from
+TSE's files, so the round-2 pin PR changes no code for it.
+
 ### D15. The pre-runoff release shows official results
 
 The first release explores official first-round results, down to the polling station, on
