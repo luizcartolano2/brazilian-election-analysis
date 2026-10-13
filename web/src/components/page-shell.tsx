@@ -7,7 +7,7 @@ import { SiteSearch, type SearchLabels } from '@/components/site-search'
 import { getRoundSource, getSourceInfo, hasRound } from '@/lib/data'
 import { roundDate, ROUNDS, YEAR, type Round } from '@/lib/elections'
 import { formatDayMonth, localePath, t, type Locale, type MessageKey } from '@/lib/i18n'
-import { roundPath } from '@/lib/paths'
+import { PLAYGROUND_PATH, roundPath, SOURCES_PATH } from '@/lib/paths'
 import { MAX_RESULTS } from '@/lib/search'
 import { REPOSITORY } from '@/lib/site'
 
@@ -166,10 +166,18 @@ export function PageShell({
             >
               {t(locale, 'nav.states')}
             </Link>
-            <Link href={localePath(locale, `/${YEAR}/consultas/`)}>
+            <Link
+              href={localePath(locale, PLAYGROUND_PATH)}
+              aria-current={path === PLAYGROUND_PATH ? 'page' : undefined}
+            >
               {t(locale, 'nav.playground')}
             </Link>
-            <Link href={localePath(locale, `/${YEAR}/fontes/`)}>{t(locale, 'nav.sources')}</Link>
+            <Link
+              href={localePath(locale, SOURCES_PATH)}
+              aria-current={path === SOURCES_PATH ? 'page' : undefined}
+            >
+              {t(locale, 'nav.sources')}
+            </Link>
             <Suspense
               fallback={
                 <a
@@ -267,7 +275,7 @@ function SiteFooter({ locale }: { locale: Locale }) {
             {t(locale, 'footer.repository')}
           </a>{' '}
           ·{' '}
-          <Link href={localePath(locale, `/${YEAR}/fontes/`)} className="underline">
+          <Link href={localePath(locale, SOURCES_PATH)} className="underline">
             {t(locale, 'footer.sources')}
           </Link>
         </p>

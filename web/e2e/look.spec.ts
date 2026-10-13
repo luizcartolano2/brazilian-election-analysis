@@ -51,13 +51,26 @@ test('the header links to the state list', async ({ page }) => {
 
 test('the header links to the playground, in each language', async ({ page }) => {
   await page.goto('/2026/pe/')
-  await page.getByRole('banner').getByRole('link', { name: 'Consultas' }).click()
+  const playground = page.getByRole('banner').getByRole('link', { name: 'Consultas' })
+  await expect(playground).not.toHaveAttribute('aria-current')
+  await playground.click()
   await expect(page).toHaveURL(/\/2026\/consultas\/$/)
   await expect(page.getByTestId('playground')).toBeVisible()
+  await expect(playground).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Fontes' })).not.toHaveAttribute(
+    'aria-current',
+  )
   await page.goto('/en/2026/pe/')
   await page.getByRole('banner').getByRole('link', { name: 'Queries' }).click()
   await expect(page).toHaveURL(/\/en\/2026\/consultas\/$/)
   await expect(page.getByTestId('playground')).toBeVisible()
+})
+
+test("the header marks the sources page's link on that page", async ({ page }) => {
+  await page.goto('/2026/fontes/')
+  const banner = page.getByRole('banner')
+  await expect(banner.getByRole('link', { name: 'Fontes' })).toHaveAttribute('aria-current', 'page')
+  await expect(banner.getByRole('link', { name: 'Consultas' })).not.toHaveAttribute('aria-current')
 })
 
 test('cities abroad show in title case', async ({ page }) => {

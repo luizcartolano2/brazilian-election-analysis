@@ -6,9 +6,8 @@ import { Playground } from '@/components/playground/playground'
 import { getPlaygroundConfig, hasRound } from '@/lib/data'
 import { ROUNDS, YEAR } from '@/lib/elections'
 import { localePath, t, type Locale } from '@/lib/i18n'
+import { PLAYGROUND_PATH, SOURCES_PATH } from '@/lib/paths'
 import { pageMetadata } from '@/views/metadata'
-
-export const PLAYGROUND_PATH = `/${YEAR}/consultas/`
 
 export function playgroundMetadata(locale: Locale): Metadata {
   return pageMetadata(locale, PLAYGROUND_PATH, t(locale, 'playground.title'))
@@ -20,7 +19,7 @@ function playgroundLabels(locale: Locale): Labels {
 }
 
 export function PlaygroundPage({ locale }: { locale: Locale }) {
-  const sourcesHref = localePath(locale, `/${YEAR}/fontes/`)
+  const sourcesHref = localePath(locale, SOURCES_PATH)
   return (
     <PageShell
       locale={locale}

@@ -19,6 +19,7 @@ import {
   type MessageKey,
 } from '@/lib/i18n'
 import type { Manifest, ManifestSource } from '@/lib/manifest'
+import { PLAYGROUND_PATH, SOURCES_PATH } from '@/lib/paths'
 import { REPOSITORY } from '@/lib/site'
 
 const IBGE_TERMS = 'https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf'
@@ -162,7 +163,7 @@ export function SourcesContent({
       <p className="mt-2 text-sm">{t(locale, 'sources.checks')}</p>
       <p className="mt-2 text-sm">
         {t(locale, 'sources.playground')}{' '}
-        <AppLink href={localePath(locale, `/${YEAR}/consultas/`)} className="underline">
+        <AppLink href={localePath(locale, PLAYGROUND_PATH)} className="underline">
           {t(locale, 'sources.playgroundLink')}
         </AppLink>
         .
@@ -246,7 +247,7 @@ export function SourcesView({ locale }: { locale: Locale }) {
   return (
     <PageShell
       locale={locale}
-      path={`/${YEAR}/fontes/`}
+      path={SOURCES_PATH}
       crumbs={[
         { label: t(locale, 'area.brazil'), path: `/${YEAR}/` },
         { label: t(locale, 'nav.sources') },
