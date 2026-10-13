@@ -240,6 +240,7 @@ class Build:
             csv = self._extracted(state_votes_source(self.config, self.options.bases, state))
             load_votes(con, "state_votes", csv, self.config.round)
             csv.unlink()
+        self._expect_municipal_votes(state)
 
         municipal_codes = ", ".join(str(code) for code in self.municipal) or "NULL"
         races = con.execute(
@@ -350,6 +351,23 @@ class Build:
         )
         self._write_state(state, sums, unlisted_candidates)
         con.execute("DROP TABLE state_votes; DROP TABLE classified")
+
+    def _expect_municipal_votes(self, state: str) -> None:
+        """A municipal election that the round's configuration lists must have vote rows. The
+        build takes its races from the vote rows, so a race that TSE drops from every file it
+        reads would otherwise leave the version without a word."""
+        for election in self.municipal.values():
+            if election.state != state:
+                continue
+            (rows,) = self.con.execute(
+                "SELECT count(*) FROM state_votes WHERE eleicao = $e AND municipio = $m",
+                {"e": election.code, "m": election.municipality},
+            ).fetchone()
+            if rows == 0:
+                raise BuildError(
+                    f"{state}: election {election.code} has no vote rows in municipality "
+                    f"{election.municipality}, although round {self.config.round} lists it"
+                )
 
     def _unlisted_candidates(
         self, state: str, aggregate: RaceAggregate, numbers: list[int]

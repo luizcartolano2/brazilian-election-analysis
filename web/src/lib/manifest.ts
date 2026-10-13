@@ -29,6 +29,17 @@ export interface Manifest {
   arquivos: ManifestFile[]
   /** Set only on test fixtures that the pipeline made up rather than cut from TSE's files. */
   sintetico?: boolean
+  /** The checks the build ran, among them each race it reconciled with TSE's aggregate. */
+  verificacoes?: { agregado?: CheckedRace[] }
+}
+
+/** A race that the pipeline reconciled with TSE's aggregate: its area, election and race. */
+export type CheckedRace = [area: string, election: number, race: number]
+
+/** The races in `expected` that the manifest's version did not reconcile, in order. */
+export function missingRaces(expected: CheckedRace[], manifest: Manifest): CheckedRace[] {
+  const checked = new Set((manifest.verificacoes?.agregado ?? []).map((race) => race.join('/')))
+  return expected.filter((race) => !checked.has(race.join('/')))
 }
 
 export class DataVersionError extends Error {}
@@ -51,11 +62,16 @@ export function parseManifest(bytes: Uint8Array, round: Round): Manifest {
   return manifest
 }
 
-/** Checks a pinned version's manifest. `bytes` is null when the version has no manifest. */
+/**
+ * Checks a pinned version's manifest. `bytes` is null when the version has no manifest.
+ * `races` are the races that the version must have reconciled: a pin that drops one fails, so
+ * a race that TSE removes from its files never leaves the site unnoticed.
+ */
 export function verifyManifest(
   bytes: Uint8Array | null,
   expectedSha256: string,
   round: Round,
+  races: CheckedRace[] = [],
 ): Manifest {
   if (bytes === null) {
     throw new DataVersionError(
@@ -71,6 +87,12 @@ export function verifyManifest(
   const manifest = parseManifest(bytes, round)
   if (manifest.parcial !== false || manifest.fontes_tse !== true) {
     throw new DataVersionError('the pinned version is partial or was built from files outside TSE')
+  }
+  const missing = missingRaces(races, manifest)
+  if (missing.length > 0) {
+    throw new DataVersionError(
+      `the pinned version for round ${round} did not reconcile ${missing.map((race) => race.join('/')).join(', ')}, which pinned-races.json lists`,
+    )
   }
   return manifest
 }

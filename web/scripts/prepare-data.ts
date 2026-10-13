@@ -16,6 +16,7 @@ import {
   summaryPaths,
   verifyFile,
   verifyManifest,
+  type CheckedRace,
   type Manifest,
 } from '../src/lib/manifest'
 import {
@@ -111,16 +112,36 @@ export function plannedRounds(
   })
 }
 
+/**
+ * The races that a round's pinned version must have reconciled, from `src/pinned-races.json`.
+ * The PR that pins a new version copies them from its manifest's `verificacoes.agregado`, and
+ * removes a race only on purpose, where its reviewer sees it.
+ */
+export async function pinnedRaces(
+  round: Round,
+  file = path.join(WEB_ROOT, 'src', 'pinned-races.json'),
+): Promise<CheckedRace[]> {
+  const lists = JSON.parse(await readFile(file, 'utf-8')) as Record<string, CheckedRace[] | null>
+  const listed = lists[String(round)]
+  if (listed === undefined || listed === null) {
+    throw new Error(
+      `src/pinned-races.json lists no races for round ${round}: copy them from the pinned manifest's verificacoes.agregado`,
+    )
+  }
+  return listed
+}
+
 /** Reads the manifest, checks its round, and checks a published one against its pinned SHA-256. */
 export async function readManifest(
   source: DataSource,
   round: Round,
   expectedSha256: string,
+  races: CheckedRace[] = [],
 ): Promise<{ manifest: Manifest; manifestBytes: Uint8Array }> {
   const manifestBytes = await source.read('manifest.json')
   const manifest =
     source.mode === 'published'
-      ? verifyManifest(manifestBytes, expectedSha256, round)
+      ? verifyManifest(manifestBytes, expectedSha256, round, races)
       : parseManifest(manifestBytes ?? new Uint8Array(), round)
   return { manifest, manifestBytes: manifestBytes as Uint8Array }
 }
@@ -143,8 +164,9 @@ export async function loadVersion(
   source: DataSource,
   round: Round,
   expectedSha256 = '',
+  races: CheckedRace[] = [],
 ): Promise<LoadedVersion> {
-  const { manifest, manifestBytes } = await readManifest(source, round, expectedSha256)
+  const { manifest, manifestBytes } = await readManifest(source, round, expectedSha256, races)
   const summaries = new Map<string, Uint8Array>()
   for (const summaryPath of summaryPaths(manifest)) {
     const bytes = await source.read(summaryPath)
@@ -294,7 +316,12 @@ async function main(): Promise<void> {
   const syntheticSwing = fixtureSwing(process.env, mode)
   const rounds: (PlannedRound & LoadedVersion & { parsed: Map<string, Summary> })[] = []
   for (const planned of plannedRounds(mode).filter((entry) => included.includes(entry.round))) {
-    const loaded = await loadVersion(planned.source, planned.round, planned.pin?.manifestSha256)
+    const loaded = await loadVersion(
+      planned.source,
+      planned.round,
+      planned.pin?.manifestSha256,
+      planned.pin === null ? [] : await pinnedRaces(planned.round),
+    )
     rounds.push({ ...planned, ...loaded, parsed: parseSummaries(loaded.summaries) })
   }
   const [first, second] = rounds

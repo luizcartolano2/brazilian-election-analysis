@@ -187,11 +187,17 @@ moves, Vercel cannot find the script, and every commit builds again without any 
 A "Publish data" run's summary shows the version and its manifest's SHA-256.
 
 1. Put both in `src/data-version.ts`, under the round that the version holds.
-2. Run `npm run build` without `ELEICOES_DATA`, which checks the new version through the
+2. For a round's first pin, copy the manifest's `verificacoes.agregado` into that round's
+   entry of `src/pinned-races.json`. For a later pin, leave the list as it is.
+3. Run `npm run build` without `ELEICOES_DATA`, which checks the new version through the
    Worker. A new version of either round must agree with the other round's pin. So once
    round 2 is pinned, a recount that changes who reached round 2 needs both new pins in
    one PR.
-3. Open a PR. Rolling back is a PR that pins the previous version.
+4. Open a PR. Rolling back is a PR that pins the previous version.
+
+The build fails when the pinned version did not reconcile a race that
+`src/pinned-races.json` lists, and it names each one. A race leaves the list only when
+TSE removed it from its data on purpose, and the PR that removes it says why.
 
 If the Worker's origin changes, change it in `src/data-version.ts` and in the
 `connect-src` of `vercel.json` together. A test fails when the two differ.

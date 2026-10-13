@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { mkdtemp, readFile } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -16,6 +16,7 @@ import {
   fixtureSwing,
   fixtureSource,
   loadVersion,
+  pinnedRaces,
   plannedRounds,
   verifyPublishedAssets,
   type DataSource,
@@ -54,6 +55,31 @@ describe('loadVersion', () => {
   it('fails when the pinned version has no manifest', async () => {
     const source = published((files) => files.delete('manifest.json'))
     await expect(loadVersion(source, 1, 'a'.repeat(64))).rejects.toThrow(/no manifest/)
+  })
+
+  it('accepts a version that reconciled every race the pin lists', async () => {
+    const source = published()
+    const races: [string, number, number][] = [
+      ['br', 6257, 1],
+      ['pe30015', 6261, 25],
+    ]
+    await expect(loadVersion(source, 1, await pinOf(source), races)).resolves.toBeDefined()
+  })
+
+  it('fails when the version did not reconcile a race the pin lists', async () => {
+    const source = published((files) => {
+      const manifest = JSON.parse(new TextDecoder().decode(files.get('manifest.json')))
+      manifest.verificacoes.agregado = manifest.verificacoes.agregado.filter(
+        (race: [string, number, number]) => race[1] !== 6261,
+      )
+      files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
+    })
+    await expect(
+      loadVersion(source, 1, await pinOf(source), [
+        ['br', 6257, 1],
+        ['pe30015', 6261, 25],
+      ]),
+    ).rejects.toThrow(/round 1 did not reconcile pe30015\/6261\/25, which pinned-races.json lists/)
   })
 
   it('fails when the manifest differs from the pinned checksum', async () => {
@@ -268,5 +294,24 @@ describe('verifyPublishedAssets', () => {
     await withAssets(files, async (assetBase) => {
       await expect(verifyPublishedAssets(assetBase)).rejects.toThrow(/duckdb-wasm target/)
     })
+  })
+})
+
+describe('pinnedRaces', () => {
+  it('lists every race of the pinned round 1, Fernando de Noronha’s council among them', async () => {
+    const races = await pinnedRaces(1)
+    expect(races.length).toBeGreaterThan(100)
+    expect(races).toContainEqual(['br', 6257, 1])
+    expect(races).toContainEqual(['pe30015', 6261, 25])
+  })
+
+  it('fails on a pinned round with no list, and says where to copy it from', async () => {
+    const folder = await mkdtemp(path.join(tmpdir(), 'races-'))
+    const file = path.join(folder, 'pinned-races.json')
+    await writeFile(file, JSON.stringify({ 1: [['br', 6257, 1]], 2: null }))
+    await expect(pinnedRaces(1, file)).resolves.toEqual([['br', 6257, 1]])
+    await expect(pinnedRaces(2, file)).rejects.toThrow(
+      /lists no races for round 2: copy them from the pinned manifest's verificacoes.agregado/,
+    )
   })
 })
