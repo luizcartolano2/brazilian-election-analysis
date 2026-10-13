@@ -50,6 +50,8 @@ describe('the link', () => {
     ['no round', payload({ turnos: [] })],
     ['a query too long', payload({ sql: 'x'.repeat(MAX_QUERY_LENGTH + 1) })],
     ['a version with odd characters', payload({ versoes: { 1: '../../x' } })],
+    ['a version for a round that does not exist', payload({ versoes: { 1: PINNED[1], 3: 'x' } })],
+    ['a version for a round that is not pinned', payload({ versoes: { 1: PINNED[1], 2: 'x' } })],
     ['another format', payload({ v: 2 })],
     ['text that is not URL-safe base64', '#c=$$$'],
     ['base64 that is not JSON', `#c=${btoa('not json')}`],
@@ -60,6 +62,18 @@ describe('the link', () => {
   it('names both versions when the link names an earlier one', () => {
     const reading = readLink(payload({ versoes: { 1: '20261001-aaaaaaa-1' } }), PINNED)
     expect(reading.status).toBe('valid')
+    expect(reading.status === 'valid' && reading.stale).toEqual([
+      { round: 1, linked: '20261001-aaaaaaa-1', pinned: PINNED[1] },
+    ])
+  })
+
+  it("checks round 1's version when a round-2 query read round 1's `municipios`", () => {
+    const pinned = { 1: PINNED[1], 2: '20261028-bbbbbbb-2' } as const
+    const reading = readLink(
+      payload({ turnos: [2], versoes: { 1: '20261001-aaaaaaa-1', 2: pinned[2] } }),
+      pinned,
+    )
+    expect(reading.status === 'valid' && reading.state.choice.rounds).toEqual([2])
     expect(reading.status === 'valid' && reading.stale).toEqual([
       { round: 1, linked: '20261001-aaaaaaa-1', pinned: PINNED[1] },
     ])

@@ -323,7 +323,7 @@
   "playground.failed.engine": "The query engine did not load. Check the connection and try again.",
   "playground.failed.download": "A data file could not be downloaded. Check the connection and try again.",
   "playground.failed.check": "A downloaded file does not match the version's manifest, and was discarded.",
-  "playground.failed.catalog": "A pinned file has columns that the queries' catalog does not describe:",
+  "playground.failed.catalog": "A pinned file does not match the queries' catalog, so the query did not run:",
   "playground.failed.empty": "The query is empty.",
   "playground.failed.list": "The queries' list of files did not load.",
   "playground.retry": "Try again",
@@ -346,5 +346,9 @@
   "playground.linkStale": "This link was made on version {linked} of the {round}. The site now uses version {pinned}, and the query will run on it. Nothing has run yet.",
   "playground.linkRestored": "The link's query was restored. It runs only when you click Run.",
   "sources.playground": "To ask your own questions of this data, in the browser, use the",
-  "sources.playgroundLink": "query page"
+  "sources.playgroundLink": "query page",
+  "playground.catalog.extra": "{table}: column {column} is not in the catalog.",
+  "playground.catalog.missing": "{table}: column {column} is missing.",
+  "playground.catalog.type": "{table}: column {column} is {actual}, and the catalog says {expected}.",
+  "playground.queryTooLong": "A query can hold up to 10,000 characters."
 }

@@ -7,10 +7,10 @@ through a form or their own SQL, and download each answer with TSE's credit.
 
 ### Requirement: A playground page
 The app SHALL have a playground page at `/2026/consultas/`, and at `/en/2026/consultas/`
-in English, and the sources page SHALL link to it. The page SHALL download no data file
-and no part of the query engine until the visitor first runs a query. Without
-JavaScript, the page SHALL say that the playground needs it, and link to the sources
-page.
+in English, and the sources page SHALL link to it. The page SHALL download no Parquet
+file and no part of the query engine until the visitor first runs a query. It reads the
+build's list of the playground's files when it opens. Without JavaScript, the page SHALL
+say that the playground needs it, and link to the sources page.
 
 #### Scenario: Opening the playground
 - **WHEN** a visitor opens the playground
@@ -27,10 +27,12 @@ page.
 ### Requirement: The visitor chooses the data first
 The page SHALL let the visitor choose one or both pinned rounds, one or more races, and
 either Brazil or chosen states. Brazil holds every state and the votes cast abroad. The
-playground's tables SHALL hold only the chosen data. The tables panel SHALL show each
-table's size for the choice, from the pinned manifests. A run SHALL download only the
-files of the tables that its query names. A run that needs more than 25 MB of files that
-the visit has not yet downloaded SHALL wait until the visitor confirms that size.
+playground's tables SHALL hold only the chosen data, except `municipios`, which SHALL
+hold every municipality from round 1's version, because the other tables name
+municipalities only by code. The tables panel SHALL show each table's size for the
+choice, from the pinned manifests. A run SHALL download only the files of the tables that
+its query names. A run that needs more than 25 MB of files that the visit has not yet
+downloaded SHALL wait until the visitor confirms that size.
 
 #### Scenario: Only round 1 is pinned
 - **WHEN** a visitor opens the playground while no round-2 version is pinned
@@ -46,7 +48,7 @@ the visit has not yet downloaded SHALL wait until the visitor confirms that size
 
 #### Scenario: Both rounds
 - **WHEN** a visitor chooses both rounds and the President race
-- **THEN** each table holds a column for the round, and holds round 1's rows from round 1's version and round 2's rows from round 2's version
+- **THEN** each table but `municipios` holds a column for the round, and holds round 1's rows from round 1's version and round 2's rows from round 2's version
 
 #### Scenario: Turnout for one race
 - **WHEN** a visitor chooses the President race and Acre, and sums the eligible voters of the municipality turnout
@@ -78,10 +80,10 @@ from the catalog's, the run SHALL fail, name the table and the column, and show 
 The page SHALL offer a form that builds a query from fixed choices: a question, a level,
 a candidate when the question needs one, an order and a number of rows. The questions
 SHALL be each candidate's votes, one candidate's votes, turnout, and blank and null
-votes. The levels SHALL be state, municipality, zone and polling station. The form
-SHALL write its query into the editor, where the visitor can read and change it before
-running it. A share of valid votes that the form computes SHALL count valid votes as the
-results pages count them.
+votes. The levels SHALL be state, municipality, zone and polling station. The form SHALL
+write its query into the editor, where the visitor can read and change it before running
+it. A share of valid votes that the form computes SHALL count valid votes as the results
+pages count them. The form's candidates SHALL be those whose votes count as valid.
 
 #### Scenario: One candidate by municipality
 - **WHEN** a visitor uses the form for one candidate's votes, in round 1's President race in Acre, by municipality
@@ -111,9 +113,10 @@ results pages count them.
 The page SHALL offer an editor that runs the visitor's SQL over the playground's tables,
 when the visitor presses the run button or Ctrl+Enter, or Cmd+Enter on a Mac. The page
 SHALL show the result of the run's last statement. Each run SHALL start from the
-playground's tables alone, so its result depends only on its query and its data
-versions. Before the form or an example replaces text that the visitor typed, the page
-SHALL ask.
+playground's tables alone, so its result depends only on its query and its data versions.
+Before the form, an example or a link replaces text that the visitor typed, the page
+SHALL ask. The editor SHALL hold at most 10,000 characters, and say so when it is full. A
+run SHALL stream the result of every statement, and keep only the last statement's.
 
 #### Scenario: An error in the query
 - **WHEN** a visitor runs a query with a syntax error
@@ -131,6 +134,10 @@ SHALL ask.
 - **WHEN** one run creates a macro named `round`, a table macro named `read_parquet`, a schema on the search path and an attached in-memory database, and the next run uses the form
 - **THEN** the next run returns the pinned numbers, as a fresh visit does
 
+#### Scenario: Statements before the last
+- **WHEN** a run's first statement returns 50,000,000 rows and its last statement returns one
+- **THEN** the page keeps none of the first statement's rows, and shows the last statement's row
+
 #### Scenario: Typed text is kept
 - **WHEN** a visitor typed a query, and then chooses an example
 - **THEN** the page asks before it replaces the typed query, and keeps it if the visitor declines
@@ -140,8 +147,10 @@ The page SHALL run every query in an engine that reads only the files that the p
 downloaded. The page SHALL download them from the pinned versions through the Worker, and
 check each against the manifest's SHA-256. The engine SHALL refuse any statement that
 reads another file or a URL, writes a file, attaches a database file, loads an extension,
-or changes the engine's configuration. These limits SHALL hold in addition to the
-security policy's limits on the hosts that the page can fetch from.
+or changes the engine's configuration. No statement SHALL change a chosen file, whether
+it copies a result to the file or attaches the file as a database. These limits SHALL
+hold in addition to the security policy's limits on the hosts that the page can fetch
+from.
 
 #### Scenario: A query that reads another data version
 - **WHEN** a visitor runs a query that reads a Parquet file of another data version from the Worker's URL
@@ -156,8 +165,12 @@ security policy's limits on the hosts that the page can fetch from.
 - **THEN** the engine refuses both statements
 
 #### Scenario: A query that writes a file
-- **WHEN** a visitor runs a statement that copies a result to a file
-- **THEN** the engine refuses it, and every table still reads the pinned data
+- **WHEN** a visitor runs a statement that copies a result into one of the chosen files, with or without a temporary file
+- **THEN** the engine refuses it, and every later run reads the pinned data
+
+#### Scenario: An attach of a chosen file
+- **WHEN** a visitor attaches one of the chosen files, writes a table into it, checkpoints and detaches it
+- **THEN** every later run reads the pinned data
 
 #### Scenario: A query that attaches a database file
 - **WHEN** a visitor runs a statement that attaches a database file
@@ -184,7 +197,7 @@ holds, or which limit the result passed.
 - **THEN** the page shows the first 1,000 rows, states that the result holds more than 1,000,000 rows, and answers to typing and scrolling throughout the run
 
 #### Scenario: A result of very wide rows
-- **WHEN** a visitor runs a query that returns 1,000 rows of one million characters each
+- **WHEN** a visitor runs a query that returns 200 rows of one million characters each
 - **THEN** the page stops the query at 100 MB of CSV text, states that limit, shows each cell's first 500 characters, and the tab keeps working
 
 #### Scenario: A query that needs too much memory
@@ -219,9 +232,11 @@ download, rather than truncate the file, when the result passes either. The file
 start with lines that begin with `#`. They SHALL hold the TSE credit line, each data
 version with its round, and the playground link that restores the query. Every header or
 text cell that starts with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed
-SHALL be written so that a spreadsheet reads it as text. No line of the file SHALL hold a
-cell that a spreadsheet runs as a formula. The file's name SHALL name each round and data
-version.
+SHALL be written so that a spreadsheet reads it as text, and so SHALL any of `=`, `+`,
+`-` and `@` that follows a semicolon, a tab or a line break inside a text, because a
+spreadsheet that splits at semicolons ignores the quotes. No line of the file SHALL hold
+a cell that a spreadsheet runs as a formula. The file's name SHALL name each round and
+data version.
 
 #### Scenario: The credit travels with the file
 - **WHEN** a visitor downloads a result
@@ -235,21 +250,31 @@ version.
 - **WHEN** a result cell holds text that starts with `=`, or with a line feed and then `=`
 - **THEN** the CSV cell starts with a single quote, so a spreadsheet shows the text and runs no formula
 
+#### Scenario: A semicolon before a formula
+- **WHEN** a result cell holds `x;=1+1`
+- **THEN** the CSV cell holds `x;'=1+1`, so a spreadsheet that splits at semicolons reads text
+
 #### Scenario: A result over the limit
 - **WHEN** a visitor asks to download a result of more than 1,000,000 rows, or of more than 100 MB of CSV text
 - **THEN** the page writes no file, says why, and links to the sources page, which lists the Parquet files
 
 ### Requirement: A link that holds the query
-The page SHALL offer a link that holds the query, the data choice and each data version
-in the address's fragment, so the query never reaches a server. Opening the link SHALL
-restore the query and the data choice, and SHALL NOT run the query until the visitor
-runs it. The page SHALL accept a link's data choice only from the pinned rounds, the
-election's races and the 27 states and `zz`. When a link names a data version that is no
-longer pinned, the page SHALL say so and name both versions.
+The page SHALL offer a link that holds the query, the data choice, and the data version
+of each chosen round and of each round that the result read, in the address's fragment,
+so the query never reaches a server. Opening the link SHALL restore the query and the
+data choice, and SHALL NOT run the query until the visitor runs it. The page SHALL accept
+a link's data choice only from the pinned rounds, the election's races and the 27 states
+and `zz`. When a link names a data version that is no longer pinned, the page SHALL say
+so and name both versions. A link pasted into an open playground SHALL open in place, and
+run nothing.
+
+#### Scenario: A round-2 link that read round 1's municipalities
+- **WHEN** a visitor with only round 2 chosen runs a query that reads `municipios`, shares its link, and round 1 is later repinned
+- **THEN** opening the link names both of round 1's versions
 
 #### Scenario: Opening a shared link
 - **WHEN** a visitor opens a link to the playground that holds a query
-- **THEN** the editor holds the query and the data choice is restored, and the page downloads nothing and runs nothing until the visitor runs it
+- **THEN** the editor holds the query and the data choice is restored, and the page downloads no Parquet file and runs nothing until the visitor runs it
 
 #### Scenario: A link from an earlier version
 - **WHEN** a visitor opens a link that names an earlier round-1 version than the pinned one
@@ -257,7 +282,7 @@ longer pinned, the page SHALL say so and name both versions.
 
 #### Scenario: A link with an invalid data choice
 - **WHEN** a link's data choice holds a state code with a slash, or a race the election does not have
-- **THEN** the page says that the link is invalid, restores no part of it, and requests no file
+- **THEN** the page says that the link is invalid, restores no part of it, and requests no Parquet file
 
 ### Requirement: Example queries
 The page SHALL offer example queries, each with a title and a description in the

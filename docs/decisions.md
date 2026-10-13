@@ -173,8 +173,12 @@ outside the freeze. A guard keeps the map off the site until round 2 is pinned a
 round's data is synthetic, so the round-2 pin PR changes no code for it.
 
 On 2026-10-13, Luiz asked for `add-data-playground`, a page where a visitor queries the
-pinned data in the browser, through a form or their own SQL. Its code merges after the
-round-2 pin and its live checks, so that the pin PR never changes two things at once.
+pinned data in the browser, through a form or their own SQL. Its code merges whenever it
+is ready, outside the freeze of 2026-10-24 to 2026-10-26. The page is new and changes no
+other page. The round-2 pin changes it only through its data choice, which the fixtures
+of both rounds test, so the pin PR changes no code for it. Until 2026-10-13, this
+paragraph held the code until after the round-2 pin. Luiz dropped that hold, because it
+delayed the page and protected nothing.
 
 ### D15. The pre-runoff release shows official results
 

@@ -17,9 +17,16 @@ import {
   type PlaygroundFile,
 } from '@/lib/playground/files'
 import { formQuery, type FormState } from '@/lib/playground/form'
-import { linkFragment, readLink, type LinkReading } from '@/lib/playground/link'
+import {
+  linkFragment,
+  MAX_QUERY_LENGTH,
+  readLink,
+  type LinkReading,
+  type LinkState,
+} from '@/lib/playground/link'
 import type { ResultCollector } from '@/lib/playground/result'
 import { Runner, type FailureReason, type RunPlan } from '@/lib/playground/runner'
+import type { ColumnProblem } from '@/lib/playground/sandbox'
 import { DataChoiceBar, roundLabel } from './data-choice'
 import { fill, type Labels } from './labels'
 import { QueryForm, type CandidateChoices, type CandidateOption } from './query-form'
@@ -50,7 +57,7 @@ type Phase =
   | { kind: 'downloading'; received: number; total: number }
   | { kind: 'running'; since: number }
   | { kind: 'cancelled' }
-  | { kind: 'failed'; reason: FailureReason; message: string }
+  | { kind: 'failed'; reason: FailureReason; message: string; problems: ColumnProblem[] }
 
 interface Result {
   shown: ShownResult
@@ -62,8 +69,11 @@ interface Result {
 type Listing =
   { status: 'loading' } | { status: 'failed' } | { status: 'ready'; files: PlaygroundFile[] }
 
+/** A slow list fails with an error and a retry instead of keeping the page loading. */
+const LIST_TIMEOUT_MS = 30_000
+
 async function checkedJson<T>(url: string, sha256: string): Promise<T> {
-  const response = await fetch(url)
+  const response = await fetch(url, { signal: AbortSignal.timeout(LIST_TIMEOUT_MS) })
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
   const bytes = await response.arrayBuffer()
   if ((await sha256Hex(bytes)) !== sha256) throw new Error(`${url} differs from its pin`)
@@ -113,8 +123,10 @@ function PlaygroundApp({
   labels: Labels
   sourcesHref: string
 }) {
-  // The link is read once, as the page opens, and never runs anything by itself.
-  const [reading] = useState<LinkReading>(() => readLink(window.location.hash, config.versions))
+  // A link never runs anything by itself.
+  const [reading, setReading] = useState<LinkReading>(() =>
+    readLink(window.location.hash, config.versions),
+  )
   const restored = reading.status === 'valid' ? reading.state : null
   const [choice, setChoice] = useState<DataChoice>(restored?.choice ?? INITIAL_CHOICE)
   const [form, setForm] = useState<FormState>({
@@ -134,7 +146,8 @@ function PlaygroundApp({
   const [result, setResult] = useState<Result | null>(null)
   const [copied, setCopied] = useState(false)
   const [now, setNow] = useState(() => Date.now())
-  const runner = useRef<Runner | null>(null)
+  // A holder rather than a ref, so the cleanup below reaches the runner that the page made.
+  const [engine] = useState<{ runner: Runner | null }>(() => ({ runner: null }))
   const progress = useRef<{ received: number; total: number } | null>(null)
 
   useEffect(() => {
@@ -221,14 +234,8 @@ function PlaygroundApp({
   const sql = source.kind === 'form' ? generated : source.text
   const busy = phase.kind === 'starting' || phase.kind === 'downloading' || phase.kind === 'running'
 
-  // A link pasted into an open page changes only the fragment, so the page opens it afresh.
-  useEffect(() => {
-    const reopen = () => {
-      if (window.location.hash.startsWith('#c=')) window.location.reload()
-    }
-    window.addEventListener('hashchange', reopen)
-    return () => window.removeEventListener('hashchange', reopen)
-  }, [])
+  // Leaving the page stops the engine's Worker, with every file it holds.
+  useEffect(() => () => engine.runner?.dispose(), [engine])
 
   useEffect(() => {
     if (phase.kind !== 'running') return
@@ -247,6 +254,31 @@ function PlaygroundApp({
     replaceText(() => setSource({ kind: 'form' }))
   }
 
+  function openLink(state: LinkState) {
+    setChoice(state.choice)
+    setForm((current) => ({ ...current, race: state.choice.races[0] ?? current.race }))
+    setSource({ kind: 'link', text: state.sql })
+  }
+
+  // A link pasted into an open page changes only the fragment. The page opens it in place, and
+  // asks before it replaces a query that the visitor typed.
+  useEffect(() => {
+    const open = () => {
+      const next = readLink(window.location.hash, config.versions)
+      if (next.status === 'none') return
+      if (next.status === 'invalid') {
+        setReading(next)
+        return
+      }
+      replaceText(() => {
+        setReading(next)
+        openLink(next.state)
+      })
+    }
+    window.addEventListener('hashchange', open)
+    return () => window.removeEventListener('hashchange', open)
+  })
+
   function chooseExample(id: string) {
     const example = EXAMPLES.find((entry) => entry.id === id)
     if (example === undefined) return
@@ -262,22 +294,24 @@ function PlaygroundApp({
     return [...rounds].sort().map((round) => ({ round, version: config.versions[round] ?? '' }))
   }
 
-  function linkTo(text: string, chosen: DataChoice): string {
+  function linkTo(text: string, chosen: DataChoice, read: { round: Round; version: string }[]) {
     const versions: Partial<Record<Round, string>> = {}
     for (const round of chosen.rounds) versions[round] = config.versions[round]
+    for (const entry of read) versions[entry.round] = entry.version
     const fragment = linkFragment({ versions, choice: chosen, sql: text })
     return `${window.location.origin}${window.location.pathname}${fragment}`
   }
 
-  function run(confirmed: boolean) {
+  /** `confirmed` is the size that the visitor agreed to download, which a later edit can pass. */
+  function run(confirmed = 0) {
     if (listing.status !== 'ready' || busy || !complete) return
-    runner.current ??= new Runner(
+    engine.runner ??= new Runner(
       { assetBase: config.assetBase, workerScript: config.workerScript },
       config.dataBase,
     )
-    const active = runner.current
+    const active = engine.runner
     const plan = active.plan(sql, choice, listing.files)
-    if (!confirmed && plan.missingBytes > config.confirmBytes) {
+    if (plan.missingBytes > config.confirmBytes && plan.missingBytes > confirmed) {
       setPhase({ kind: 'confirm', bytes: plan.missingBytes })
       return
     }
@@ -310,7 +344,12 @@ function PlaygroundApp({
           return
         }
         if (outcome.status === 'failed') {
-          setPhase({ kind: 'failed', reason: outcome.reason, message: outcome.message })
+          setPhase({
+            kind: 'failed',
+            reason: outcome.reason,
+            message: outcome.message,
+            problems: outcome.problems ?? [],
+          })
           return
         }
         const versions = versionsRead(plan)
@@ -318,7 +357,7 @@ function PlaygroundApp({
         setResult({
           collector,
           versions,
-          link: linkTo(ranSql, ranChoice),
+          link: linkTo(ranSql, ranChoice, versions),
           shown: {
             sql: ranSql,
             columns: collector.columns,
@@ -355,7 +394,7 @@ function PlaygroundApp({
       ...result.shown.versionLines,
       fill(labels['playground.csvQuery'], { link: result.link }),
     ]
-    const parts = result.collector.fileParts(comments).map((part) => part.slice().buffer)
+    const parts = result.collector.fileParts(comments)
     const url = URL.createObjectURL(new Blob(parts, { type: 'text/csv;charset=utf-8' }))
     const anchor = document.createElement('a')
     anchor.href = url
@@ -408,12 +447,17 @@ function PlaygroundApp({
           labels={labels}
           choice={choice}
           onChange={(next) => {
-            const races = next.races.filter((code) =>
-              config.races.some(
-                (entry) =>
-                  entry.code === code && entry.rounds.some((round) => next.rounds.includes(round)),
-              ),
-            )
+            // With no round chosen, every race stays chosen until a round comes back.
+            const races =
+              next.rounds.length === 0
+                ? next.races
+                : next.races.filter((code) =>
+                    config.races.some(
+                      (entry) =>
+                        entry.code === code &&
+                        entry.rounds.some((round) => next.rounds.includes(round)),
+                    ),
+                  )
             setChoice({ ...next, races })
           }}
         />
@@ -468,6 +512,7 @@ function PlaygroundApp({
           </div>
           <textarea
             id="playground-sql"
+            maxLength={MAX_QUERY_LENGTH}
             className="border-ink min-h-72 w-full rounded-lg border bg-white p-3 font-mono text-xs leading-relaxed"
             spellCheck={false}
             value={sql}
@@ -475,10 +520,15 @@ function PlaygroundApp({
             onKeyDown={(event) => {
               if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
                 event.preventDefault()
-                run(false)
+                run()
               }
             }}
           />
+          {sql.length >= MAX_QUERY_LENGTH && (
+            <p className="mt-1 text-xs text-amber-900" data-testid="playground-too-long">
+              {labels['playground.queryTooLong']}
+            </p>
+          )}
           {ask !== null && (
             <div className="bg-surface mt-2 rounded-xl p-3 text-sm" role="alertdialog">
               <p>{labels['playground.replaceAsk']}</p>
@@ -508,7 +558,7 @@ function PlaygroundApp({
               <button
                 type="button"
                 className="border-line rounded-full border bg-white px-5 py-2 text-sm font-bold"
-                onClick={() => runner.current?.cancel()}
+                onClick={() => engine.runner?.cancel()}
               >
                 ■ {labels['playground.cancel']}
               </button>
@@ -517,7 +567,7 @@ function PlaygroundApp({
                 type="button"
                 className="bg-ink rounded-full px-5 py-2 text-sm font-bold text-white disabled:opacity-40"
                 disabled={listing.status !== 'ready' || !complete}
-                onClick={() => run(false)}
+                onClick={() => run()}
               >
                 ▶ {labels['playground.run']}
               </button>
@@ -560,7 +610,7 @@ function PlaygroundApp({
               <button
                 type="button"
                 className="bg-ink rounded-full px-4 py-1.5 font-bold text-white"
-                onClick={() => run(true)}
+                onClick={() => run(phase.bytes)}
               >
                 {labels['playground.confirm']}
               </button>
@@ -604,17 +654,24 @@ function PlaygroundApp({
         {phase.kind === 'failed' && failureKey !== null && (
           <Notice tone="red">
             <p>{labels[failureKey]}</p>
+            {phase.problems.length > 0 && (
+              <ul className="mt-2 list-disc pl-5" data-testid="playground-catalog-problems">
+                {phase.problems.map((problem) => (
+                  <li key={`${problem.table}-${problem.column}-${problem.kind}`}>
+                    {problem.kind === 'type'
+                      ? fill(labels['playground.catalog.type'], problem)
+                      : fill(labels[`playground.catalog.${problem.kind}`], problem)}
+                  </li>
+                ))}
+              </ul>
+            )}
             {phase.message !== '' && (
               <pre className="mt-2 rounded-lg border border-red-200 bg-white p-2 font-mono text-xs whitespace-pre-wrap">
                 {phase.message}
               </pre>
             )}
             {phase.reason !== 'query' && phase.reason !== 'empty' && (
-              <button
-                type="button"
-                className="mt-2 font-semibold underline"
-                onClick={() => run(false)}
-              >
+              <button type="button" className="mt-2 font-semibold underline" onClick={() => run()}>
                 {labels['playground.retry']}
               </button>
             )}

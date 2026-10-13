@@ -323,7 +323,7 @@
   "playground.failed.engine": "O mecanismo de consulta não carregou. Verifique a conexão e tente de novo.",
   "playground.failed.download": "Um arquivo de dados não pôde ser baixado. Verifique a conexão e tente de novo.",
   "playground.failed.check": "Um arquivo baixado não confere com o manifesto da versão, e foi descartado.",
-  "playground.failed.catalog": "Um arquivo fixado tem colunas que o catálogo das consultas não descreve:",
+  "playground.failed.catalog": "Um arquivo fixado não confere com o catálogo das consultas, e a consulta não rodou:",
   "playground.failed.empty": "A consulta está vazia.",
   "playground.failed.list": "A lista de arquivos das consultas não carregou.",
   "playground.retry": "Tentar de novo",
@@ -346,5 +346,9 @@
   "playground.linkStale": "Este link foi feito sobre a versão {linked} do {round}. O site agora usa a versão {pinned}, e a consulta vai rodar nela. Nada foi executado ainda.",
   "playground.linkRestored": "A consulta do link foi restaurada. Ela só roda quando você clicar em Executar.",
   "sources.playground": "Para fazer suas próprias perguntas a estes dados, no navegador, use as",
-  "sources.playgroundLink": "consultas"
+  "sources.playgroundLink": "consultas",
+  "playground.catalog.extra": "{table}: a coluna {column} não está no catálogo.",
+  "playground.catalog.missing": "{table}: falta a coluna {column}.",
+  "playground.catalog.type": "{table}: a coluna {column} é {actual}, e o catálogo diz {expected}.",
+  "playground.queryTooLong": "A consulta pode ter até 10.000 caracteres."
 }

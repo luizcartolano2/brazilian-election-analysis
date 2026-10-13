@@ -155,11 +155,14 @@ differ from it, so a schema change updates both in one PR. The page also compare
 file's columns with the catalog before a run reads it. A published file that the catalog
 names for no table, such as a future file of estimates, stays out of the playground.
 
-The build writes the file list and the candidate lists to `public/consultas/<hash>/`, which
-`vercel.json` marks immutable, and the page checks each against its SHA-256. A run downloads whole files, only those of the
+The build writes the file list and the candidate lists to `public/consultas/<hash>/`,
+which `vercel.json` marks immutable. A run downloads whole files, only those of the
 tables that its query names, and checks each file against its manifest's SHA-256. A run
-that needs more than 25 MB of new files asks first. A fixtures build asks above 40 kB,
-so the browser tests reach the question.
+that needs more than 25 MB of new files asks first. A fixtures build asks above 40 kB, so
+the browser tests reach the question. The page registers each checked file in the engine
+as a Blob, which the engine reads through the browser's file reader and cannot write. A
+registered buffer is writable: a visitor's `COPY ... TO` with `USE_TMP_FILE false`
+rewrote one in place, and every later run read the visitor's rows.
 
 Each run opens a fresh database in DuckDB-WASM, creates the views, and then locks the
 engine with `allowed_paths`, `enable_external_access = false` and
@@ -169,12 +172,15 @@ visitor's macros, schemas or attached databases, so the fresh database drops the
 the next run. `src/lib/playground/sandbox.test.ts` repeats both in Node, and
 `e2e/playground.spec.ts` in the browser.
 
-A result keeps at most 1,000,000 rows and 100 MB of CSV text, and the table shows the
-first 1,000 rows. The CSV is UTF-8 with a byte order mark, separated by commas. Its first
-lines start with `#` and hold the TSE credit, each data version and the link that
-restores the query, never the query's own text. A cell that starts like a formula gets a
-leading single quote. A link holds its query in the address's fragment, which never
-reaches a server, and it never runs anything until the visitor runs it.
+A run streams the result of every statement, and keeps only the last one's. A result
+keeps at most 1,000,000 rows and 100 MB of CSV text, and the table shows the first 1,000
+rows. The CSV is UTF-8 with a byte order mark, separated by commas. Its first lines start
+with `#` and hold the TSE credit, each data version and the link that restores the query,
+never the query's own text. A cell that starts like a formula gets a leading single
+quote. So does each formula start after a semicolon, a tab or a line break inside a text,
+because a spreadsheet that splits at semicolons ignores the quotes. A link holds its
+query in the address's fragment, which never reaches a server, and it never runs anything
+until the visitor runs it.
 
 ## Fonts and names
 

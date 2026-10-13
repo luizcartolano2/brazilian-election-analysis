@@ -12,6 +12,7 @@ import {
   describeStatement,
   extensionStatements,
   lockStatements,
+  problemText,
   viewStatement,
 } from '../src/lib/playground/sandbox'
 import { nodeDuckDB, withExtensionRepository, type NodeConnection } from './duckdb-node'
@@ -81,7 +82,7 @@ export async function startSandbox(): Promise<Sandbox> {
             type: String(row.column_type),
           }))
           const problems = columnProblems(file, described)
-          if (problems.length > 0) throw new Error(problems.join('\n'))
+          if (problems.length > 0) throw new Error(problems.map(problemText).join('\n'))
           allowed.push(registeredName(file))
         }
       }

@@ -53,7 +53,7 @@ export function utf8Length(text: string): number {
 
 export class ResultCollector {
   readonly shown: unknown[][] = []
-  readonly chunks: Uint8Array[] = []
+  readonly chunks: Uint8Array<ArrayBuffer>[] = []
   rows = 0
   bytes: number
   passed: PassedLimit | null = null
@@ -69,7 +69,7 @@ export class ResultCollector {
   }
 
   /** Adds a batch's rows. Returns false once the result passes a limit, so the run stops. */
-  add(batch: unknown[][]): boolean {
+  add(batch: Iterable<unknown[]>): boolean {
     if (this.passed !== null) return false
     const lines: string[] = []
     for (const raw of batch) {
@@ -102,7 +102,7 @@ export class ResultCollector {
   }
 
   /** The file's parts: the byte order mark and the comment lines, then the header and rows. */
-  fileParts(comments: string[]): Uint8Array[] {
+  fileParts(comments: string[]): Uint8Array<ArrayBuffer>[] {
     if (this.passed !== null) throw new Error('a result past its limits has no file')
     return [this.encoder.encode(BYTE_ORDER_MARK + csvPreamble(comments)), ...this.chunks]
   }

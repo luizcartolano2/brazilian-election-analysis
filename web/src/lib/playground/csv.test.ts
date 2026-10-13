@@ -74,6 +74,15 @@ describe('the CSV file', () => {
     expect(() => csvPreamble(['one\ntwo'])).toThrow(/line break/)
   })
 
+  it.each([';', '\t', '\n', '\r'])(
+    'writes a text with %j before a formula as text, in a cell and in the header',
+    (separator) => {
+      expect(csvCell(`x${separator}=1+1`).replace(/^"|"$/g, '')).toBe(`x${separator}'=1+1`)
+      const collector = new ResultCollector([{ name: `a${separator}@SUM(1)`, type: 'Utf8' }])
+      expect(fileText(collector, [])).toContain(`a${separator}'@SUM(1)`)
+    },
+  )
+
   it('holds no cell that a spreadsheet runs, whatever the query from a link holds', () => {
     const sql = 'SELECT 1 AS "=1+1" -- ,=HYPERLINK("https://example.org")\n-- ;=1+1\rFROM range(1)'
     const link = `https://eleicoes.luizcartolano.com/2026/consultas/${linkFragment({
@@ -83,17 +92,20 @@ describe('the CSV file', () => {
     })}`
     const collector = new ResultCollector([
       { name: '=1+1', type: 'Int32' },
+      { name: 'a;=1+1', type: 'Utf8' },
       { name: 'texto', type: 'Utf8' },
     ])
-    collector.add([[1, '=HYPERLINK("https://example.org")']])
+    collector.add([
+      [1, 'x;=1+1', '=HYPERLINK("https://example.org")'],
+      [2, 'x\t=1+1', 'x\n=1+1'],
+      [3, 'x\r@SUM(1)', "y;=cmd|' /C calc'!A0"],
+    ])
     const text = fileText(collector, [CREDIT, `Consulta: ${link}`]).replace(/^\uFEFF/, '')
-    for (const line of text.split(/\r\n/)) {
-      for (const separator of [',', ';', '\t']) {
-        for (const piece of line.split(separator)) {
-          expect(piece.replace(/^"/, ''), `${JSON.stringify(line)} at ${separator}`).not.toMatch(
-            /^[=+\-@\t\r\n]/,
-          )
-        }
+    // Excel in Portuguese ignores the quotes of a comma-separated file and splits at semicolons,
+    // so the check splits at every separator and line break, quotes or not.
+    for (const line of text.split(/\r\n|\r|\n/)) {
+      for (const piece of line.split(/[,;\t]/)) {
+        expect(piece.replace(/^"/, ''), JSON.stringify(line)).not.toMatch(/^[=+\-@]/)
       }
     }
     expect(text).not.toContain('HYPERLINK("https://example.org")\r\n')

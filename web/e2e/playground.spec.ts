@@ -160,12 +160,31 @@ test('a table that one run creates is gone in the next', async ({ page }) => {
   await expect(result(page)).toHaveCount(0)
 })
 
-test("a visitor's macros, schemas and databases never reach the next run", async ({ page }) => {
-  await open(page)
+const STATION_SUM = 'SELECT sum(votos) AS votos FROM votos_secao'
+
+/** The default form query's rows and the station votes' sum, on a clean run. */
+async function cleanNumbers(page: Page) {
   const formSql = await editor(page).inputValue()
   await page.getByRole('button', { name: '▶ Executar' }).click()
   await expect(result(page)).toBeVisible({ timeout: 40_000 })
-  const clean = await resultRows(page)
+  const form = await resultRows(page)
+  await runSql(page, STATION_SUM)
+  await expect(result(page)).toContainText('votos', { timeout: 20_000 })
+  return { formSql, form, stations: await resultRows(page) }
+}
+
+async function expectClean(page: Page, clean: Awaited<ReturnType<typeof cleanNumbers>>) {
+  await runSql(page, clean.formSql)
+  await expect(result(page)).toContainText('percentual_validos', { timeout: 20_000 })
+  expect(await resultRows(page)).toEqual(clean.form)
+  await runSql(page, STATION_SUM)
+  await expect(result(page)).toBeVisible({ timeout: 20_000 })
+  expect(await resultRows(page)).toEqual(clean.stations)
+}
+
+test("a visitor's macros, schemas and databases never reach the next run", async ({ page }) => {
+  await open(page)
+  const clean = await cleanNumbers(page)
   await runSql(
     page,
     [
@@ -180,9 +199,31 @@ test("a visitor's macros, schemas and databases never reach the next run", async
     ].join(';\n'),
   )
   await expect(result(page)).toContainText('pronto', { timeout: 20_000 })
-  await runSql(page, formSql)
-  await expect(result(page)).toContainText('percentual_validos', { timeout: 20_000 })
-  expect(await resultRows(page)).toEqual(clean)
+  await expectClean(page, clean)
+})
+
+test("no write of a visitor's reaches a checked file", async ({ page }) => {
+  await open(page)
+  const clean = await cleanNumbers(page)
+  const chosen = '/consultas/2026/t1/totais/municipio/cargo=1/uf=AC.parquet'
+  await runSql(
+    page,
+    `COPY (SELECT * FROM votos_municipio LIMIT 1) TO '${chosen}' (FORMAT parquet, USE_TMP_FILE false)`,
+  )
+  await expect(status(page).locator('pre')).not.toBeEmpty({ timeout: 20_000 })
+  await expect(result(page)).toHaveCount(0)
+  await runSql(
+    page,
+    [
+      `ATTACH '${chosen}' AS other`,
+      'CREATE TABLE other.t AS SELECT 1 AS x',
+      'CHECKPOINT other',
+      'DETACH other',
+      'SELECT count(*) AS n FROM votos_municipio',
+    ].join(';\n'),
+  )
+  await expect(status(page).or(result(page))).toBeVisible({ timeout: 20_000 })
+  await expectClean(page, clean)
 })
 
 for (const [label, file] of [
@@ -237,6 +278,9 @@ test("the tables panel shows each table's size for the choice", async ({ page })
   )
 })
 
+const COUNTS =
+  'SELECT (SELECT count(*) FROM votos_secao) + (SELECT count(*) FROM comparecimento_secao) + (SELECT count(*) FROM secoes) AS linhas'
+
 test('a large download asks first, and requests nothing until the visitor confirms', async ({
   page,
 }) => {
@@ -245,7 +289,7 @@ test('a large download asks first, and requests nothing until the visitor confir
     page,
     linkTo({
       choice: { rounds: [1], races: [1, 3, 5, 6, 7, 25], areas: ['br'] },
-      sql: 'SELECT count(*) AS linhas FROM votos_secao, comparecimento_secao, secoes LIMIT 1',
+      sql: COUNTS,
     }),
   )
   await page.getByRole('button', { name: '▶ Executar' }).click()
@@ -256,15 +300,30 @@ test('a large download asks first, and requests nothing until the visitor confir
   await expect(result(page)).toBeVisible({ timeout: 40_000 })
 })
 
+test('a query edited after the question asks again for its larger download', async ({ page }) => {
+  const seen = requests(page)
+  await open(
+    page,
+    linkTo({ choice: { rounds: [1], races: [1, 3, 5, 6, 7, 25], areas: ['br'] }, sql: COUNTS }),
+  )
+  await page.getByRole('button', { name: '▶ Executar' }).click()
+  const question = status(page).getByText('Esta consulta vai baixar')
+  await expect(question).toBeVisible()
+  const first = await question.textContent()
+  await editor(page).fill(`${COUNTS} + (SELECT count(*) FROM candidatos)`)
+  await page.getByRole('button', { name: 'Baixar e executar' }).click()
+  await expect(question).not.toHaveText(first ?? '')
+  await page.waitForTimeout(500)
+  expect(seen.filter((url) => url.endsWith('.parquet'))).toEqual([])
+})
+
 test('a cancelled query stops within two seconds, and the next run works', async ({ page }) => {
   await open(page)
   await runSql(page, 'SELECT count(*) FROM range(100000000000) t(i) WHERE i % 7 = 3')
   await expect(status(page)).toContainText('Executando a consulta', { timeout: 40_000 })
   await page.waitForTimeout(500)
-  const started = Date.now()
   await page.getByRole('button', { name: '■ Cancelar' }).click()
   await expect(status(page)).toContainText('Consulta cancelada', { timeout: 2000 })
-  expect(Date.now() - started).toBeLessThan(2000)
   await expect(result(page)).toHaveCount(0)
   await runSql(page, 'SELECT 42 AS resposta')
   await expect(result(page)).toContainText('42', { timeout: 40_000 })
@@ -274,10 +333,17 @@ test('a result of more than 1,000,000 rows states that size, and the page answer
   page,
 }) => {
   await open(page)
-  await runSql(page, 'SELECT i FROM range(1200000) t(i)')
+  await runSql(page, "SELECT i, repeat('x', 40) AS texto FROM range(1200000) t(i)")
+  await expect(status(page)).toContainText('Executando a consulta', { timeout: 40_000 })
   await editor(page).press('End')
-  await editor(page).type(' ')
-  await expect(editor(page)).toHaveValue('SELECT i FROM range(1200000) t(i) ')
+  await editor(page).pressSequentially(' -- ok')
+  await expect(editor(page)).toHaveValue(
+    "SELECT i, repeat('x', 40) AS texto FROM range(1200000) t(i) -- ok",
+    { timeout: 1000 },
+  )
+  await page.mouse.wheel(0, 300)
+  await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 1000 }).toBeGreaterThan(0)
+  await expect(status(page)).toContainText('Executando a consulta')
   await expect(page.getByTestId('playground-limit')).toContainText('mais de 1.000.000 de linhas', {
     timeout: 40_000,
   })
@@ -287,6 +353,59 @@ test('a result of more than 1,000,000 rows states that size, and the page answer
   )
   await expect(result(page).locator('tbody tr')).toHaveCount(1000)
   await expect(page.getByRole('button', { name: 'Baixar CSV' })).toHaveCount(0)
+})
+
+test('a result of very wide rows stops at 100 MB of CSV text, and the tab keeps working', async ({
+  page,
+}) => {
+  await open(page)
+  await runSql(page, "SELECT repeat('x', 1000000) AS texto FROM range(200) t(i)")
+  await expect(page.getByTestId('playground-limit')).toContainText('passa de 100 MB', {
+    timeout: 60_000,
+  })
+  const cell = await result(page).locator('tbody td').first().textContent()
+  expect(cell?.length).toBe(501)
+  await runSql(page, 'SELECT 42 AS resposta')
+  await expect(result(page)).toContainText('42', { timeout: 40_000 })
+})
+
+test('the editor holds at most 10,000 characters, and says so', async ({ page }) => {
+  await open(page)
+  await editor(page).fill(`SELECT 1 -- ${'x'.repeat(10_100)}`)
+  expect((await editor(page).inputValue()).length).toBe(10_000)
+  await expect(page.getByTestId('playground-too-long')).toBeVisible()
+})
+
+test('a link pasted into an open page asks before it replaces a typed query', async ({ page }) => {
+  await open(page)
+  await editor(page).fill('SELECT 1 AS minha')
+  const link = linkTo({
+    choice: { rounds: [1], races: [1], areas: ['ac'] },
+    sql: 'SELECT 2 AS dela',
+  })
+  await page.evaluate(
+    (fragment) => {
+      window.location.hash = fragment
+    },
+    link.slice(link.indexOf('#')),
+  )
+  await expect(page.getByText('Trocar a consulta que você escreveu?')).toBeVisible()
+  await page.getByRole('button', { name: 'Manter a minha' }).click()
+  await expect(editor(page)).toHaveValue('SELECT 1 AS minha')
+  const other = linkTo({
+    choice: { rounds: [1], races: [3], areas: ['pe'] },
+    sql: 'SELECT 3 AS outra',
+  })
+  await page.evaluate(
+    (fragment) => {
+      window.location.hash = fragment
+    },
+    other.slice(other.indexOf('#')),
+  )
+  await page.getByRole('button', { name: 'Trocar' }).click()
+  await expect(editor(page)).toHaveValue('SELECT 3 AS outra')
+  await expect(page.getByTestId('playground-area-summary')).toHaveText('Pernambuco')
+  await expect(result(page)).toHaveCount(0)
 })
 
 test("a query over the memory limit shows the engine's error, and the tab keeps working", async ({
@@ -423,6 +542,31 @@ test('the CSV holds the credit, the version and the link, then the header and th
   )
   expect(lines[3]).toBe('uf,numero,candidato,partido,votos,percentual_validos')
   expect(lines[4]).toMatch(/^[A-Z]{2},\d+,/)
+})
+
+test("a round-2 query that reads `municipios` names round 1's version in its caption, CSV and link", async ({
+  page,
+}) => {
+  await open(
+    page,
+    linkTo({
+      choice: { rounds: [2], races: [1], areas: ['ac'] },
+      sql: 'SELECT count(*) AS n FROM municipios',
+    }),
+  )
+  await page.getByRole('button', { name: '▶ Executar' }).click()
+  await expect(result(page)).toBeVisible({ timeout: 40_000 })
+  await expect(page.getByTestId('playground-caption')).toContainText('1º turno: versão teste')
+  const downloading = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Baixar CSV' }).click()
+  const lines = readFileSync(await (await downloading).path(), 'utf-8').split('\r\n')
+  expect(lines[1]).toBe('# 1º turno: versão teste')
+  const fragment = (lines[2] ?? '').split('#c=')[1] ?? ''
+  const payload = JSON.parse(
+    Buffer.from(fragment.replaceAll('-', '+').replaceAll('_', '/'), 'base64').toString('utf-8'),
+  ) as { versoes: Record<string, string>; turnos: number[] }
+  expect(payload.turnos).toEqual([2])
+  expect(payload.versoes).toEqual({ 1: 'teste', 2: 'teste' })
 })
 
 test('a link restores its query and its choice, and runs nothing until the visitor runs it', async ({

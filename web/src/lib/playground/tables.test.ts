@@ -37,6 +37,14 @@ describe('scanQuery', () => {
     ).toEqual(["CREATE TEMP TABLE t AS SELECT ';' AS c", ' -- one; two\nSELECT * FROM t'])
   })
 
+  it('reads escaped strings, tagged dollar quotes and nested comments as DuckDB does', () => {
+    const scan = scanQuery(
+      "SELECT E'it\\'s; votos_secao' AS a, $q$x; secoes$q$ AS b /* c /* d; */ municipios; */ FROM votos_zona",
+    )
+    expect(scan.statements).toHaveLength(1)
+    expect([...scan.tables]).toEqual(['votos_zona'])
+  })
+
   it('drops statements that hold only blanks and comments', () => {
     expect(scanQuery('  ;  -- nothing\n; SELECT 1 ;  ').statements).toEqual([' SELECT 1 '])
   })

@@ -145,7 +145,7 @@ export function ResultFrame({
                     key={index}
                     className={`px-3 py-1.5 whitespace-nowrap ${numeric[index] ? 'text-right tabular-nums' : ''}`}
                   >
-                    {formatCell(locale, value)}
+                    {formatCell(locale, value, result.columns[index]?.name)}
                   </td>
                 ))}
               </tr>

@@ -2,7 +2,7 @@
  * The playground's query engine in the browser: one DuckDB-WASM Worker that holds the checked
  * files, and a fresh, locked database for every run.
  */
-import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
+import type { AsyncDuckDB, AsyncDuckDBConnection, DuckDBDataProtocol } from '@duckdb/duckdb-wasm'
 import { instantiate } from '../drilldown/browser'
 import { registeredName, type DataChoice } from './choice'
 import type { PlaygroundFile } from './files'
@@ -12,7 +12,9 @@ import {
   describeStatement,
   extensionStatements,
   lockStatements,
+  problemText,
   viewStatement,
+  type ColumnProblem,
 } from './sandbox'
 
 export interface EngineAssets {
@@ -23,7 +25,11 @@ export interface EngineAssets {
 }
 
 /** A pinned file whose columns differ from the catalog's. */
-export class CatalogMismatch extends Error {}
+export class CatalogMismatch extends Error {
+  constructor(readonly problems: ColumnProblem[]) {
+    super(problems.map(problemText).join('; '))
+  }
+}
 
 /** The parts of an Arrow record batch that a result reads. */
 export interface Batch {
@@ -36,15 +42,16 @@ export function batchColumns(batch: Batch): ResultColumn[] {
   return batch.schema.fields.map((field) => ({ name: field.name, type: String(field.type) }))
 }
 
-/** A batch's rows by position, so two columns with one name both stay. */
-export function batchRows(batch: Batch): unknown[][] {
+/**
+ * A batch's rows by position, so two columns with one name both stay. Each row is decoded only
+ * when the result asks for it, so a result past its limits decodes no more rows.
+ */
+export function* batchRows(batch: Batch): Generator<unknown[]> {
   const width = batch.schema.fields.length
   const children = Array.from({ length: width }, (_, index) => batch.getChildAt(index))
-  const rows: unknown[][] = []
   for (let row = 0; row < batch.numRows; row++) {
-    rows.push(children.map((child) => child?.get(row) ?? null))
+    yield children.map((child) => child?.get(row) ?? null)
   }
-  return rows
 }
 
 function absolute(url: string): string {
@@ -60,6 +67,7 @@ export class Engine {
     private readonly db: AsyncDuckDB,
     private readonly worker: Worker,
     private readonly repository: string,
+    private readonly readOnly: DuckDBDataProtocol,
   ) {}
 
   static async start(assets: EngineAssets): Promise<Engine> {
@@ -68,7 +76,12 @@ export class Engine {
     try {
       const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker)
       await instantiate(db, absolute(`${assets.assetBase}/duckdb-eh.wasm`))
-      return new Engine(db, worker, absolute(`${assets.assetBase}/extensions`))
+      return new Engine(
+        db,
+        worker,
+        absolute(`${assets.assetBase}/extensions`),
+        duckdb.DuckDBDataProtocol.BROWSER_FILEREADER,
+      )
     } catch (error) {
       worker.terminate()
       throw error
@@ -79,10 +92,14 @@ export class Engine {
     return this.registered.has(registeredName(file))
   }
 
-  /** Hands a checked file to the engine. The bytes move to its Worker, so the page keeps none. */
-  async register(file: PlaygroundFile, bytes: Uint8Array): Promise<void> {
+  /**
+   * Hands a checked file to the engine as a Blob, which the engine reads through the browser's
+   * file reader and cannot write. A registered buffer lets a visitor's `COPY` rewrite the checked
+   * bytes that every later run trusts.
+   */
+  async register(file: PlaygroundFile, bytes: Uint8Array<ArrayBuffer>): Promise<void> {
     const name = registeredName(file)
-    await this.db.registerFileBuffer(name, bytes)
+    await this.db.registerFileHandle(name, new Blob([bytes]), this.readOnly, true)
     this.registered.add(name)
   }
 
@@ -123,7 +140,7 @@ export class Engine {
           .map((row: { toJSON(): Record<string, unknown> }) => row.toJSON())
           .map((row) => ({ name: String(row.column_name), type: String(row.column_type) }))
         const problems = columnProblems(file, described)
-        if (problems.length > 0) throw new CatalogMismatch(problems.join('; '))
+        if (problems.length > 0) throw new CatalogMismatch(problems)
         this.described.add(name)
       }
       await connection.query(viewStatement(table, files, choice))

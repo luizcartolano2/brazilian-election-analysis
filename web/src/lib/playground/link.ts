@@ -10,7 +10,10 @@ const FORMAT = 1
 const PREFIX = '#c='
 
 export interface LinkState {
-  /** Each chosen round's data version, as the page named it when it made the link. */
+  /**
+   * The data version of each chosen round and of each round that the result read, such as round
+   * 1 for `municipios`, as the page named it when it made the link.
+   */
   versions: Partial<Record<Round, string>>
   choice: DataChoice
   sql: string
@@ -73,6 +76,7 @@ function distinctList<T>(value: unknown, accept: (item: unknown) => item is T): 
 /**
  * Reads a fragment as untrusted input. It accepts only pinned rounds, the election's races,
  * Brazil or the 27 states and `zz`, and a query of at most 10,000 characters, or nothing at all.
+ * It compares every version that the link names with the pinned one, chosen round or not.
  */
 export function readLink(fragment: string, pinned: Partial<Record<Round, string>>): LinkReading {
   if (!fragment.startsWith(PREFIX)) return { status: 'none' }
@@ -117,9 +121,15 @@ export function readLink(fragment: string, pinned: Partial<Record<Round, string>
   ) {
     return { status: 'invalid' }
   }
+  const named = Object.keys(versions)
+  if (!named.every((key) => ROUNDS.some((round) => String(round) === key))) {
+    return { status: 'invalid' }
+  }
   const linked: Partial<Record<Round, string>> = {}
   const stale: StaleVersion[] = []
-  for (const round of rounds) {
+  for (const round of ROUNDS.filter(
+    (round) => rounds.includes(round) || named.includes(String(round)),
+  )) {
     const version = versions[String(round)]
     const current = pinned[round]
     if (

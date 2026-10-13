@@ -13,6 +13,7 @@ import {
 } from './engine'
 import { tableFiles, type PlaygroundFile } from './files'
 import { ResultCollector, type ResultColumn } from './result'
+import type { ColumnProblem } from './sandbox'
 import { scanQuery } from './tables'
 
 const PARALLEL_DOWNLOADS = 4
@@ -49,7 +50,7 @@ export type FailureReason = 'engine' | 'download' | 'check' | 'catalog' | 'query
 export type RunOutcome =
   | { status: 'done'; collector: ResultCollector; seconds: number }
   | { status: 'cancelled' }
-  | { status: 'failed'; reason: FailureReason; message: string }
+  | { status: 'failed'; reason: FailureReason; message: string; problems?: ColumnProblem[] }
 
 export interface RunProgress {
   onDownload(received: number, total: number): void
@@ -71,7 +72,7 @@ async function download(
   file: PlaygroundFile,
   signal: AbortSignal,
   onBytes: (count: number) => void,
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   let response: Response
   try {
     response = await fetch(url, { signal })
@@ -124,6 +125,8 @@ export type RunEngine = Pick<Engine, 'holds' | 'register' | 'keepOnly' | 'open' 
 
 export class Runner {
   private engine: RunEngine | null = null
+  private starting: Promise<RunEngine> | null = null
+  private disposed = false
   private active: ActiveRun | null = null
 
   constructor(
@@ -184,13 +187,21 @@ export class Runner {
     }, CANCEL_FALLBACK_MS)
   }
 
+  /** Stops the engine and its Worker, with every file it holds. */
+  dispose(): void {
+    this.disposed = true
+    this.cancel()
+    this.engine?.terminate()
+    this.engine = null
+  }
+
   private failure(error: unknown, active: ActiveRun): RunOutcome {
     if (active.cancelled) return { status: 'cancelled' }
     if (error instanceof RunFailure) {
       return { status: 'failed', reason: error.reason, message: error.message }
     }
     if (error instanceof CatalogMismatch) {
-      return { status: 'failed', reason: 'catalog', message: error.message }
+      return { status: 'failed', reason: 'catalog', message: '', problems: error.problems }
     }
     return {
       status: 'failed',
@@ -199,14 +210,28 @@ export class Runner {
     }
   }
 
-  private async startedEngine(): Promise<RunEngine> {
-    if (this.engine !== null) return this.engine
-    try {
-      this.engine = await this.startEngine(this.assets)
-    } catch (error) {
-      throw new RunFailure('engine', error instanceof Error ? error.message : String(error))
-    }
-    return this.engine
+  /**
+   * A run that starts while the engine is still starting waits for that engine, because a
+   * second engine would replace the first and leave its Worker running.
+   */
+  private startedEngine(): Promise<RunEngine> {
+    if (this.engine !== null) return Promise.resolve(this.engine)
+    this.starting ??= this.startEngine(this.assets).then(
+      (engine) => {
+        this.starting = null
+        if (this.disposed) {
+          engine.terminate()
+          throw new RunFailure('engine', 'the page closed the engine')
+        }
+        this.engine = engine
+        return engine
+      },
+      (error: unknown) => {
+        this.starting = null
+        throw new RunFailure('engine', error instanceof Error ? error.message : String(error))
+      },
+    )
+    return this.starting
   }
 
   private async execute(
@@ -218,12 +243,13 @@ export class Runner {
   ): Promise<RunOutcome> {
     if (plan.statements.length === 0) throw new RunFailure('empty', '')
     const engine = await this.startedEngine()
+    if (active.cancelled) return { status: 'cancelled' }
     await engine.keepOnly(keep)
 
     let received = 0
     const missing = plan.missing.filter((file) => !engine.holds(file))
     const total = sizeOf(missing)
-    progress.onDownload(0, total)
+    if (total > 0) progress.onDownload(0, total)
     const queue = [...missing]
     const worker = async () => {
       for (let file = queue.shift(); file !== undefined; file = queue.shift()) {
@@ -251,9 +277,14 @@ export class Runner {
       throw new RunFailure('engine', error instanceof Error ? error.message : String(error))
     }
     active.connection = connection
+    // An earlier statement's result streams too, and the page keeps none of it, so no
+    // statement can hand the page more than one batch at a time.
     for (const statement of plan.statements.slice(0, -1)) {
       if (active.cancelled) return { status: 'cancelled' }
-      await connection.query(statement)
+      const earlier = await connection.send(statement, true)
+      for await (const _batch of earlier as AsyncIterable<Batch>) {
+        if (active.cancelled) return { status: 'cancelled' }
+      }
     }
     const reader = await connection.send(plan.statements.at(-1) ?? '', true)
     let collector: ResultCollector | null = null

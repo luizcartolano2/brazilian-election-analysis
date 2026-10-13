@@ -2,9 +2,6 @@
 import type { MessageKey } from '@/lib/i18n'
 
 export const LABEL_KEYS = [
-  'playground.title',
-  'playground.intro',
-  'playground.noScript',
   'playground.dataTitle',
   'playground.rounds',
   'playground.races',
@@ -82,6 +79,10 @@ export const LABEL_KEYS = [
   'playground.linkInvalid',
   'playground.linkStale',
   'playground.linkRestored',
+  'playground.catalog.extra',
+  'playground.catalog.missing',
+  'playground.catalog.type',
+  'playground.queryTooLong',
   'site.firstRound',
   'site.secondRound',
   'footer.credit',

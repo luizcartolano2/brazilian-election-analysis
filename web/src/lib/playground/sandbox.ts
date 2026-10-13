@@ -87,24 +87,40 @@ export interface DescribedColumn {
   type: string
 }
 
+/** A difference between a file's columns and its table's in the catalog. */
+export type ColumnProblem =
+  | { kind: 'extra' | 'missing'; table: string; column: string }
+  | { kind: 'type'; table: string; column: string; actual: string; expected: string }
+
 /** Each difference between a file's columns and its table's in the catalog. */
-export function columnProblems(file: PlaygroundFile, described: DescribedColumn[]): string[] {
+export function columnProblems(
+  file: PlaygroundFile,
+  described: DescribedColumn[],
+): ColumnProblem[] {
   const table = tableByName(file.table)
-  if (table === undefined) return [`${file.path}: the catalog has no table ${file.table}`]
+  if (table === undefined) throw new Error(`the catalog has no table ${file.table}`)
   const actual = new Map(described.map((column) => [column.name, column.type]))
   const expected = new Map(table.columns.map((column) => [column.name, column.type]))
-  const problems: string[] = []
-  for (const name of [...actual.keys()].sort()) {
-    if (!expected.has(name)) problems.push(`${table.name}: column ${name} is not in the catalog`)
+  const problems: ColumnProblem[] = []
+  for (const column of [...actual.keys()].sort()) {
+    if (!expected.has(column)) problems.push({ kind: 'extra', table: table.name, column })
   }
-  for (const name of [...expected.keys()].sort()) {
-    const type = actual.get(name)
-    if (type === undefined) problems.push(`${table.name}: column ${name} is missing`)
-    else if (type !== expected.get(name)) {
-      problems.push(
-        `${table.name}: column ${name} is ${type}, the catalog says ${expected.get(name)}`,
-      )
+  for (const [column, type] of [...expected].sort(([a], [b]) => a.localeCompare(b))) {
+    const found = actual.get(column)
+    if (found === undefined) problems.push({ kind: 'missing', table: table.name, column })
+    else if (found !== type) {
+      problems.push({ kind: 'type', table: table.name, column, actual: found, expected: type })
     }
   }
   return problems
+}
+
+/** A problem in English, for an error that only a log or a test reads. */
+export function problemText(problem: ColumnProblem): string {
+  if (problem.kind === 'type') {
+    return `${problem.table}: column ${problem.column} is ${problem.actual}, the catalog says ${problem.expected}`
+  }
+  return problem.kind === 'extra'
+    ? `${problem.table}: column ${problem.column} is not in the catalog`
+    : `${problem.table}: column ${problem.column} is missing`
 }

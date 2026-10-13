@@ -5,7 +5,7 @@ import { fixtureFiles, rows, startSandbox, type Sandbox } from '../../../scripts
 import type { Summary } from '../results'
 import type { DataChoice } from './choice'
 import type { PlaygroundFile } from './files'
-import { columnProblems } from './sandbox'
+import { columnProblems, problemText } from './sandbox'
 
 const WEB = path.join(import.meta.dirname, '..', '..', '..')
 const ACRE_PRESIDENT: DataChoice = { rounds: [1], races: [1], areas: ['ac'] }
@@ -119,10 +119,27 @@ describe('columnProblems', () => {
         { name: 'cpf', type: 'VARCHAR' },
       ]),
     ).toEqual([
-      'votos_secao: column cpf is not in the catalog',
-      'votos_secao: column votos is BIGINT, the catalog says INTEGER',
+      { kind: 'extra', table: 'votos_secao', column: 'cpf' },
+      {
+        kind: 'type',
+        table: 'votos_secao',
+        column: 'votos',
+        actual: 'BIGINT',
+        expected: 'INTEGER',
+      },
     ])
-    expect(columnProblems(file, [{ name: 'municipio', type: 'INTEGER' }])).toContain(
+    expect(columnProblems(file, [{ name: 'municipio', type: 'INTEGER' }])).toContainEqual({
+      kind: 'missing',
+      table: 'votos_secao',
+      column: 'votos',
+    })
+  })
+
+  it('writes each problem in English for a log', () => {
+    expect(problemText({ kind: 'extra', table: 'votos_secao', column: 'cpf' })).toBe(
+      'votos_secao: column cpf is not in the catalog',
+    )
+    expect(problemText({ kind: 'missing', table: 'votos_secao', column: 'votos' })).toBe(
       'votos_secao: column votos is missing',
     )
   })

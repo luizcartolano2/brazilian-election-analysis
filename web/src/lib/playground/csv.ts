@@ -12,6 +12,12 @@ const LINE_END = '\r\n'
  */
 const FORMULA_START = /^[=+\-@\t\r\n]/
 
+/**
+ * Excel in Portuguese splits a line at semicolons and ignores the quotes of a comma-separated
+ * cell, so a semicolon, a tab or a line break inside a text can start a new cell or row.
+ */
+const FORMULA_AFTER_BREAK = /([;\t\r\n])(?=[=+\-@])/g
+
 /** The text of a value as the file holds it, with no quoting. */
 export function rawText(value: unknown): string {
   if (value === null || value === undefined) return ''
@@ -19,12 +25,16 @@ export function rawText(value: unknown): string {
 }
 
 /**
- * One cell, with RFC 4180 quoting. A text that starts like a formula gets a leading quote. A
- * number never does, so a negative number stays a number.
+ * One cell, with RFC 4180 quoting. A text gets a leading quote wherever a spreadsheet can
+ * read a formula: at its start, and after each break that can start a cell. A number never
+ * does, so a negative number stays a number.
  */
 export function csvCell(value: unknown): string {
   let text = rawText(value)
-  if (typeof value === 'string' && FORMULA_START.test(text)) text = `'${text}`
+  if (typeof value === 'string') {
+    if (FORMULA_START.test(text)) text = `'${text}`
+    text = text.replace(FORMULA_AFTER_BREAK, "$1'")
+  }
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text
 }
 

@@ -1,7 +1,6 @@
 /** The tables and columns that the playground exposes, and the published files behind them. */
 import catalog from './catalog.json'
 import type { Round } from '../elections'
-import type { Locale } from '../i18n'
 
 export type AddedColumn = 'turno' | 'uf' | 'cargo'
 
@@ -77,10 +76,6 @@ export function matchPath(path: string, round: Round): CatalogMatch | null {
     }
   }
   return null
-}
-
-export function tableDescription(table: CatalogTable, locale: Locale): string {
-  return table[locale]
 }
 
 /** A table's columns as the playground shows them: the file's, then those it adds. */
