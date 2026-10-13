@@ -182,7 +182,8 @@ the result holds, or that it holds more than 1,000,000.
 - **THEN** the page shows the engine's error and no rows, and the tab keeps working
 
 ### Requirement: Every result carries its frame
-Each result SHALL sit in a frame that shows the query's text. The result table's caption
+Each result SHALL sit in a frame that shows the query's text, folded after its first four
+lines when it is longer, with a button that shows the rest. The result table's caption
 SHALL state that a visitor's query produced the result from TSE's official data. It SHALL
 also name each data version that the run read, with its round, and carry the TSE credit
 line. The caption SHALL be part of the table, so a capture of the table alone keeps it.

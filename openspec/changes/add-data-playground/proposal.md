@@ -59,7 +59,8 @@ the top of each downloaded CSV.
 
 - `results-explorer`: "Addresses accept only valid values" names the playground's editor
   as the one place where a visitor's SQL runs. A playground link's data choice passes the
-  same checks as an address.
+  same checks as an address. "Names in title case" lets a playground result show names as
+  the published files hold them.
 
 ## Invariants
 

@@ -284,49 +284,48 @@ Parquet extension come from the Worker, as `browser.ts` loads them.
 
 ### 12. The page
 
-The page follows the site's shell and colors. On a wide screen the tables panel sits
-beside the query. On a phone everything stacks, and the tables panel folds.
+`mockups/` draws three layouts, each at desktop and phone widths, and a sheet of the
+states that all three share. The rows are real: round 1's President race in Acre, from
+the pinned version, through the form's own query. Luiz chooses a layout in the review of
+this proposal.
 
-```
-+----------------------------------------------------------------+
-| Consultas                                                      |
-| Faça suas próprias perguntas aos dados oficiais do TSE.        |
-+----------------------------------------------------------------+
-| Dados   [1º turno v]  [Presidente v]  [Brasil v]               |
-+-------------------------------------------+--------------------+
-| [Montar consulta] [Escrever SQL]          | Tabelas            |
-| [Exemplos v]                              | votos_municipio    |
-| Pergunta   [Votos de um candidato   v]    |   1,0 MB           |
-| Candidato  [13 LULA                 v]    |   municipio  int   |
-| Nível      [Município               v]    |   tipo       cód.  |
-| Ordem      [Mais votos primeiro     v]    |   ...              |
-| Linhas     [100                     v]    | votos_secao        |
-|                                           |   4,9 MB           |
-| SELECT m.nome, sum(v.votos) AS votos ...  |   ...              |
-| [Executar]  Ctrl+Enter                    |                    |
-+-------------------------------------------+--------------------+
-| SELECT m.nome, sum(v.votos) AS votos ...         [Copiar link] |
-| +------------------------------------------------------------+ |
-| | Resultado de uma consulta de visitante sobre dados         | |
-| | oficiais do TSE. 1º turno: versão 20261007-67d59ff-...     | |
-| | Fonte: Tribunal Superior Eleitoral (TSE), ...              | |
-| |------------------------------------------------------------| |
-| | nome           | votos     | percentual_validos            | |
-| | Rio Branco     | 123.456   | 52,31                         | |
-| +------------------------------------------------------------+ |
-| 100 linhas                                       [Baixar CSV]  |
-+----------------------------------------------------------------+
-```
+| Layout | Desktop | Phone |
+|---|---|---|
+| A. Tabs, with the tables beside them | `mockups/opcao-a-desktop.png` | `mockups/opcao-a-celular.png` |
+| B. The form and the SQL side by side | `mockups/opcao-b-desktop.png` | `mockups/opcao-b-celular.png` |
+| C. Steps in one column | `mockups/opcao-c-desktop.png` | `mockups/opcao-c-celular.png` |
 
-- The form tab shows its SQL read-only below it. "Escrever SQL" opens the same text in
-  the editor, where the visitor can change it.
+The states sheet, `mockups/estados-desktop.png`, shows the question before a large
+download, the progress with its cancel button, a cancelled run, an error, a refused read,
+a large result, a link from an earlier version, an invalid link, the question before
+typed text is replaced, the page without JavaScript, and the start of a CSV file.
+
+- A: the form and the editor share one box, and tabs switch between them. The tables
+  panel stays beside them on a wide screen. A visitor sees the form or the SQL, and the
+  form's tab shows its SQL read-only below it.
+- B: the form stays on the left, and the editor on the right. Each choice in the form
+  rewrites the editor's text, so a visitor sees the SQL that the form writes as they use
+  it. The tables panel folds below the editor.
+- C: three numbered steps in one column, as narrow as the site's other text pages. The data
+  choice uses buttons, the form's SQL and the tables panel fold, and the result is the last
+  step.
+
+In all three:
+
+- On a phone, the parts stack in the order of the page, and the tables panel folds. A
+  wide result scrolls sideways inside its frame, and the page never does.
 - The editor is a `textarea` in the site's monospace font, with no new dependency.
   Ctrl+Enter or Cmd+Enter runs it.
-- While a run downloads, the run button becomes "Cancelar", and the page shows the bytes
-  received over the bytes needed. While the query runs, it shows the elapsed seconds.
-- A run that needs more than 25 MB of new files shows the size, with "Baixar e executar"
-  and "Voltar".
+- The result frame shows the query's first four lines, and a button shows the rest. The
+  caption sits inside the table.
+- While a run downloads, the page shows the bytes received over the bytes needed and a
+  cancel button. While the query runs, it shows the elapsed seconds.
 - Numbers in the table use the visitor's language's separators. The CSV keeps raw values.
+- Data values show as the files hold them, for example a municipality's name in capitals.
+  The `results-explorer` delta makes this the one exception to names in title case.
+
+The mockups' HTML sits beside each image, and loads the site's fonts from
+`web/node_modules`.
 
 ### 13. Timing
 
