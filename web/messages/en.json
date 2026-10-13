@@ -2,6 +2,7 @@
   "site.name": "2026 Elections",
   "meta.description": "Official first-round results of Brazil's 2026 elections, from the whole country down to each polling station, with TSE's data.",
   "nav.sources": "Sources",
+  "nav.playground": "Queries",
   "nav.otherLanguage": "Português",
   "nav.breadcrumbs": "You are here",
   "notFound.title": "Page not found",

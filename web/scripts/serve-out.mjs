@@ -62,7 +62,10 @@ createServer(async (request, response) => {
   const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
   for (const [name, value] of headersFor(pathname)) response.setHeader(name, value)
 
-  const redirect = config.redirects.find((rule) => rule.source === pathname)
+  // A rule for another host, such as Vercel's own address, never applies to this server.
+  const redirect = config.redirects.find(
+    (rule) => rule.has === undefined && rule.source === pathname,
+  )
   if (redirect) {
     response.writeHead(307, { Location: redirect.destination }).end()
     return
