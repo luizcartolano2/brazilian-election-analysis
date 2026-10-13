@@ -21,7 +21,6 @@ function results(candidates: [string, number, string][], choicesPerVoter = 1): R
     candidatesUnderAppeal: [],
     parties: null,
     partiesUnderAppeal: [],
-    otherUnderAppeal: 0,
     totals: {
       valid,
       blank: 0,

@@ -45,7 +45,7 @@ describe('raceResults', () => {
     }
   })
 
-  it('keeps votes under appeal apart from valid votes, and accounts for all of them', () => {
+  it('keeps votes under appeal apart from valid votes, and names a line for each', () => {
     const senate = results(fixture('pe'), 5)
     expect(senate.candidatesUnderAppeal.map((candidate) => candidate.number)).toEqual([355])
     expect(senate.candidates.some((candidate) => candidate.number === 355)).toBe(false)
@@ -53,10 +53,15 @@ describe('raceResults', () => {
       const entry = results(fixture('pe'), code)
       const listed =
         entry.candidatesUnderAppeal.reduce((sum, candidate) => sum + candidate.votes, 0) +
-        entry.partiesUnderAppeal.reduce((sum, party) => sum + party.listVotes, 0) +
-        entry.otherUnderAppeal
+        entry.partiesUnderAppeal.reduce((sum, party) => sum + party.listVotes, 0)
       expect(listed, `race ${code}`).toBe(entry.totals.annulledUnderAppeal)
     }
+  })
+
+  it('names a candidate under appeal whom only the municipality and zone file lists', () => {
+    const federal = results(fixture('pe'), 6)
+    const unlisted = federal.candidatesUnderAppeal.find((candidate) => candidate.number === 4033)
+    expect(unlisted).toMatchObject({ name: 'Zozoi do Ibura', party: 'PSB', outcome: '' })
   })
 
   it('shows a whole party list under appeal on its own line', () => {
@@ -124,5 +129,11 @@ describe('a summary that does not add up', () => {
     const broken = structuredClone(race(fixture('pe'), 5))
     broken.anulados_sub_judice = 0
     expect(() => raceResults(broken, false)).toThrow(/under appeal listed/)
+  })
+
+  it('fails when a vote under appeal has no line', () => {
+    const broken = deputy()
+    broken.candidatos = broken.candidatos.filter((candidate) => candidate.numero !== 4033)
+    expect(() => raceResults(broken, true)).toThrow(/under appeal listed/)
   })
 })

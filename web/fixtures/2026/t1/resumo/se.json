@@ -493,13 +493,6 @@
      "votos_legenda": 1
     },
     {
-     "destino": "Anulado sub judice",
-     "numero": 50,
-     "sigla": "PSOL",
-     "votos_candidatos": 3,
-     "votos_legenda": 0
-    },
-    {
      "destino": "Válido (legenda)",
      "numero": 70,
      "sigla": "AVANTE",
@@ -519,6 +512,13 @@
      "sigla": "PODE",
      "votos_candidatos": 0,
      "votos_legenda": 1
+    },
+    {
+     "destino": "Anulado sub judice",
+     "numero": 50,
+     "sigla": "PSOL",
+     "votos_candidatos": 0,
+     "votos_legenda": 0
     }
    ],
    "vagas": 8,
@@ -889,13 +889,6 @@
      "votos_legenda": 1
     },
     {
-     "destino": "Anulado sub judice",
-     "numero": 50,
-     "sigla": "PSOL",
-     "votos_candidatos": 4,
-     "votos_legenda": 1
-    },
-    {
      "destino": "Válido (legenda)",
      "numero": 70,
      "sigla": "AVANTE",
@@ -929,6 +922,13 @@
      "sigla": "PV",
      "votos_candidatos": 2,
      "votos_legenda": 0
+    },
+    {
+     "destino": "Anulado sub judice",
+     "numero": 50,
+     "sigla": "PSOL",
+     "votos_candidatos": 0,
+     "votos_legenda": 1
     }
    ],
    "vagas": 24,
@@ -936,5 +936,5 @@
   }
  ],
  "turno": 1,
- "versao_esquema": 1
+ "versao_esquema": 2
 }

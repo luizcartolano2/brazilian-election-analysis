@@ -4,12 +4,13 @@ from pathlib import Path
 
 import duckdb
 import pytest
-from conftest import query, run_build
+from conftest import query, races, run_build
 
 from eleicoes.aggregates import ANNULLED_SUB_JUDICE, PARTY_LIST, TECHNICAL_NULL
 from eleicoes.build import BuildError
 from eleicoes.download import SourceUnavailable
 from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
+from eleicoes.reconcile import ReconciliationFailed, summary_mismatches
 from eleicoes.sources import Bases, bulk_sources, round_config
 
 DATA = "2026/t1"
@@ -85,6 +86,13 @@ def test_polling_places_are_for_the_first_round_only(built):
     assert rows[0][0] == rows[0][1]
 
 
+def test_the_manifest_records_each_checked_summary(built):
+    checked = json.loads((built / "manifest.json").read_text())["verificacoes"]["resumo"]
+    assert ["pe", 6259, 6] in checked
+    assert ["br", 6257, 1] in checked
+    assert not [entry for entry in checked if entry[1] == 6261]
+
+
 def test_council_race(built):
     municipalities = query(votes(built, 25, "PE"), "SELECT DISTINCT municipio FROM FILE")
     assert municipalities == [(30015,)]
@@ -105,6 +113,135 @@ def test_summaries(built):
     assert president["validos"] == sum(
         c["votos"] for c in president["candidatos"] if c["destino"] == "Válido"
     )
+
+
+def test_party_candidate_votes_count_valid_candidates_only(built):
+    """Acre's MDB has 1515 under appeal, whose votes stay out of the party's candidate votes."""
+    deputy = races(built, "ac")[6]
+    mdb = next(party for party in deputy["partidos"] if party["numero"] == 15)
+    assert mdb["votos_candidatos"] == sum(
+        candidate["votos"]
+        for candidate in deputy["candidatos"]
+        if candidate["partido"] == "MDB" and candidate["destino"] == "Válido"
+    )
+    for state in ("ac", "pe", "se"):
+        for cargo in (6, 7):
+            race = races(built, state)[cargo]
+            lists = sum(
+                party["votos_legenda"]
+                for party in race["partidos"]
+                if party["destino"] == "Válido (legenda)"
+            )
+            candidates = sum(party["votos_candidatos"] for party in race["partidos"])
+            assert candidates + lists == race["validos"], (state, cargo)
+
+
+ZOZOI = {
+    "numero": 4033,
+    "nome": "ZOZOI DO IBURA",
+    "partido": "PSB",
+    "votos": 13,
+    "destino": "Anulado sub judice",
+    "resultado": "",
+}
+
+
+def test_a_summary_names_a_candidate_the_aggregate_omits(built):
+    """TSE's aggregate omits 4033 in Pernambuco. Its munzona file names the candidacy, and the
+    candidate file gives its party."""
+    assert ZOZOI in races(built, "pe")[6]["candidatos"]
+
+
+def edit_pe_4033(tse, change) -> None:
+    """Applies `change` to both of the candidate file's candidacies for 4033 in Pernambuco."""
+    candidates = tse.csv_path(bulk_sources(round_config(1), Bases())["candidates"])
+
+    def apply(row):
+        if (row["SG_UF"], row["CD_CARGO"], row["NR_CANDIDATO"]) != ("PE", "6", "4033"):
+            return False
+        change(row)
+        return True
+
+    assert tse.edit_csv(candidates, apply) == 2
+
+
+def test_the_ballot_name_picks_the_party_among_candidacies_that_share_a_number(tse, tmp_path):
+    def move_the_other_candidacy(row):
+        if row["NM_URNA_CANDIDATO"] == "GERMANA LACERDA":
+            row.update(NR_PARTIDO="13", SG_PARTIDO="PT")
+
+    edit_pe_4033(tse, move_the_other_candidacy)
+    assert ZOZOI in races(run_build(tse, tmp_path), "pe")[6]["candidatos"]
+
+
+def renumber(row):
+    row["NR_CANDIDATO"] = "4099"
+
+
+def rename(row):
+    row["NM_URNA_CANDIDATO"] += " SOBRENOME"
+
+
+def share_the_name_across_parties(row):
+    if row["NM_URNA_CANDIDATO"] == "GERMANA LACERDA":
+        row.update(NM_URNA_CANDIDATO="ZOZOI DO IBURA", NR_PARTIDO="13", SG_PARTIDO="PT")
+
+
+def drop_the_party(row):
+    if row["NM_URNA_CANDIDATO"] == "ZOZOI DO IBURA":
+        row["NR_PARTIDO"] = "#NULO"
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (renumber, "candidate 4033 is in neither the aggregate nor the candidate file"),
+        (rename, "candidate 4033 has 2 candidacies in the candidate file, and none has the ballot"),
+        (share_the_name_across_parties, "candidate 4033 has two names or parties"),
+        (drop_the_party, "candidate 4033 has no party in the candidate file"),
+    ],
+)
+def test_a_candidate_the_aggregate_omits_needs_one_party(tse, tmp_path, change, message):
+    edit_pe_4033(tse, change)
+    with pytest.raises(BuildError, match=message):
+        run_build(tse, tmp_path)
+    assert not (tmp_path / "out").exists()
+
+
+def test_the_summary_check_names_a_vote_with_no_line(built):
+    deputy = races(built, "pe")[6]
+    assert summary_mismatches(deputy, "PE") == []
+    deputy["candidatos"] = [entry for entry in deputy["candidatos"] if entry["numero"] != 4033]
+    assert [str(mismatch) for mismatch in summary_mismatches(deputy, "PE")] == [
+        "[summary] PE race 6: annulled sub judice votes on named lines is 0, TSE says 13"
+    ]
+
+
+def test_the_summary_check_adds_up_the_party_table(built):
+    deputy = races(built, "ac")[6]
+    deputy["partidos"][0]["votos_candidatos"] += 1
+    valid = deputy["validos"]
+    assert [str(mismatch) for mismatch in summary_mismatches(deputy, "AC")] == [
+        f"[summary] AC race 6: party totals is {valid + 1}, TSE says {valid}"
+    ]
+
+
+def test_a_president_candidate_that_brazils_aggregate_omits_stops_the_build(built, tse, tmp_path):
+    """The states' aggregates still list 16, so every other check passes, and the Brazil
+    summary has no line for its votes."""
+
+    def drop_16(document):
+        for group in document["carg"][0]["agr"]:
+            for party in group["par"]:
+                party["cand"] = [entry for entry in party["cand"] if int(entry["n"]) != 16]
+
+    tse.edit_json(tse.aggregate_path("6257/dados/br/br-c0001-e006257-u.json"), drop_16)
+    with pytest.raises(ReconciliationFailed) as caught:
+        run_build(tse, tmp_path)
+    nominal = races(built, "br")[1]["nominais"]
+    assert [str(mismatch) for mismatch in caught.value.mismatches] == [
+        f"[summary] BR race 1: candidate votes on named lines is {nominal - 2}, TSE says {nominal}"
+    ]
 
 
 def test_candidate_columns_are_the_allowlist_plus_tses_destination_and_outcome(built):

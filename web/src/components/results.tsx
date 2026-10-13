@@ -147,11 +147,7 @@ export function UnderAppealTable({
   results: RaceResults
   candidateHref?: (number: number) => string
 }) {
-  if (
-    results.candidatesUnderAppeal.length === 0 &&
-    results.partiesUnderAppeal.length === 0 &&
-    results.otherUnderAppeal === 0
-  ) {
+  if (results.candidatesUnderAppeal.length === 0 && results.partiesUnderAppeal.length === 0) {
     return null
   }
   return (
@@ -198,14 +194,6 @@ export function UnderAppealTable({
               </td>
             </tr>
           ))}
-          {results.otherUnderAppeal > 0 && (
-            <tr className="border-line border-b">
-              <td className="py-1.5 pr-2">{t(locale, 'results.otherUnderAppeal')}</td>
-              <td className="w-28 py-1.5 text-right tabular-nums">
-                {formatInteger(locale, results.otherUnderAppeal)}
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </section>

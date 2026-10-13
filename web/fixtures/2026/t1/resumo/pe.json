@@ -561,6 +561,14 @@
      "votos": 13
     },
     {
+     "destino": "Anulado sub judice",
+     "nome": "ZOZOI DO IBURA",
+     "numero": 4033,
+     "partido": "PSB",
+     "resultado": "",
+     "votos": 13
+    },
+    {
      "destino": "Válido",
      "nome": "MÁRCIA AZEVEDO",
      "numero": 5030,
@@ -3011,7 +3019,7 @@
      "destino": "Válido (legenda)",
      "numero": 30,
      "sigla": "NOVO",
-     "votos_candidatos": 97,
+     "votos_candidatos": 96,
      "votos_legenda": 3
     },
     {
@@ -3064,13 +3072,6 @@
      "votos_legenda": 5
     },
     {
-     "destino": "Anulado sub judice",
-     "numero": 33,
-     "sigla": "MOBILIZA",
-     "votos_candidatos": 9,
-     "votos_legenda": 2
-    },
-    {
      "destino": "Válido (legenda)",
      "numero": 18,
      "sigla": "REDE",
@@ -3083,6 +3084,13 @@
      "sigla": "MISSÃO",
      "votos_candidatos": 4,
      "votos_legenda": 0
+    },
+    {
+     "destino": "Anulado sub judice",
+     "numero": 33,
+     "sigla": "MOBILIZA",
+     "votos_candidatos": 0,
+     "votos_legenda": 2
     },
     {
      "destino": "Válido (legenda)",
@@ -3104,5 +3112,5 @@
   }
  ],
  "turno": 1,
- "versao_esquema": 1
+ "versao_esquema": 2
 }

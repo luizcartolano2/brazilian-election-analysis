@@ -63,7 +63,6 @@
   "sources.licenseDerived": "Os arquivos que este projeto publica estão sob a licença CC BY 4.0. Ao reutilizá-los, credite o TSE e este projeto:",
   "sources.filesTitle": "Arquivos do TSE usados",
   "sources.filesNote": "{count} arquivos, com o tamanho e o momento em que foram baixados.",
-  "results.otherUnderAppeal": "Outros votos sub judice",
   "site.fixturesBanner": "Versão de teste: estes números vêm de uma amostra dos arquivos do TSE e não são os resultados oficiais.",
   "site.syntheticBanner": "Versão de teste: este 2º turno é sintético. Seus números copiam o 1º turno e não são resultados oficiais nem uma previsão.",
   "area.turnoutTitle": "Eleitores e comparecimento · {race}",

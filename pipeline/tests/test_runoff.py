@@ -1,9 +1,8 @@
 import json
-from pathlib import Path
 
 import duckdb
 import pytest
-from conftest import query, run_build
+from conftest import query, races, run_build, summary
 
 from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
 from eleicoes.reconcile import ReconciliationFailed
@@ -14,22 +13,14 @@ PRESIDENT_FINALISTS = {13, 22}
 GOVERNOR_FINALISTS = {10, 11}
 
 
-def summary(built: Path, area: str) -> dict:
-    return json.loads((built / DATA / "resumo" / f"{area}.json").read_text())
-
-
-def races(built: Path, area: str) -> dict[int, dict]:
-    return {race["cargo"]: race for race in summary(built, area)["corridas"]}
-
-
 def test_a_state_without_a_governor_runoff_gets_president_only(built_runoff):
     for area in ("pe", "se", "zz"):
-        assert set(races(built_runoff, area)) == {1}
+        assert set(races(built_runoff, area, 2)) == {1}
     assert not (built_runoff / DATA / "votos" / "cargo=3" / "uf=PE.parquet").exists()
 
 
 def test_the_runoff_state_gets_both_races(built_runoff):
-    acre = races(built_runoff, "ac")
+    acre = races(built_runoff, "ac", 2)
     assert {cargo: race["eleicao"] for cargo, race in acre.items()} == {1: 6258, 3: 6260}
     assert {c["numero"] for c in acre[3]["candidatos"]} == GOVERNOR_FINALISTS
     assert {c["numero"] for c in acre[1]["candidatos"]} == PRESIDENT_FINALISTS
@@ -39,7 +30,7 @@ def test_the_version_holds_round_two_only(built_runoff):
     manifest = json.loads((built_runoff / "manifest.json").read_text())
     assert manifest["turno"] == 2
     assert manifest["estados"] == ["AC", "PE", "SE", "ZZ"]
-    assert summary(built_runoff, "br")["turno"] == 2
+    assert summary(built_runoff, "br", 2)["turno"] == 2
     assert not (built_runoff / "2026" / "t1").exists()
     assert ["br", 6258, 1] in manifest["verificacoes"]["agregado"]
     assert ["ac", 6260, 3] in manifest["verificacoes"]["agregado"]
@@ -47,7 +38,7 @@ def test_the_version_holds_round_two_only(built_runoff):
 
 
 def test_round_two_reconciles_with_tses_totals(built_runoff):
-    president = races(built_runoff, "br")[1]
+    president = races(built_runoff, "br", 2)[1]
     assert president["validos"] == sum(c["votos"] for c in president["candidatos"])
     assert president["comparecimento"] == (
         president["validos"] + president["brancos"] + president["nulos"]
@@ -110,7 +101,7 @@ def test_a_round_one_row_never_reaches_round_two(tse, tmp_path):
 
     assert tse.edit_csv(votes, empty_round_one) > 0
     out = run_build(tse, tmp_path, round_number=2)
-    assert races(out, "br")[1]["validos"] > 0
+    assert races(out, "br", 2)[1]["validos"] > 0
 
 
 def test_round_two_urls():

@@ -15,9 +15,11 @@ from eleicoes.aggregates import (
     ANNULLED_SUB_JUDICE,
     BLANK,
     CANDIDATE,
+    CANDIDATE_DESTINATIONS,
     NULL,
     PARTY_LIST,
     TECHNICAL_NULL,
+    AggregateCandidate,
     RaceAggregate,
     destinations_agree,
     parse_aggregate,
@@ -42,6 +44,7 @@ from eleicoes.reconcile import (
     municipality_zone_mismatches,
     race_sums,
     station_mismatches,
+    summary_mismatches,
 )
 from eleicoes.sources import (
     ABROAD,
@@ -61,7 +64,7 @@ CREDIT = {
     "en": "Source: Brazil's Superior Electoral Court (TSE), Open Data Portal. Processing: "
     "Brazilian Election Analysis (github.com/luizcartolano2/brazilian-election-analysis).",
 }
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 MANIFEST = "manifest.json"
 REPORT_LIMIT = 50
 # State codes end up in SQL and in output paths, so anything else is refused.
@@ -103,7 +106,7 @@ class Build:
         self.municipal = {election.code: election for election in self.config.municipal}
         self.aggregates: dict[tuple[int, int, str], RaceAggregate] = {}
         self.mismatches: list[Mismatch] = []
-        self.checked: dict[str, list] = {"municipality_zone": [], "aggregate": []}
+        self.checked: dict[str, list] = {"municipality_zone": [], "aggregate": [], "summary": []}
         prefix = f"{self.config.year}/t{self.config.round}"
         self.staging = options.work_dir / "staging"
         self.data_root = self.staging / prefix
@@ -245,6 +248,7 @@ class Build:
             f"FROM state_votes ORDER BY ALL"
         ).fetchall()
         race_rows, class_rows, scopes = [], [], []
+        unlisted_candidates: dict[tuple[int, int, str], dict[int, AggregateCandidate]] = {}
         for eleicao, cargo, municipio in races:
             if eleicao in self.municipal:
                 area, race_municipality = f"{state.lower()}{municipio:05d}", municipio
@@ -276,6 +280,13 @@ class Build:
                 aggregate.label,
             )
             destinations_agree(aggregate, unlisted)
+            if eleicao not in self.municipal:
+                voted = {number for (number,) in numbers}
+                unlisted_candidates[(eleicao, cargo, area)] = self._unlisted_candidates(
+                    state,
+                    aggregate,
+                    sorted(voted & (unlisted.keys() - aggregate.candidates.keys())),
+                )
             class_rows.extend(
                 (
                     eleicao,
@@ -337,10 +348,78 @@ class Build:
             "WHERE eleicao = $p GROUP BY ALL",
             {"p": self.config.president},
         )
-        self._write_state(state, sums)
+        self._write_state(state, sums, unlisted_candidates)
         con.execute("DROP TABLE state_votes; DROP TABLE classified")
 
-    def _write_state(self, state: str, sums: list[tuple[RaceAggregate, RaceSums]]) -> None:
+    def _unlisted_candidates(
+        self, state: str, aggregate: RaceAggregate, numbers: list[int]
+    ) -> dict[int, AggregateCandidate]:
+        """Candidates with votes that TSE's aggregate omits, such as a candidacy under appeal.
+        The munzona file gives their name, destination and votes, and the candidate file their
+        party. As in `_write_candidates`, the name picks among candidacies that share a number."""
+        if not numbers:
+            return {}
+        rows = self.con.execute(
+            """
+            WITH counted AS (
+                SELECT numero, nome_urna, destino, sum(votos)::INTEGER votos FROM munzona
+                WHERE uf = $state AND eleicao = $election AND cargo = $race
+                  AND list_contains($numbers, numero)
+                GROUP BY ALL),
+            registered AS (
+                SELECT * FROM registry
+                WHERE uf = $registry AND eleicao = $election AND cargo = $race),
+            names AS (
+                SELECT numero, count(DISTINCT nome_urna) candidacies FROM registered
+                GROUP BY numero)
+            SELECT DISTINCT c.numero, c.nome_urna, c.destino, c.votos, coalesce(n.candidacies, 0),
+                   r.numero IS NOT NULL, r.partido_numero, r.partido_sigla
+            FROM counted c
+            LEFT JOIN names n USING (numero)
+            LEFT JOIN registered r
+              ON r.numero = c.numero AND (n.candidacies = 1 OR r.nome_urna = c.nome_urna)
+            ORDER BY ALL
+            """,
+            {
+                "state": state,
+                "registry": "BR" if aggregate.election == self.config.president else state,
+                "election": aggregate.election,
+                "race": aggregate.race,
+                "numbers": numbers,
+            },
+        ).fetchall()
+        candidates: dict[int, AggregateCandidate] = {}
+        for number, name, destination, votes, candidacies, matched, party_number, party in rows:
+            where = f"{aggregate.label}: candidate {number}"
+            if number in candidates:
+                raise BuildError(f"{where} has two names or parties")
+            if candidacies == 0:
+                raise BuildError(f"{where} is in neither the aggregate nor the candidate file")
+            if not matched:
+                raise BuildError(
+                    f"{where} has {candidacies} candidacies in the candidate file, and none has "
+                    f"the ballot name of the munzona file"
+                )
+            if party_number is None or party is None:
+                raise BuildError(f"{where} has no party in the candidate file")
+            candidates[number] = AggregateCandidate(
+                number=number,
+                ballot_name=name,
+                party_number=party_number,
+                party=party,
+                destination=destination,
+                vote_type=CANDIDATE_DESTINATIONS[destination],
+                outcome="",
+                votes=votes,
+            )
+        return candidates
+
+    def _write_state(
+        self,
+        state: str,
+        sums: list[tuple[RaceAggregate, RaceSums]],
+        unlisted_candidates: dict[tuple[int, int, str], dict[int, AggregateCandidate]],
+    ) -> None:
         con = self.con
         root = self.data_root
         for (cargo,) in con.execute(
@@ -389,7 +468,11 @@ class Build:
             root / "secoes" / f"uf={state}.parquet",
         )
         races = [
-            self._summary(aggregate, race_total)
+            self._summary(
+                aggregate,
+                race_total,
+                unlisted_candidates[(aggregate.election, aggregate.race, aggregate.area)],
+            )
             for aggregate, race_total in sums
             if aggregate.election not in self.municipal
         ]
@@ -415,13 +498,23 @@ class Build:
         sums = race_sums(self.con, aggregate, "national", "turnout", scope)
         self.mismatches += aggregate_mismatches(aggregate, sums, "BR")
         self.checked["aggregate"].append([area, president, 1])
-        summary = self._summary(aggregate, sums)
+        # A President number that Brazil's aggregate omits gets no line here, so it fails the
+        # summary check.
+        summary = self._summary(aggregate, sums, {})
         write_json(self.data_root / "resumo" / "br.json", self._summary_document("BR", [summary]))
 
     # Summaries
 
-    def _summary(self, aggregate: RaceAggregate, sums: RaceSums) -> dict:
+    def _summary(
+        self,
+        aggregate: RaceAggregate,
+        sums: RaceSums,
+        unlisted: dict[int, AggregateCandidate],
+    ) -> dict:
+        """`votos_candidatos` counts a party's valid candidate votes only, so a party table adds
+        up to the race's valid votes."""
         by_number = sums.by_number
+        listed = [*aggregate.candidates.values(), *unlisted.values()]
         candidates = sorted(
             (
                 {
@@ -432,13 +525,15 @@ class Build:
                     "destino": candidate.destination,
                     "resultado": candidate.outcome,
                 }
-                for candidate in aggregate.candidates.values()
+                for candidate in listed
             ),
             key=lambda entry: (-entry["votos"], entry["numero"]),
         )
         by_party = sums.by_party
         candidate_votes: dict[int, int] = {}
-        for candidate in aggregate.candidates.values():
+        for candidate in listed:
+            if candidate.vote_type != CANDIDATE:
+                continue
             candidate_votes[candidate.party_number] = candidate_votes.get(
                 candidate.party_number, 0
             ) + int(by_number.get(candidate.number, 0))
@@ -460,7 +555,7 @@ class Build:
         )
 
         total = sums.total
-        return {
+        summary = {
             "eleicao": aggregate.election,
             "cargo": aggregate.race,
             "nome": aggregate.race_name,
@@ -480,6 +575,9 @@ class Build:
             "candidatos": candidates,
             "partidos": parties,
         }
+        self.mismatches += summary_mismatches(summary, aggregate.area.upper())
+        self.checked["summary"].append([aggregate.area, aggregate.election, aggregate.race])
+        return summary
 
     def _summary_document(self, area: str, races: list[dict]) -> dict:
         return {
@@ -582,6 +680,7 @@ class Build:
                 "secao": "todas as seções e cargos",
                 "municipio_zona": sorted(self.checked["municipality_zone"]),
                 "agregado": sorted(self.checked["aggregate"]),
+                "resumo": sorted(self.checked["summary"]),
             },
             "arquivos": file_records(self.staging, exclude={MANIFEST}),
         }

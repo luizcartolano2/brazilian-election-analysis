@@ -18,7 +18,6 @@ function results(candidates: [string, string][], seats = 1, race = 3): RaceResul
     candidatesUnderAppeal: [],
     parties: null,
     partiesUnderAppeal: [],
-    otherUnderAppeal: 0,
     totals: {
       valid: 0,
       blank: 0,

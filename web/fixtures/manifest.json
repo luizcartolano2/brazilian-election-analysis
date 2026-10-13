@@ -33,27 +33,27 @@
   },
   {
    "path": "2026/t1/resumo/ac.json",
-   "sha256": "2b983834871e84d5942f02291e81736f36a71b347e6a0602d4e806c60a98266c",
+   "sha256": "8bb526460128a7c3b11854f62875de57a74cdde59cc862abd469ca2e15e8c986",
    "size": 29255
   },
   {
    "path": "2026/t1/resumo/br.json",
-   "sha256": "f51a58cae3df06702a266e861f62bf68c0eb402b003ce4c7eb82f894ce33ce3b",
+   "sha256": "88bedcbae96710c13a874617d6fc4546e964db9ff1b5e178263f1c6de935f5da",
    "size": 2083
   },
   {
    "path": "2026/t1/resumo/pe.json",
-   "sha256": "990fb721f0bc5757376f053016067c66800ff2ace0e537305b63330e9fa31cd1",
-   "size": 60828
+   "sha256": "e089df5ff5b7ee257f6ea597fd9cdb3dc4dd9c18540cc02a5e55e041abac6875",
+   "size": 60993
   },
   {
    "path": "2026/t1/resumo/se.json",
-   "sha256": "2e104ab0d65f0f0e465e77960b63864e6a32a2885404ada67d9fc4d49d56e64f",
+   "sha256": "9611ad04d1262d4a6b6e3d4f397c593964ea6fbf7de809da2dd833d9c88a201d",
    "size": 19190
   },
   {
    "path": "2026/t1/resumo/zz.json",
-   "sha256": "2300e4c9ba9d79a92f116f45fa63f84eb73ee98bbaf92d8056790ded6c99d03a",
+   "sha256": "816882b42f9802c6a825a927c43ddd7b81c3a17fbb7f5a0ccc6880ee11533011",
    "size": 943
   },
   {
@@ -740,7 +740,94 @@
     7
    ]
   ],
+  "resumo": [
+   [
+    "ac",
+    6257,
+    1
+   ],
+   [
+    "ac",
+    6259,
+    3
+   ],
+   [
+    "ac",
+    6259,
+    5
+   ],
+   [
+    "ac",
+    6259,
+    6
+   ],
+   [
+    "ac",
+    6259,
+    7
+   ],
+   [
+    "br",
+    6257,
+    1
+   ],
+   [
+    "pe",
+    6257,
+    1
+   ],
+   [
+    "pe",
+    6259,
+    3
+   ],
+   [
+    "pe",
+    6259,
+    5
+   ],
+   [
+    "pe",
+    6259,
+    6
+   ],
+   [
+    "pe",
+    6259,
+    7
+   ],
+   [
+    "se",
+    6257,
+    1
+   ],
+   [
+    "se",
+    6259,
+    3
+   ],
+   [
+    "se",
+    6259,
+    5
+   ],
+   [
+    "se",
+    6259,
+    6
+   ],
+   [
+    "se",
+    6259,
+    7
+   ],
+   [
+    "zz",
+    6257,
+    1
+   ]
+  ],
   "secao": "todas as seções e cargos"
  },
- "versao_esquema": 1
+ "versao_esquema": 2
 }

@@ -20,7 +20,6 @@ function results(votes: [number, number][]): RaceResults {
     candidatesUnderAppeal: [],
     parties: null,
     partiesUnderAppeal: [],
-    otherUnderAppeal: 0,
     totals: {
       valid,
       blank: 0,
