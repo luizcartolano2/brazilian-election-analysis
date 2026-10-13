@@ -166,8 +166,10 @@ security policy's limits on the hosts that the page can fetch from.
 ### Requirement: A heavy query does not freeze the page
 Queries SHALL run off the page's main thread. While a query runs, the page SHALL show its
 progress and a cancel button, and a cancel SHALL stop the query within two seconds. The
-page SHALL show at most the first 1,000 rows of a result. It SHALL state how many rows
-the result holds, or that it holds more than 1,000,000.
+page SHALL keep at most 1,000,000 rows and 100 MB of CSV text of a result, and SHALL stop
+the query when the result passes either limit. It SHALL show at most the first 1,000
+rows, each cell cut to its first 500 characters. It SHALL state how many rows the result
+holds, or which limit the result passed.
 
 #### Scenario: Cancelling a long query
 - **WHEN** a visitor cancels a query that takes minutes to run
@@ -176,6 +178,10 @@ the result holds, or that it holds more than 1,000,000.
 #### Scenario: A result with millions of rows
 - **WHEN** a visitor runs a query that returns more than 1,000,000 rows, such as every polling station's President votes in Brazil
 - **THEN** the page shows the first 1,000 rows, states that the result holds more than 1,000,000 rows, and answers to typing and scrolling throughout the run
+
+#### Scenario: A result of very wide rows
+- **WHEN** a visitor runs a query that returns 1,000 rows of one million characters each
+- **THEN** the page stops the query at 100 MB of CSV text, states that limit, shows each cell's first 500 characters, and the tab keeps working
 
 #### Scenario: A query that needs too much memory
 - **WHEN** a query needs more memory than the engine's limit
@@ -197,14 +203,15 @@ line. The caption SHALL be part of the table, so a capture of the table alone ke
 - **THEN** the caption says that a visitor's query produced the result, and the frame shows the query that invented them
 
 ### Requirement: The result downloads as CSV with its credit
-The page SHALL let the visitor download the whole result as CSV when it holds at most
-1,000,000 rows. It SHALL refuse the download, rather than truncate the file, when it
-holds more. The file SHALL start with lines that begin with `#`. They SHALL hold the TSE
-credit line, each data version with its round, and the playground link that restores the
-query. Every header or text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage
-return SHALL be written so that a spreadsheet reads it as text. No line of the file SHALL
-hold a cell that a spreadsheet runs as a formula. The file's name SHALL name each round
-and data version.
+The page SHALL let the visitor download the whole result as CSV when the result stays
+within both limits of a run, 1,000,000 rows and 100 MB of CSV text. It SHALL refuse the
+download, rather than truncate the file, when the result passes either. The file SHALL
+start with lines that begin with `#`. They SHALL hold the TSE credit line, each data
+version with its round, and the playground link that restores the query. Every header or
+text cell that starts with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed
+SHALL be written so that a spreadsheet reads it as text. No line of the file SHALL hold a
+cell that a spreadsheet runs as a formula. The file's name SHALL name each round and data
+version.
 
 #### Scenario: The credit travels with the file
 - **WHEN** a visitor downloads a result
@@ -215,11 +222,11 @@ and data version.
 - **THEN** the file's comment lines hold the link and not the query's text, and the header cell starts with a single quote
 
 #### Scenario: A cell that looks like a formula
-- **WHEN** a result cell holds text that starts with `=`
+- **WHEN** a result cell holds text that starts with `=`, or with a line feed and then `=`
 - **THEN** the CSV cell starts with a single quote, so a spreadsheet shows the text and runs no formula
 
 #### Scenario: A result over the limit
-- **WHEN** a visitor asks to download a result of more than 1,000,000 rows
+- **WHEN** a visitor asks to download a result of more than 1,000,000 rows, or of more than 100 MB of CSV text
 - **THEN** the page writes no file, says why, and links to the sources page, which lists the Parquet files
 
 ### Requirement: A link that holds the query

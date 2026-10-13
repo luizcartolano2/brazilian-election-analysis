@@ -222,10 +222,18 @@ codes from fixed lists and with whole numbers, such as a candidate's number from
 ### 7. Results stream, and a cancel has a fallback
 
 The page runs a query with `send(text, true)`, so the engine streams the result, and it
-reads the Arrow batches as they come. It keeps the first 1,000 rows for the table and up
-to 1,000,000 rows for the CSV. When a result passes 1,000,000 rows, the page stops
-reading, cancels the query and states the limit. Integers stay exact: the engine returns
-`BIGINT` values as `bigint`, and the table prints them as text.
+reads the Arrow batches as they come. It keeps the first 1,000 rows for the table, each
+cell cut to its first 500 characters. It turns every batch into CSV lines at once and
+keeps only that text, not the Arrow batch. When the result passes 1,000,000 rows or 100
+MB of CSV text, the page stops reading, cancels the query and states which limit it
+passed. Integers stay exact: the engine returns `BIGINT` values as `bigint`, and the
+table prints them as text.
+
+A row count alone does not bound the tab's memory, because a row can hold a string of
+any length, and the page's memory sits outside DuckDB's `memory_limit`. A query such as
+`SELECT repeat('x', 1000000) FROM range(1000)` holds 1 GB of text in 1,000 rows. The
+100 MB cap on CSV text bounds the page's own copy of the result, and the 500-character
+cut bounds what the table draws.
 
 A cancel calls `cancelSent()`. If the query has not stopped one second later, the page
 terminates the engine's Worker, so the page shows the cancel within the two seconds that
@@ -248,7 +256,8 @@ separated by commas, decimals use a dot, and text follows RFC 4180 quoting. The 
 lines come first, each starting with `# `: the credit line, one line per data version,
 and the playground link of decision 10, which restores the query. Every header and text
 cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets a leading
-single quote, as OWASP advises against formula injection. Numbers are never prefixed.
+single quote, as OWASP advises against formula injection. The page applies the same
+guard to a cell that starts with a line feed. Numbers are never prefixed.
 The name reads `consulta-2026-t1-20261007-67d59ff-37656362427.csv`, with each chosen
 round.
 
@@ -273,6 +282,14 @@ never sends a fragment to a server. The page parses the payload as untrusted inp
 accepts only a pinned round, a race of the election, an area among the 27 states and
 `zz`, and a query of at most 10,000 characters. On any failure the page restores nothing.
 Opening a link never starts a download or a run.
+
+A link reproduces its answer through the data version that it names, not through the
+site. That version stays immutable and public, with its manifest, so anyone can run the
+same query on it later with DuckDB. The site itself runs only its pinned versions,
+because the app reads only pinned data at run time. After a repin, the page therefore
+names both versions and runs the pinned one. Running the link's own version breaks that
+invariant. Refusing a stale link breaks every link after a repin, such as the one that a
+recount of Rio forces.
 
 ### 11. The file list comes from the build
 

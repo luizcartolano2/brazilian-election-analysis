@@ -33,13 +33,15 @@ the top of each downloaded CSV.
 - Each result sits in a frame. Its table caption says that a visitor's query produced it,
   names each data version with its round, and carries the TSE credit. The frame also shows
   the query.
-- The whole result, up to 1,000,000 rows, downloads as CSV. The file starts with comment
+- The whole result, up to 1,000,000 rows and 100 MB, downloads as CSV. The file starts with comment
   lines that hold the TSE credit, the data versions and the link that restores the query.
   A header or text cell that starts like a formula is written so that a spreadsheet reads
   it as text.
 - A link holds the query, the data choice and the data versions in the address's
   fragment, so the query never reaches a server. The link restores the query and does not
-  run it.
+  run it. A link reproduces its answer through the data version it names, which stays
+  immutable and public. The site runs only its pinned versions, so after a repin the page
+  names both.
 - A catalog lists each table and column that the playground exposes, with its meaning in
   both languages. A pipeline test fails when the published columns and the catalog differ,
   and the page refuses a file whose columns differ.
