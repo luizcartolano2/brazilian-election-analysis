@@ -29,7 +29,7 @@
 
 ## 6. Page
 
-- [ ] 6.1 Add the pages at `web/app/(pt)/2026/consultas/` and `web/app/en/2026/consultas/` with the layout of design decision 12: the data choice, the form and editor tabs, the examples, the tables panel, the run and cancel button with its progress, Ctrl+Enter and Cmd+Enter, and the question before text that the visitor typed is replaced. Link the page from the sources page. Add browser tests: opening the page requests no Parquet file and no engine file, the `<noscript>` text links to the sources page, every control is reachable at 360 pixels wide while a wide result scrolls inside its frame, and the page runs a query under the production headers with no security-policy violation
+- [ ] 6.1 Add the pages at `web/app/(pt)/2026/consultas/` and `web/app/en/2026/consultas/` with layout B of design decision 12, as `mockups/opcao-b-desktop.png` and `mockups/opcao-b-celular.png` draw it: the data choice, the form beside the editor, the examples, the folded tables panel, the run and cancel button with its progress, Ctrl+Enter and Cmd+Enter, and the question before text that the visitor typed is replaced. Link the page from the sources page. Add browser tests: opening the page requests no Parquet file and no engine file, the `<noscript>` text links to the sources page, every control is reachable at 360 pixels wide while a wide result scrolls inside its frame, and the page runs a query under the production headers with no security-policy violation
 - [ ] 6.2 Add the playground's messages to `web/messages/pt.json` and `en.json`, including the sentence that introduces an engine error and the note on importing the CSV into a spreadsheet. Make sure that the test of both languages passes
 
 ## 7. Documentation

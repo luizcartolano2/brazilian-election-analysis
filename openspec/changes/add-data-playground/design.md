@@ -286,13 +286,12 @@ Parquet extension come from the Worker, as `browser.ts` loads them.
 
 `mockups/` draws three layouts, each at desktop and phone widths, and a sheet of the
 states that all three share. The rows are real: round 1's President race in Acre, from
-the pinned version, through the form's own query. Luiz chooses a layout in the review of
-this proposal.
+the pinned version, through the form's own query. On 2026-10-13, Luiz chose layout B.
 
 | Layout | Desktop | Phone |
 |---|---|---|
 | A. Tabs, with the tables beside them | `mockups/opcao-a-desktop.png` | `mockups/opcao-a-celular.png` |
-| B. The form and the SQL side by side | `mockups/opcao-b-desktop.png` | `mockups/opcao-b-celular.png` |
+| B. The form and the SQL side by side, chosen | `mockups/opcao-b-desktop.png` | `mockups/opcao-b-celular.png` |
 | C. Steps in one column | `mockups/opcao-c-desktop.png` | `mockups/opcao-c-celular.png` |
 
 The states sheet, `mockups/estados-desktop.png`, shows the question before a large
@@ -300,17 +299,21 @@ download, the progress with its cancel button, a cancelled run, an error, a refu
 a large result, a link from an earlier version, an invalid link, the question before
 typed text is replaced, the page without JavaScript, and the start of a CSV file.
 
-- A: the form and the editor share one box, and tabs switch between them. The tables
-  panel stays beside them on a wide screen. A visitor sees the form or the SQL, and the
-  form's tab shows its SQL read-only below it.
-- B: the form stays on the left, and the editor on the right. Each choice in the form
-  rewrites the editor's text, so a visitor sees the SQL that the form writes as they use
-  it. The tables panel folds below the editor.
-- C: three numbered steps in one column, as narrow as the site's other text pages. The data
-  choice uses buttons, the form's SQL and the tables panel fold, and the result is the last
-  step.
+In layout B, the form stays on the left, and the editor on the right. Each choice in the
+form rewrites the editor's text, so a visitor sees the SQL that the form writes as they
+use it. The tables panel folds below the editor. B gives the form and the editor equal
+space, and it shows a visitor who does not write SQL what their choices write.
 
-In all three:
+Alternatives:
+
+- A: the form and the editor share one box, and tabs switch between them. The tables
+  panel stays beside them on a wide screen. It suits a visitor who writes SQL, but it
+  hides the editor while the form is open.
+- C: three numbered steps in one column, as narrow as the site's other text pages. It is
+  the simplest on a phone, but it leaves a wide screen half empty for a visitor who
+  writes SQL.
+
+In layout B, and in each state of the states sheet:
 
 - On a phone, the parts stack in the order of the page, and the tables panel folds. A
   wide result scrolls sideways inside its frame, and the page never does.
