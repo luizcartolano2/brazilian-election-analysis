@@ -3,7 +3,13 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { sha256 } from '../src/lib/manifest'
-import { loadsFromFile, writeValuesFiles } from './values-files'
+import {
+  loadsFromFile,
+  municipalityDifference,
+  swingRaces,
+  writeValuesFiles,
+  type ValuesFiles,
+} from './values-files'
 
 async function mapsFolder(): Promise<string> {
   const folder = await mkdtemp(path.join(os.tmpdir(), 'mapas-'))
@@ -63,5 +69,75 @@ describe('loadsFromFile', () => {
     expect(loadsFromFile('pe', '1-votos', 185)).toBe(false)
     expect(loadsFromFile('pe', '3', 185)).toBe(false)
     expect(loadsFromFile('df', '3-votos', 1)).toBe(false)
+  })
+})
+
+describe('swingRaces', () => {
+  const RECIFE = [2611606, 25313, 'RECIFE', 20, 10, 5]
+  const OLINDA = [2609600, 24570, 'OLINDA', 8, 4, 4]
+
+  async function rounds(second: unknown[][]) {
+    const first = await mkdtemp(path.join(os.tmpdir(), 'mapas-1-'))
+    const later = await mkdtemp(path.join(os.tmpdir(), 'mapas-2-'))
+    for (const [folder, rows] of [
+      [first, [RECIFE, OLINDA]],
+      [later, second],
+    ] as const) {
+      await mkdir(path.join(folder, 'br'), { recursive: true })
+      await mkdir(path.join(folder, 'pe'), { recursive: true })
+      await writeFile(
+        path.join(folder, 'br', '1-votos.json'),
+        JSON.stringify({ numbers: [13, 22], rows }),
+      )
+      await writeFile(
+        path.join(folder, 'pe', '3-votos.json'),
+        JSON.stringify({ numbers: [40, 11], rows }),
+      )
+    }
+    const files: ValuesFiles = {
+      'br/1': { url: '/mapas/t1/br/1.x.json', sha256: 'a' },
+      'br/1-votos': { url: '/mapas/t1/br/1-votos.x.json', sha256: 'b' },
+      'pe/3-votos': { url: '/mapas/t1/pe/3-votos.x.json', sha256: 'c' },
+    }
+    return { first, later, files }
+  }
+
+  it('keeps every race whose two rounds list the same municipalities', async () => {
+    const { first, later, files } = await rounds([OLINDA, RECIFE])
+    const differences: [string, number[]][] = []
+    const races = await swingRaces(first, later, files, files, (race, codes) =>
+      differences.push([race, codes]),
+    )
+    expect(races).toEqual(['br/1', 'pe/3'])
+    expect(differences).toEqual([])
+  })
+
+  it('names the codes of a pair that differs by one municipality, and leaves it out', async () => {
+    const { first, later, files } = await rounds([RECIFE])
+    const differences: [string, number[]][] = []
+    const races = await swingRaces(first, later, files, files, (race, codes) =>
+      differences.push([race, codes]),
+    )
+    expect(races).toEqual([])
+    expect(differences).toEqual([
+      ['br/1', [24570]],
+      ['pe/3', [24570]],
+    ])
+  })
+
+  it('compares only the races that both rounds serve', async () => {
+    const { first, later, files } = await rounds([RECIFE, OLINDA])
+    const { 'pe/3-votos': _governor, ...secondFiles } = files
+    expect(await swingRaces(first, later, files, secondFiles, () => {})).toEqual(['br/1'])
+  })
+})
+
+describe('municipalityDifference', () => {
+  it('lists the codes on either side, in order', () => {
+    const votes = (codes: number[]) => ({
+      numbers: [13],
+      rows: codes.map((code): [number, number, string, number, number] => [0, code, 'X', 1, 1]),
+    })
+    expect(municipalityDifference(votes([3, 1, 2]), votes([2, 4, 1]))).toEqual([3, 4])
   })
 })

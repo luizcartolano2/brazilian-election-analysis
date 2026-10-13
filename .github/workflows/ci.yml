@@ -124,8 +124,11 @@ jobs:
         run: npm test
 
       # The build also type-checks, and fails on any summary that differs from its manifest.
+      # The swing switch draws the swing map over the synthetic round 2, for the browser tests.
       - name: Build against the fixtures
         run: npm run build
+        env:
+          ELEICOES_FIXTURE_SWING: "1"
 
       - name: Install the browser
         run: npx playwright install --with-deps chromium

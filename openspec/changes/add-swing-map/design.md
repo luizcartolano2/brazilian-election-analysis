@@ -77,8 +77,8 @@ Its rules:
   fetched and checked again by the next page that needs it.
 - When one file answers 404 and the other fails its check, the map offers to reload the
   page, because a reload fixes both.
-- Each map keeps its own failure state and its own retry. A retry that succeeds in one map
-  fills the cache, so another map's retry then succeeds at once.
+- Each map keeps its own failure state and its own retry. Each retry drops its own entries
+  and fetches its files again, even when another map's retry has just refilled them.
 
 The module scope outlives the page, because `AppLink` navigates on the client. A visitor
 who goes from one finalist's page to the other then reuses both values files and the
@@ -152,7 +152,8 @@ The frame carries:
 - The note, in three sentences. The map compares two official counts of the two
   finalists' votes. A change mixes differences in turnout, the round-1 votes of the
   eliminated candidates, and votes that changed between the finalists, and TSE's files
-  cannot separate them. It does not show where any voter's vote went.
+  cannot separate them. It does not show where any voter's vote went. On Brazil's map, a
+  fourth sentence says that the map leaves out the votes cast abroad.
 - The TSE and IBGE credits, as on every map.
 
 The details of a municipality show its name, the finalist's share of the two finalists'
@@ -167,8 +168,8 @@ A municipality with no swing says that the finalists had no votes in that round,
 last.
 
 No label says "share" alone, because the share map on the same page means a share of the
-valid votes. A test searches the section's heading, frame, details and list, in both
-languages, for words of transfer, migration and a named candidate's voters.
+valid votes. A test searches every message that the section shows, in both languages, for
+words of transfer, migration and a named candidate's voters.
 
 ### 7. Testing the drawn map before the runoff
 

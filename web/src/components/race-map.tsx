@@ -17,15 +17,18 @@ import { feature, mesh } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
 import { municipalityHref } from '@/lib/address'
 import { areaByCode, areaName, areaOfIbge, raceBySlug, YEAR, type Round } from '@/lib/elections'
-import { formatInteger, formatPoints, formatShare } from '@/lib/format'
+import { formatInteger, formatPoints, formatShare, formatSignedPoints } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
 import {
   fillColor,
+  NO_SWING_HATCH,
   NO_VOTES,
+  noSwingPattern,
   OTHER,
   SENATE_SHADE,
   SHADES,
   SHARE_SHADES,
+  SWING_SHADES,
   WATER,
 } from '@/lib/map-colors'
 import {
@@ -33,17 +36,46 @@ import {
   fillOf,
   marginPoints,
   shareMap,
+  roundWithoutVotes,
+  sortRows,
+  swingFill,
+  swingMap,
+  swingOf,
   type CandidateVotes,
+  type ListOrder,
   type MapData,
   type MapRow,
+  type SwingData,
+  type SwingRow,
 } from '@/lib/maps'
 import { localePath, roundPath } from '@/lib/paths'
 import { normalize } from '@/lib/search'
+
+/** A swing map's text. Every share it names is a share of the two finalists' votes. */
+export interface SwingLabels {
+  /** Holds `{share}`. */
+  firstShare: string
+  /** Holds `{share}`. */
+  secondShare: string
+  /** Holds `{points}`, with its sign. */
+  change: string
+  /** A municipality with no swing, because the finalists had no votes in round 1 or in round 2. */
+  noSwing: [string, string]
+  noSwingLegend: string
+  headFirst: string
+  headSecond: string
+  headChange: string
+  sortSwing: string
+}
 
 /** The map's text in the page's language, passed in so that no message file reaches the client. */
 export interface MapLabels {
   title: string
   statement: string
+  /** The frame's sentences after its statement, which a swing map needs. */
+  notes: string[]
+  /** A swing map's text, or null on any other map. */
+  swing: SwingLabels | null
   /** The Senate's two choices per voter. */
   twoChoices: string | null
   bins: [string, string, string]
@@ -96,7 +128,7 @@ export interface MapLabels {
 type Load = { status: 'idle' | 'loading' | 'failed' } | { status: 'ready'; topology: Topology }
 
 /** A map's kind, units and step: everything but its rows, so its legend draws without them. */
-export type MapFrame = Omit<MapData, 'rows'>
+export type MapFrame = Omit<MapData, 'rows'> | Omit<SwingData, 'rows'>
 
 /** A share map's candidate, whose column its race's votes file holds. */
 export interface ShareColumn {
@@ -105,12 +137,41 @@ export interface ShareColumn {
   step: number
 }
 
-/** What a map draws: its values, or a file that holds them, which the map checks first. */
+/** A swing map's finalist and the other finalist, whose columns both rounds' files hold. */
+export interface SwingColumns {
+  numero: number
+  other: number
+  label: string
+}
+
+/** A checked file's address and SHA-256. */
+export interface CheckedFile {
+  url: string
+  sha256: string
+}
+
+/**
+ * What a map draws: its values, a file that holds them, or a race's votes files of both rounds
+ * for a swing map. The map checks every file first.
+ */
 export type MapSource =
   | { kind: 'inline'; data: MapData }
-  | { kind: 'file'; url: string; sha256: string; frame: MapFrame; share?: ShareColumn }
+  | {
+      kind: 'file'
+      url: string
+      sha256: string
+      frame: Omit<MapData, 'rows'>
+      share?: ShareColumn
+    }
+  | {
+      kind: 'swing'
+      files: [CheckedFile, CheckedFile]
+      frame: Omit<SwingData, 'rows'>
+      swing: SwingColumns
+    }
 
-type Values = { status: 'loading' | 'failed' | 'gone' } | { status: 'ready'; data: MapData }
+type Values =
+  { status: 'loading' | 'failed' | 'gone' } | { status: 'ready'; data: MapData | SwingData }
 
 /** A values file that the deployment no longer serves, because a later build renamed it. */
 export class GoneError extends Error {}
@@ -125,7 +186,7 @@ interface Drawn {
 }
 
 interface Details {
-  row: MapRow
+  row: MapRow | SwingRow
   x: number
   y: number
   /** The map's width, so the box stays inside it. */
@@ -160,8 +221,44 @@ async function loadChecked(url: string, sha256: string, reload = false): Promise
   return JSON.parse(new TextDecoder().decode(bytes))
 }
 
+const CACHE_LIMIT = 6
+
+// Checked, parsed files by address and pin, most recently used last. A failure leaves no entry.
+const checkedFiles = new Map<string, Promise<unknown>>()
+
+/**
+ * A boundary or values file, fetched and checked once, then shared by the maps of the visit
+ * while it is among the six most recently used. `reload` drops the entry and the browser's copy.
+ * The parsed value is shared, so no caller changes it.
+ */
+export function checkedFile(url: string, sha256: string, reload = false): Promise<unknown> {
+  const key = `${url}#${sha256}`
+  if (reload) checkedFiles.delete(key)
+  const cached = checkedFiles.get(key)
+  if (cached !== undefined) {
+    checkedFiles.delete(key)
+    checkedFiles.set(key, cached)
+    return cached
+  }
+  const loading = loadChecked(url, sha256, reload)
+  checkedFiles.set(key, loading)
+  loading.catch(() => {
+    if (checkedFiles.get(key) === loading) checkedFiles.delete(key)
+  })
+  for (const oldest of checkedFiles.keys()) {
+    if (checkedFiles.size <= CACHE_LIMIT) break
+    checkedFiles.delete(oldest)
+  }
+  return loading
+}
+
+/** Empties the cache of checked files, so that each test starts from none. */
+export function clearCheckedFiles(): void {
+  checkedFiles.clear()
+}
+
 async function loadTopology(url: string, sha256: string): Promise<Topology> {
-  return (await loadChecked(url, sha256)) as Topology
+  return (await checkedFile(url, sha256)) as Topology
 }
 
 /** A file source's values: the map itself, or a share map built from its race's votes. */
@@ -169,12 +266,36 @@ export async function loadValues(
   source: Extract<MapSource, { kind: 'file' }>,
   reload = false,
 ): Promise<MapData> {
-  const read = await loadChecked(source.url, source.sha256, reload)
+  const read = await checkedFile(source.url, source.sha256, reload)
   if (source.share === undefined) return read as MapData
   const { numero, label, step } = source.share
   const data = shareMap(read as CandidateVotes, numero, label, step)
   if (data === null) throw new Error(`${source.url} has no column for ${numero}`)
   return data
+}
+
+/**
+ * A swing map from both rounds' votes files. A file gone after a deploy wins over any other
+ * failure, because a reload of the page fixes both.
+ */
+export async function loadSwing(
+  source: Extract<MapSource, { kind: 'swing' }>,
+  reload = false,
+): Promise<SwingData> {
+  const settled = await Promise.allSettled(
+    source.files.map((file) => checkedFile(file.url, file.sha256, reload)),
+  )
+  const failures = settled.flatMap((result) =>
+    result.status === 'rejected' ? [result.reason as unknown] : [],
+  )
+  const gone = failures.find((failure) => failure instanceof GoneError)
+  if (gone !== undefined) throw gone
+  if (failures.length > 0) throw failures[0]
+  const [first, second] = settled.map(
+    (result) => (result as PromiseFulfilledResult<unknown>).value,
+  ) as [CandidateVotes, CandidateVotes]
+  const { numero, other, label } = source.swing
+  return swingMap(first, second, numero, other, label)
 }
 
 /** The boundary file's coordinates are already projected, so the browser only scales them. */
@@ -235,16 +356,17 @@ function draw(topology: Topology, inset: number | undefined, stateBorders: boole
   }
 }
 
-function Swatch({ color, pattern = false }: { color: string; pattern?: boolean }) {
+const HATCHES = {
+  tie: 'repeating-linear-gradient(45deg, #e2e8f0 0 2px, #64748b 2px 4px)',
+  noSwing: `repeating-linear-gradient(-45deg, ${NO_SWING_HATCH.background} 0 3px, ${NO_SWING_HATCH.line} 3px 4px)`,
+}
+
+function Swatch({ color, hatch }: { color: string; hatch?: keyof typeof HATCHES }) {
   return (
     <span
       aria-hidden="true"
       className="border-ink/20 inline-block h-3 w-3 rounded-sm border align-middle"
-      style={{
-        background: pattern
-          ? 'repeating-linear-gradient(45deg, #e2e8f0 0 2px, #64748b 2px 4px)'
-          : color,
-      }}
+      style={{ background: hatch === undefined ? color : HATCHES[hatch] }}
     />
   )
 }
@@ -259,13 +381,30 @@ function Legend({
   /** Whether the map holds a lagoon, which Rio Grande do Sul and Brazil do. */
   water: boolean
 }) {
-  const colored = data.kind === 'share' ? [] : data.units.slice(0, 2)
+  const oneUnit = data.kind === 'share' || data.kind === 'swing'
+  const colored = oneUnit ? [] : data.units.slice(0, 2)
   return (
     <figcaption className="text-muted mt-2 space-y-1 text-xs @3xl:mt-0">
       <p className="text-ink text-sm font-medium">{labels.title}</p>
       <p>{labels.statement}</p>
+      {labels.notes.map((note) => (
+        <p key={note}>{note}</p>
+      ))}
       {labels.twoChoices !== null && <p>{labels.twoChoices}</p>}
       <ul className="flex flex-wrap gap-x-4 gap-y-1">
+        {data.kind === 'swing' &&
+          SWING_SHADES.map((shade, index) => (
+            <li key={shade} className="flex items-center gap-1">
+              <Swatch color={shade} />
+              <span>{labels.steps[index]}</span>
+            </li>
+          ))}
+        {data.kind === 'swing' && labels.swing !== null && (
+          <li className="flex items-center gap-1">
+            <Swatch color="" hatch="noSwing" />
+            <span>{labels.swing.noSwingLegend}</span>
+          </li>
+        )}
         {data.kind === 'share' &&
           SHARE_SHADES.map((shade, index) => (
             <li key={shade} className="flex items-center gap-1">
@@ -283,15 +422,15 @@ function Legend({
             <span className="ml-1 break-words">{unit}</span>
           </li>
         ))}
-        {data.kind !== 'share' && data.units.length > 2 && (
+        {!oneUnit && data.units.length > 2 && (
           <li className="flex items-center gap-1">
             <Swatch color={OTHER} />
             <span>{labels.other}</span>
           </li>
         )}
-        {data.kind !== 'share' && (
+        {!oneUnit && (
           <li className="flex items-center gap-1">
-            <Swatch color="" pattern />
+            <Swatch color="" hatch="tie" />
             <span>{labels.tie}</span>
           </li>
         )}
@@ -316,17 +455,55 @@ function fill(template: string, values: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (match, name: string) => values[name] ?? match)
 }
 
-function DetailsText({
+/** A municipality's details on a swing map. */
+export function SwingText({
   locale,
-  data,
   labels,
   row,
 }: {
   locale: Locale
+  labels: SwingLabels
+  row: SwingRow
+}) {
+  const [, , name, ownFirst, otherFirst, ownSecond, otherSecond] = row
+  const points = swingOf(row)
+  return (
+    <>
+      <strong className="block">{name}</strong>
+      <span className="block">
+        {fill(labels.firstShare, { share: formatShare(locale, ownFirst, ownFirst + otherFirst) })}
+      </span>
+      <span className="block">
+        {fill(labels.secondShare, {
+          share: formatShare(locale, ownSecond, ownSecond + otherSecond),
+        })}
+      </span>
+      <span className="block">
+        {points === null
+          ? labels.noSwing[(roundWithoutVotes(row) ?? 1) - 1]
+          : fill(labels.change, { points: formatSignedPoints(locale, points) })}
+      </span>
+    </>
+  )
+}
+
+function DetailsText({
+  locale,
+  data,
+  labels,
+  row: anyRow,
+}: {
+  locale: Locale
   data: MapFrame
   labels: MapLabels
-  row: MapRow
+  row: MapRow | SwingRow
 }) {
+  if (data.kind === 'swing') {
+    return labels.swing === null ? null : (
+      <SwingText locale={locale} labels={labels.swing} row={anyRow as SwingRow} />
+    )
+  }
+  const row = anyRow as MapRow
   const [, , name, first, firstVotes, second, secondVotes, valid] = row
   const unit = (index: number) => data.units[index] ?? ''
   if (first === -1) {
@@ -381,8 +558,8 @@ function DetailsText({
   )
 }
 
-function groupByState(rows: MapRow[]): [string, MapRow[]][] {
-  const groups = new Map<string, MapRow[]>()
+function groupByState<Row extends MapRow | SwingRow>(rows: Row[]): [string, Row[]][] {
+  const groups = new Map<string, Row[]>()
   for (const row of rows) {
     const area = areaOfIbge(row[0]) ?? ''
     const group = groups.get(area) ?? []
@@ -392,7 +569,8 @@ function groupByState(rows: MapRow[]): [string, MapRow[]][] {
   return [...groups]
 }
 
-function MunicipalityTable({
+/** The list of a map's municipalities, which says in text what its colors show. */
+export function MunicipalityTable({
   locale,
   data,
   labels,
@@ -401,35 +579,31 @@ function MunicipalityTable({
   byState,
 }: {
   locale: Locale
-  data: MapData
+  data: MapData | SwingData
   labels: MapLabels
-  hrefOf: (row: MapRow) => string
+  hrefOf: (row: MapRow | SwingRow) => string
   hydrated: boolean
   /** Groups the rows under each state, in folded sections, for a list of all of Brazil. */
   byState: boolean
 }) {
   const filterId = useId()
   const [query, setQuery] = useState('')
-  const [order, setOrder] = useState<'name' | 'margin' | 'share'>('name')
+  const [order, setOrder] = useState<ListOrder>('name')
   const collator = useMemo(() => new Intl.Collator(locale === 'pt' ? 'pt-BR' : 'en-US'), [locale])
   const rows = useMemo(() => {
     const wanted = normalize(query)
-    const kept = data.rows.filter((row) => wanted === '' || normalize(row[2]).includes(wanted))
-    const byName = (a: MapRow, b: MapRow) => collator.compare(a[2], b[2])
-    if (order === 'name') return kept.sort(byName)
-    if (order === 'share') {
-      const shareOf = (row: MapRow) => (row[7] > 0 ? row[4] / row[7] : 0)
-      return kept.sort((a, b) => shareOf(b) - shareOf(a) || byName(a, b))
-    }
-    const marginOf = (row: MapRow) => (row[3] === -1 ? Infinity : marginPoints(row))
-    return kept.sort((a, b) => marginOf(a) - marginOf(b) || byName(a, b))
+    const kept = (data.rows as (MapRow | SwingRow)[]).filter(
+      (row) => wanted === '' || normalize(row[2]).includes(wanted),
+    )
+    return sortRows(kept, order, collator)
   }, [data.rows, query, order, collator])
   const unit = (index: number) => (index === -1 ? '–' : (data.units[index] ?? ''))
   const senate = data.kind === 'senate'
   const share = data.kind === 'share'
+  const swing = data.kind === 'swing' ? labels.swing : null
   const table = labels.table
-  const secondOrder = share ? 'share' : 'margin'
-  const groups: [string, MapRow[]][] = byState ? groupByState(rows) : [['', rows]]
+  const secondOrder = share ? 'share' : swing !== null ? 'swing' : 'margin'
+  const groups: [string, (MapRow | SwingRow)[]][] = byState ? groupByState(rows) : [['', rows]]
   if (byState) groups.sort(([a], [b]) => collator.compare(stateLabel(a), stateLabel(b)))
 
   function stateLabel(code: string): string {
@@ -437,7 +611,25 @@ function MunicipalityTable({
     return area === undefined ? code : areaName(area, locale)
   }
 
-  function cells(row: MapRow) {
+  function swingCells(row: SwingRow, text: SwingLabels) {
+    const [, , , ownFirst, otherFirst, ownSecond, otherSecond] = row
+    const points = swingOf(row)
+    return (
+      <>
+        <td>{formatShare(locale, ownFirst, ownFirst + otherFirst)}</td>
+        <td>{formatShare(locale, ownSecond, ownSecond + otherSecond)}</td>
+        <td>
+          {points === null
+            ? text.noSwing[(roundWithoutVotes(row) ?? 1) - 1]
+            : formatSignedPoints(locale, points)}
+        </td>
+      </>
+    )
+  }
+
+  function cells(anyRow: MapRow | SwingRow) {
+    if (swing !== null) return swingCells(anyRow as SwingRow, swing)
+    const row = anyRow as MapRow
     const [, , , first, firstVotes, second, secondVotes, valid] = row
     if (share) {
       return (
@@ -474,16 +666,20 @@ function MunicipalityTable({
     )
   }
 
-  function renderTable(group: MapRow[]) {
-    const headers = share
-      ? [table.votes, table.share]
-      : senate
-        ? [table.first, table.second]
-        : [table.leader, table.margin]
+  function renderTable(group: (MapRow | SwingRow)[]) {
+    const headers =
+      swing !== null
+        ? [swing.headFirst, swing.headSecond, swing.headChange]
+        : share
+          ? [table.votes, table.share]
+          : senate
+            ? [table.first, table.second]
+            : [table.leader, table.margin]
+    const numeric = swing !== null || share
     return (
       // Styles sit on the table, so each of up to 5,571 rows carries no class.
       <table
-        className={`w-full text-sm ${share ? '[&_td:nth-child(2)]:text-right [&_td:nth-child(2)]:tabular-nums' : ''} [&_small]:text-muted [&_tbody_tr]:border-line [&_a]:underline [&_small]:block [&_small]:text-xs [&_tbody_tr]:border-b [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums`}
+        className={`w-full text-sm ${numeric ? '[&_td:not(:first-child)]:text-right [&_td:not(:first-child)]:tabular-nums' : ''} [&_small]:text-muted [&_tbody_tr]:border-line [&_a]:underline [&_small]:block [&_small]:text-xs [&_tbody_tr]:border-b [&_td]:py-1 [&_td]:pr-2 [&_td]:align-top [&_td]:break-words [&_td:last-child]:pr-0 [&_td:last-child]:text-right [&_td:last-child]:tabular-nums`}
         data-testid="municipality-table"
       >
         <caption className="text-muted mb-1 text-left text-xs">{table.caption}</caption>
@@ -492,12 +688,15 @@ function MunicipalityTable({
             <th scope="col" className="py-1 pr-2 font-medium">
               {table.municipality}
             </th>
-            <th scope="col" className={`py-1 pr-2 font-medium ${share ? 'text-right' : ''}`}>
-              {headers[0]}
-            </th>
-            <th scope="col" className="py-1 text-right font-medium">
-              {headers[1]}
-            </th>
+            {headers.map((header, index) => (
+              <th
+                key={header}
+                scope="col"
+                className={`py-1 font-medium ${index === headers.length - 1 ? 'text-right' : `pr-2 ${numeric ? 'text-right' : ''}`}`}
+              >
+                {header}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -548,7 +747,7 @@ function MunicipalityTable({
               onClick={() => setOrder(secondOrder)}
               className={pressed(order === secondOrder)}
             >
-              {share ? table.sortShare : table.sortMargin}
+              {share ? table.sortShare : swing !== null ? swing.sortSwing : table.sortMargin}
             </button>
           )}
           <p role="status" className="text-muted w-full text-xs">
@@ -624,13 +823,22 @@ export function RaceMap({
   const frameOf: MapFrame = source.kind === 'inline' ? source.data : source.frame
 
   // A file's values load with the page, so the list is in the page before a visitor scrolls.
-  const fileSource = source.kind === 'file' ? source : null
+  const loaded = source.kind === 'inline' ? null : source
+  const loadedKey =
+    loaded === null
+      ? ''
+      : loaded.kind === 'file'
+        ? `${loaded.url}#${loaded.sha256}`
+        : loaded.files.map((file) => `${file.url}#${file.sha256}`).join(' ')
   useEffect(() => {
-    if (fileSource === null) return
+    if (loaded === null) return
     let cancelled = false
-    loadValues(fileSource, attempt > 0).then(
-      (loaded) => {
-        if (!cancelled) setFetched({ status: 'ready', data: loaded })
+    const reload = attempt > 0
+    const values: Promise<MapData | SwingData> =
+      loaded.kind === 'file' ? loadValues(loaded, reload) : loadSwing(loaded, reload)
+    values.then(
+      (ready) => {
+        if (!cancelled) setFetched({ status: 'ready', data: ready })
       },
       (error: unknown) => {
         if (!cancelled) setFetched({ status: error instanceof GoneError ? 'gone' : 'failed' })
@@ -639,9 +847,9 @@ export function RaceMap({
     return () => {
       cancelled = true
     }
-    // The source is plain data from the page, so its address and pin identify it.
+    // The source is plain data from the page, so its addresses and pins identify it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileSource?.url, fileSource?.sha256, attempt])
+  }, [loadedKey, attempt])
 
   function retry() {
     setFetched({ status: 'loading' })
@@ -679,22 +887,25 @@ export function RaceMap({
     () => (load.status === 'ready' ? draw(load.topology, inset, area === undefined) : null),
     [load, inset, area],
   )
-  const rowsByIbge = useMemo(() => new Map((data?.rows ?? []).map((row) => [row[0], row])), [data])
+  const rowsByIbge = useMemo(
+    () => new Map<number, MapRow | SwingRow>((data?.rows ?? []).map((row) => [row[0], row])),
+    [data],
+  )
   const raceInfo = raceBySlug(race)
 
-  function hrefOf(row: MapRow): string {
+  function hrefOf(row: MapRow | SwingRow): string {
     const state = area ?? areaOfIbge(row[0]) ?? ''
     return raceInfo === undefined
       ? `${localePath(locale, roundPath(round, `/${YEAR}/municipio/`))}?uf=${state}&mu=${row[1]}`
       : municipalityHref(locale, state, row[1], raceInfo, round)
   }
 
-  function rowAt(event: MouseEvent<SVGElement>): MapRow | undefined {
+  function rowAt(event: MouseEvent<SVGElement>): MapRow | SwingRow | undefined {
     const id = (event.target as Element).getAttribute('data-ibge')
     return id === null ? undefined : rowsByIbge.get(Number(id))
   }
 
-  function place(event: MouseEvent<SVGElement>, row: MapRow, pinned: boolean) {
+  function place(event: MouseEvent<SVGElement>, row: MapRow | SwingRow, pinned: boolean) {
     const box = frame.current?.getBoundingClientRect()
     setDetails({
       row,
@@ -708,9 +919,13 @@ export function RaceMap({
   function colorOf(id: number): string {
     if (LAGOONS.has(id)) return WATER
     const row = rowsByIbge.get(id)
-    return row === undefined
-      ? NO_VOTES
-      : fillColor(fillOf(row, frameOf.kind, frameOf.step), patternId)
+    if (row === undefined) return NO_VOTES
+    return fillColor(
+      frameOf.kind === 'swing'
+        ? swingFill(row as SwingRow)
+        : fillOf(row as MapRow, frameOf.kind, frameOf.step),
+      patternId,
+    )
   }
 
   // Beside a wide map the legend sits to the right. In a narrow column it sits below.
@@ -764,6 +979,16 @@ export function RaceMap({
               >
                 <rect width="6" height="6" fill="#e2e8f0" />
                 <line x1="0" y1="0" x2="0" y2="6" stroke="#64748b" strokeWidth="3" />
+              </pattern>
+              <pattern
+                id={noSwingPattern(patternId)}
+                patternUnits="userSpaceOnUse"
+                width="5"
+                height="5"
+                patternTransform="rotate(-45)"
+              >
+                <rect width="5" height="5" fill={NO_SWING_HATCH.background} />
+                <line x1="0" y1="0" x2="0" y2="5" stroke={NO_SWING_HATCH.line} strokeWidth="1.2" />
               </pattern>
             </defs>
             <g

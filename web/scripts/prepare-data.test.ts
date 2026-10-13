@@ -13,6 +13,7 @@ import type { Summary } from '../src/lib/results'
 import {
   dataMode,
   fixtureRounds,
+  fixtureSwing,
   fixtureSource,
   loadVersion,
   plannedRounds,
@@ -179,6 +180,21 @@ describe('fixtureRounds', () => {
   it('refuses another value, and a published build', () => {
     expect(() => fixtureRounds({ ELEICOES_FIXTURE_ROUNDS: '2' }, 'fixtures')).toThrow(/only be 1/)
     expect(() => fixtureRounds({ ELEICOES_FIXTURE_ROUNDS: '1' }, 'published')).toThrow(
+      /fixtures only/,
+    )
+  })
+})
+
+describe('fixtureSwing', () => {
+  it('draws the swing over synthetic data only when a fixtures build asks', () => {
+    expect(fixtureSwing({}, 'fixtures')).toBe(false)
+    expect(fixtureSwing({}, 'published')).toBe(false)
+    expect(fixtureSwing({ ELEICOES_FIXTURE_SWING: '1' }, 'fixtures')).toBe(true)
+  })
+
+  it('refuses another value, and a published build', () => {
+    expect(() => fixtureSwing({ ELEICOES_FIXTURE_SWING: 'yes' }, 'fixtures')).toThrow(/only be 1/)
+    expect(() => fixtureSwing({ ELEICOES_FIXTURE_SWING: '1' }, 'published')).toThrow(
       /fixtures only/,
     )
   })

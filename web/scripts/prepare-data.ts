@@ -30,7 +30,7 @@ import { nodeRunner } from './duckdb-node'
 import { GEO_BUILD } from './geo-assets'
 import { buildMaps, readBoundaries } from './map-data'
 import { buildSearchIndex } from './search-index'
-import { loadsFromFile, writeValuesFiles } from './values-files'
+import { loadsFromFile, swingRaces, writeValuesFiles, type ValuesFiles } from './values-files'
 
 export type DataMode = 'published' | 'fixtures'
 
@@ -276,9 +276,22 @@ export function fixtureRounds(env: Record<string, string | undefined>, mode: Dat
   return [1]
 }
 
+/**
+ * A fixtures build can draw the swing map over a synthetic round 2 with
+ * `ELEICOES_FIXTURE_SWING=1`, so the browser tests reach it before the runoff's own data.
+ */
+export function fixtureSwing(env: Record<string, string | undefined>, mode: DataMode): boolean {
+  const value = env.ELEICOES_FIXTURE_SWING
+  if (value === undefined) return false
+  if (mode !== 'fixtures') throw new Error('ELEICOES_FIXTURE_SWING applies to fixtures only')
+  if (value !== '1') throw new Error(`ELEICOES_FIXTURE_SWING can only be 1, not ${value}`)
+  return true
+}
+
 async function main(): Promise<void> {
   const mode = dataMode(process.env)
   const included = fixtureRounds(process.env, mode)
+  const syntheticSwing = fixtureSwing(process.env, mode)
   const rounds: (PlannedRound & LoadedVersion & { parsed: Map<string, Summary> })[] = []
   for (const planned of plannedRounds(mode).filter((entry) => included.includes(entry.round))) {
     const loaded = await loadVersion(planned.source, planned.round, planned.pin?.manifestSha256)
@@ -318,6 +331,7 @@ async function main(): Promise<void> {
   await rm(path.join(PUBLIC_DIR, 'mapas'), { recursive: true, force: true })
   const run = await nodeRunner()
   let searchBase = ''
+  const valuesByRound = new Map<Round, ValuesFiles>()
   for (const round of rounds) {
     const roundDir = path.join(DATA_DIR, 'rounds', String(round.round))
     await mkdir(path.join(roundDir, 'resumo'), { recursive: true })
@@ -349,6 +363,7 @@ async function main(): Promise<void> {
       (area, name) => loadsFromFile(area, name, municipalityLists[area]?.length ?? 0),
     )
     await writeFile(path.join(roundDir, 'mapas-files.json'), JSON.stringify(valuesFiles))
+    valuesByRound.set(round.round, valuesFiles)
     await writeFile(
       path.join(roundDir, 'source.json'),
       JSON.stringify({
@@ -358,6 +373,25 @@ async function main(): Promise<void> {
       }),
     )
   }
+
+  const mapsDir = (round: Round) => path.join(DATA_DIR, 'rounds', String(round), 'mapas')
+  const swingRaceKeys =
+    second === undefined
+      ? []
+      : await swingRaces(
+          mapsDir(1),
+          mapsDir(2),
+          valuesByRound.get(1) ?? {},
+          valuesByRound.get(2) ?? {},
+          (race, codes) =>
+            console.warn(
+              `swing: ${race} lists different municipalities in its two rounds (${codes.join(', ')}), so it gets no swing map`,
+            ),
+        )
+  await writeFile(
+    path.join(DATA_DIR, 'swing.json'),
+    JSON.stringify({ races: swingRaceKeys, syntheticAllowed: syntheticSwing }),
+  )
 
   // A browser Worker must load from the page's own origin, so the app serves this script.
   const workerScript = `/duckdb/${duckdbVersion}/duckdb-browser-eh.worker.js`

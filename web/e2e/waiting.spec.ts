@@ -68,6 +68,7 @@ test('round 1 leads to the waiting page, and a finalist page shows round 1 only'
   await expect(card.getByRole('link')).toHaveAttribute('href', '/2026/segundo-turno/')
   await page.goto('/2026/ac/governador/11/')
   await expect(page.locator('section[data-testid^="round-"]')).toHaveCount(0)
+  await expect(page.locator('[data-map$="-variacao"]')).toHaveCount(0)
   await expect(page.getByTestId('round-switch').getByRole('link').nth(1)).toHaveAttribute(
     'href',
     '/2026/segundo-turno/ac/',

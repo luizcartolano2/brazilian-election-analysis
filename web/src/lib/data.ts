@@ -80,6 +80,21 @@ export function hasRound(round: Round): boolean {
   return getSourceInfo().rounds.includes(round)
 }
 
+export interface SwingInfo {
+  /** The races and areas, as `<area>/<race>`, whose two rounds list the same municipalities. */
+  races: string[]
+  /** Whether a fixtures build draws the swing map over a synthetic round. */
+  syntheticAllowed: boolean
+}
+
+let swing: SwingInfo | undefined
+
+/** What the build found about the swing maps it can draw. */
+export function getSwingInfo(): SwingInfo {
+  swing ??= readJson<SwingInfo>('swing.json')
+  return swing
+}
+
 export function getManifest(round: Round = 1): Manifest {
   return cached(manifests, String(round), () => readJson<Manifest>(`rounds/${round}/manifest.json`))
 }
