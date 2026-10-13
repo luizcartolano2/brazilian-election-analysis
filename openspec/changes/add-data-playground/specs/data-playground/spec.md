@@ -48,6 +48,14 @@ the visit has not yet downloaded SHALL wait until the visitor confirms that size
 - **WHEN** a visitor chooses both rounds and the President race
 - **THEN** each table holds a column for the round, and holds round 1's rows from round 1's version and round 2's rows from round 2's version
 
+#### Scenario: Turnout for one race
+- **WHEN** a visitor chooses the President race and Acre, and sums the eligible voters of the municipality turnout
+- **THEN** the sum equals Acre's eligible voters for President, counting each voter once
+
+#### Scenario: President candidates for a state
+- **WHEN** a visitor chooses the President race and Acre
+- **THEN** the candidates table holds the President's candidates
+
 ### Requirement: Only described, official columns
 The page SHALL list each table with each column's name, type and meaning in the
 visitor's language. The playground SHALL expose only the tables and columns that its
@@ -87,6 +95,14 @@ results pages count them.
 - **WHEN** the data choice holds several races
 - **THEN** the form offers only those races, and builds its query over one of them
 
+#### Scenario: A share that ends in five
+- **WHEN** a candidate has 41 of a municipality's 4,000 valid votes
+- **THEN** the form's share is 1.03, as the municipality's page prints 1,03%
+
+#### Scenario: Both rounds by municipality
+- **WHEN** a visitor uses the form for a candidate's votes by municipality, with both rounds chosen
+- **THEN** each municipality appears once for each round, with that round's votes
+
 ### Requirement: An editor for the visitor's own SQL
 The page SHALL offer an editor that runs the visitor's SQL over the playground's tables,
 when the visitor presses the run button or Ctrl+Enter, or Cmd+Enter on a Mac. The page
@@ -107,6 +123,10 @@ SHALL ask.
 - **WHEN** one run creates a table, and the next run reads it
 - **THEN** the next run fails, because the table no longer exists
 
+#### Scenario: A macro from an earlier run
+- **WHEN** one run creates a macro named `round`, a table macro named `read_parquet`, a schema on the search path and an attached in-memory database, and the next run uses the form
+- **THEN** the next run returns the pinned numbers, as a fresh visit does
+
 #### Scenario: Typed text is kept
 - **WHEN** a visitor typed a query, and then chooses an example
 - **THEN** the page asks before it replaces the typed query, and keeps it if the visitor declines
@@ -115,9 +135,9 @@ SHALL ask.
 The page SHALL run every query in an engine that reads only the files that the page
 downloaded. The page SHALL download them from the pinned versions through the Worker, and
 check each against the manifest's SHA-256. The engine SHALL refuse any statement that
-reads another file or a URL, writes a file, attaches a database, installs or loads an
-extension, or changes the engine's configuration. These limits SHALL hold in addition to
-the security policy's limits on the hosts that the page can fetch from.
+reads another file or a URL, writes a file, attaches a database file, loads an extension,
+or changes the engine's configuration. These limits SHALL hold in addition to the
+security policy's limits on the hosts that the page can fetch from.
 
 #### Scenario: A query that reads another data version
 - **WHEN** a visitor runs a query that reads a Parquet file of another data version from the Worker's URL
@@ -134,6 +154,10 @@ the security policy's limits on the hosts that the page can fetch from.
 #### Scenario: A query that writes a file
 - **WHEN** a visitor runs a statement that copies a result to a file
 - **THEN** the engine refuses it, and every table still reads the pinned data
+
+#### Scenario: A query that attaches a database file
+- **WHEN** a visitor runs a statement that attaches a database file
+- **THEN** the engine refuses it, and the browser sends no request for that file
 
 #### Scenario: A file that fails its check
 - **WHEN** a file that a run downloads differs from its SHA-256 in the pinned manifest
@@ -175,18 +199,19 @@ line. The caption SHALL be part of the table, so a capture of the table alone ke
 The page SHALL let the visitor download the whole result as CSV when it holds at most
 1,000,000 rows. It SHALL refuse the download, rather than truncate the file, when it
 holds more. The file SHALL start with lines that begin with `#`. They SHALL hold the TSE
-credit line, each data version with its round, and the query, one comment line for each
-line of the query. A text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage
-return SHALL be written so that a spreadsheet reads it as text. The file's name SHALL
-name each round and data version.
+credit line, each data version with its round, and the playground link that restores the
+query. Every header or text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage
+return SHALL be written so that a spreadsheet reads it as text. No line of the file SHALL
+hold a cell that a spreadsheet runs as a formula. The file's name SHALL name each round
+and data version.
 
 #### Scenario: The credit travels with the file
 - **WHEN** a visitor downloads a result
-- **THEN** the file's first lines hold the TSE credit, the data version and the query, each line starting with `#`, and then the header and the rows
+- **THEN** the file's first lines hold the TSE credit, the data version and the link that restores the query, each line starting with `#`, and then the header and the rows
 
-#### Scenario: A query on several lines
-- **WHEN** the query spans four lines
-- **THEN** the file holds four comment lines for it, and no line of the query reads as a row
+#### Scenario: A query that hides a formula
+- **WHEN** a query from a link holds `,=HYPERLINK("https://example.org")` in a comment, and names a column `=1+1`
+- **THEN** the file's comment lines hold the link and not the query's text, and the header cell starts with a single quote
 
 #### Scenario: A cell that looks like a formula
 - **WHEN** a result cell holds text that starts with `=`

@@ -203,6 +203,11 @@ Never, in any version:
 - No runoff projections
 - No cross-race combination stated as a count of people
 
+These rules govern what the site states, in its pages, its charts and its examples. The
+playground of `add-data-playground`, agreed on 2026-10-13, lets a visitor run their own
+SQL over the pinned data. A visitor's own result, whose caption says that a visitor's
+query produced it, is outside these rules, because the site states nothing in it.
+
 Not in the first version:
 
 - No analysis of per-machine files (tallies, ballot records, logs)

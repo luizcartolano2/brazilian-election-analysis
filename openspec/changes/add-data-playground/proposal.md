@@ -23,17 +23,20 @@ the top of each downloaded CSV.
 - A SQL editor runs the visitor's own statements over the playground's tables. A side
   panel lists each table and each column's meaning. Example queries fill the editor.
 - The engine reads only files that the page downloaded from the pinned versions and
-  checked against the manifest's SHA-256. It refuses any other file or URL, any write, any
-  extension and any change to its own configuration. A spike on the bundled DuckDB 1.5.4
-  showed that its settings can enforce this.
+  checked against the manifest's SHA-256. It refuses any other file or URL, any write, a
+  database file, any extension and any change to its own configuration. A spike on the
+  bundled DuckDB 1.5.4 showed that its settings can enforce this.
+- Each run starts on a fresh database, so a macro, a table or an attached database that
+  a visitor's run creates never outlives that run.
 - Queries run in the engine's Web Worker. The page shows progress, a cancel button that
   stops a query within two seconds, and at most the first 1,000 rows of a result.
 - Each result sits in a frame. Its table caption says that a visitor's query produced it,
   names each data version with its round, and carries the TSE credit. The frame also shows
   the query.
 - The whole result, up to 1,000,000 rows, downloads as CSV. The file starts with comment
-  lines that hold the TSE credit, the data versions and the query. A text cell that
-  starts like a formula is written so that a spreadsheet reads it as text.
+  lines that hold the TSE credit, the data versions and the link that restores the query.
+  A header or text cell that starts like a formula is written so that a spreadsheet reads
+  it as text.
 - A link holds the query, the data choice and the data versions in the address's
   fragment, so the query never reaches a server. The link restores the query and does not
   run it.
@@ -62,13 +65,16 @@ the top of each downloaded CSV.
 
 This change touches these invariants in `CLAUDE.md`, and it keeps each one as follows:
 
-- An estimate is never a count. The playground shows no estimate. Its catalog names only
-  files of official counts, so a later file of estimates stays out until a change adds it
-  with its range and its label. No example states a combination of races as a count of
-  people.
+- An estimate is never a count. The catalog and the examples hold no estimate. The
+  catalog names only files of official counts, so a later file of estimates stays out
+  until a change adds it with its range and its label. No example states a combination
+  of races as a count of people.
 - No integrity claims. No example scores or ranks a polling station or a machine as
-  suspicious, and none projects a runoff. Every result's caption says that a visitor's
-  query produced it, so the site claims nothing about it.
+  suspicious, and none projects a runoff.
+- A visitor's own query can compute any figure, a cross-race count or a station score
+  included. Its caption says that a visitor's query produced it, so the site states
+  nothing in it. This change adds that reading to D17, which governs what the site
+  states. The two invariants above keep holding for everything that the site authors.
 - Before 2026-10-25, estimates stay behind their flag. The change adds no estimate, and
   its code merges after the round-2 pin.
 - Official numbers reconcile, or nothing publishes. The playground reads only published
@@ -92,8 +98,9 @@ This change touches these invariants in `CLAUDE.md`, and it keeps each one as fo
   contract test keeps the catalog equal to the published columns.
 
 The change extends D7, because the browser now runs the visitor's queries too. It keeps
-D9's request limit, because each file costs one request per visit. It keeps D17, because
-a link stores nothing on a server, and the site saves no view. D14 gains its timing.
+D9's request limit, because each file costs one request per visit. It keeps D17's "no
+saved views", because a link stores nothing on a server. D17 gains the sentence that puts
+a visitor's own query outside its rules. D14 gains its timing.
 
 ## Non-goals
 
@@ -109,6 +116,8 @@ a link stores nothing on a server, and the site saves no view. D14 gains its tim
 ## Impact
 
 - `web/app/(pt)/2026/consultas/` and `web/app/en/2026/consultas/`: the page.
+- `web/src/lib/drilldown/browser.ts`: export the stall guard `instantiate`, which the
+  playground reuses.
 - `web/src/lib/playground/`: the catalog, the engine's start and limits, the scan of a
   query's tables, the form's queries, the CSV writer and the link's format.
 - `web/src/components/playground/`: the data choice, the form, the editor, the tables
@@ -120,4 +129,5 @@ a link stores nothing on a server, and the site saves no view. D14 gains its tim
 - `pipeline/tests/`: the contract test between the published columns and the catalog.
 - `web/e2e/`: browser tests of the page, the engine's limits, the CSV and the link.
 - `web/README.md`: the playground and its limits.
-- `docs/decisions.md`: D14 records this change's timing.
+- `docs/decisions.md`: D14 records this change's timing, and D17 puts a visitor's own
+  query outside its rules.
