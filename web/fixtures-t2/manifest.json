@@ -33,27 +33,27 @@
   },
   {
    "path": "2026/t2/resumo/ac.json",
-   "sha256": "8da57dadd04c927b569aff5aafea62087f494b9fabfdf53e5e5259fb8fe2f73d",
+   "sha256": "9de2759cd2b5b1d08506d7ca9ca5511b247d02159426c6676ee1646a4efbb1f9",
    "size": 1487
   },
   {
    "path": "2026/t2/resumo/br.json",
-   "sha256": "500ad1fc44abb3cee4e28dbea91f57141f759f9cdb56813724c622b03be5482a",
+   "sha256": "3928022ad5ce7195ff9f42f36a5e42f136758d754874bd8836e201fc63e96b7e",
    "size": 788
   },
   {
    "path": "2026/t2/resumo/pe.json",
-   "sha256": "e07d494c43ab2e71b2e04e60728be93a8171db482ba7aa57ba3806b5f45b4cdc",
+   "sha256": "80ea478a90f2330cfbb5ed47dcd03bbd5497d0b025756fc25f184ddfe97b80b2",
    "size": 788
   },
   {
    "path": "2026/t2/resumo/se.json",
-   "sha256": "b9b527ba61b4987aafb96280ede230a33ac287e0fefea4a23b84b2f474a54e19",
+   "sha256": "fb4258dc9605c8f509f6aacfd4082f469ebe24d6d2d9a11e16834136de70477b",
    "size": 778
   },
   {
    "path": "2026/t2/resumo/zz.json",
-   "sha256": "d8fd002afce86366c1bcd2289620ce90186da64ac7451fa9e575d636d16f68ee",
+   "sha256": "5ae100c92707069452f0211a8d0218f0b49c2f6c83db3f83a6c471bd4510c4c0",
    "size": 770
   },
   {
@@ -355,7 +355,39 @@
     3
    ]
   ],
+  "resumo": [
+   [
+    "ac",
+    6258,
+    1
+   ],
+   [
+    "ac",
+    6260,
+    3
+   ],
+   [
+    "br",
+    6258,
+    1
+   ],
+   [
+    "pe",
+    6258,
+    1
+   ],
+   [
+    "se",
+    6258,
+    1
+   ],
+   [
+    "zz",
+    6258,
+    1
+   ]
+  ],
   "secao": "todas as seções e cargos"
  },
- "versao_esquema": 1
+ "versao_esquema": 2
 }

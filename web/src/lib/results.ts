@@ -112,8 +112,8 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
 
 /**
  * A party's total counts only its valid candidate votes and its valid list votes. They are
- * summed here from the valid candidates, because older data versions also count votes under
- * appeal in `votos_candidatos`.
+ * summed here from the valid candidates, because data versions with schema version 1 also count
+ * votes under appeal in `votos_candidatos`.
  *
  * Every vote must land on a shown line, each vote under appeal included. A destination this
  * code does not know, or lines that do not add up to TSE's totals, throw, so the build fails

@@ -24,6 +24,14 @@ def query(path: Path, sql: str):
     return duckdb.connect().execute(sql.replace("FILE", f"read_parquet({quoted(path)})")).fetchall()
 
 
+def summary(built: Path, area: str, round_number: int = 1) -> dict:
+    return json.loads((built / "2026" / f"t{round_number}" / "resumo" / f"{area}.json").read_text())
+
+
+def races(built: Path, area: str, round_number: int = 1) -> dict[int, dict]:
+    return {race["cargo"]: race for race in summary(built, area, round_number)["corridas"]}
+
+
 @dataclass
 class Tse:
     """A mutable copy of the fixtures, published under TSE's URL layout as `file://` URLs."""
