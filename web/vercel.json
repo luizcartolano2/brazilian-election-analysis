@@ -4,6 +4,12 @@
   "trailingSlash": true,
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "brazilian-election-analysis.vercel.app" }],
+      "destination": "https://eleicoes.luizcartolano.com/:path*",
+      "permanent": false
+    },
+    {
       "source": "/",
       "destination": "/2026/",
       "permanent": false

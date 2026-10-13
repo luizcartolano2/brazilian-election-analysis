@@ -2,9 +2,11 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { WORKER_URL } from './data-version'
+import { SITE_URL } from './lib/site'
 
 interface VercelConfig {
   ignoreCommand: string
+  redirects: { source: string; has?: { type: string; value: string }[]; destination: string }[]
   headers: { source: string; headers: { key: string; value: string }[] }[]
 }
 
@@ -33,6 +35,15 @@ describe('vercel.json', () => {
     expect(
       existsSync(path.join(import.meta.dirname, '..', 'scripts', 'vercel-ignore-build.sh')),
     ).toBe(true)
+  })
+
+  it("sends Vercel's own address to the site's, the one origin that the Worker answers", () => {
+    expect(config.redirects[0]).toEqual({
+      source: '/:path*',
+      has: [{ type: 'host', value: 'brazilian-election-analysis.vercel.app' }],
+      destination: `${SITE_URL}/:path*`,
+      permanent: false,
+    })
   })
 
   const policy = header('Content-Security-Policy')
