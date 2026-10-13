@@ -138,8 +138,8 @@ as unknown (`-1`) SHALL be empty.
 
 ### Requirement: Official numbers reconcile, or nothing is written
 The pipeline SHALL fail, and write no output, unless every check below passes. It SHALL
-NOT drop or adjust rows to make a check pass, and on failure it SHALL report every
-mismatch, not only the first.
+NOT drop or adjust rows to make a check pass, and when the checks below fail, it SHALL
+report every mismatch, not only the first.
 
 - Per polling station and race, the votes equal the attendance multiplied by the choices
   each voter makes, and the nominal, party-list, blank and null counts equal the
@@ -153,9 +153,20 @@ mismatch, not only the first.
   municipality for a municipal election), each candidate's votes and each party's list
   votes equal the aggregate. So do the totals of valid, party-list, blank, null,
   technical-null, annulled and annulled sub judice votes.
+- Per summary, every candidate, party-list, annulled and annulled sub judice vote falls
+  on a named line, and the party table adds up to the valid votes.
 
 Where TSE publishes no total to compare with, the figure SHALL be the sum of station
 figures that passed the station checks.
+
+The pipeline SHALL also fail at once, with no output, when a municipal election in the
+round's configuration has no vote rows in its municipality. It SHALL fail at once when a
+candidate that TSE's aggregate omits matches no candidacy in the candidate file, matches
+none by its ballot name among several, has two names or parties, or has no party. Such a
+failure stops the run where it happens, reports only itself, and drops the mismatches
+that the run found before it. Its message names the area and the election, and either the
+race and the candidate's number or the municipality, and never prints a row of TSE's
+files.
 
 #### Scenario: A station's votes do not match its attendance
 - **WHEN** a polling station's votes in a race differ from its attendance multiplied by the choices per voter
@@ -189,6 +200,22 @@ figures that passed the station checks.
 - **WHEN** the totals for an area with a TSE aggregate are checked
 - **THEN** valid, party-list, blank, null, technical-null, annulled and annulled sub judice votes each equal TSE's total for that kind of vote
 
+#### Scenario: A vote with no named line
+- **WHEN** a summary leaves votes under appeal on no candidate and no party list
+- **THEN** the run fails and reports the area, the race and both numbers
+
+#### Scenario: An election that vanishes from TSE's files
+- **WHEN** TSE's files hold no vote rows for Fernando de Noronha's council, the municipal election that round 1's configuration lists
+- **THEN** the run fails at once, names the state, the election and the municipality, and writes nothing
+
+#### Scenario: An omitted candidate with no party
+- **WHEN** a candidate that TSE's aggregate omits has no party in the candidate file
+- **THEN** the run fails and names the race and the candidate's number
+
+#### Scenario: A President candidate that Brazil's aggregate omits
+- **WHEN** the states' aggregates list a President candidate that Brazil's aggregate omits
+- **THEN** the run fails with a summary mismatch for Brazil
+
 ### Requirement: Data for one state and race stands alone
 The dataset SHALL be organized so that one race in one state can be read without
 reading any other state's data. Presidential results SHALL also be readable for Brazil
@@ -204,6 +231,15 @@ each state, so those pages can show headline numbers without querying polling-st
 data. It SHALL also write totals per municipality and per zone for each race and state,
 including eligible voters, attendance, abstentions and each vote count.
 
+Each race's summary SHALL name every candidate with votes in the area. A candidate that
+TSE's aggregate omits, but its per-zone candidate file classifies, SHALL take its name
+and destination from that file, its party from the candidate file, and no outcome. One
+known limit remains: Brazil's summary names only the candidates in Brazil's aggregate.
+Naming a President candidate that it omits would need a merge of the states' lines, which
+no TSE file has needed, so such a candidate fails the summary check instead of passing
+unnamed. From schema version 2 on, a party's `votos_candidatos` SHALL count only the votes
+of its candidates whose destination is valid.
+
 #### Scenario: A state summary is read
 - **WHEN** a consumer reads the summary for one state
 - **THEN** it gets each race's totals per candidate, each kind of invalid vote, and turnout for that state
@@ -211,6 +247,14 @@ including eligible voters, attendance, abstentions and each vote count.
 #### Scenario: Municipality totals are read
 - **WHEN** a consumer reads the municipality totals for one state and race
 - **THEN** it gets every municipality's vote totals and turnout without reading polling-station data
+
+#### Scenario: A candidate that the aggregate omits
+- **WHEN** TSE's aggregate omits a candidacy under appeal that its per-zone file classifies
+- **THEN** the state's summary names it, with its votes, its destination, its party and no outcome
+
+#### Scenario: A party's candidate votes
+- **WHEN** a party has a candidate whose votes TSE annulled sub judice
+- **THEN** the party's `votos_candidatos` leaves that candidate's votes out, and the party table adds up to the valid votes
 
 ### Requirement: Same inputs, same data
 Two runs over source files with the same checksums, using the same locked dependency
