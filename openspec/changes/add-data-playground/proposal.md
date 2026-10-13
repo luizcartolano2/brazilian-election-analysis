@@ -79,8 +79,8 @@ This change touches these invariants in `CLAUDE.md`, and it keeps each one as fo
   nothing in it. This change adds that reading to D17, which governs what the site
   states, and to the Invariants in `CLAUDE.md`. The two invariants above keep holding for
   everything that the site authors.
-- Before 2026-10-25, estimates stay behind their flag. The change adds no estimate, and
-  its code merges after the round-2 pin.
+- Before 2026-10-25, estimates stay behind their flag. The change adds no estimate. Its
+  code merges whenever it is ready, outside the freeze of 2026-10-24 to 2026-10-26 (D14).
 - Official numbers reconcile, or nothing publishes. The playground reads only published
   files, which passed the pipeline's checks, and it writes nothing.
 - Only GitHub Actions publishes data. The change adds no publish path.

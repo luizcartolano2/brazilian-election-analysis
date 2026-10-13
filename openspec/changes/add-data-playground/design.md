@@ -68,8 +68,11 @@ macro and every attached database, and restored the lock. The files that the eng
 registered before were still there.
 
 `AsyncDuckDB.registerFileBuffer` transfers the page's `ArrayBuffer` to the engine's
-Worker, which leaves the page's copy empty. `send(text, allowStreamResult)` streams a
-result only when its second argument is true.
+Worker, which leaves the page's copy empty. The engine can write to a buffer that it
+holds this way. The applied page's browser tests found that `COPY ... TO` a registered
+name with `USE_TMP_FILE false` rewrote the checked file in place, and every later run
+read the visitor's rows. On the fixtures, Lula's votes in Acre went from 182 to 18,200.
+`send(text, allowStreamResult)` streams a result only when its second argument is true.
 
 ## Goals / Non-Goals
 
@@ -93,14 +96,19 @@ result only when its second argument is true.
 
 For each file that a run needs, the page fetches the whole file from the pinned version
 through the Worker. It checks the file against the SHA-256 in the pinned manifest, and
-hands the bytes to the engine as a registered in-memory file. The engine itself makes no
-request. The page keeps no copy, because the registration moves the bytes into the
-engine. The tab therefore holds each file once, and the whole round takes about 126 MB.
+hands the bytes to the engine as a registered Blob, which the engine reads through the
+browser's file reader. The engine itself makes no request. The page keeps no other copy,
+so the tab holds each file once, and the whole round takes about 126 MB. The file reader
+cannot write or truncate a Blob, so no statement can change a checked file (decision 2).
+A registered buffer is writable, as the context above shows.
 
 This gives the page three things. Every byte that a query reads matches the manifest.
 The page knows a run's size in advance, from the manifest's sizes. Each file costs one
 Worker request per visit, and the browser's cache serves a later visit, because the
 Worker marks versions as immutable.
+
+The fixtures hold about 100 kB in all, so a fixtures build asks above 40 kB instead of
+25 MB, and the browser tests reach the question.
 
 Alternative: let DuckDB read byte ranges over HTTP, as the drill-down views do. A
 selective query reads less that way. But the page can then neither check the bytes nor
@@ -121,19 +129,21 @@ in this order, before any statement of the visitor's:
 2. Create the playground's views over the registered files (decision 4).
 3. Compare each file's `DESCRIBE` with the catalog (decision 5).
 4. Set `memory_limit` to 1 GB, so a heavy query fails with an error before the tab runs
-   out of memory. The limit counts DuckDB's own memory, not the registered files, which
-   the engine's heap holds apart. With the whole round, the two stay under 1.2 GB, within
-   the 4 GB that WebAssembly can address.
-5. Set `allowed_paths` to exactly the registered names that the views read, then
-   `enable_external_access` to false, then `lock_configuration` to true.
+out of memory. The limit counts DuckDB's own memory, not the registered files, which the
+browser holds as Blobs outside the engine's heap. With the whole round, the two stay
+under 1.2 GB, within the 4 GB that WebAssembly can address. 5. Set `allowed_paths` to
+exactly the registered names that the views read, then `enable_external_access` to false,
+then `lock_configuration` to true.
 
 The page's own statements run before the visitor's, on a database where no macro of the
 visitor's exists yet. So a macro cannot take over a view or the catalog check. A fresh
 database drops every macro, schema, type, table, attached database and search path that a
 visitor created. Each run therefore starts from the playground's tables alone, so a
-link's result depends only on its query and its data versions. Within a run, a visitor's
-statement can still replace a view, or select numbers that it invents. Those numbers
-reach a caption that says that a visitor's query produced them (decision 8).
+link's result depends only on its query and its data versions. No statement of the
+visitor's can write to a registered file, because each is a read-only Blob (decision 1).
+Within a run, a visitor's statement can still replace a view, or select numbers that it
+invents. Those numbers reach a caption that says that a visitor's query produced them
+(decision 8).
 
 Alternative: drop, before each run, every object that the page did not create. The
 reviews showed that the list of such objects is long and grows with DuckDB, and a missed
@@ -214,6 +224,9 @@ codes from fixed lists and with whole numbers, such as a candidate's number from
   their votes and picks one of their valid totals. Each row shows the state beside the
   name, and the round when both rounds are chosen.
 - The municipality level joins `municipios` on the code for the name.
+- The candidate picker lists the candidates whose destination is valid, because the form
+  counts valid votes only. It loads one round's list for one race when the question needs
+  it, so the state deputies' list, 343 kB on the pinned round 1, loads only for them.
 - Valid votes are the votes of types 1 and 2. The share is
   `((votos::BIGINT * 20000 + validos) // (2 * validos)) / 100`, which rounds half up in
   whole numbers, as `formatShare` prints it. `round(100.0 * votos / validos, 2)` rounds
@@ -225,19 +238,21 @@ codes from fixed lists and with whole numbers, such as a candidate's number from
 
 ### 7. Results stream, and a cancel has a fallback
 
-The page runs a query with `send(text, true)`, so the engine streams the result, and it
-reads the Arrow batches as they come. It keeps the first 1,000 rows for the table, each
-cell cut to its first 500 characters. It turns every batch into CSV lines at once and
-keeps only that text, not the Arrow batch. When the result passes 1,000,000 rows or 100
-MB of CSV text, the page stops reading, cancels the query and states which limit it
-passed. Integers stay exact: the engine returns `BIGINT` values as `bigint`, and the
-table prints them as text.
+The page runs every statement of a query with `send(text, true)`, so the engine streams
+each result, and it reads the Arrow batches as they come. It reads and drops the batches
+of every statement but the last, so an earlier statement's large result never sits in the
+page's memory. It decodes a batch's rows one at a time, and stops decoding when the
+result reaches a limit. It keeps the first 1,000 rows for the table, each cell cut to its
+first 500 characters. It turns every batch into CSV lines at once and keeps only that
+text, not the Arrow batch. When the result passes 1,000,000 rows or 100 MB of CSV text,
+the page stops reading, cancels the query and states which limit it passed. Integers stay
+exact: the engine returns `BIGINT` values as `bigint`, and the table prints them as text.
 
-A row count alone does not bound the tab's memory, because a row can hold a string of
-any length, and the page's memory sits outside DuckDB's `memory_limit`. A query such as
-`SELECT repeat('x', 1000000) FROM range(1000)` holds 1 GB of text in 1,000 rows. The
-100 MB cap on CSV text bounds the page's own copy of the result, and the 500-character
-cut bounds what the table draws.
+A row count alone does not bound the tab's memory, because a row can hold a string of any
+length, and the page's memory sits outside DuckDB's `memory_limit`. A query such as
+`SELECT repeat('x', 1000000) FROM range(200)` holds 200 MB of text in 200 rows. The 100
+MB cap on CSV text bounds the page's own copy of the result, and the 500-character cut
+bounds what the table draws.
 
 A cancel calls `cancelSent()`. If the query has not stopped one second later, the page
 terminates the engine's Worker, so the page shows the cancel within the two seconds that
@@ -268,10 +283,12 @@ separated by commas, decimals use a dot, and text follows RFC 4180 quoting. The 
 lines come first, each starting with `# `: the credit line, one line per data version,
 and the playground link of decision 10, which restores the query. Every header and text
 cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets a leading
-single quote, as OWASP advises against formula injection. The page applies the same
-guard to a cell that starts with a line feed. Numbers are never prefixed.
-The name reads `consulta-2026-t1-20261007-67d59ff-37656362427.csv`, with each chosen
-round.
+single quote, as OWASP advises against formula injection. The page applies the same guard
+to a cell that starts with a line feed, and to each of `=`, `+`, `-` and `@` that follows
+a semicolon, a tab or a line break inside a text cell. A spreadsheet that splits at
+semicolons or tabs ignores RFC 4180 quotes, so `x;=1+1` becomes `x;'=1+1`. Numbers are
+never prefixed. The name reads `consulta-2026-t1-20261007-67d59ff-37656362427.csv`, with
+each chosen round.
 
 A comment line carries the link, not the query's text. A spreadsheet knows no comment
 lines, so it splits a `#` line at each separator, and a query from a link is untrusted.
@@ -289,11 +306,17 @@ DuckDB and pandas need options to read it. One format serves every tool.
 ### 10. The link
 
 The fragment reads `#c=<payload>`, where the payload is URL-safe base64 of a JSON object:
-a format version, each round's data version, the data choice and the query. The browser
-never sends a fragment to a server. The page parses the payload as untrusted input. It
-accepts only a pinned round, a race of the election, an area among the 27 states and
-`zz`, and a query of at most 10,000 characters. On any failure the page restores nothing.
-Opening a link never starts a download or a run.
+a format version, the data version of each chosen round and of each round that the result
+read, the data choice and the query. A query on round 2 alone that reads `municipios`
+reads round 1's file, so its link names round 1's version too, and a repin of round 1
+marks the link as made on an earlier version. The browser never sends a fragment to a
+server. The page parses the payload as untrusted input. It accepts only a pinned round, a
+race of the election, an area among the 27 states and `zz`, and a query of at most 10,000
+characters. On any failure the page restores nothing. Opening a link never starts a
+download or a run. A link pasted into an open playground changes only the fragment. The
+page reads the new fragment in place, asks before it replaces text that the visitor
+typed, and runs nothing. The editor holds at most 10,000 characters, so a query that the
+page writes always fits a link.
 
 A link reproduces its answer through the data version that it names, not through the
 site. That version stays immutable and public, with its manifest, so anyone can run the
@@ -307,7 +330,8 @@ recount of Rio forces.
 
 `web/scripts/prepare-data.ts` derives the playground's file list from the pinned
 manifests: each catalog path with its size and SHA-256, for each round. It writes the
-list with the build's other derived files, served from the app's origin. The page reads
+list with the build's other derived files, served from the app's origin under a folder
+named for its content, which `vercel.json` marks immutable. The page reads
 the list when it opens, and the Worker serves the files. The engine's module and its
 Parquet extension come from the Worker, as `browser.ts` loads them.
 
@@ -356,7 +380,9 @@ In layout B, and in each state of the states sheet:
   caption sits inside the table, and stays whole while a wide result's rows scroll.
 - While a run downloads, the page shows the bytes received over the bytes needed and a
   cancel button. While the query runs, it shows the elapsed seconds.
-- Numbers in the table use the visitor's language's separators. The CSV keeps raw values.
+- Numbers in the table use the visitor's language's separators. A column that holds a
+  code or a number on the ballot, such as `ibge`, `zona`, `secao` or `numero`, shows its
+  digits without separators, because a code is not a quantity. The CSV keeps raw values.
 - Text values show as the query returns them, for example a municipality's name in
   capitals. The `results-explorer` delta makes this the one exception to names in title
   case. A name that the page writes itself, such as a candidate in the form's picker,
@@ -367,15 +393,17 @@ The mockups' HTML sits beside each image, and loads the site's fonts from
 
 ### 13. Timing
 
-The proposal can merge at any time. The code merges after the round-2 pin and its live
-checks, outside the freeze of 2026-10-24 to 2026-10-26, so the pin PR never changes two
-things at once (D14).
+The code merges whenever it is ready, outside the freeze of 2026-10-24 to 2026-10-26
+(D14). The page is new and changes no other page. The round-2 pin changes it only through
+its data choice, which the fixtures of both rounds already test. Holding it for the pin
+delays it and protects nothing.
 
 ## Risks / Trade-offs
 
 - [A visit that downloads the whole round holds 126 MB in the engine, and a phone can
   run out of memory] → The page asks before 25 MB of new files, keeps no second copy, and
-  drops from the engine the files that a new choice no longer needs.
+  drops from the engine the files that a new choice no longer needs. Leaving the page
+  terminates the engine's Worker with every file that it holds.
 - [Visitors exhaust the Worker's 100,000 daily requests, which the rest of the site
   needs] → Each file costs one request per visit, and the whole round is 525 requests.
   The browser's cache serves repeat visits.

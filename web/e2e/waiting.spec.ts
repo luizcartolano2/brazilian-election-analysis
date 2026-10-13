@@ -85,3 +85,24 @@ test('a waiting page needs no horizontal scrolling at 360 pixels wide', async ({
     expect(overflow, address).toBeLessThanOrEqual(0)
   }
 })
+
+test('the playground offers round 1 only, and a link to round 2 restores nothing', async ({
+  page,
+}) => {
+  await page.goto('/2026/consultas/')
+  const rounds = page.getByTestId('playground-data').getByRole('group', { name: 'Turno' })
+  await expect(rounds.getByRole('button')).toHaveText(['1º turno'])
+  const link = Buffer.from(
+    JSON.stringify({
+      v: 1,
+      versoes: { 2: 'teste' },
+      turnos: [2],
+      cargos: [1],
+      areas: ['br'],
+      sql: 'SELECT 1',
+    }),
+  ).toString('base64url')
+  // The fragment changes in an open page, which reopens itself to read the link.
+  await page.goto(`/2026/consultas/#c=${link}`)
+  await expect(page.getByText('Este link de consulta não é válido.')).toBeVisible()
+})

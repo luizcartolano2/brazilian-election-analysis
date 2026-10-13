@@ -1,3 +1,4 @@
+import { AppLink } from '@/components/app-link'
 import { PageShell } from '@/components/page-shell'
 import { brazilRoundLinks } from '@/components/page-shell'
 import {
@@ -9,7 +10,14 @@ import {
   type RoundSourceInfo,
 } from '@/lib/data'
 import { ROUNDS, YEAR, type Round } from '@/lib/elections'
-import { formatDateTime, formatInteger, t, type Locale, type MessageKey } from '@/lib/i18n'
+import {
+  formatDateTime,
+  formatInteger,
+  localePath,
+  t,
+  type Locale,
+  type MessageKey,
+} from '@/lib/i18n'
 import type { Manifest, ManifestSource } from '@/lib/manifest'
 import { REPOSITORY } from '@/lib/site'
 
@@ -152,6 +160,13 @@ export function SourcesContent({
       <h1 className="text-4xl font-extrabold">{t(locale, 'sources.title')}</h1>
       <p className="mt-2 text-sm">{t(locale, 'sources.intro')}</p>
       <p className="mt-2 text-sm">{t(locale, 'sources.checks')}</p>
+      <p className="mt-2 text-sm">
+        {t(locale, 'sources.playground')}{' '}
+        <AppLink href={localePath(locale, `/${YEAR}/consultas/`)} className="underline">
+          {t(locale, 'sources.playgroundLink')}
+        </AppLink>
+        .
+      </p>
 
       <h2 className="mt-6 text-2xl font-extrabold">{t(locale, 'sources.versionTitle')}</h2>
       {published ? (

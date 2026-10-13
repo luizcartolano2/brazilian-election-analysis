@@ -25,7 +25,7 @@ pass the same checks as an address's values.
 
 #### Scenario: SQL in a playground link's data choice
 - **WHEN** a visitor opens a playground link whose state code holds SQL text
-- **THEN** the playground restores no part of the link and requests no file
+- **THEN** the playground restores no part of the link and requests no Parquet file
 
 ### Requirement: Names in title case
 The app SHALL show candidates' ballot names, municipality names and the names of cities

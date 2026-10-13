@@ -13,4 +13,5 @@ public/duckdb
 public/_fixtures
 public/busca
 public/mapas
+public/consultas
 .cache

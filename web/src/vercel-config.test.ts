@@ -58,7 +58,7 @@ describe('vercel.json', () => {
     }
   })
 
-  it.each(['/busca/(.*)', '/mapas/(.*)'])(
+  it.each(['/busca/(.*)', '/mapas/(.*)', '/consultas/(.*)'])(
     'lets browsers keep %s for good, because each path names its content',
     (source) => {
       const rule = config.headers.find((entry) => entry.source === source)
