@@ -12,23 +12,32 @@ change settles them.
 
 - Each round-2 finalist's page gains a swing map in its round-2 section, below the
   round-2 share map. It colors each municipality by the change in the finalist's
-  head-to-head share, in percentage points.
+  head-to-head share, in percentage points, in seven fixed steps centered on zero.
 - The head-to-head share is the finalist's votes over the two finalists' combined votes.
-  The change is its round-2 value minus its round-1 value. Eliminated candidates' votes
-  enter neither share, so the two finalists' maps mirror each other.
+  The change is its round-2 value minus its round-1 value. The two finalists' maps mirror
+  each other.
 - The browser builds the swing from the two values files that the page already loads for
   its two share maps, after the same SHA-256 checks. The map adds no file, so the page
   size gate counts the same bytes as today.
-- The map's frame states that it compares two official counts of the two finalists'
-  votes, names both rounds, and carries the TSE and IBGE credits, so a cropped screenshot
-  keeps all of them. A diverging palette centered on zero uses neither candidate color.
+- One cache of checked files serves every map in a visit, so each boundary and values file
+  is fetched, checked and parsed once. A failure never stays in the cache.
+- The map's frame names the finalist, the race, the area and both rounds, and carries the
+  TSE and IBGE credits. It states that the map compares two official counts of the
+  finalists' votes, that a change mixes turnout, the eliminated candidates' round-1 votes
+  and votes that changed between the finalists, which TSE's files cannot separate, and
+  that the map does not show where any voter's vote went.
+- Every label of a head-to-head share names its denominator, the two finalists' votes.
+  The palette uses neither candidate color.
 - A folded list of municipalities follows the map, with each municipality's head-to-head
-  share in each round and the change. It loads with the map, as the share map's list does.
-- The swing map appears only when both pinned rounds come from TSE's real files. On the
-  synthetic round 2 of the test builds, whose head-to-head shares equal round 1's
-  everywhere, the page shows no swing map.
-- A municipality where the two finalists had no votes in a round has no swing. It takes
-  the map's no-data fill, and its row in the list says so.
+  share in each round and the change. A municipality's details show the same, and a click
+  opens its round-2 view.
+- The swing map appears only when round 2 is in the build, neither round is synthetic, and
+  both finalists' votes are valid in both rounds. A finalist whose round-2 votes go under
+  appeal would otherwise keep a column of zeros.
+- The build compares the two rounds' municipalities for each race and area. If they
+  differ, that race and area get no swing map, and the build prints the codes.
+- A fixtures-only switch, `ELEICOES_FIXTURE_SWING`, draws the swing map over the synthetic
+  round 2, so the browser tests run on every PR.
 - The new text ships in Portuguese and English.
 
 Luiz chose the metric on 2026-10-13, after a comparison on invented municipalities. The
@@ -44,27 +53,28 @@ None.
 
 ### Modified Capabilities
 
-- `results-maps`: a finalist's round-2 section gains a swing map with its folded list,
-  its frame states what it compares, and it appears only on real data from both rounds.
+- `results-maps`: a finalist's round-2 section gains a swing map with its folded list, its
+  frame states what it compares, and it appears only on real data with valid finalists in
+  both rounds. A map can reuse a file that passed the same check earlier in the visit.
 
 ## Invariants
 
 This change touches these invariants in `CLAUDE.md`, and it keeps each one as follows:
 
 - An estimate is never a count. The swing is a difference of two official counts, so it
-  shows no estimate. Its frame says that it compares counts, and no text or chart states
-  where any voter's vote went.
+  shows no estimate. Its frame says what it compares and what it does not show, and no
+  text or chart states where any voter's vote went.
 - No integrity claims. The map scores nothing as suspicious and projects nothing. It shows
   only after the runoff's results are pinned.
 - The app reads only pinned data at run time. The swing comes from the two values files
   that the build derives from the pinned versions, each checked against its SHA-256.
 - TSE gets credit wherever its data appears. The frame carries the TSE and IBGE credits.
 - Every user-facing string exists in Portuguese and English. The frame, the legend, the
-  list and the messages ship in both.
+  details, the list and the messages ship in both.
 
 The change depends on D16 and D17: it states no voter movement and no projection. D14
-gains its timing. It keeps D2, because the swing, like a candidate's share by municipality, needs JavaScript, and the
-page's other results stay in the HTML.
+gains its timing. It keeps D2, because the swing, like a candidate's share by
+municipality, needs JavaScript, and the page's other results stay in the HTML.
 
 ## Non-goals
 
@@ -76,12 +86,15 @@ page's other results stay in the HTML.
 
 ## Impact
 
-- `web/src/lib/maps.ts`: a swing map built from two rounds' votes, with its steps.
-- `web/src/lib/map-colors.ts`: the diverging palette.
-- `web/src/components/race-map.tsx`: a map source that reads two checked files, its
-  legend, and its list with both rounds' shares.
+- `web/src/lib/maps.ts`: the swing rows built from two rounds' votes, and their steps.
+- `web/src/lib/map-colors.ts`: the diverging palette and the hatched no-data fill.
+- `web/src/components/race-map.tsx`: the cache of checked files, a map source that reads
+  two of them, the swing frame, details and list.
 - `web/src/views/map-section.tsx` and `candidate-views.tsx`: the swing section in a
-  finalist's round-2 section, behind the guard on real data.
+  finalist's round-2 section, behind its guard.
+- `web/scripts/prepare-data.ts`: the comparison of the two rounds' municipalities, and the
+  fixtures-only switch.
+- `.github/workflows/ci.yml`: the switch on the main fixture build.
 - `web/messages/pt.json` and `en.json`: the new messages.
-- `web/README.md`: the swing map and its guard.
+- `web/README.md`: the swing map, its guard and the cache.
 - `docs/decisions.md`: D14 records this change's timing.
