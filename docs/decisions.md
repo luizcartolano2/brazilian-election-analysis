@@ -172,6 +172,10 @@ in its head-to-head share between the rounds. Its code merges whenever it is rea
 outside the freeze. A guard keeps the map off the site until round 2 is pinned and neither
 round's data is synthetic, so the round-2 pin PR changes no code for it.
 
+On 2026-10-13, Luiz asked for `add-data-playground`, a page where a visitor queries the
+pinned data in the browser, through a form or their own SQL. Its code merges after the
+round-2 pin and its live checks, so that the pin PR never changes two things at once.
+
 ### D15. The pre-runoff release shows official results
 
 The first release explores official first-round results, down to the polling station, on
@@ -198,6 +202,11 @@ Never, in any version:
 - No fraud or anomaly scores for polling stations or machines
 - No runoff projections
 - No cross-race combination stated as a count of people
+
+These rules govern what the site states, in its pages, its charts and its examples. The
+playground of `add-data-playground`, agreed on 2026-10-13, lets a visitor run their own
+SQL over the pinned data. A visitor's own result, whose caption says that a visitor's
+query produced it, is outside these rules, because the site states nothing in it.
 
 Not in the first version:
 

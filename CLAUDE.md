@@ -26,6 +26,10 @@ Breaking one of these is a bug even when the screen looks right.
   or a caption that a screenshot can crop.
 - **No integrity claims.** Nothing scores a polling station or machine as suspicious, and
   nothing projects a runoff.
+- **A visitor's own query is outside the two rules above.** They govern what the site
+  states. A playground result whose caption says that a visitor's query produced it states
+  nothing for the site (D17). The playground's catalog, form and examples still keep both
+  rules.
 - **Before 2026-10-25, estimates stay behind their flag** unless all five conditions in
   decision D16 hold.
 - **Official numbers reconcile, or nothing publishes.** Candidate votes sum to valid
