@@ -28,8 +28,9 @@ round's configuration has no vote rows in its municipality. It SHALL fail at onc
 candidate that TSE's aggregate omits matches no candidacy in the candidate file, matches
 none by its ballot name among several, has two names or parties, or has no party. Such a
 failure stops the run where it happens, reports only itself, and drops the mismatches
-that the run found before it. Its message names the area, the election, the race and the
-candidate's number or the municipality, and never prints a row of TSE's files.
+that the run found before it. Its message names the area and the election, and either the
+race and the candidate's number or the municipality, and never prints a row of TSE's
+files.
 
 #### Scenario: A station's votes do not match its attendance
 - **WHEN** a polling station's votes in a race differ from its attendance multiplied by the choices per voter
