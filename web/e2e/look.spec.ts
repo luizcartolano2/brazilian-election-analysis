@@ -49,6 +49,17 @@ test('the header links to the state list', async ({ page }) => {
   await expect(page.locator('#estados')).toBeInViewport()
 })
 
+test('the header links to the playground, in each language', async ({ page }) => {
+  await page.goto('/2026/pe/')
+  await page.getByRole('banner').getByRole('link', { name: 'Consultas' }).click()
+  await expect(page).toHaveURL(/\/2026\/consultas\/$/)
+  await expect(page.getByTestId('playground')).toBeVisible()
+  await page.goto('/en/2026/pe/')
+  await page.getByRole('banner').getByRole('link', { name: 'Queries' }).click()
+  await expect(page).toHaveURL(/\/en\/2026\/consultas\/$/)
+  await expect(page.getByTestId('playground')).toBeVisible()
+})
+
 test('cities abroad show in title case', async ({ page }) => {
   await page.goto('/2026/zz/')
   await page.getByText(/Ver as \d+ cidades/).click()

@@ -98,7 +98,9 @@ test('without JavaScript the page says that the playground needs it', async ({ b
 
 test('the sources page links to the playground', async ({ page }) => {
   await page.goto('/2026/fontes/')
-  await expect(page.getByRole('link', { name: 'consultas' })).toHaveAttribute('href', PAGE)
+  await expect(
+    page.getByRole('main').getByRole('link', { name: 'consultas', exact: true }),
+  ).toHaveAttribute('href', PAGE)
 })
 
 test('a query runs under the production headers, with its caption, and no policy violation', async ({

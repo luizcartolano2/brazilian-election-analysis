@@ -166,6 +166,9 @@ export function PageShell({
             >
               {t(locale, 'nav.states')}
             </Link>
+            <Link href={localePath(locale, `/${YEAR}/consultas/`)}>
+              {t(locale, 'nav.playground')}
+            </Link>
             <Link href={localePath(locale, `/${YEAR}/fontes/`)}>{t(locale, 'nav.sources')}</Link>
             <Suspense
               fallback={
