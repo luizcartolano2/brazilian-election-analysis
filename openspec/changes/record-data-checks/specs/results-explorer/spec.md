@@ -62,14 +62,14 @@ each named together with the SHA-256 of its manifest. The build SHALL fail when 
 manifest is missing, when its checksum differs, when it names another year or round than
 its pin, or when any summary file it reads differs from the manifest. It SHALL also fail
 when the races that a pinned version reconciled, as its manifest's
-`verificacoes.agregado` lists them, differ from its round's list in `web/src/pinned-
-races.json`, when a pinned round has no list there, or when the manifest records no
-reconciled races. One error SHALL name every race that differs. CI SHALL run these checks
-on the pinned versions for every change, without a build. The list verifies the races
-that the pipeline took from TSE's vote rows, and never decides them. At run time the app
-SHALL read data only from the pinned versions and from its pinned boundary build, all
-through the Worker, and from files that the build derived from those versions and serves
-from the app's own origin.
+`verificacoes.agregado` lists them, differ from its round's list in
+`web/src/pinned-races.json`, when a pinned round has no list there, or when the manifest
+records no reconciled races. One error SHALL name every race that differs. CI SHALL run
+these checks on the pinned versions for every change, without a build. The list verifies
+the races that the pipeline took from TSE's vote rows, and never decides them. At run
+time the app SHALL read data only from the pinned versions and from its pinned boundary
+build, all through the Worker, and from files that the build derived from those versions
+and serves from the app's own origin.
 
 When round 2 is pinned, the build SHALL also fail unless the two versions agree. Each
 round-2 race SHALL hold exactly the candidates that the round-1 version marks for a

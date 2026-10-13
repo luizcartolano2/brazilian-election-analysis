@@ -134,6 +134,8 @@ describe('a summary that does not add up', () => {
   it('fails when a vote under appeal has no line', () => {
     const broken = deputy()
     broken.candidatos = broken.candidatos.filter((candidate) => candidate.numero !== 4033)
-    expect(() => raceResults(broken, true)).toThrow(/under appeal listed/)
+    expect(() => raceResults(broken, true)).toThrow(
+      'race 6: 0 votes under appeal listed, 13 in total',
+    )
   })
 })

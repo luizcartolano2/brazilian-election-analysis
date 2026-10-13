@@ -100,6 +100,14 @@ def test_council_race(built):
     assert ["pe30015", 6261, 25] in manifest["verificacoes"]["agregado"]
 
 
+def test_the_manifest_records_each_reconciled_race(built):
+    reconciled = json.loads((built / "manifest.json").read_text())["verificacoes"]["agregado"]
+    state_races = [(6257, 1), (6259, 3), (6259, 5), (6259, 6), (6259, 7)]
+    expected = [[state, *race] for state in ("ac", "pe", "se") for race in state_races]
+    expected += [["br", 6257, 1], ["pe30015", 6261, 25], ["zz", 6257, 1]]
+    assert sorted(reconciled) == sorted(expected)
+
+
 def test_summaries(built):
     state = json.loads((built / DATA / "resumo" / "ac.json").read_text())
     races = {race["cargo"]: race for race in state["corridas"]}
@@ -198,7 +206,7 @@ def drop_the_party(row):
         (renumber, "candidate 4033 is in neither the aggregate nor the candidate file"),
         (rename, "candidate 4033 has 2 candidacies in the candidate file, and none has the ballot"),
         (share_the_name_across_parties, "candidate 4033 has two names or parties"),
-        (drop_the_party, "candidate 4033 has no party in the candidate file"),
+        (drop_the_party, "race 6 area pe: candidate 4033 has no party in the candidate file"),
     ],
 )
 def test_a_candidate_the_aggregate_omits_needs_one_party(tse, tmp_path, change, message):
