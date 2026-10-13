@@ -1,8 +1,8 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Consultas · maquete</title>
 <style>
-@font-face { font-family: Archivo; src: url('../../../../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2'); font-weight: 100 900; }
-@font-face { font-family: 'Public Sans'; src: url('../../../../web/node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2'); font-weight: 100 900; }
+@font-face { font-family: Archivo; src: url('../../../../../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Public Sans'; src: url('../../../../../web/node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2'); font-weight: 100 900; }
 :root { --ink: #14171a; --muted: #4b5563; --surface: #f3f4f1; --line: #e3e5e0; }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'Public Sans', system-ui, sans-serif; color: var(--ink); background: #fff; -webkit-font-smoothing: antialiased; }
@@ -108,7 +108,7 @@ pre.csv { background: #fff; border: 1px solid var(--line); border-radius: 10px; 
   .step .dot { display: none; }
 }
 @media (min-width: 721px) { .phone-only { display: none !important; } }
-</style></head><body><div class="ribbon"><b>MAQUETE</b> · Opção A · abas, com as tabelas ao lado · números reais do 1º turno, Presidente, Acre, versão 20261007-67d59ff-37656362427</div><header><div class="bar">
+</style></head><body><div class="ribbon"><b>MAQUETE</b> · Opção B · formulário e SQL lado a lado · números reais do 1º turno, Presidente, Acre, versão 20261007-67d59ff-37656362427</div><header><div class="bar">
 <div class="logo"><i></i>Eleições 2026</div>
 <div class="pills"><span class="on">1º turno · 4 de outubro</span><span>2º turno · 25 de outubro</span></div>
 <div class="search">Buscar município ou candidato</div>
@@ -123,17 +123,36 @@ formulário ou escreva em SQL.</p><div class="card"><div class="data">
 <div class="field">Área<div class="select">Acre</div></div>
 <div class="version">Versão dos dados: <span class="mono">20261007-67d59ff-37656362427</span></div>
 </div></div>
-<div class="grid-a"><div class="white">
-<div class="row" style="justify-content:space-between"><div class="tabs"><span class="on">Montar consulta</span><span>Escrever SQL</span></div><div class="select" style="min-width:auto">Exemplos</div></div>
-<div style="margin-top:16px"><div class="form">
+<div class="grid-b"><div class="white">
+<div class="row" style="justify-content:space-between"><h2 style="font-size:17px">Montar consulta</h2><div class="select" style="min-width:auto">Exemplos</div></div>
+<div style="margin-top:14px"><div class="form">
 <label>Pergunta</label><div class="select">Votos de um candidato</div>
 <label>Candidato</label><div class="select">13 · Lula (PT)</div>
 <label>Nível</label><div class="select">Município</div>
 <label>Ordem</label><div class="select">Mais votos primeiro</div>
 <label>Linhas</label><div class="select">100</div>
 </div></div>
-<div class="label" style="margin:16px 0 6px">SQL que o formulário escreveu</div>
-<pre class="sql ro">WITH validos AS (
+<p class="hint" style="margin-top:12px">Cada escolha reescreve o SQL ao lado.</p>
+</div>
+<div>
+<div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="label">SQL · você pode editar</div><span class="hint">o formulário escreveu esta consulta</span></div>
+<div class="editor"><div class="num">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17</div><pre>WITH validos AS (
   SELECT turno, uf, municipio, sum(votos) AS validos
   FROM votos_municipio
   WHERE cargo = 1 AND tipo IN (1, 2)
@@ -149,12 +168,10 @@ JOIN municipios m ON m.municipio = v.municipio
 WHERE v.cargo = 1 AND v.tipo = 1 AND v.numero = 13
 GROUP BY v.turno, v.uf, v.municipio, m.nome, d.validos
 ORDER BY votos DESC
-LIMIT 100</pre>
-<div class="row" style="margin-top:14px"><span class="btn dark">▶ Executar</span><span class="hint">Ctrl+Enter · baixa 70 kB</span></div>
-</div>
-<div class="wide-only"><div class="tables"><h3>Tabelas</h3><p class="hint" style="margin:-4px 0 8px">Tamanho para os dados escolhidos. Uma consulta baixa só as tabelas que cita.</p><div class="tbl"><div class="name"><span>▾ votos_municipio</span><span class="size">1,7 kB</span></div><div class="cols"><span class="c">municipio</span><span class="t">int</span><span class="d">código TSE do município</span><span class="c">tipo</span><span class="t">código</span><span class="d">1 candidato · 2 legenda · 3 branco · 4 nulo · 5 nulo técnico · 6 anulado · 7 anulado sub judice</span><span class="c">numero</span><span class="t">int</span><span class="d">número do candidato ou do partido</span><span class="c">votos</span><span class="t">int</span><span class="d">votos</span><span class="c">turno, uf, cargo</span><span class="t"></span><span class="d">da escolha de dados</span></div></div><div class="tbl"><div class="name"><span>▸ comparecimento_municipio</span><span class="size">2,8 kB</span></div></div><div class="tbl"><div class="name"><span>▸ votos_zona</span><span class="size">2,0 kB</span></div></div><div class="tbl"><div class="name"><span>▸ comparecimento_zona</span><span class="size">3,1 kB</span></div></div><div class="tbl"><div class="name"><span>▸ votos_secao</span><span class="size">25,8 kB</span></div></div><div class="tbl"><div class="name"><span>▸ comparecimento_secao</span><span class="size">56,1 kB</span></div></div><div class="tbl"><div class="name"><span>▸ secoes</span><span class="size">54,6 kB</span></div></div><div class="tbl"><div class="name"><span>▸ candidatos</span><span class="size">186,1 kB</span></div></div><div class="tbl"><div class="name"><span>▸ municipios</span><span class="size">68,4 kB</span></div></div></div></div>
-<details class="phone-only"><summary class="disclosure"><span>Tabelas e colunas (9)</span><span>▸</span></summary></details>
-</div>
+LIMIT 100</pre></div>
+<div class="row" style="margin-top:12px;justify-content:space-between"><div class="row"><span class="btn dark">▶ Executar</span><span class="hint">Ctrl+Enter · baixa 70 kB</span></div></div>
+<details style="margin-top:12px"><summary class="disclosure"><span>Tabelas e colunas (9)</span><span>▸</span></summary></details>
+</div></div>
 <section class="result"><div class="frame">
 <div class="frame-top"><div class="label">Resultado</div><span class="btn light" style="padding:6px 12px;font-size:13px">Copiar link</span></div>
 <pre class="sql ro folded" style="margin-top:8px">WITH validos AS (
