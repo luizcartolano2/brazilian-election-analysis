@@ -10,7 +10,8 @@ import {
 } from '@/lib/data'
 import { raceName, type RaceInfo, type Round } from '@/lib/elections'
 import { formatInteger, t, type Locale } from '@/lib/i18n'
-import { isMappedArea, SHARE_STEPS, SWING_EDGES, type SwingData } from '@/lib/maps'
+import { formatSignedPoints } from '@/lib/format'
+import { isMappedArea, SHARE_STEPS, swingStepRanges, type SwingData } from '@/lib/maps'
 
 // Fernando de Noronha lies about 350 km off the coast, and would widen Pernambuco's maps.
 const NORONHA = 2605459
@@ -279,21 +280,19 @@ export function ShareMapSection({
   )
 }
 
-/** The swing steps' names, from "−6 p.p. ou menos" through "de −1 a +1 p.p." to "+6 p.p. ou mais". */
+/**
+ * The swing steps' names, from "−6,0 p.p. ou menos" through "de −0,9 a +0,9 p.p." to
+ * "+6,0 p.p. ou mais", each naming the rounded swings that its color shows.
+ */
 function swingStepLabels(locale: Locale): string[] {
-  const signed = (edge: number) => (edge > 0 ? `+${edge}` : edge < 0 ? `−${-edge}` : '0')
-  const edges = [...SWING_EDGES].reverse().map((edge) => -edge)
-  const cuts = [...edges, ...SWING_EDGES]
-  const ranges = cuts
-    .slice(0, -1)
-    .map((from, index) =>
-      t(locale, 'map.swingStepRange', { from: signed(from), to: signed(cuts[index + 1] ?? from) }),
-    )
-  return [
-    t(locale, 'map.swingStepLow', { points: signed(edges[0] ?? 0) }),
-    ...ranges,
-    t(locale, 'map.swingStepHigh', { points: signed(SWING_EDGES[SWING_EDGES.length - 1] ?? 0) }),
-  ]
+  const points = (value: number) => formatSignedPoints(locale, value)
+  return swingStepRanges().map(([low, high]) =>
+    low === null
+      ? t(locale, 'map.swingStepLow', { points: points(high ?? 0) })
+      : high === null
+        ? t(locale, 'map.swingStepHigh', { points: points(low) })
+        : t(locale, 'map.swingStepRange', { from: points(low), to: points(high) }),
+  )
 }
 
 /**

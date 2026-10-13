@@ -141,11 +141,14 @@ export function swingOf(row: SwingRow): number | null {
   const first = ownFirst + otherFirst
   const second = ownSecond + otherSecond
   if (first === 0 || second === 0) return null
-  // A cross product of whole numbers, so the other finalist's swing is its exact negation, and
-  // one division gives the tenths of a point, with no rounding error before the half.
-  const cross = ownSecond * otherFirst - ownFirst * otherSecond
-  const tenths = Math.round((Math.abs(cross) * 1000) / (first * second))
-  return tenths === 0 ? 0 : (Math.sign(cross) * tenths) / 10
+  // A cross product of whole numbers, so the other finalist's swing is its exact negation. A
+  // large city's products pass 2^53 once scaled to tenths, so the rounding runs on BigInt.
+  const cross = BigInt(ownSecond) * BigInt(otherFirst) - BigInt(ownFirst) * BigInt(otherSecond)
+  const scaled = (cross < 0n ? -cross : cross) * 1000n
+  const denominator = BigInt(first) * BigInt(second)
+  const tenths = scaled / denominator + ((scaled % denominator) * 2n >= denominator ? 1n : 0n)
+  if (tenths === 0n) return 0
+  return (cross < 0n ? -Number(tenths) : Number(tenths)) / 10
 }
 
 /** The round in which the two finalists had no votes, which leaves a municipality no swing. */
@@ -188,6 +191,23 @@ export function sortRows<Row extends MapRow | SwingRow>(
   }
   const marginOf = (row: MapRow) => (row[3] === -1 ? Infinity : marginPoints(row))
   return sorted.sort((a, b) => marginOf(a as MapRow) - marginOf(b as MapRow) || byName(a, b))
+}
+
+/**
+ * Each step's lowest and highest rounded swing, from step -3 to 3, so its label names exactly
+ * the values it colors. The outer steps are open, with null on their open side.
+ */
+export function swingStepRanges(): [number | null, number | null][] {
+  const tenthBelow = (edge: number) => (edge * 10 - 1) / 10
+  const outward = SWING_EDGES.map((edge, index): [number, number | null] => {
+    const next = SWING_EDGES[index + 1]
+    return [edge, next === undefined ? null : tenthBelow(next)]
+  })
+  const middle = tenthBelow(SWING_EDGES[0])
+  const inward = outward
+    .map(([low, high]): [number | null, number] => [high === null ? null : -high, -low])
+    .reverse()
+  return [...inward, [-middle, middle], ...outward]
 }
 
 /** A swing's step, from -3 to 3, by its absolute value against `SWING_EDGES`. */

@@ -69,13 +69,13 @@ test('the frame names what it compares, its race, area and rounds, and both cred
   await expect(caption).toContainText('os arquivos do TSE não permitem separá-los')
   await expect(caption).toContainText('O mapa não mostra para onde foi o voto de nenhum eleitor.')
   for (const step of [
-    '−6 p.p. ou menos',
-    'de −6 a −3 p.p.',
-    'de −3 a −1 p.p.',
-    'de −1 a +1 p.p.',
-    'de +1 a +3 p.p.',
-    'de +3 a +6 p.p.',
-    '+6 p.p. ou mais',
+    '−6,0 p.p. ou menos',
+    'de −5,9 a −3,0 p.p.',
+    'de −2,9 a −1,0 p.p.',
+    'de −0,9 a +0,9 p.p.',
+    'de +1,0 a +2,9 p.p.',
+    'de +3,0 a +5,9 p.p.',
+    '+6,0 p.p. ou mais',
   ]) {
     await expect(caption.locator('li', { hasText: step })).toHaveCount(1)
   }

@@ -10,6 +10,7 @@ import {
   swingOf,
   swingOpponent,
   swingStep,
+  swingStepRanges,
   type CandidateVotes,
   type SwingCase,
   type SwingRow,
@@ -102,6 +103,12 @@ describe('swingOf', () => {
     // 1 of 2, then 201 of 400: +0.25, which rounds to +0.3 and -0.3.
     expect(swingOf([1, 1, 'A', 1, 1, 201, 199])).toBe(0.3)
     expect(swingOf([1, 1, 'A', 1, 1, 199, 201])).toBe(-0.3)
+  })
+
+  it('rounds exactly where a large city’s products pass 2^53', () => {
+    // 8,004,161 of 8,602,000 is exactly 93.05%, after 0 of 9,046,897 in round 1.
+    expect(swingOf([1, 1, 'A', 0, 9_046_897, 8_004_161, 597_839])).toBe(93.1)
+    expect(swingOf([1, 1, 'A', 9_046_897, 0, 597_839, 8_004_161])).toBe(-93.1)
   })
 
   it('never returns a negative zero', () => {
@@ -293,5 +300,33 @@ describe('the swing messages', () => {
         expect(messages[key as keyof typeof messages], key).toContain(denominator)
       }
     }
+  })
+})
+
+describe('swingStepRanges', () => {
+  it('names the rounded swings of each step, with no value in two steps', () => {
+    expect(swingStepRanges()).toEqual([
+      [null, -6],
+      [-5.9, -3],
+      [-2.9, -1],
+      [-0.9, 0.9],
+      [1, 2.9],
+      [3, 5.9],
+      [6, null],
+    ])
+  })
+
+  it('agrees with the step that colors each endpoint, and with the next step a tenth beyond', () => {
+    swingStepRanges().forEach(([low, high], index) => {
+      const step = index - 3
+      if (low !== null) {
+        expect(swingStep(low), String(low)).toBe(step)
+        expect(swingStep(Math.round(low * 10 - 1) / 10), String(low)).toBe(step - 1)
+      }
+      if (high !== null) {
+        expect(swingStep(high), String(high)).toBe(step)
+        expect(swingStep(Math.round(high * 10 + 1) / 10), String(high)).toBe(step + 1)
+      }
+    })
   })
 })
