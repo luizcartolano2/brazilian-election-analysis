@@ -5,6 +5,8 @@ A finalist's round-2 section SHALL show a swing map below its round-2 share map 
 these hold: round 2 is in the build, neither round's data version is marked synthetic,
 both finalists' votes are valid in both rounds' summaries, and both rounds' values files
 for the area list the same municipalities. Otherwise the section SHALL show no swing map.
+A fixtures build that sets the fixtures-only swing switch SHALL lift the rule on synthetic
+data, and no other build SHALL accept that switch.
 
 A finalist's head-to-head share in a municipality SHALL be its votes divided by the two
 finalists' combined votes in one round. The swing SHALL be the round-2 head-to-head share
@@ -67,8 +69,12 @@ swing map and its list need JavaScript.
 - **THEN** that municipality takes the hatched no-data fill, apart from every step, and its row in the list says that the finalists had no votes in round 1
 
 #### Scenario: The synthetic round two
-- **WHEN** a build pins the synthetic round 2
+- **WHEN** a build pins the synthetic round 2 without the fixtures-only swing switch
 - **THEN** no finalist's page shows a swing map
+
+#### Scenario: The swing switch outside the fixtures
+- **WHEN** a build that reads a pinned data version sets the fixtures-only swing switch
+- **THEN** the build fails before it writes any page
 
 #### Scenario: A municipality's details
 - **WHEN** a visitor points at a municipality on Lula's swing map
@@ -80,7 +86,7 @@ swing map and its list need JavaScript.
 
 #### Scenario: The page's weight
 - **WHEN** the page size gate measures a finalist's page with a swing map
-- **THEN** the page counts the same values files as without the swing map
+- **THEN** the page counts the same values files as without the swing map, plus the section's HTML
 
 #### Scenario: A values file that fails
 - **WHEN** one of the two values files arrives with a SHA-256 that differs from the page's

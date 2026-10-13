@@ -3,7 +3,7 @@
 - [ ] 1.1 In `web/src/lib/maps.ts`, build a finalist's swing rows from two rounds' `CandidateVotes`, joined on the TSE municipality code: each round's head-to-head share and the swing in points rounded to one decimal, or no swing where the two finalists had no votes in a round. Test the swing on in-memory files with real differences, the mirror between the two finalists, the no-data case, and a municipality that one file lacks, which throws
 - [ ] 1.2 Add the seven swing steps on the rounded swing's absolute value, ColorBrewer's seven-class PRGn and a hatched no-data pattern to `web/src/lib/map-colors.ts`. Test each step's edges, that +1.0 and −1.0 take mirrored steps, that no swing color equals a candidate shade, and that the no-data fill differs from every step
 - [ ] 1.3 In `web/scripts/prepare-data.ts`, compare each race's round-1 and round-2 values files for an area, print the municipality codes that differ, and record which races and areas can have a swing map. Test a pair that matches and a pair that differs by one municipality, which builds with no swing for that pair
-- [ ] 1.4 Add `ELEICOES_FIXTURE_SWING=1` to `prepare-data.ts`, which lifts the synthetic rule in fixtures mode and throws in any other mode. Test both modes
+- [ ] 1.4 Add `ELEICOES_FIXTURE_SWING=1` to `prepare-data.ts`, which lifts the synthetic rule in fixtures mode and fails the build in any other mode before it writes a page. Test both modes
 
 ## 2. Swing map
 
@@ -18,6 +18,7 @@
 - [ ] 3.2 Add the swing messages to `web/messages/pt.json` and `en.json`: the frame's title, subtitle and note, the details, the list's headers and summary, the no-swing row and the `<noscript>` note. Test that the section renders its `<noscript>` note, with no list, in both languages, and that no message of the section, in either language, contains a word of transfer, migration or a named candidate's voters
 - [ ] 3.3 Set `ELEICOES_FIXTURE_SWING=1` on the main fixture build in `.github/workflows/ci.yml`, and add a browser test on Lula's page and on the other President finalist's page: the drawn map, the frame, a municipality's details, the click to round 2, the list and its headers, the mirrored steps, and the same values files as without the swing. Check that the round-1-only build shows no swing section
 
-## 4. Document
+## 4. Measure and document
 
-- [ ] 4.1 Update `web/README.md`: the swing map, the files it reads, the cache of checked files, the build's comparison of both rounds' municipalities, the guard, and the fixtures-only switch
+- [ ] 4.1 Record in the PR the size of Lula's page and of the largest finalist's page on the fixture build with the swing switch, before and after the swing section, against the 2.5 MB gate. Make sure that the page size gate passes
+- [ ] 4.2 Update `web/README.md`: the swing map, the files it reads, the cache of checked files, the build's comparison of both rounds' municipalities, the guard, and the fixtures-only switch

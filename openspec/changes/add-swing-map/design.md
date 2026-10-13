@@ -34,7 +34,8 @@ share's six steps.
 **Goals:**
 
 - The swing map reads no file beyond the two that the page already loads, and each
-  boundary or values file is fetched, checked and parsed once per visit.
+  boundary or values file is fetched, checked and parsed once per page. A later page in
+  the visit reuses it while the cache keeps it.
 - The swing map fails closed: no partial colors, no partial list, and no swing built on a
   finalist whose round-2 votes are not valid.
 - The frame alone carries everything a cropped screenshot needs.
@@ -72,7 +73,8 @@ Its rules:
 - A retry removes the entries of the map's own files, two for a swing map, and fetches each
   with `cache: 'reload'`.
 - The cache keeps the six most recently used entries. A finalist's page uses three: the
-  two rounds' values files and the area's boundary file.
+  two rounds' values files and the area's boundary file. An entry that the cache drops is
+  fetched and checked again by the next page that needs it.
 - When one file answers 404 and the other fails its check, the map offers to reload the
   page, because a reload fixes both.
 - Each map keeps its own failure state and its own retry. A retry that succeeds in one map
@@ -81,7 +83,8 @@ Its rules:
 The module scope outlives the page, because `AppLink` navigates on the client. A visitor
 who goes from one finalist's page to the other then reuses both values files and the
 boundary file, which are immutable and already checked. The amended rule in "Maps use only
-checked data" counts that reuse as a request.
+checked data" counts that reuse as a request. The limit keeps the memory of a long visit
+bounded, because each values file holds every municipality of a race.
 
 Alternative: a cache that the candidate page owns, which ends with the page. It saves the
 same work within one page, but the next finalist's page hashes and parses the same files
@@ -209,6 +212,7 @@ map.
 One web PR, which also sets the fixture switch in `.github/workflows/ci.yml`. It merges
 whenever it is ready, but not from 2026-10-24 to 2026-10-26, by D14. The guard keeps the
 map off the site until round 2 is pinned, so the pin PR changes no code for it. The section
-adds no values file, and the pin PR's checklist on issue 36 already records the largest
-finalist's page against the gate, swing section included. Reverting the PR removes the
-section.
+adds no values file, but it adds HTML. The fixture build with the swing switch renders
+it, so the PR records Lula's page and the largest finalist's page on that build, before
+and after, against the gate. The pin PR's checklist on issue 36 measures the same pages
+again on the real data. Reverting the PR removes the section.

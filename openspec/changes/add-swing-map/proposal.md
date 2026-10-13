@@ -18,9 +18,11 @@ change settles them.
   each other.
 - The browser builds the swing from the two values files that the page already loads for
   its two share maps, after the same SHA-256 checks. The map adds no file, so the page
-  size gate counts the same bytes as today.
-- One cache of checked files serves every map in a visit, so each boundary and values file
-  is fetched, checked and parsed once. A failure never stays in the cache.
+  size gate counts the same values files as today, plus the section's HTML. Its PR records
+  the largest finalist's page against the 2.5 MB gate.
+- One cache of checked files serves the maps of a visit. Each boundary and values file is
+  fetched, checked and parsed once per page, and a later page reuses it while it is among
+  the six most recently used. A failure never stays in the cache.
 - The map's frame names the finalist, the race, the area and both rounds, and carries the
   TSE and IBGE credits. It states that the map compares two official counts of the
   finalists' votes, that a change mixes turnout, the eliminated candidates' round-1 votes
@@ -61,8 +63,8 @@ None.
 
 This change touches these invariants in `CLAUDE.md`, and it keeps each one as follows:
 
-- An estimate is never a count. The swing is a difference of two official counts, so it
-  shows no estimate. Its frame says what it compares and what it does not show, and no
+- An estimate is never a count. The swing is the difference of two shares, each computed
+  from official counts, so it shows no estimate. Its frame says what it compares and what it does not show, and no
   text or chart states where any voter's vote went.
 - No integrity claims. The map scores nothing as suspicious and projects nothing. It shows
   only after the runoff's results are pinned.
