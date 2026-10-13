@@ -169,9 +169,11 @@ shares a name with a column, so the scan of decision 3 never takes a column for 
 With a table named `votos`, every sum of the `votos` column downloads the station
 votes.
 
-DuckDB refuses a bound parameter in `CREATE VIEW`, so each view's text names its files.
-The page takes every name from the build's file list (decision 11), never from the link
-or from typed text.
+DuckDB refuses a bound parameter in `CREATE VIEW`, so each view's text names its files,
+and the races and states that it keeps. The page takes every file name from the build's
+file list (decision 11), never from the link or from typed text. It writes a race or a
+state only after the data choice took it from a fixed list (decision 10), and the races
+as numbers.
 
 | Table | Files per round | Added columns |
 |---|---|---|

@@ -441,6 +441,33 @@ test("the form's votes and shares for one candidate in Acre equal each municipal
   expect(cells).toContain(`${rioBranco?.[3]}%`)
 })
 
+test("a result's CSV holds municipality names as the published files hold them", async ({
+  page,
+}) => {
+  await open(page, linkTo({ choice: { rounds: [1], races: [1], areas: ['ac'] } }))
+  await form(page).getByLabel('Pergunta').selectOption('one')
+  await form(page).getByLabel('Nível').selectOption('municipio')
+  await page.getByRole('button', { name: '▶ Executar' }).click()
+  await expect(result(page)).toBeVisible({ timeout: 40_000 })
+  const downloading = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Baixar CSV' }).click()
+  const text = readFileSync(await (await downloading).path(), 'utf-8')
+  expect(text).toContain(',RIO BRANCO,')
+  expect(text).not.toContain('Rio Branco')
+})
+
+test('the CSV of a query that reads no table names no round', async ({ page }) => {
+  await open(page)
+  await runSql(page, 'SELECT 42 AS resposta')
+  await expect(result(page)).toBeVisible({ timeout: 40_000 })
+  const downloading = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Baixar CSV' }).click()
+  const download = await downloading
+  expect(download.suggestedFilename()).toBe('consulta-2026.csv')
+  const lines = readFileSync(await download.path(), 'utf-8').split('\r\n')
+  expect(lines.filter((line) => /^# \dº turno/.test(line))).toEqual([])
+})
+
 test("the form's turnout by state equals each state's page", async ({ page }) => {
   await open(page)
   await form(page).getByLabel('Pergunta').selectOption('turnout')
@@ -483,6 +510,24 @@ for (const example of EXAMPLES) {
     await page.getByRole('button', { name: '▶ Executar' }).click()
     await expect(result(page)).toBeVisible({ timeout: 40_000 })
     expect((await resultRows(page)).length).toBeGreaterThan(0)
+  })
+}
+
+test('the page asks before the form replaces a query that the visitor typed', async ({ page }) => {
+  await open(page)
+  await editor(page).fill('SELECT 1 AS minha')
+  await form(page).getByLabel('Nível').selectOption('municipio')
+  await expect(page.getByText('Trocar a consulta que você escreveu?')).toBeVisible()
+  await page.getByRole('button', { name: 'Manter a minha' }).click()
+  await expect(editor(page)).toHaveValue('SELECT 1 AS minha')
+})
+
+for (const shortcut of ['Control+Enter', 'Meta+Enter']) {
+  test(`${shortcut} in the editor runs the query`, async ({ page }) => {
+    await open(page)
+    await editor(page).fill('SELECT 42 AS resposta')
+    await editor(page).press(shortcut)
+    await expect(result(page)).toContainText('42', { timeout: 40_000 })
   })
 }
 

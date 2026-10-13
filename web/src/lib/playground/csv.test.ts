@@ -68,6 +68,7 @@ describe('the CSV file', () => {
         { round: 2, version: '20261027-abc1234-1' },
       ]),
     ).toBe('consulta-2026-t1-20261007-67d59ff-37656362427-t2-20261027-abc1234-1.csv')
+    expect(csvFileName([])).toBe('consulta-2026.csv')
   })
 
   it('refuses a comment line with a line break', () => {

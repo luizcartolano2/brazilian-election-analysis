@@ -22,6 +22,21 @@ describe('the catalog', () => {
     }
   })
 
+  it('names each vote type code in both languages, from candidate to annulled sub judice', () => {
+    const types = TABLES.flatMap((table) =>
+      table.columns.filter((column) => column.name === 'tipo'),
+    )
+    expect(types.length).toBeGreaterThan(0)
+    for (const column of types) {
+      expect(column.pt).toContain(
+        '1 candidato, 2 legenda, 3 branco, 4 nulo, 5 nulo técnico, 6 anulado, 7 anulado sub judice',
+      )
+      expect(column.en).toContain(
+        '1 candidate, 2 party list, 3 blank, 4 null, 5 technical null, 6 annulled, 7 annulled sub judice',
+      )
+    }
+  })
+
   it('names no table like a column, so a scan for table names never takes a column', () => {
     const columns = new Set([
       ...TABLES.flatMap((table) => table.columns.map((column) => column.name)),
