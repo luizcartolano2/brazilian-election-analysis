@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -16,7 +16,8 @@ import {
   fixtureSwing,
   fixtureSource,
   loadVersion,
-  pinnedRaces,
+  racesOf,
+  readPinnedRaces,
   plannedRounds,
   verifyPublishedAssets,
   type DataSource,
@@ -45,46 +46,64 @@ function pinOf(source: DataSource): Promise<string> {
   return source.read('manifest.json').then((bytes) => sha256(bytes as Uint8Array))
 }
 
+type Race = [string, number, number]
+
+/** The races that a source's manifest reconciled, which a pin of it lists. */
+async function racesIn(source: DataSource): Promise<Race[]> {
+  const bytes = (await source.read('manifest.json')) as Uint8Array
+  return JSON.parse(new TextDecoder().decode(bytes)).verificacoes.agregado as Race[]
+}
+
+/** Changes the manifest's list of reconciled races. */
+function withRaces(change: (races: Race[]) => Race[] | undefined) {
+  return (files: Map<string, Uint8Array>) => {
+    const manifest = JSON.parse(new TextDecoder().decode(files.get('manifest.json')))
+    const races = change(manifest.verificacoes.agregado as Race[])
+    if (races === undefined) delete manifest.verificacoes
+    else manifest.verificacoes.agregado = races
+    files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
+  }
+}
+
 describe('loadVersion', () => {
   it('accepts the pinned manifest and every summary it lists', async () => {
     const source = published()
-    const { summaries } = await loadVersion(source, 1, await pinOf(source))
+    const { summaries } = await loadVersion(source, 1, await pinOf(source), await racesIn(source))
     expect([...summaries.keys()].sort()).toEqual(['ac', 'br', 'pe', 'se', 'zz'])
   })
 
   it('fails when the pinned version has no manifest', async () => {
     const source = published((files) => files.delete('manifest.json'))
-    await expect(loadVersion(source, 1, 'a'.repeat(64))).rejects.toThrow(/no manifest/)
-  })
-
-  it('accepts a version that reconciled every race the pin lists', async () => {
-    const source = published()
-    const races: [string, number, number][] = [
-      ['br', 6257, 1],
-      ['pe30015', 6261, 25],
-    ]
-    await expect(loadVersion(source, 1, await pinOf(source), races)).resolves.toBeDefined()
+    await expect(loadVersion(source, 1, 'a'.repeat(64), [])).rejects.toThrow(/no manifest/)
   })
 
   it('fails when the version did not reconcile a race the pin lists', async () => {
-    const source = published((files) => {
-      const manifest = JSON.parse(new TextDecoder().decode(files.get('manifest.json')))
-      manifest.verificacoes.agregado = manifest.verificacoes.agregado.filter(
-        (race: [string, number, number]) => race[1] !== 6261,
-      )
-      files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
-    })
-    await expect(
-      loadVersion(source, 1, await pinOf(source), [
-        ['br', 6257, 1],
-        ['pe30015', 6261, 25],
-      ]),
-    ).rejects.toThrow(/round 1 did not reconcile pe30015\/6261\/25, which pinned-races.json lists/)
+    const listed = await racesIn(published())
+    const source = published(withRaces((races) => races.filter((race) => race[1] !== 6261)))
+    await expect(loadVersion(source, 1, await pinOf(source), listed)).rejects.toThrow(
+      /round 1 did not reconcile pe30015\/6261\/25, which pinned-races.json lists/,
+    )
+  })
+
+  it('fails when the version reconciled a race that the list lacks', async () => {
+    const source = published()
+    const listed = (await racesIn(source)).filter((race) => race[1] !== 6261)
+    await expect(loadVersion(source, 1, await pinOf(source), listed)).rejects.toThrow(
+      /round 1 reconciled pe30015\/6261\/25, which pinned-races.json lacks: add them/,
+    )
+  })
+
+  it('fails when the manifest records no reconciled races', async () => {
+    const listed = await racesIn(published())
+    const source = published(withRaces(() => undefined))
+    await expect(loadVersion(source, 1, await pinOf(source), listed)).rejects.toThrow(
+      /round 1 records no reconciled races/,
+    )
   })
 
   it('fails when the manifest differs from the pinned checksum', async () => {
     const source = published()
-    await expect(loadVersion(source, 1, 'b'.repeat(64))).rejects.toThrow(/data-version.ts pins/)
+    await expect(loadVersion(source, 1, 'b'.repeat(64), [])).rejects.toThrow(/data-version.ts pins/)
   })
 
   it('fails when a summary differs from its manifest entry', async () => {
@@ -95,12 +114,16 @@ describe('loadVersion', () => {
       tampered[last] = (tampered[last] ?? 0) ^ 1
       files.set('2026/t1/resumo/pe.json', tampered)
     })
-    await expect(loadVersion(source, 1, await pinOf(source))).rejects.toThrow(/pe.json differs/)
+    await expect(
+      loadVersion(source, 1, await pinOf(source), await racesIn(source)),
+    ).rejects.toThrow(/pe.json differs/)
   })
 
   it('fails when a summary is missing', async () => {
     const source = published((files) => files.delete('2026/t1/resumo/se.json'))
-    await expect(loadVersion(source, 1, await pinOf(source))).rejects.toThrow(/se.json/)
+    await expect(
+      loadVersion(source, 1, await pinOf(source), await racesIn(source)),
+    ).rejects.toThrow(/se.json/)
   })
 
   it('refuses a partial version or one built from other sources', async () => {
@@ -110,7 +133,10 @@ describe('loadVersion', () => {
         manifest[field] = !manifest[field]
         files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
       })
-      await expect(loadVersion(source, 1, await pinOf(source)), field).rejects.toThrow(/partial/)
+      await expect(
+        loadVersion(source, 1, await pinOf(source), await racesIn(source)),
+        field,
+      ).rejects.toThrow(/partial/)
     }
   })
 
@@ -123,7 +149,9 @@ describe('loadVersion', () => {
       manifest[field] = value
       files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
     })
-    await expect(loadVersion(source, 1, await pinOf(source))).rejects.toThrow(message)
+    await expect(
+      loadVersion(source, 1, await pinOf(source), await racesIn(source)),
+    ).rejects.toThrow(message)
   })
 
   it('reads only the summaries of the round the app shows', async () => {
@@ -138,13 +166,13 @@ describe('loadVersion', () => {
       files.set('2026/t2/resumo/pe.json', stray)
       files.set('manifest.json', new TextEncoder().encode(JSON.stringify(manifest)))
     })
-    const { summaries } = await loadVersion(source, 1, await pinOf(source))
+    const { summaries } = await loadVersion(source, 1, await pinOf(source), await racesIn(source))
     const first = JSON.parse(new TextDecoder().decode(summaries.get('pe')))
     expect(first.turno).toBe(1)
   })
 
   it('reads the fixtures without a pin, and still checks their summaries', async () => {
-    const { summaries } = await loadVersion(fixtureSource(FIXTURES), 1)
+    const { summaries } = await loadVersion(fixtureSource(FIXTURES), 1, '', [])
     expect(summaries.size).toBe(5)
   })
 })
@@ -160,16 +188,18 @@ describe('the rounds', () => {
 
   it('refuses a round-1 version pinned as round 2', async () => {
     const source = published()
-    await expect(loadVersion(source, 2, await pinOf(source))).rejects.toThrow(
-      /round 2 holds 2026 round 1/,
-    )
+    await expect(
+      loadVersion(source, 2, await pinOf(source), await racesIn(source)),
+    ).rejects.toThrow(/round 2 holds 2026 round 1/)
   })
 
   it('reads the round-2 fixtures as round 2 only, marked as synthetic', async () => {
-    const { manifest, summaries } = await loadVersion(fixtureSource(FIXTURES_T2), 2)
+    const { manifest, summaries } = await loadVersion(fixtureSource(FIXTURES_T2), 2, '', [])
     expect([...summaries.keys()].sort()).toEqual(['ac', 'br', 'pe', 'se', 'zz'])
     expect(manifest.sintetico).toBe(true)
-    await expect(loadVersion(fixtureSource(FIXTURES_T2), 1)).rejects.toThrow(/round 1 holds/)
+    await expect(loadVersion(fixtureSource(FIXTURES_T2), 1, '', [])).rejects.toThrow(
+      /round 1 holds/,
+    )
   })
 
   it('builds round 1 alone while round 2 has no pin', () => {
@@ -179,7 +209,8 @@ describe('the rounds', () => {
 
   it('builds round 2 from its own pin, and both fixture rounds', () => {
     const second = { name: 'round-two', manifestSha256: 'c'.repeat(64) }
-    const planned = plannedRounds('published', { 1: DATA_VERSIONS[1], 2: second })
+    const lists = { 1: [['br', 6257, 1] as Race], 2: [['br', 6258, 1] as Race] }
+    const planned = plannedRounds('published', { 1: DATA_VERSIONS[1], 2: second }, undefined, lists)
     expect(planned.map((entry) => [entry.round, entry.dataBase])).toEqual([
       [1, versionUrl(DATA_VERSIONS[1])],
       [2, versionUrl(second)],
@@ -190,9 +221,25 @@ describe('the rounds', () => {
     ])
   })
 
+  it('gives each published round its list of races, and a fixture round none', () => {
+    const second = { name: 'round-two', manifestSha256: 'c'.repeat(64) }
+    const lists = { 1: [['br', 6257, 1] as Race], 2: [['br', 6258, 1] as Race] }
+    const planned = plannedRounds('published', { 1: DATA_VERSIONS[1], 2: second }, undefined, lists)
+    expect(planned.map((entry) => entry.races)).toEqual([lists[1], lists[2]])
+    expect(plannedRounds('fixtures').map((entry) => entry.races)).toEqual([[], []])
+  })
+
+  it('refuses a pinned round whose list of races is missing', () => {
+    const second = { name: 'round-two', manifestSha256: 'c'.repeat(64) }
+    const lists = { 1: [['br', 6257, 1] as Race], 2: null }
+    expect(() =>
+      plannedRounds('published', { 1: DATA_VERSIONS[1], 2: second }, undefined, lists),
+    ).toThrow(/lists no races for round 2/)
+  })
+
   it('finds that the two fixture rounds agree on the runoffs', async () => {
-    const first = await loadVersion(fixtureSource(FIXTURES), 1)
-    const second = await loadVersion(fixtureSource(FIXTURES_T2), 2)
+    const first = await loadVersion(fixtureSource(FIXTURES), 1, '', [])
+    const second = await loadVersion(fixtureSource(FIXTURES_T2), 2, '', [])
     expect(runoffMismatches(parsed(first.summaries), parsed(second.summaries))).toEqual([])
   })
 })
@@ -297,21 +344,21 @@ describe('verifyPublishedAssets', () => {
   })
 })
 
-describe('pinnedRaces', () => {
-  it('lists every race of the pinned round 1, Fernando de Noronha’s council among them', async () => {
-    const races = await pinnedRaces(1)
-    expect(races.length).toBeGreaterThan(100)
-    expect(races).toContainEqual(['br', 6257, 1])
-    expect(races).toContainEqual(['pe30015', 6261, 25])
+describe('the pinned races', () => {
+  it('lists the races of round 1 once each, as area, election and race', () => {
+    const races = racesOf(readPinnedRaces(), 1)
+    for (const race of races) {
+      expect(race).toEqual([expect.any(String), expect.any(Number), expect.any(Number)])
+    }
+    expect(new Set(races.map((race) => race.join('/'))).size).toBe(races.length)
   })
 
-  it('fails on a pinned round with no list, and says where to copy it from', async () => {
-    const folder = await mkdtemp(path.join(tmpdir(), 'races-'))
-    const file = path.join(folder, 'pinned-races.json')
-    await writeFile(file, JSON.stringify({ 1: [['br', 6257, 1]], 2: null }))
-    await expect(pinnedRaces(1, file)).resolves.toEqual([['br', 6257, 1]])
-    await expect(pinnedRaces(2, file)).rejects.toThrow(
-      /lists no races for round 2: copy them from the pinned manifest's verificacoes.agregado/,
-    )
+  it('refuses a round that the file leaves out, holds as null, or lists empty', () => {
+    const message =
+      /lists no races for round 2: copy them from the pinned manifest's verificacoes.agregado/
+    expect(racesOf({ 1: [['br', 6257, 1]], 2: [['br', 6258, 1]] }, 2)).toEqual([['br', 6258, 1]])
+    for (const lists of [{}, { 2: null }, { 2: [] }]) {
+      expect(() => racesOf(lists, 2), JSON.stringify(lists)).toThrow(message)
+    }
   })
 })

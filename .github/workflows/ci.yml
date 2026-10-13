@@ -123,6 +123,11 @@ jobs:
       - name: Test
         run: npm test
 
+      # The builds below read the fixtures, so this step checks the real pins through the Worker:
+      # each manifest's SHA-256, its summaries, and the races that src/pinned-races.json lists.
+      - name: Check the pinned versions
+        run: npm run check-pins
+
       # The build also type-checks, and fails on any summary that differs from its manifest.
       # The swing switch draws the swing map over the synthetic round 2, for the browser tests.
       - name: Build against the fixtures

@@ -245,9 +245,9 @@ def test_a_president_candidate_that_brazils_aggregate_omits_stops_the_build(buil
 
 
 def test_a_configured_election_with_no_vote_rows_stops_the_build(tse, tmp_path):
-    """TSE once dropped Fernando de Noronha's council from Pernambuco's vote file, as here, where
-    its rows move to another round."""
-    pernambuco = tse.csv_path(state_votes_source(round_config(1), Bases(), "PE"))
+    """TSE once dropped Fernando de Noronha's council from Pernambuco's files. Here its vote and
+    turnout rows both move to another round, so no other check sees the race go."""
+    config = round_config(1)
 
     def move_to_round_2(row):
         if row["CD_ELEICAO"] != "6261":
@@ -255,7 +255,11 @@ def test_a_configured_election_with_no_vote_rows_stops_the_build(tse, tmp_path):
         row["NR_TURNO"] = "2"
         return True
 
-    assert tse.edit_csv(pernambuco, move_to_round_2) > 0
+    for source in (
+        state_votes_source(config, Bases(), "PE"),
+        bulk_sources(config, Bases())["turnout"],
+    ):
+        assert tse.edit_csv(tse.csv_path(source), move_to_round_2) > 0
     with pytest.raises(
         BuildError, match="PE: election 6261 has no vote rows in municipality 30015"
     ):

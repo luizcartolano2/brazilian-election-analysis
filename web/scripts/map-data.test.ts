@@ -77,7 +77,7 @@ describe('checkBoundaries', () => {
 /** A fixture version's inputs to `buildMaps`, read as prepare-data.ts reads them. */
 async function fixtureInputs(run: Run, root: string, round: Round) {
   const source = fixtureSource(root)
-  const { manifest } = await readManifest(source, round, '')
+  const { manifest } = await readManifest(source, round, '', [])
   const summaries = new Map<string, Summary>()
   const folder = path.join(root, '2026', `t${round}`, 'resumo')
   for (const file of await readdir(folder)) {
@@ -159,7 +159,7 @@ describe('buildMaps on the fixtures', () => {
 
   it('fails and names a municipality that its state file lacks', async () => {
     const source = fixtureSource()
-    const { manifest } = await readManifest(source, 1, '')
+    const { manifest } = await readManifest(source, 1, '', [])
     const summaries = new Map<string, Summary>()
     for (const area of ['br', 'pe']) {
       const text = await readFile(
@@ -189,7 +189,7 @@ describe('buildMaps on the fixtures', () => {
 
   it('fails and names a municipality that the Brazil file lacks', async () => {
     const source = fixtureSource()
-    const { manifest } = await readManifest(source, 1, '')
+    const { manifest } = await readManifest(source, 1, '', [])
     const summaries = new Map<string, Summary>()
     for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
       const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
@@ -224,7 +224,7 @@ describe('buildMaps on the fixtures', () => {
 
   it('fails and names a municipality in the totals that the municipality list lacks', async () => {
     const source = fixtureSource()
-    const { manifest } = await readManifest(source, 1, '')
+    const { manifest } = await readManifest(source, 1, '', [])
     const summaries = new Map<string, Summary>()
     for (const file of await readdir(path.join(FIXTURES, '2026', 't1', 'resumo'))) {
       const text = await readFile(path.join(FIXTURES, '2026', 't1', 'resumo', file), 'utf-8')
