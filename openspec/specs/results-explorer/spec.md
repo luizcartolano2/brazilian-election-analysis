@@ -32,14 +32,18 @@ attendance and abstention. It SHALL also show annulled and annulled sub judice v
 whenever they are not zero, as TSE does. Levels are Brazil, state, municipality, zone and
 polling station. President is available at every level, including votes cast abroad.
 Governor, Senate and the deputy races are available from the state level down. The
-Federal District shows its district deputy race in place of a state deputy race.
-Fernando de Noronha also shows its Conselheiro Distrital race, from the municipality
-level down. In the deputy races, the page SHALL also show each party's list votes and its
-total of candidate and list votes, so every vote counted in the valid-vote denominator
-is visible. At the Brazil and state levels, and abroad, the list SHALL hold every
-candidate in the race. In a municipality, zone or polling station, it SHALL hold every
-candidate with at least one vote there, and the page SHALL say that the others are left
-out.
+Federal District shows its district deputy race in place of a state deputy race. Fernando
+de Noronha also shows its Conselheiro Distrital race, from the municipality level down.
+In the deputy races, the page SHALL also show each party's list votes and its total of
+candidate and list votes, so every vote counted in the valid-vote denominator is visible.
+Every vote under appeal SHALL appear on the line of a named candidate or party list, and
+the build SHALL fail when those lines add up to more or less than the race's votes under
+appeal. A party's candidate votes SHALL be the sum of its valid candidates' votes, so a
+data version of schema version 1, whose `votos_candidatos` also counts votes under
+appeal, shows the same party totals as a later one. At the Brazil and state levels, and
+abroad, the list SHALL hold every candidate in the race. In a municipality, zone or
+polling station, it SHALL hold every candidate with at least one vote there, and the page
+SHALL say that the others are left out.
 
 #### Scenario: Governor in one municipality
 - **WHEN** a visitor opens the governor race for a municipality
@@ -67,11 +71,15 @@ out.
 
 #### Scenario: Votes under appeal
 - **WHEN** a race in an area has votes that TSE classifies as annulled sub judice
-- **THEN** the page shows them on their own line, apart from valid votes
+- **THEN** the page shows them on their own lines, each under a named candidate or party list, apart from valid votes
 
 #### Scenario: A race that does not exist at that level
 - **WHEN** a visitor opens the governor race for Brazil as a whole
 - **THEN** the app offers the state list instead of empty results
+
+#### Scenario: Votes under appeal with no named line
+- **WHEN** a summary's lines under appeal add up to less than the race's votes under appeal
+- **THEN** the build fails, and names the race and both numbers
 
 ### Requirement: Official outcome per candidate
 The app SHALL show each candidate's outcome as TSE publishes it, such as elected, in the
@@ -172,10 +180,16 @@ the page shows.
 - **THEN** it names IBGE's 2025 municipal boundaries, their terms, that they were simplified, and the boundary build in use with a link to its manifest
 
 ### Requirement: One pinned and verified data version
-The app SHALL be built against one data version for round 1, and at most one for round
-2, each named together with the SHA-256 of its manifest. The build SHALL fail when a
-pinned manifest is missing, when its checksum differs, when it names another year or
-round than its pin, or when any summary file it reads differs from the manifest. At run
+The app SHALL be built against one data version for round 1, and at most one for round 2,
+each named together with the SHA-256 of its manifest. The build SHALL fail when a pinned
+manifest is missing, when its checksum differs, when it names another year or round than
+its pin, or when any summary file it reads differs from the manifest. It SHALL also fail
+when the races that a pinned version reconciled, as its manifest's
+`verificacoes.agregado` lists them, differ from its round's list in
+`web/src/pinned-races.json`, when a pinned round has no list there, or when the manifest
+records no reconciled races. One error SHALL name every race that differs. CI SHALL run
+these checks on the pinned versions for every change, without a build. The list verifies
+the races that the pipeline took from TSE's vote rows, and never decides them. At run
 time the app SHALL read data only from the pinned versions and from its pinned boundary
 build, all through the Worker, and from files that the build derived from those versions
 and serves from the app's own origin.
@@ -212,7 +226,19 @@ the search shows TSE's round-1 outcome.
 
 #### Scenario: Rio's runoff cancelled before round one is republished
 - **WHEN** the round-2 version holds no Governor race for Rio de Janeiro, and the pinned round-1 version still marks Rio's Governor race for a runoff
-- **THEN** the build fails, until a PR pins the republished round 1
+- **THEN** the build fails, until a PR pins the republished round 1, and removes Rio's Governor race from the round-2 list if an earlier pin listed it
+
+#### Scenario: A pin that drops a race
+- **WHEN** a new round-1 version did not reconcile Acre's Senate race, which the round-1 list holds
+- **THEN** the build fails and names the race, and passes only once a PR removes the race from the list on purpose
+
+#### Scenario: A pin that adds a race
+- **WHEN** a new version reconciled a race that its round's list lacks
+- **THEN** the build fails and names the race, until a PR adds it to the list
+
+#### Scenario: A round's first pin
+- **WHEN** a PR sets the round-2 pin and leaves the round-2 list empty
+- **THEN** the build fails, and says to copy the list from the manifest's `verificacoes.agregado`
 
 ### Requirement: Works under its own security policy
 Every page SHALL load, and every query SHALL run, under the production security headers.

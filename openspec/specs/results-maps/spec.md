@@ -404,7 +404,7 @@ The edges SHALL apply to the swing's absolute value, so swings of +1.0 and −1.
 same step on opposite sides. A municipality where the two finalists had no votes in a round
 SHALL have no swing, and SHALL take a hatched no-data fill that no step uses.
 
-The swing map SHALL read the same values files as the section's share maps, one per round,
+The swing map SHALL read the same values files as the page's share maps, one per round,
 and SHALL draw only after both files arrive and their SHA-256 values match the page's.
 Otherwise it SHALL follow a share map's rules: no colors and no list, a message in the
 visitor's language, a retry that bypasses the browser's cache, and an offer to reload the
@@ -488,7 +488,8 @@ and to IBGE. The frame SHALL state that the map compares two official counts of 
 finalists' votes. It SHALL state that a change mixes differences in turnout, the round-1
 votes of the eliminated candidates, and votes that changed between the finalists, and that
 TSE's files cannot separate them. It SHALL state that the map does not show where any
-voter's vote went.
+voter's vote went. On Brazil's map, the frame SHALL also state that the map leaves out
+the votes cast abroad.
 
 Each label of a head-to-head share, in the frame, the details and the list, SHALL name its
 denominator as the two finalists' votes. No such label SHALL call it a share of the valid
@@ -508,3 +509,7 @@ went.
 #### Scenario: A gain with no attribution
 - **WHEN** the swing map shows a finalist's gain in a municipality
 - **THEN** neither the heading, the frame, the details nor the list attributes the gain to any other candidate's voters
+
+#### Scenario: A cropped Brazil swing map
+- **WHEN** someone captures only the frame of Lula's swing map
+- **THEN** the capture also states that the map leaves out the votes cast abroad
