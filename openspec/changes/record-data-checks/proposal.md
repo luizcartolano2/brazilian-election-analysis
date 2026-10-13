@@ -5,10 +5,11 @@ OpenSpec change. Their reviews listed what the living specs now leave out:
 
 - #47 fixed the summaries for #11 and #12. A summary now names every candidate with votes,
   a party's candidate votes count valid votes only, and a new check fails the build when a
-  vote has no named line.
-- #52 added the guards of #48. The pipeline fails when a configured election has no vote
-  rows, and a published build fails when a pinned version's races differ from a committed
-  list.
+  vote has no named line. The app now fails its build on a vote under appeal with no line,
+  and sums party totals from the valid candidates.
+- #52 added the guards of #48. The pipeline fails when a municipal election in the round's
+  configuration has no vote rows, and a published build fails when a pinned version's
+  races differ from a committed list.
 - The review of #51, which archived `add-swing-map`, found two lines of the swing
   requirements that no longer match the code.
 
@@ -21,16 +22,26 @@ omits a check lets a later change drop it without contradicting anything.
   aggregate omits but its per-zone file classifies. Such a candidate takes its name and
   destination from that file, its party from the candidate file, and no outcome. A party's
   `votos_candidatos` counts its valid candidates' votes only, from schema version 2.
-- `results-dataset`: the reconciliation lists the summary check, the failures of the
-  lookup of an omitted candidate, the failure of Brazil's summary when Brazil's aggregate
-  omits a President candidate, and the failure when an election in the round's
-  configuration has no vote rows. The last fails at once, as unclassified vote rows do.
-- `data-publishing`: the manifest records the checks that the build ran, under
-  `verificacoes`, among them each race that it reconciled with TSE's aggregate.
+- `results-dataset`: Brazil's summary keeps a known limit. It names only the candidates in
+  Brazil's aggregate, and a President candidate that it omits fails the summary check.
+  Naming that candidate would need a merge of the states' lines, which no TSE file has
+  needed, and the check keeps the limit from passing unnamed.
+- `results-dataset`: the reconciliation lists the summary check. The run also fails at once
+  when a municipal election in the round's configuration has no vote rows, and when the
+  lookup of an omitted candidate fails. Such a failure reports only itself and drops the
+  mismatches found before it, as a run with unclassified vote rows already does. The rule
+  to report every mismatch keeps to the listed checks.
+- `data-publishing`: the manifest records the schema version and the checks that the build
+  ran, under `verificacoes`, among them each race that it reconciled with TSE's aggregate.
+- `results-explorer`: every vote under appeal sits on a named line, or the build fails, and
+  a party's candidate votes are the sum of its valid candidates' votes, whatever the
+  pinned version's schema.
 - `results-explorer`: a published build fails when a pinned version's reconciled races
   differ from its round's list in `web/src/pinned-races.json`, when a pinned round has no
-  list, or when a manifest records no reconciled races. CI runs the same checks on every
-  PR. The scenario of Rio's cancelled runoff names the edit of the list.
+  list, or when a manifest records no reconciled races. The list verifies the races that
+  the pipeline took from TSE's vote rows, and never decides them, so it keeps the rule of
+  "Round two builds like round one". CI runs the same checks on every PR. The scenario of
+  Rio's cancelled runoff names the edit of the list.
 - `results-maps`: the swing map reads the files of the page's share maps, one per round. On
   Brazil's map, its frame also states that it leaves out the votes cast abroad.
 
@@ -45,7 +56,8 @@ None.
 - `results-dataset`: the summaries' candidates and party totals, and the checks and
   failures of the reconciliation.
 - `data-publishing`: the manifest's record of the checks it ran.
-- `results-explorer`: a pinned version's races, and the checks that CI runs on the pins.
+- `results-explorer`: the votes under appeal and the party totals that a page shows, a
+  pinned version's races, and the checks that CI runs on the pins.
 - `results-maps`: the swing map's files and the note on the votes cast abroad.
 
 ## Invariants
