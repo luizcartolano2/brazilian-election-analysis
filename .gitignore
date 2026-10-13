@@ -27,6 +27,7 @@ node_modules/
 /web/public/_fixtures/
 /web/public/busca/
 /web/public/mapas/
+/web/public/consultas/
 .next/
 out/
 *.tsbuildinfo

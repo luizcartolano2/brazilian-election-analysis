@@ -31,7 +31,7 @@ export function browserRunner(config: DrilldownConfig): Promise<Run> {
  * DuckDB's worker drops a failed module download without rejecting, which would leave a view
  * loading forever. So a download that stops reporting progress counts as failed.
  */
-function instantiate(db: AsyncDuckDB, moduleUrl: string): Promise<void> {
+export function instantiate(db: AsyncDuckDB, moduleUrl: string): Promise<void> {
   return new Promise((resolve, reject) => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let settled = false

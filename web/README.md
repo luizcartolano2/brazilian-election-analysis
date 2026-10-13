@@ -142,6 +142,40 @@ writes the index into `public/busca/<hash>/`, with an allowlist of fields, and `
 marks that path immutable. The browser downloads the index the first time a visitor
 focuses the box.
 
+## Playground
+
+`/2026/consultas/` lets a visitor query the pinned data in the browser, through a form or
+their own SQL. The form writes SQL from fixed templates in `src/lib/playground/form.ts`,
+and fills them only with whole numbers and codes from fixed lists.
+
+`src/lib/playground/catalog.json` lists every table and column that the playground
+exposes, with its meaning in both languages. It is the contract with the pipeline. A
+pipeline test, `tests/test_playground_catalog.py`, fails when a published file's columns
+differ from it, so a schema change updates both in one PR. The page also compares each
+file's columns with the catalog before a run reads it. A published file that the catalog
+names for no table, such as a future file of estimates, stays out of the playground.
+
+The build writes the file list and the candidate lists to `public/consultas/<hash>/`, which
+`vercel.json` marks immutable, and the page checks each against its SHA-256. A run downloads whole files, only those of the
+tables that its query names, and checks each file against its manifest's SHA-256. A run
+that needs more than 25 MB of new files asks first. A fixtures build asks above 40 kB,
+so the browser tests reach the question.
+
+Each run opens a fresh database in DuckDB-WASM, creates the views, and then locks the
+engine with `allowed_paths`, `enable_external_access = false` and
+`lock_configuration = true`. A spike on DuckDB 1.5.4 showed that the lock refuses every
+other file and URL, writes, extensions and changes to the settings. It does not cover a
+visitor's macros, schemas or attached databases, so the fresh database drops them before
+the next run. `src/lib/playground/sandbox.test.ts` repeats both in Node, and
+`e2e/playground.spec.ts` in the browser.
+
+A result keeps at most 1,000,000 rows and 100 MB of CSV text, and the table shows the
+first 1,000 rows. The CSV is UTF-8 with a byte order mark, separated by commas. Its first
+lines start with `#` and hold the TSE credit, each data version and the link that
+restores the query, never the query's own text. A cell that starts like a formula gets a
+leading single quote. A link holds its query in the address's fragment, which never
+reaches a server, and it never runs anything until the visitor runs it.
+
 ## Fonts and names
 
 The app uses Archivo for headings and Public Sans for text, both under the SIL Open Font

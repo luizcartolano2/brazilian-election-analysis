@@ -1,0 +1,511 @@
+{
+  "added": {
+    "turno": {
+      "type": "TINYINT",
+      "pt": "Turno: 1 ou 2.",
+      "en": "Round: 1 or 2."
+    },
+    "uf": {
+      "type": "VARCHAR",
+      "pt": "Sigla do estado em maiúsculas, ou ZZ para o exterior.",
+      "en": "State code in capitals, or ZZ for abroad."
+    },
+    "cargo": {
+      "type": "TINYINT",
+      "pt": "Código do cargo: 1 presidente, 3 governador, 5 senador, 6 deputado federal, 7 deputado estadual, 8 deputado distrital, 25 conselheiro distrital.",
+      "en": "Race code: 1 President, 3 Governor, 5 Senator, 6 federal deputy, 7 state deputy, 8 district deputy, 25 district councillor."
+    }
+  },
+  "tables": [
+    {
+      "name": "votos_municipio",
+      "pt": "Votos de cada número digitado, por município.",
+      "en": "Votes for each number typed, by municipality.",
+      "path": "2026/t{turno}/totais/municipio/cargo={cargo}/uf={uf}.parquet",
+      "added": ["turno", "uf", "cargo"],
+      "rows": "all",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "tipo",
+          "type": "TINYINT",
+          "pt": "Tipo do voto: 1 candidato, 2 legenda, 3 branco, 4 nulo, 5 nulo técnico, 6 anulado, 7 anulado sub judice.",
+          "en": "Vote type: 1 candidate, 2 party list, 3 blank, 4 null, 5 technical null, 6 annulled, 7 annulled sub judice."
+        },
+        {
+          "name": "numero",
+          "type": "INTEGER",
+          "pt": "Número digitado: o do candidato ou, num voto de legenda, o do partido.",
+          "en": "Number typed: the candidate's or, for a party-list vote, the party's."
+        },
+        { "name": "votos", "type": "INTEGER", "pt": "Votos.", "en": "Votes." }
+      ]
+    },
+    {
+      "name": "comparecimento_municipio",
+      "pt": "Eleitores, comparecimento e votos por tipo, por município e cargo.",
+      "en": "Voters, turnout and votes by type, by municipality and race.",
+      "path": "2026/t{turno}/totais/municipio/comparecimento/uf={uf}.parquet",
+      "added": ["turno", "uf"],
+      "rows": "races",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "cargo",
+          "type": "TINYINT",
+          "pt": "Código do cargo: 1 presidente, 3 governador, 5 senador, 6 deputado federal, 7 deputado estadual, 8 deputado distrital, 25 conselheiro distrital.",
+          "en": "Race code: 1 President, 3 Governor, 5 Senator, 6 federal deputy, 7 state deputy, 8 district deputy, 25 district councillor."
+        },
+        {
+          "name": "aptos",
+          "type": "INTEGER",
+          "pt": "Eleitores aptos a votar.",
+          "en": "Eligible voters."
+        },
+        {
+          "name": "comparecimento",
+          "type": "INTEGER",
+          "pt": "Eleitores que votaram.",
+          "en": "Voters who turned out."
+        },
+        {
+          "name": "abstencoes",
+          "type": "INTEGER",
+          "pt": "Eleitores que não votaram.",
+          "en": "Voters who did not turn out."
+        },
+        {
+          "name": "nominais",
+          "type": "INTEGER",
+          "pt": "Votos em números de candidatos.",
+          "en": "Votes for candidates' numbers."
+        },
+        {
+          "name": "legenda",
+          "type": "INTEGER",
+          "pt": "Votos só no número de um partido.",
+          "en": "Votes for a party's number only."
+        },
+        { "name": "brancos", "type": "INTEGER", "pt": "Votos em branco.", "en": "Blank votes." },
+        { "name": "nulos", "type": "INTEGER", "pt": "Votos nulos.", "en": "Null votes." }
+      ]
+    },
+    {
+      "name": "votos_zona",
+      "pt": "Votos de cada número digitado, por zona eleitoral.",
+      "en": "Votes for each number typed, by electoral zone.",
+      "path": "2026/t{turno}/totais/zona/cargo={cargo}/uf={uf}.parquet",
+      "added": ["turno", "uf", "cargo"],
+      "rows": "all",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "zona",
+          "type": "SMALLINT",
+          "pt": "Número da zona eleitoral.",
+          "en": "Electoral zone number."
+        },
+        {
+          "name": "tipo",
+          "type": "TINYINT",
+          "pt": "Tipo do voto: 1 candidato, 2 legenda, 3 branco, 4 nulo, 5 nulo técnico, 6 anulado, 7 anulado sub judice.",
+          "en": "Vote type: 1 candidate, 2 party list, 3 blank, 4 null, 5 technical null, 6 annulled, 7 annulled sub judice."
+        },
+        {
+          "name": "numero",
+          "type": "INTEGER",
+          "pt": "Número digitado: o do candidato ou, num voto de legenda, o do partido.",
+          "en": "Number typed: the candidate's or, for a party-list vote, the party's."
+        },
+        { "name": "votos", "type": "INTEGER", "pt": "Votos.", "en": "Votes." }
+      ]
+    },
+    {
+      "name": "comparecimento_zona",
+      "pt": "Eleitores, comparecimento e votos por tipo, por zona eleitoral e cargo.",
+      "en": "Voters, turnout and votes by type, by electoral zone and race.",
+      "path": "2026/t{turno}/totais/zona/comparecimento/uf={uf}.parquet",
+      "added": ["turno", "uf"],
+      "rows": "races",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "zona",
+          "type": "SMALLINT",
+          "pt": "Número da zona eleitoral.",
+          "en": "Electoral zone number."
+        },
+        {
+          "name": "cargo",
+          "type": "TINYINT",
+          "pt": "Código do cargo: 1 presidente, 3 governador, 5 senador, 6 deputado federal, 7 deputado estadual, 8 deputado distrital, 25 conselheiro distrital.",
+          "en": "Race code: 1 President, 3 Governor, 5 Senator, 6 federal deputy, 7 state deputy, 8 district deputy, 25 district councillor."
+        },
+        {
+          "name": "aptos",
+          "type": "INTEGER",
+          "pt": "Eleitores aptos a votar.",
+          "en": "Eligible voters."
+        },
+        {
+          "name": "comparecimento",
+          "type": "INTEGER",
+          "pt": "Eleitores que votaram.",
+          "en": "Voters who turned out."
+        },
+        {
+          "name": "abstencoes",
+          "type": "INTEGER",
+          "pt": "Eleitores que não votaram.",
+          "en": "Voters who did not turn out."
+        },
+        {
+          "name": "nominais",
+          "type": "INTEGER",
+          "pt": "Votos em números de candidatos.",
+          "en": "Votes for candidates' numbers."
+        },
+        {
+          "name": "legenda",
+          "type": "INTEGER",
+          "pt": "Votos só no número de um partido.",
+          "en": "Votes for a party's number only."
+        },
+        { "name": "brancos", "type": "INTEGER", "pt": "Votos em branco.", "en": "Blank votes." },
+        { "name": "nulos", "type": "INTEGER", "pt": "Votos nulos.", "en": "Null votes." }
+      ]
+    },
+    {
+      "name": "votos_secao",
+      "pt": "Votos de cada número digitado, por seção eleitoral.",
+      "en": "Votes for each number typed, by polling station.",
+      "path": "2026/t{turno}/votos/cargo={cargo}/uf={uf}.parquet",
+      "added": ["turno", "uf", "cargo"],
+      "rows": "all",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "zona",
+          "type": "SMALLINT",
+          "pt": "Número da zona eleitoral.",
+          "en": "Electoral zone number."
+        },
+        {
+          "name": "secao",
+          "type": "SMALLINT",
+          "pt": "Número da seção eleitoral.",
+          "en": "Polling station number."
+        },
+        {
+          "name": "tipo",
+          "type": "TINYINT",
+          "pt": "Tipo do voto: 1 candidato, 2 legenda, 3 branco, 4 nulo, 5 nulo técnico, 6 anulado, 7 anulado sub judice.",
+          "en": "Vote type: 1 candidate, 2 party list, 3 blank, 4 null, 5 technical null, 6 annulled, 7 annulled sub judice."
+        },
+        {
+          "name": "numero",
+          "type": "INTEGER",
+          "pt": "Número digitado: o do candidato ou, num voto de legenda, o do partido.",
+          "en": "Number typed: the candidate's or, for a party-list vote, the party's."
+        },
+        { "name": "votos", "type": "INTEGER", "pt": "Votos.", "en": "Votes." }
+      ]
+    },
+    {
+      "name": "comparecimento_secao",
+      "pt": "Eleitores, comparecimento e votos por tipo, por seção eleitoral e cargo.",
+      "en": "Voters, turnout and votes by type, by polling station and race.",
+      "path": "2026/t{turno}/comparecimento/uf={uf}.parquet",
+      "added": ["turno", "uf"],
+      "rows": "races",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "zona",
+          "type": "SMALLINT",
+          "pt": "Número da zona eleitoral.",
+          "en": "Electoral zone number."
+        },
+        {
+          "name": "secao",
+          "type": "SMALLINT",
+          "pt": "Número da seção eleitoral.",
+          "en": "Polling station number."
+        },
+        {
+          "name": "cargo",
+          "type": "TINYINT",
+          "pt": "Código do cargo: 1 presidente, 3 governador, 5 senador, 6 deputado federal, 7 deputado estadual, 8 deputado distrital, 25 conselheiro distrital.",
+          "en": "Race code: 1 President, 3 Governor, 5 Senator, 6 federal deputy, 7 state deputy, 8 district deputy, 25 district councillor."
+        },
+        {
+          "name": "aptos",
+          "type": "INTEGER",
+          "pt": "Eleitores aptos a votar.",
+          "en": "Eligible voters."
+        },
+        {
+          "name": "comparecimento",
+          "type": "INTEGER",
+          "pt": "Eleitores que votaram.",
+          "en": "Voters who turned out."
+        },
+        {
+          "name": "abstencoes",
+          "type": "INTEGER",
+          "pt": "Eleitores que não votaram.",
+          "en": "Voters who did not turn out."
+        },
+        {
+          "name": "nominais",
+          "type": "INTEGER",
+          "pt": "Votos em números de candidatos.",
+          "en": "Votes for candidates' numbers."
+        },
+        {
+          "name": "legenda",
+          "type": "INTEGER",
+          "pt": "Votos só no número de um partido.",
+          "en": "Votes for a party's number only."
+        },
+        { "name": "brancos", "type": "INTEGER", "pt": "Votos em branco.", "en": "Blank votes." },
+        { "name": "nulos", "type": "INTEGER", "pt": "Votos nulos.", "en": "Null votes." }
+      ]
+    },
+    {
+      "name": "secoes",
+      "pt": "Cada seção eleitoral, com seu local de votação.",
+      "en": "Each polling station, with its polling place.",
+      "path": "2026/t{turno}/secoes/uf={uf}.parquet",
+      "added": ["turno", "uf"],
+      "rows": "all",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "zona",
+          "type": "SMALLINT",
+          "pt": "Número da zona eleitoral.",
+          "en": "Electoral zone number."
+        },
+        {
+          "name": "secao",
+          "type": "SMALLINT",
+          "pt": "Número da seção eleitoral.",
+          "en": "Polling station number."
+        },
+        {
+          "name": "local_votacao",
+          "type": "INTEGER",
+          "pt": "Número do local de votação na zona.",
+          "en": "The polling place's number in its zone."
+        },
+        {
+          "name": "agregada",
+          "type": "BOOLEAN",
+          "pt": "Verdadeiro quando o TSE agregou a seção à urna de outra.",
+          "en": "True when TSE aggregated the station onto another's machine."
+        },
+        {
+          "name": "secao_principal",
+          "type": "SMALLINT",
+          "pt": "Numa seção agregada, a seção que conta seus votos.",
+          "en": "For an aggregated station, the station that counts its votes."
+        },
+        {
+          "name": "nome_local",
+          "type": "VARCHAR",
+          "pt": "Nome do local de votação.",
+          "en": "The polling place's name."
+        },
+        {
+          "name": "endereco",
+          "type": "VARCHAR",
+          "pt": "Endereço do local de votação.",
+          "en": "The polling place's address."
+        },
+        {
+          "name": "bairro",
+          "type": "VARCHAR",
+          "pt": "Bairro do local de votação.",
+          "en": "The polling place's neighborhood."
+        },
+        {
+          "name": "latitude",
+          "type": "DOUBLE",
+          "pt": "Latitude que o TSE publica, vazia quando ele não a informa.",
+          "en": "Latitude that TSE publishes, empty when it gives none."
+        },
+        {
+          "name": "longitude",
+          "type": "DOUBLE",
+          "pt": "Longitude que o TSE publica, vazia quando ele não a informa.",
+          "en": "Longitude that TSE publishes, empty when it gives none."
+        },
+        {
+          "name": "eleitores",
+          "type": "INTEGER",
+          "pt": "Eleitores da seção.",
+          "en": "The station's voters."
+        }
+      ]
+    },
+    {
+      "name": "candidatos",
+      "pt": "Candidaturas, com o destino dos votos e o resultado segundo o TSE.",
+      "en": "Candidacies, with the votes' destination and the outcome according to TSE.",
+      "path": "2026/t{turno}/candidatos.parquet",
+      "added": [],
+      "rows": "races-and-areas",
+      "columns": [
+        {
+          "name": "eleicao",
+          "type": "INTEGER",
+          "pt": "Código da eleição no TSE.",
+          "en": "TSE's election code."
+        },
+        { "name": "turno", "type": "TINYINT", "pt": "Turno: 1 ou 2.", "en": "Round: 1 or 2." },
+        {
+          "name": "cargo",
+          "type": "TINYINT",
+          "pt": "Código do cargo: 1 presidente, 3 governador, 5 senador, 6 deputado federal, 7 deputado estadual, 8 deputado distrital, 25 conselheiro distrital.",
+          "en": "Race code: 1 President, 3 Governor, 5 Senator, 6 federal deputy, 7 state deputy, 8 district deputy, 25 district councillor."
+        },
+        {
+          "name": "uf",
+          "type": "VARCHAR",
+          "pt": "Sigla do estado, ou BR para presidente.",
+          "en": "State code, or BR for President."
+        },
+        {
+          "name": "numero",
+          "type": "INTEGER",
+          "pt": "Número do candidato.",
+          "en": "The candidate's number."
+        },
+        {
+          "name": "nome_urna",
+          "type": "VARCHAR",
+          "pt": "Nome na urna, como o TSE o escreve.",
+          "en": "Ballot name, as TSE writes it."
+        },
+        {
+          "name": "partido_numero",
+          "type": "INTEGER",
+          "pt": "Número do partido.",
+          "en": "The party's number."
+        },
+        {
+          "name": "partido_sigla",
+          "type": "VARCHAR",
+          "pt": "Sigla do partido.",
+          "en": "The party's abbreviation."
+        },
+        {
+          "name": "federacao",
+          "type": "VARCHAR",
+          "pt": "Federação do partido, quando há uma.",
+          "en": "The party's federation, when it has one."
+        },
+        {
+          "name": "coligacao",
+          "type": "VARCHAR",
+          "pt": "Coligação, quando há uma.",
+          "en": "Coalition, when there is one."
+        },
+        {
+          "name": "situacao",
+          "type": "VARCHAR",
+          "pt": "Situação da candidatura, vazia enquanto o TSE não a publica.",
+          "en": "Candidacy status, empty until TSE publishes it."
+        },
+        {
+          "name": "destino",
+          "type": "VARCHAR",
+          "pt": "Destino dos votos segundo o TSE, como Válido ou Anulado sub judice.",
+          "en": "The votes' destination according to TSE, such as Válido or Anulado sub judice."
+        },
+        {
+          "name": "resultado",
+          "type": "VARCHAR",
+          "pt": "Resultado segundo o TSE, como Eleito ou 2º turno.",
+          "en": "Outcome according to TSE, such as Eleito or 2º turno."
+        }
+      ]
+    },
+    {
+      "name": "municipios",
+      "pt": "Municípios e cidades no exterior, com o código do TSE e o do IBGE.",
+      "en": "Municipalities and cities abroad, with TSE's code and IBGE's.",
+      "path": "2026/municipios.parquet",
+      "added": [],
+      "rows": "round-1",
+      "columns": [
+        {
+          "name": "municipio",
+          "type": "INTEGER",
+          "pt": "Código do município no TSE.",
+          "en": "TSE's municipality code."
+        },
+        {
+          "name": "ibge",
+          "type": "INTEGER",
+          "pt": "Código do município no IBGE, vazio no exterior.",
+          "en": "IBGE's municipality code, empty abroad."
+        },
+        {
+          "name": "nome",
+          "type": "VARCHAR",
+          "pt": "Nome, como o TSE o escreve.",
+          "en": "Name, as TSE writes it."
+        },
+        {
+          "name": "uf",
+          "type": "VARCHAR",
+          "pt": "Sigla do estado em maiúsculas, ou ZZ para o exterior.",
+          "en": "State code in capitals, or ZZ for abroad."
+        },
+        {
+          "name": "capital",
+          "type": "BOOLEAN",
+          "pt": "Verdadeiro na capital do estado.",
+          "en": "True for the state's capital."
+        }
+      ]
+    }
+  ]
+}

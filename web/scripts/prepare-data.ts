@@ -11,6 +11,7 @@ import type { Municipality } from '../src/lib/data'
 import type { Run } from '../src/lib/drilldown/queries'
 import type { Summary } from '../src/lib/results'
 import { ROUNDS, YEAR, type Round } from '../src/lib/elections'
+import { playgroundFiles } from '../src/lib/playground/files'
 import { runoffMismatches } from '../src/lib/rounds'
 import {
   parseManifest,
@@ -31,6 +32,7 @@ import {
 import { nodeRunner } from './duckdb-node'
 import { GEO_BUILD } from './geo-assets'
 import { buildMaps, readBoundaries } from './map-data'
+import { candidateLists, writePlaygroundData, type PlaygroundRound } from './playground-data'
 import { buildSearchIndex } from './search-index'
 import { loadsFromFile, swingRaces, writeValuesFiles, type ValuesFiles } from './values-files'
 
@@ -421,6 +423,22 @@ async function main(): Promise<void> {
       }),
     )
   }
+
+  const playgroundRounds: PlaygroundRound[] = []
+  for (const round of rounds) {
+    const candidatesPath = `${YEAR}/t${round.round}/candidatos.parquet`
+    const bytes = await round.source.read(candidatesPath)
+    verifyFile(round.manifest, candidatesPath, bytes)
+    const candidatesFile = path.join(DATA_DIR, 'rounds', String(round.round), 'candidatos.parquet')
+    await writeFile(candidatesFile, bytes as Uint8Array)
+    playgroundRounds.push({
+      round: round.round,
+      files: playgroundFiles(round.manifest, round.round),
+      candidates: await candidateLists(run, candidatesFile),
+    })
+  }
+  const playground = await writePlaygroundData(PUBLIC_DIR, playgroundRounds)
+  await writeFile(path.join(DATA_DIR, 'playground.json'), JSON.stringify(playground))
 
   const mapsDir = (round: Round) => path.join(DATA_DIR, 'rounds', String(round), 'mapas')
   const swingRaceKeys =

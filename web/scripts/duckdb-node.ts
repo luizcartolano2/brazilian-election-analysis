@@ -8,8 +8,10 @@ import { PARQUET_EXTENSION, packageFile, parquetExtension } from './duckdb-asset
 
 const require = createRequire(import.meta.url)
 
-/** Serves the extension folder from a child process until the extension is loaded. */
-async function withExtensionRepository<T>(load: (repository: string) => T): Promise<T> {
+/** Serves the extension folder from a child process until `load` finishes. */
+export async function withExtensionRepository<T>(
+  load: (repository: string) => T | Promise<T>,
+): Promise<T> {
   const extension = await parquetExtension()
   const repository = path.resolve(path.dirname(extension), '..', '..')
   const child = spawn(process.execPath, [
@@ -29,13 +31,30 @@ async function withExtensionRepository<T>(load: (repository: string) => T): Prom
         ).unref()
       }),
     ])
-    return load(`http://127.0.0.1:${port}`)
+    return await load(`http://127.0.0.1:${port}`)
   } finally {
     child.kill()
   }
 }
 
-export async function nodeRunner(): Promise<Run> {
+/** The parts of DuckDB-WASM's blocking build that the data step and the tests use. */
+export interface NodeDuckDB {
+  open(config: { query?: { castBigIntToDouble?: boolean; castDecimalToDouble?: boolean } }): void
+  connect(): NodeConnection
+  registerFileBuffer(name: string, buffer: Uint8Array): void
+}
+
+export interface NodeConnection {
+  query(sql: string): { toArray(): { toJSON(): Record<string, unknown> }[] }
+  prepare(sql: string): {
+    query(...params: unknown[]): { toArray(): { toJSON(): Record<string, unknown> }[] }
+    close(): void
+  }
+  close(): void
+}
+
+/** An instantiated database with no extension loaded. */
+export async function nodeDuckDB(): Promise<NodeDuckDB> {
   const duckdb = require('@duckdb/duckdb-wasm/blocking')
   const dist = path.dirname(packageFile('duckdb-eh.wasm'))
   const db = await duckdb.createDuckDB(
@@ -47,6 +66,11 @@ export async function nodeRunner(): Promise<Run> {
     duckdb.NODE_RUNTIME,
   )
   await db.instantiate()
+  return db as NodeDuckDB
+}
+
+export async function nodeRunner(): Promise<Run> {
+  const db = await nodeDuckDB()
   const connection = db.connect()
   const [version] = connection.query('SELECT version() AS v').toArray()
   if (version?.toJSON().v !== PARQUET_EXTENSION.duckdb) {
@@ -65,7 +89,7 @@ export async function nodeRunner(): Promise<Run> {
       return statement
         .query(...params)
         .toArray()
-        .map((row: { toJSON(): Record<string, unknown> }) => row.toJSON())
+        .map((row) => row.toJSON())
     } finally {
       statement.close()
     }

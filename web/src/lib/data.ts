@@ -6,6 +6,8 @@ import { COUNCIL, raceByCode, type Round } from './elections'
 import type { Manifest } from './manifest'
 import { votesWithDisplayNames, withDisplayNames, type CandidateVotes, type MapData } from './maps'
 import { displayName } from './names'
+import { CONFIRM_BYTES, type PlaygroundConfig } from './playground/config'
+import { playgroundFiles } from './playground/files'
 import type { Summary } from './results'
 
 const DATA_DIR = path.join(process.cwd(), '.data')
@@ -208,5 +210,47 @@ export function getDrilldownConfig(round: Round = 1): DrilldownConfig {
     workerScript: source.workerScript,
     areaRaces,
     shapes,
+  }
+}
+
+interface PlaygroundInfo {
+  base: string
+  files: string
+  candidates: Record<string, string>
+}
+
+/** What the playground page needs: where its lists are, the pinned rounds and their races. */
+export function getPlaygroundConfig(): PlaygroundConfig {
+  const source = getSourceInfo()
+  const info = readJson<PlaygroundInfo>('playground.json')
+  const raceRounds = new Map<number, Round[]>()
+  const versions: PlaygroundConfig['versions'] = {}
+  const dataBase: PlaygroundConfig['dataBase'] = {}
+  for (const round of source.rounds) {
+    const roundSource = getRoundSource(round)
+    versions[round] = roundSource.version ?? 'teste'
+    dataBase[round] = roundSource.dataBase
+    for (const file of playgroundFiles(getManifest(round), round)) {
+      if (file.race === null) continue
+      const rounds = raceRounds.get(file.race) ?? []
+      if (!rounds.includes(round)) raceRounds.set(file.race, [...rounds, round])
+    }
+  }
+  return {
+    base: info.base,
+    filesSha256: info.files,
+    candidatesSha256: info.candidates,
+    rounds: source.rounds,
+    versions,
+    dataBase,
+    assetBase: source.assetBase,
+    workerScript: source.workerScript,
+    races: [...raceRounds]
+      .map(([code, rounds]) => ({ code, rounds }))
+      .sort((a, b) => a.code - b.code),
+    areas: coveredAreas(1),
+    // The fixtures hold about 100 kB in all, so a fixtures build asks far sooner, and the
+    // browser tests reach the question.
+    confirmBytes: source.mode === 'fixtures' ? 40_000 : CONFIRM_BYTES,
   }
 }

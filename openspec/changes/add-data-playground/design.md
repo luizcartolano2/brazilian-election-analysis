@@ -102,6 +102,9 @@ The page knows a run's size in advance, from the manifest's sizes. Each file cos
 Worker request per visit, and the browser's cache serves a later visit, because the
 Worker marks versions as immutable.
 
+The fixtures hold about 100 kB in all, so a fixtures build asks above 40 kB instead of
+25 MB, and the browser tests reach the question.
+
 Alternative: let DuckDB read byte ranges over HTTP, as the drill-down views do. A
 selective query reads less that way. But the page can then neither check the bytes nor
 bound the requests. A scan of the whole round costs one request per column chunk, against
@@ -214,6 +217,9 @@ codes from fixed lists and with whole numbers, such as a candidate's number from
   their votes and picks one of their valid totals. Each row shows the state beside the
   name, and the round when both rounds are chosen.
 - The municipality level joins `municipios` on the code for the name.
+- The candidate picker lists the candidates whose destination is valid, because the form
+  counts valid votes only. It loads one round's list for one race when the question needs
+  it, so the state deputies' list, 343 kB on the pinned round 1, loads only for them.
 - Valid votes are the votes of types 1 and 2. The share is
   `((votos::BIGINT * 20000 + validos) // (2 * validos)) / 100`, which rounds half up in
   whole numbers, as `formatShare` prints it. `round(100.0 * votos / validos, 2)` rounds
@@ -293,7 +299,8 @@ a format version, each round's data version, the data choice and the query. The 
 never sends a fragment to a server. The page parses the payload as untrusted input. It
 accepts only a pinned round, a race of the election, an area among the 27 states and
 `zz`, and a query of at most 10,000 characters. On any failure the page restores nothing.
-Opening a link never starts a download or a run.
+Opening a link never starts a download or a run. A link pasted into an open playground
+changes only the fragment, so the page reloads itself to read it.
 
 A link reproduces its answer through the data version that it names, not through the
 site. That version stays immutable and public, with its manifest, so anyone can run the
@@ -307,7 +314,8 @@ recount of Rio forces.
 
 `web/scripts/prepare-data.ts` derives the playground's file list from the pinned
 manifests: each catalog path with its size and SHA-256, for each round. It writes the
-list with the build's other derived files, served from the app's origin. The page reads
+list with the build's other derived files, served from the app's origin under a folder
+named for its content, which `vercel.json` marks immutable. The page reads
 the list when it opens, and the Worker serves the files. The engine's module and its
 Parquet extension come from the Worker, as `browser.ts` loads them.
 
