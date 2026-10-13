@@ -33,15 +33,16 @@ import {
 } from '@/lib/map-colors'
 import {
   binOf,
-  compareSwing,
   fillOf,
   marginPoints,
   shareMap,
   roundWithoutVotes,
+  sortRows,
   swingFill,
   swingMap,
   swingOf,
   type CandidateVotes,
+  type ListOrder,
   type MapData,
   type MapRow,
   type SwingData,
@@ -291,10 +292,10 @@ export async function loadSwing(
   if (gone !== undefined) throw gone
   if (failures.length > 0) throw failures[0]
   const [first, second] = settled.map(
-    (result) => (result as PromiseFulfilledResult<unknown>).value as CandidateVotes,
-  )
+    (result) => (result as PromiseFulfilledResult<unknown>).value,
+  ) as [CandidateVotes, CandidateVotes]
   const { numero, other, label } = source.swing
-  return swingMap(first as CandidateVotes, second as CandidateVotes, numero, other, label)
+  return swingMap(first, second, numero, other, label)
 }
 
 /** The boundary file's coordinates are already projected, so the browser only scales them. */
@@ -454,7 +455,8 @@ function fill(template: string, values: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (match, name: string) => values[name] ?? match)
 }
 
-function SwingText({
+/** A municipality's details on a swing map. */
+export function SwingText({
   locale,
   labels,
   row,
@@ -468,25 +470,19 @@ function SwingText({
   return (
     <>
       <strong className="block">{name}</strong>
-      {points === null ? (
-        <span className="block">{labels.noSwing[(roundWithoutVotes(row) ?? 1) - 1]}</span>
-      ) : (
-        <>
-          <span className="block">
-            {fill(labels.firstShare, {
-              share: formatShare(locale, ownFirst, ownFirst + otherFirst),
-            })}
-          </span>
-          <span className="block">
-            {fill(labels.secondShare, {
-              share: formatShare(locale, ownSecond, ownSecond + otherSecond),
-            })}
-          </span>
-          <span className="block">
-            {fill(labels.change, { points: formatSignedPoints(locale, points) })}
-          </span>
-        </>
-      )}
+      <span className="block">
+        {fill(labels.firstShare, { share: formatShare(locale, ownFirst, ownFirst + otherFirst) })}
+      </span>
+      <span className="block">
+        {fill(labels.secondShare, {
+          share: formatShare(locale, ownSecond, ownSecond + otherSecond),
+        })}
+      </span>
+      <span className="block">
+        {points === null
+          ? labels.noSwing[(roundWithoutVotes(row) ?? 1) - 1]
+          : fill(labels.change, { points: formatSignedPoints(locale, points) })}
+      </span>
     </>
   )
 }
@@ -592,24 +588,14 @@ export function MunicipalityTable({
 }) {
   const filterId = useId()
   const [query, setQuery] = useState('')
-  const [order, setOrder] = useState<'name' | 'margin' | 'share' | 'swing'>('name')
+  const [order, setOrder] = useState<ListOrder>('name')
   const collator = useMemo(() => new Intl.Collator(locale === 'pt' ? 'pt-BR' : 'en-US'), [locale])
-  const rows = useMemo((): (MapRow | SwingRow)[] => {
+  const rows = useMemo(() => {
     const wanted = normalize(query)
     const kept = (data.rows as (MapRow | SwingRow)[]).filter(
       (row) => wanted === '' || normalize(row[2]).includes(wanted),
     )
-    const byName = (a: MapRow | SwingRow, b: MapRow | SwingRow) => collator.compare(a[2], b[2])
-    if (order === 'name') return kept.sort(byName)
-    if (order === 'swing') {
-      return (kept as SwingRow[]).sort((a, b) => compareSwing(a, b) || byName(a, b))
-    }
-    if (order === 'share') {
-      const shareOf = (row: MapRow) => (row[7] > 0 ? row[4] / row[7] : 0)
-      return (kept as MapRow[]).sort((a, b) => shareOf(b) - shareOf(a) || byName(a, b))
-    }
-    const marginOf = (row: MapRow) => (row[3] === -1 ? Infinity : marginPoints(row))
-    return (kept as MapRow[]).sort((a, b) => marginOf(a) - marginOf(b) || byName(a, b))
+    return sortRows(kept, order, collator)
   }, [data.rows, query, order, collator])
   const unit = (index: number) => (index === -1 ? '–' : (data.units[index] ?? ''))
   const senate = data.kind === 'senate'

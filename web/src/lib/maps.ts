@@ -164,6 +164,32 @@ export function compareSwing(a: SwingRow, b: SwingRow): number {
   return second - first
 }
 
+/** The orders that a list of municipalities offers. */
+export type ListOrder = 'name' | 'margin' | 'share' | 'swing'
+
+/**
+ * A list's rows in its order, ties by name: by margin from the closest, by share or by swing
+ * from the largest, with no margin and no swing last.
+ */
+export function sortRows<Row extends MapRow | SwingRow>(
+  rows: Row[],
+  order: ListOrder,
+  collator: Intl.Collator,
+): Row[] {
+  const byName = (a: Row, b: Row) => collator.compare(a[2], b[2])
+  const sorted = [...rows]
+  if (order === 'name') return sorted.sort(byName)
+  if (order === 'swing') {
+    return sorted.sort((a, b) => compareSwing(a as SwingRow, b as SwingRow) || byName(a, b))
+  }
+  if (order === 'share') {
+    const shareOf = (row: MapRow) => (row[7] > 0 ? row[4] / row[7] : 0)
+    return sorted.sort((a, b) => shareOf(b as MapRow) - shareOf(a as MapRow) || byName(a, b))
+  }
+  const marginOf = (row: MapRow) => (row[3] === -1 ? Infinity : marginPoints(row))
+  return sorted.sort((a, b) => marginOf(a as MapRow) - marginOf(b as MapRow) || byName(a, b))
+}
+
 /** A swing's step, from -3 to 3, by its absolute value against `SWING_EDGES`. */
 export function swingStep(swing: number): number {
   const size = Math.abs(swing)

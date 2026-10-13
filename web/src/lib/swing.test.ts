@@ -3,6 +3,7 @@ import en from '../../messages/en.json'
 import pt from '../../messages/pt.json'
 import {
   compareSwing,
+  sortRows,
   roundWithoutVotes,
   swingFill,
   swingMap,
@@ -108,6 +109,43 @@ describe('swingOf', () => {
   })
 })
 
+describe('sortRows', () => {
+  const collator = new Intl.Collator('pt-BR')
+  const rows: SwingRow[] = [
+    [1, 1, 'Recife', 6, 4, 50, 50],
+    [2, 2, 'Alta Floresta', 0, 0, 1, 1],
+    [3, 3, 'Olinda', 4, 6, 50, 50],
+    [4, 4, 'Caruaru', 4, 6, 50, 50],
+    [5, 5, 'Bezerros', 1, 1, 2, 2],
+  ]
+
+  it('orders by name, ignoring case and accents as Portuguese does', () => {
+    expect(sortRows(rows, 'name', collator).map((row) => row[2])).toEqual([
+      'Alta Floresta',
+      'Bezerros',
+      'Caruaru',
+      'Olinda',
+      'Recife',
+    ])
+  })
+
+  it('orders by swing from the largest gain, ties by name, and no swing last', () => {
+    expect(sortRows(rows, 'swing', collator).map((row) => row[2])).toEqual([
+      'Caruaru',
+      'Olinda',
+      'Bezerros',
+      'Recife',
+      'Alta Floresta',
+    ])
+  })
+
+  it('leaves the rows it was given in their order', () => {
+    const before = rows.map((row) => row[2])
+    sortRows(rows, 'swing', collator)
+    expect(rows.map((row) => row[2])).toEqual(before)
+  })
+})
+
 describe('compareSwing', () => {
   it('orders from the largest gain to the largest loss, with no swing last', () => {
     const rows: SwingRow[] = [
@@ -205,14 +243,38 @@ describe('swingOpponent', () => {
 })
 
 describe('the swing messages', () => {
-  const swingKeys = (messages: Record<string, string>) =>
-    Object.entries(messages).filter(([key]) => key.startsWith('map.swing'))
+  // The messages that the swing section shows besides its own: its list, its failures and credits.
+  const SHARED = [
+    'map.listSummary',
+    'map.listLoading',
+    'map.loading',
+    'map.failed',
+    'map.noScriptList',
+    'map.valuesFailed',
+    'map.retry',
+    'map.siteUpdated',
+    'map.reload',
+    'map.view',
+    'map.close',
+    'map.water',
+    'map.municipality',
+    'map.filter',
+    'map.sortName',
+    'map.count',
+    'footer.credit',
+    'sources.boundariesCredit',
+  ]
+  const sectionEntries = (messages: Record<string, string>) =>
+    Object.entries(messages).filter(([key]) => key.startsWith('map.swing') || SHARED.includes(key))
 
   it('never say that a vote went from one candidate to another, in either language', () => {
-    const forbidden = /transf|migra|eleitores d[eao]|voters of|herd|inherit|vieram de|came from/i
+    const forbidden =
+      /transf|migra|eleitor(es)? d[eao]|voters of|['’]s voters|herd|inherit|vieram de|came from/i
     for (const messages of [pt, en]) {
-      const entries = swingKeys(messages)
-      expect(entries.length).toBeGreaterThan(10)
+      const entries = sectionEntries(messages)
+      expect(entries.length).toBe(
+        Object.keys(messages).filter((key) => key.startsWith('map.swing')).length + SHARED.length,
+      )
       for (const [key, value] of entries) expect(value, key).not.toMatch(forbidden)
     }
   })

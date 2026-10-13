@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { SwingData } from '@/lib/maps'
-import { MunicipalityTable, type MapLabels } from './race-map'
+import type { SwingData, SwingRow } from '@/lib/maps'
+import { MunicipalityTable, SwingText, type MapLabels, type SwingLabels } from './race-map'
 
 const LABELS = {
   table: {
@@ -69,5 +69,32 @@ describe('the swing list', () => {
     expect(render()).toMatch(
       /Alta Floresta<\/a><\/td><td>–<\/td><td>62,50%<\/td><td>Sem votos para os finalistas no 1º turno<\/td>/,
     )
+  })
+})
+
+describe('a swing map’s details', () => {
+  const details = (row: SwingRow) =>
+    renderToStaticMarkup(<SwingText locale="pt" labels={LABELS.swing as SwingLabels} row={row} />)
+
+  it('show both rounds’ shares and the signed swing', () => {
+    expect(details([2611606, 25313, 'Recife', 600, 300, 620, 330])).toBe(
+      '<strong class="block">Recife</strong><span class="block">1º turno: 66,67%</span>' +
+        '<span class="block">2º turno: 65,26%</span><span class="block">Variação: −1,4 p.p.</span>',
+    )
+  })
+
+  it('show both rounds’ shares and say in which round the finalists had no votes', () => {
+    expect(details([1100015, 310, 'Alta Floresta', 0, 0, 5, 3])).toBe(
+      '<strong class="block">Alta Floresta</strong><span class="block">1º turno: –</span>' +
+        '<span class="block">2º turno: 62,50%</span>' +
+        '<span class="block">Sem votos para os finalistas no 1º turno</span>',
+    )
+  })
+})
+
+describe('the swing list’s order', () => {
+  it('lists the municipalities by name before a visitor sorts', () => {
+    const names = [...render().matchAll(/<a href="[^"]+">([^<]+)<\/a>/g)].map((match) => match[1])
+    expect(names).toEqual(['Alta Floresta', 'Olinda', 'Recife'])
   })
 })

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
 
 const RECIFE = '2611606'
@@ -10,25 +10,30 @@ function readData<T>(relative: string): T {
 }
 
 // CI's fixture build sets ELEICOES_FIXTURE_SWING=1, which draws the swing over the synthetic
-// round 2. A build without it, before the recut of the round-2 fixtures, shows no swing map.
-const synthetic = readData<{ synthetic: boolean }>('rounds/2/source.json').synthetic
+// round 2. A build without it, or without round 2, shows no swing map.
+const hasRound2 = existsSync('.data/rounds/2/source.json')
+const synthetic = hasRound2 && readData<{ synthetic: boolean }>('rounds/2/source.json').synthetic
 const allowed = readData<{ syntheticAllowed: boolean }>('swing.json').syntheticAllowed
+test.skip(!hasRound2, 'the build has no round 2')
 test.skip(synthetic && !allowed, 'the build shows no swing map: set ELEICOES_FIXTURE_SWING=1')
 
 function swingSection(page: Page) {
   return page.locator('[data-map="br-presidente-variacao"]')
 }
 
+/** Each row's swing, keyed by the TSE code in its link, since names repeat across states. */
 async function swingRows(page: Page): Promise<Map<string, string>> {
   const section = swingSection(page)
   await section.locator('summary').first().click()
   await expect(section.getByTestId('municipality-table').first()).toBeAttached()
-  const rows = await section
-    .locator('tbody tr')
-    .evaluateAll((elements) =>
-      elements.map((row) => [...row.querySelectorAll('td')].map((cell) => cell.textContent ?? '')),
-    )
-  return new Map(rows.map((cells) => [cells[0] ?? '', cells[3] ?? '']))
+  const rows = await section.locator('tbody tr').evaluateAll((elements) =>
+    elements.map((row) => {
+      const href = row.querySelector('a')?.getAttribute('href') ?? ''
+      const cells = [...row.querySelectorAll('td')].map((cell) => cell.textContent ?? '')
+      return [new URL(href, 'http://x').searchParams.get('mu') ?? '', cells[3] ?? '']
+    }),
+  )
+  return new Map(rows.map(([code, change]) => [code ?? '', change ?? '']))
 }
 
 test('a finalist’s round-2 section shows the swing map below its round-2 share map', async ({
@@ -40,6 +45,13 @@ test('a finalist’s round-2 section shows the swing map below its round-2 share
     .locator('[data-map]')
     .evaluateAll((sections) => sections.map((section) => section.getAttribute('data-map')))
   expect(maps).toEqual(['br-presidente', 'br-presidente-variacao'])
+  const order = await round2.evaluate((section) =>
+    ['[data-map="br-presidente"]', '[data-testid="abroad-note"]', '[data-map$="-variacao"]'].map(
+      (selector) =>
+        [...section.querySelectorAll('*')].indexOf(section.querySelector(selector) as Element),
+    ),
+  )
+  expect(order).toEqual([...order].sort((a, b) => a - b))
   await expect(page.getByTestId('round-1').locator('[data-map$="-variacao"]')).toHaveCount(0)
 })
 
@@ -56,11 +68,21 @@ test('the frame names what it compares, its race, area and rounds, and both cred
   )
   await expect(caption).toContainText('os arquivos do TSE não permitem separá-los')
   await expect(caption).toContainText('O mapa não mostra para onde foi o voto de nenhum eleitor.')
-  for (const step of ['−6 p.p. ou menos', 'de −1 a +1 p.p.', '+6 p.p. ou mais']) {
-    await expect(caption).toContainText(step)
+  for (const step of [
+    '−6 p.p. ou menos',
+    'de −6 a −3 p.p.',
+    'de −3 a −1 p.p.',
+    'de −1 a +1 p.p.',
+    'de +1 a +3 p.p.',
+    'de +3 a +6 p.p.',
+    '+6 p.p. ou mais',
+  ]) {
+    await expect(caption.locator('li', { hasText: step })).toHaveCount(1)
   }
-  await expect(caption.locator('li')).toHaveCount(9)
-  await expect(caption).toContainText('Sem votos para os finalistas em um dos turnos')
+  await expect(
+    caption.locator('li', { hasText: 'Sem votos para os finalistas em um dos turnos' }),
+  ).toHaveCount(1)
+  await expect(caption).toContainText('O mapa deixa de fora os votos no exterior.')
   await expect(caption).toContainText('Tribunal Superior Eleitoral')
   await expect(caption).toContainText('IBGE')
   await expect(frame.locator(`path[data-ibge="${RECIFE}"]`)).toBeVisible()
@@ -144,6 +166,18 @@ test('a values file that differs from its pin leaves the swing map with no color
   await expect(section.locator('svg path[data-ibge]')).toHaveCount(0)
   await section.locator('summary').first().click()
   await expect(section.getByTestId('municipality-table')).toHaveCount(0)
+})
+
+test('a values file that a later deploy removed offers to reload the page', async ({ page }) => {
+  await page.route('**/mapas/t2/br/1-votos.*.json', (route) => route.fulfill({ status: 404 }))
+  await page.goto(LULA)
+  const section = swingSection(page)
+  await section.scrollIntoViewIfNeeded()
+  await expect(section.getByRole('alert')).toHaveText(
+    'O site foi atualizado desde que esta página abriu.',
+  )
+  await expect(section.getByRole('button', { name: 'Recarregar a página' })).toBeVisible()
+  await expect(section.locator('svg path[data-ibge]')).toHaveCount(0)
 })
 
 test('without JavaScript, the swing section says that the map and its list need it', async ({

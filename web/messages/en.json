@@ -250,6 +250,7 @@
   "map.swingNoteCounts": "The map compares two official counts of the two finalists' votes.",
   "map.swingNoteMix": "A change mixes differences in turnout, the eliminated candidates' round-1 votes and votes that changed between the finalists, and TSE's files cannot separate them.",
   "map.swingNoteNot": "The map does not show where any voter's vote went.",
+  "map.swingNoteAbroad": "The map leaves out the votes cast abroad.",
   "map.swingStepLow": "{points} points or less",
   "map.swingStepRange": "{from} to {to} points",
   "map.swingStepHigh": "{points} points or more",

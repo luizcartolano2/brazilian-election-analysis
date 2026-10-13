@@ -155,6 +155,14 @@ describe('loadSwing', () => {
     expect(failure).not.toBeInstanceOf(GoneError)
   })
 
+  it('offers a reload when the round-2 file is gone', async () => {
+    answerByRound(
+      new Response(bytes.slice().buffer, { status: 200 }),
+      new Response(null, { status: 404 }),
+    )
+    await expect(loadSwing(SWING)).rejects.toBeInstanceOf(GoneError)
+  })
+
   it('offers a reload when a file is gone, also when the other fails its check', async () => {
     answerByRound(
       new Response(null, { status: 404 }),

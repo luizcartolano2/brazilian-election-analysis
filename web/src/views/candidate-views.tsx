@@ -259,7 +259,7 @@ function RoundResults({
   candidacy: Candidacy
   heading: 'h2' | 'h3'
   headlineTestId: string
-  /** The swing map, which follows the round-2 share map. */
+  /** The swing map, which follows the round-2 share map and its note on the votes abroad. */
   swing?: ReactNode
 }) {
   const { race, summary, candidate, round } = candidacy
@@ -327,7 +327,6 @@ function RoundResults({
           round={round}
         />
       )}
-      {swing}
       {mapped && race.code === PRESIDENT && (
         <p className="text-muted mt-4 text-sm" data-testid="abroad-note">
           {t(locale, 'candidate.abroadNote')}{' '}
@@ -339,6 +338,7 @@ function RoundResults({
           </AppLink>
         </p>
       )}
+      {swing}
       {mapped && (
         <div className="mt-10 grid items-start gap-10 lg:grid-cols-2">
           <LargestMunicipalities locale={locale} candidacy={candidacy} />

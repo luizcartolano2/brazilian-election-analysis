@@ -341,6 +341,8 @@ export function SwingMapSection({
       t(locale, 'map.swingNoteCounts'),
       t(locale, 'map.swingNoteMix'),
       t(locale, 'map.swingNoteNot'),
+      // A screenshot of Brazil's map must not pass for every vote of the country.
+      ...(area === 'br' ? [t(locale, 'map.swingNoteAbroad')] : []),
     ],
     steps: swingStepLabels(locale),
     swing: {

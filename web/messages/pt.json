@@ -250,6 +250,7 @@
   "map.swingNoteCounts": "O mapa compara duas contagens oficiais dos votos dos dois finalistas.",
   "map.swingNoteMix": "Uma variação mistura diferenças de comparecimento, os votos de 1º turno dos candidatos eliminados e votos que mudaram entre os finalistas, e os arquivos do TSE não permitem separá-los.",
   "map.swingNoteNot": "O mapa não mostra para onde foi o voto de nenhum eleitor.",
+  "map.swingNoteAbroad": "O mapa deixa de fora os votos no exterior.",
   "map.swingStepLow": "{points} p.p. ou menos",
   "map.swingStepRange": "de {from} a {to} p.p.",
   "map.swingStepHigh": "{points} p.p. ou mais",
