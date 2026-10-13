@@ -102,7 +102,12 @@ The app SHALL accept a state code only from the 27 states and `zz`, a race only 
 races of the election, and municipality, zone and station numbers only as whole numbers
 within their ranges. For any other value it SHALL show the error state. No value from the
 address or from the search box SHALL reach a query or a file path except as a validated
-value passed as a bound parameter.
+value passed as a bound parameter. The playground SHALL be the one exception. Its editor
+runs the SQL that a visitor writes or opens from a link, within the playground's limits.
+Its own views write their file names and the data choice's races and states into their
+text, because a view takes no bound parameter. Each file name SHALL come from the build's
+file list. A playground link's data choice SHALL take each value from a fixed list, as an
+address's values do, and SHALL also accept Brazil (`br`) alone as its area.
 
 #### Scenario: A query injected in the address
 - **WHEN** a visitor opens a station address whose municipality value contains SQL text
@@ -115,6 +120,10 @@ value passed as a bound parameter.
 #### Scenario: Quotes in the search box
 - **WHEN** a visitor searches for a place name that contains quote characters
 - **THEN** the search treats them as text and returns matching places or none
+
+#### Scenario: SQL in a playground link's data choice
+- **WHEN** a visitor opens a playground link whose state code holds SQL text
+- **THEN** the playground restores no part of the link and requests no Parquet file
 
 ### Requirement: Headline numbers without JavaScript
 The pages for Brazil and for each state SHALL contain their headline results in the
@@ -430,6 +439,9 @@ results included. The app SHALL change only the case, never a letter, an accent 
 word order. The sources page SHALL say that TSE publishes these names in capitals and
 that the site shows them in title case. Search SHALL find a name whatever the case of
 the typed text.
+A playground result SHALL show each text value as the query returns it, without changing
+its case, because a visitor's query can compute or combine names, and so the table and
+its CSV hold the same text.
 
 #### Scenario: A two-word name
 - **WHEN** TSE's ballot name is "FLAVIO BOLSONARO"
@@ -466,6 +478,10 @@ the typed text.
 #### Scenario: Searching in capitals
 - **WHEN** a visitor types "FLAVIO" in the search box
 - **THEN** the results include Flavio Bolsonaro's candidacy
+
+#### Scenario: Names in a playground result
+- **WHEN** a visitor's query in the playground returns municipality names
+- **THEN** the result table and its CSV show each name as the published files hold it, in capitals
 
 ### Requirement: Fonts from the app's own origin
 The app SHALL serve its fonts from its own origin, from font files that its build

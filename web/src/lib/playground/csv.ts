@@ -59,6 +59,6 @@ export interface NamedVersion {
 }
 
 export function csvFileName(versions: NamedVersion[]): string {
-  const parts = versions.map((entry) => `t${entry.round}-${entry.version}`)
-  return `consulta-${YEAR}-${parts.join('-')}.csv`
+  const parts = [`consulta-${YEAR}`, ...versions.map((entry) => `t${entry.round}-${entry.version}`)]
+  return `${parts.join('-')}.csv`
 }

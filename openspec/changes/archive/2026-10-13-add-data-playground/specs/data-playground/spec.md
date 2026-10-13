@@ -26,13 +26,14 @@ say that the playground needs it, and link to the sources page.
 
 ### Requirement: The visitor chooses the data first
 The page SHALL let the visitor choose one or both pinned rounds, one or more races, and
-either Brazil or chosen states. Brazil holds every state and the votes cast abroad. The
-playground's tables SHALL hold only the chosen data, except `municipios`, which SHALL
-hold every municipality from round 1's version, because the other tables name
-municipalities only by code. The tables panel SHALL show each table's size for the
-choice, from the pinned manifests. A run SHALL download only the files of the tables that
-its query names. A run that needs more than 25 MB of files that the visit has not yet
-downloaded SHALL wait until the visitor confirms that size.
+either Brazil, or chosen states and the votes cast abroad. Brazil holds every state and
+the votes cast abroad. The playground's tables SHALL hold only the chosen data, except
+`municipios`, which SHALL hold every municipality from round 1's version, because the
+other tables name municipalities only by code. The tables panel SHALL show each table's
+size for the choice, from the pinned manifests. A run SHALL download only the files of
+the tables that its query names. A run that needs more than 25 MB of files that the page
+does not hold SHALL wait until the visitor confirms that size. The page holds only the
+files of the current data choice.
 
 #### Scenario: Only round 1 is pinned
 - **WHEN** a visitor opens the playground while no round-2 version is pinned
@@ -146,11 +147,12 @@ run SHALL stream the result of every statement, and keep only the last statement
 The page SHALL run every query in an engine that reads only the files that the page
 downloaded. The page SHALL download them from the pinned versions through the Worker, and
 check each against the manifest's SHA-256. The engine SHALL refuse any statement that
-reads another file or a URL, writes a file, attaches a database file, loads an extension,
-or changes the engine's configuration. No statement SHALL change a chosen file, whether
-it copies a result to the file or attaches the file as a database. These limits SHALL
-hold in addition to the security policy's limits on the hosts that the page can fetch
-from.
+reads a file outside the chosen files or a URL, writes a file, attaches a database file
+outside the chosen files, loads an extension, or changes a setting that the page locks:
+file access, the allowed files, the extension settings and the memory limit. No statement
+SHALL change a chosen file, whether it copies a result to the file or attaches the file
+as a database. These limits SHALL hold in addition to the security policy's limits on the
+hosts that the page can fetch from.
 
 #### Scenario: A query that reads another data version
 - **WHEN** a visitor runs a query that reads a Parquet file of another data version from the Worker's URL
@@ -185,8 +187,8 @@ Queries SHALL run off the page's main thread. While a query runs, the page SHALL
 progress and a cancel button, and a cancel SHALL stop the query within two seconds. The
 page SHALL keep at most 1,000,000 rows and 100 MB of CSV text of a result, and SHALL stop
 the query when the result passes either limit. It SHALL show at most the first 1,000
-rows, each cell cut to its first 500 characters. It SHALL state how many rows the result
-holds, or which limit the result passed.
+rows, each cell cut after its first 500 characters, with an ellipsis. It SHALL state how
+many rows the result holds, or which limit the result passed.
 
 #### Scenario: Cancelling a long query
 - **WHEN** a visitor cancels a query that takes minutes to run
@@ -198,7 +200,7 @@ holds, or which limit the result passed.
 
 #### Scenario: A result of very wide rows
 - **WHEN** a visitor runs a query that returns 200 rows of one million characters each
-- **THEN** the page stops the query at 100 MB of CSV text, states that limit, shows each cell's first 500 characters, and the tab keeps working
+- **THEN** the page stops the query at 100 MB of CSV text, states that limit, shows each cell's first 500 characters and an ellipsis, and the tab keeps working
 
 #### Scenario: A query that needs too much memory
 - **WHEN** a query needs more memory than the engine's limit
@@ -227,16 +229,16 @@ width.
 
 ### Requirement: The result downloads as CSV with its credit
 The page SHALL let the visitor download the whole result as CSV when the result stays
-within both limits of a run, 1,000,000 rows and 100 MB of CSV text. It SHALL refuse the
-download, rather than truncate the file, when the result passes either. The file SHALL
-start with lines that begin with `#`. They SHALL hold the TSE credit line, each data
-version with its round, and the playground link that restores the query. Every header or
-text cell that starts with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed
-SHALL be written so that a spreadsheet reads it as text, and so SHALL any of `=`, `+`,
-`-` and `@` that follows a semicolon, a tab or a line break inside a text, because a
-spreadsheet that splits at semicolons ignores the quotes. No line of the file SHALL hold
-a cell that a spreadsheet runs as a formula. The file's name SHALL name each round and
-data version.
+within both limits of a run, 1,000,000 rows and 100 MB of CSV text. When the result
+passes either, the page SHALL offer no download, rather than a truncated file, and SHALL
+say why. The file SHALL start with lines that begin with `#`. They SHALL hold the TSE
+credit line, each data version that the run read with its round, and the playground link
+that restores the query. Every header or text cell that starts with `=`, `+`, `-`, `@`, a
+tab, a carriage return or a line feed SHALL be written so that a spreadsheet reads it as
+text, and so SHALL any of `=`, `+`, `-` and `@` that follows a semicolon, a tab or a line
+break inside a text, because a spreadsheet that splits at semicolons ignores the quotes.
+No line of the file SHALL hold a cell that a spreadsheet runs as a formula. The file's
+name SHALL name each round and data version that the run read.
 
 #### Scenario: The credit travels with the file
 - **WHEN** a visitor downloads a result
@@ -254,19 +256,23 @@ data version.
 - **WHEN** a result cell holds `x;=1+1`
 - **THEN** the CSV cell holds `x;'=1+1`, so a spreadsheet that splits at semicolons reads text
 
+#### Scenario: A query that reads no table
+- **WHEN** a visitor downloads the result of `SELECT 42`
+- **THEN** the file names no data version, and its name holds no round
+
 #### Scenario: A result over the limit
-- **WHEN** a visitor asks to download a result of more than 1,000,000 rows, or of more than 100 MB of CSV text
-- **THEN** the page writes no file, says why, and links to the sources page, which lists the Parquet files
+- **WHEN** a result passes 1,000,000 rows or 100 MB of CSV text
+- **THEN** the page offers no download, says why, and links to the sources page, which lists the Parquet files
 
 ### Requirement: A link that holds the query
 The page SHALL offer a link that holds the query, the data choice, and the data version
 of each chosen round and of each round that the result read, in the address's fragment,
 so the query never reaches a server. Opening the link SHALL restore the query and the
 data choice, and SHALL NOT run the query until the visitor runs it. The page SHALL accept
-a link's data choice only from the pinned rounds, the election's races and the 27 states
-and `zz`. When a link names a data version that is no longer pinned, the page SHALL say
-so and name both versions. A link pasted into an open playground SHALL open in place, and
-run nothing.
+a link's data choice only from the pinned rounds, the election's races, and either Brazil
+(`br`) alone or the 27 states and `zz`. When a link names a data version that is no
+longer pinned, the page SHALL say so and name both versions. A link pasted into an open
+playground SHALL open in place, and run nothing.
 
 #### Scenario: A round-2 link that read round 1's municipalities
 - **WHEN** a visitor with only round 2 chosen runs a query that reads `municipios`, shares its link, and round 1 is later repinned

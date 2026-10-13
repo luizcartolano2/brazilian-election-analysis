@@ -1,8 +1,8 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Consultas · maquete</title>
 <style>
-@font-face { font-family: Archivo; src: url('../../../../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2'); font-weight: 100 900; }
-@font-face { font-family: 'Public Sans'; src: url('../../../../web/node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2'); font-weight: 100 900; }
+@font-face { font-family: Archivo; src: url('../../../../../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Public Sans'; src: url('../../../../../web/node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2'); font-weight: 100 900; }
 :root { --ink: #14171a; --muted: #4b5563; --surface: #f3f4f1; --line: #e3e5e0; }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'Public Sans', system-ui, sans-serif; color: var(--ink); background: #fff; -webkit-font-smoothing: antialiased; }
@@ -108,7 +108,7 @@ pre.csv { background: #fff; border: 1px solid var(--line); border-radius: 10px; 
   .step .dot { display: none; }
 }
 @media (min-width: 721px) { .phone-only { display: none !important; } }
-</style></head><body><div class="ribbon"><b>MAQUETE</b> · Opção B no celular · resultado de doze colunas, que rola dentro da moldura · números reais do 1º turno, Presidente, Acre, versão 20261007-67d59ff-37656362427</div><header><div class="bar">
+</style></head><body><div class="ribbon"><b>MAQUETE</b> · Opção A · abas, com as tabelas ao lado · números reais do 1º turno, Presidente, Acre, versão 20261007-67d59ff-37656362427</div><header><div class="bar">
 <div class="logo"><i></i>Eleições 2026</div>
 <div class="pills"><span class="on">1º turno · 4 de outubro</span><span>2º turno · 25 de outubro</span></div>
 <div class="search">Buscar município ou candidato</div>
@@ -123,29 +123,52 @@ formulário ou escreva em SQL.</p><div class="card"><div class="data">
 <div class="field">Área<div class="select">Acre</div></div>
 <div class="version">Versão dos dados: <span class="mono">20261007-67d59ff-37656362427</span></div>
 </div></div>
-<div class="row" style="margin-top:14px"><div class="label">SQL · você pode editar</div></div>
-<div class="editor" style="margin-top:8px"><div class="num">1
-2
-3
-4</div><pre>SELECT m.nome, c.*
-FROM comparecimento_municipio c
-JOIN municipios m ON m.municipio = c.municipio
-ORDER BY c.aptos DESC</pre></div>
-<div class="row" style="margin-top:12px"><span class="btn dark">▶ Executar</span></div>
+<div class="grid-a"><div class="white">
+<div class="row" style="justify-content:space-between"><div class="tabs"><span class="on">Montar consulta</span><span>Escrever SQL</span></div><div class="select" style="min-width:auto">Exemplos</div></div>
+<div style="margin-top:16px"><div class="form">
+<label>Pergunta</label><div class="select">Votos de um candidato</div>
+<label>Candidato</label><div class="select">13 · Lula (PT)</div>
+<label>Nível</label><div class="select">Município</div>
+<label>Ordem</label><div class="select">Mais votos primeiro</div>
+<label>Linhas</label><div class="select">100</div>
+</div></div>
+<div class="label" style="margin:16px 0 6px">SQL que o formulário escreveu</div>
+<pre class="sql ro">WITH validos AS (
+  SELECT turno, uf, municipio, sum(votos) AS validos
+  FROM votos_municipio
+  WHERE cargo = 1 AND tipo IN (1, 2)
+  GROUP BY turno, uf, municipio
+)
+SELECT v.uf, m.nome AS municipio,
+       sum(v.votos) AS votos,
+       ((sum(v.votos)::BIGINT * 20000 + d.validos)
+         // (2 * d.validos)) / 100 AS percentual_validos
+FROM votos_municipio v
+JOIN validos d USING (turno, uf, municipio)
+JOIN municipios m ON m.municipio = v.municipio
+WHERE v.cargo = 1 AND v.tipo = 1 AND v.numero = 13
+GROUP BY v.turno, v.uf, v.municipio, m.nome, d.validos
+ORDER BY votos DESC
+LIMIT 100</pre>
+<div class="row" style="margin-top:14px"><span class="btn dark">▶ Executar</span><span class="hint">Ctrl+Enter · baixa 70 kB</span></div>
+</div>
+<div class="wide-only"><div class="tables"><h3>Tabelas</h3><p class="hint" style="margin:-4px 0 8px">Tamanho para os dados escolhidos. Uma consulta baixa só as tabelas que cita.</p><div class="tbl"><div class="name"><span>▾ votos_municipio</span><span class="size">1,7 kB</span></div><div class="cols"><span class="c">municipio</span><span class="t">int</span><span class="d">código TSE do município</span><span class="c">tipo</span><span class="t">código</span><span class="d">1 candidato · 2 legenda · 3 branco · 4 nulo · 5 nulo técnico · 6 anulado · 7 anulado sub judice</span><span class="c">numero</span><span class="t">int</span><span class="d">número do candidato ou do partido</span><span class="c">votos</span><span class="t">int</span><span class="d">votos</span><span class="c">turno, uf, cargo</span><span class="t"></span><span class="d">da escolha de dados</span></div></div><div class="tbl"><div class="name"><span>▸ comparecimento_municipio</span><span class="size">2,8 kB</span></div></div><div class="tbl"><div class="name"><span>▸ votos_zona</span><span class="size">2,0 kB</span></div></div><div class="tbl"><div class="name"><span>▸ comparecimento_zona</span><span class="size">3,1 kB</span></div></div><div class="tbl"><div class="name"><span>▸ votos_secao</span><span class="size">25,8 kB</span></div></div><div class="tbl"><div class="name"><span>▸ comparecimento_secao</span><span class="size">56,1 kB</span></div></div><div class="tbl"><div class="name"><span>▸ secoes</span><span class="size">54,6 kB</span></div></div><div class="tbl"><div class="name"><span>▸ candidatos</span><span class="size">186,1 kB</span></div></div><div class="tbl"><div class="name"><span>▸ municipios</span><span class="size">68,4 kB</span></div></div></div></div>
+<details class="phone-only"><summary class="disclosure"><span>Tabelas e colunas (9)</span><span>▸</span></summary></details>
+</div>
 <section class="result"><div class="frame">
 <div class="frame-top"><div class="label">Resultado</div><span class="btn light" style="padding:6px 12px;font-size:13px">Copiar link</span></div>
-<pre class="sql ro" style="margin-top:8px">SELECT m.nome, c.*
-FROM comparecimento_municipio c
-JOIN municipios m ON m.municipio = c.municipio
-ORDER BY c.aptos DESC</pre>
+<pre class="sql ro folded" style="margin-top:8px">WITH validos AS (
+  SELECT turno, uf, municipio, sum(votos) AS validos
+  FROM votos_municipio
+  WHERE cargo = 1 AND tipo IN (1, 2)</pre><span class="fold">▸ Mostrar a consulta inteira · mais 13 linhas</span>
 <div class="scroll"><table class="res">
 <caption><b>Resultado de uma consulta de visitante sobre dados oficiais do TSE.</b><br>
 1º turno: versão 20261007-67d59ff-37656362427<br>
 Fonte: Tribunal Superior Eleitoral (TSE), Portal de Dados Abertos. Processamento: Brazilian Election
 Analysis (github.com/luizcartolano2/brazilian-election-analysis).</caption>
-<thead><tr><th>nome</th><th class='n'>municipio</th><th class='n'>cargo</th><th class='n'>aptos</th><th class='n'>comparecimento</th><th class='n'>abstencoes</th><th class='n'>nominais</th><th class='n'>legenda</th><th class='n'>brancos</th><th class='n'>nulos</th><th class='n'>turno</th><th>uf</th></tr></thead>
-<tbody><tr><td>RIO BRANCO</td><td class='n'>1.392</td><td class='n'>1</td><td class='n'>270.174</td><td class='n'>215.564</td><td class='n'>54.610</td><td class='n'>206.869</td><td class='n'>0</td><td class='n'>3.119</td><td class='n'>5.576</td><td class='n'>1</td><td>AC</td></tr><tr><td>CRUZEIRO DO SUL</td><td class='n'>1.074</td><td class='n'>1</td><td class='n'>63.851</td><td class='n'>51.482</td><td class='n'>12.369</td><td class='n'>49.656</td><td class='n'>0</td><td class='n'>573</td><td class='n'>1.253</td><td class='n'>1</td><td>AC</td></tr><tr><td>SENA MADUREIRA</td><td class='n'>1.457</td><td class='n'>1</td><td class='n'>30.864</td><td class='n'>24.661</td><td class='n'>6.203</td><td class='n'>23.643</td><td class='n'>0</td><td class='n'>254</td><td class='n'>764</td><td class='n'>1</td><td>AC</td></tr><tr><td>TARAUACÁ</td><td class='n'>1.473</td><td class='n'>1</td><td class='n'>29.970</td><td class='n'>22.603</td><td class='n'>7.367</td><td class='n'>21.508</td><td class='n'>0</td><td class='n'>223</td><td class='n'>872</td><td class='n'>1</td><td>AC</td></tr><tr><td>FEIJÓ</td><td class='n'>1.139</td><td class='n'>1</td><td class='n'>24.197</td><td class='n'>18.156</td><td class='n'>6.041</td><td class='n'>17.296</td><td class='n'>0</td><td class='n'>133</td><td class='n'>727</td><td class='n'>1</td><td>AC</td></tr><tr><td>BRASILÉIA</td><td class='n'>1.058</td><td class='n'>1</td><td class='n'>19.978</td><td class='n'>15.907</td><td class='n'>4.071</td><td class='n'>15.387</td><td class='n'>0</td><td class='n'>135</td><td class='n'>385</td><td class='n'>1</td><td>AC</td></tr><tr><td>SENADOR GUIOMARD</td><td class='n'>1.538</td><td class='n'>1</td><td class='n'>18.638</td><td class='n'>15.166</td><td class='n'>3.472</td><td class='n'>14.557</td><td class='n'>0</td><td class='n'>180</td><td class='n'>429</td><td class='n'>1</td><td>AC</td></tr><tr><td>MÂNCIO LIMA</td><td class='n'>1.090</td><td class='n'>1</td><td class='n'>14.657</td><td class='n'>12.089</td><td class='n'>2.568</td><td class='n'>11.689</td><td class='n'>0</td><td class='n'>96</td><td class='n'>304</td><td class='n'>1</td><td>AC</td></tr><tr class='more'><td colspan='12'>⋯ mais 14 linhas</td></tr></tbody></table></div>
-<div class="frame-foot"><span class="hint">22 linhas · 0,3 s · arquivos baixados: comparecimento_municipio, municipios (71 kB)</span>
+<thead><tr><th>uf</th><th>municipio</th><th class='n'>votos</th><th class='n'>percentual_validos</th></tr></thead>
+<tbody><tr><td>AC</td><td>RIO BRANCO</td><td class='n'>56.423</td><td class='n'>27,28</td></tr><tr><td>AC</td><td>CRUZEIRO DO SUL</td><td class='n'>12.368</td><td class='n'>24,91</td></tr><tr><td>AC</td><td>TARAUACÁ</td><td class='n'>8.099</td><td class='n'>37,66</td></tr><tr><td>AC</td><td>FEIJÓ</td><td class='n'>7.435</td><td class='n'>42,99</td></tr><tr><td>AC</td><td>SENA MADUREIRA</td><td class='n'>5.787</td><td class='n'>24,48</td></tr><tr><td>AC</td><td>BRASILÉIA</td><td class='n'>3.965</td><td class='n'>25,77</td></tr><tr><td>AC</td><td>SENADOR GUIOMARD</td><td class='n'>3.536</td><td class='n'>24,29</td></tr><tr><td>AC</td><td>MÂNCIO LIMA</td><td class='n'>3.481</td><td class='n'>29,78</td></tr><tr><td>AC</td><td>XAPURI</td><td class='n'>3.366</td><td class='n'>34,33</td></tr><tr><td>AC</td><td>MARECHAL THAUMATURGO</td><td class='n'>3.365</td><td class='n'>37,07</td></tr><tr class='more'><td colspan='4'>⋯ mais 12 linhas</td></tr></tbody></table></div>
+<div class="frame-foot"><span class="hint">22 linhas · 0,3 s · arquivos baixados: votos_municipio, municipios (70 kB)</span>
 <span class="btn dark">Baixar CSV</span></div>
 </div></section></main>
 <footer><div>Fonte: Tribunal Superior Eleitoral (TSE), Portal de Dados Abertos. Processamento: Brazilian Election Analysis.<br>Feito por Luiz Cartolano · Código no GitHub · Fontes</div></footer></body></html>
