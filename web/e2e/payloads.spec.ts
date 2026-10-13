@@ -162,7 +162,10 @@ test('a finalist’s page loads one values file for each round', async ({ page }
     expect.stringMatching(/^\/mapas\/t1\/br\/1-votos\./),
     expect.stringMatching(/^\/mapas\/t2\/br\/1-votos\./),
   ])
-  await expect(page.getByTestId('municipality-list')).toHaveCount(2)
+  // The swing map reads the same two files, which swing.spec.ts checks.
+  await expect(
+    page.locator('[data-map]:not([data-map$="-variacao"]) [data-testid="municipality-list"]'),
+  ).toHaveCount(2)
 })
 
 test('client navigation never asks for a navigation file that the build deleted', async ({

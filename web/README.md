@@ -32,6 +32,10 @@ two places:
 `ELEICOES_FIXTURE_ROUNDS=1` builds the fixtures without round 2, as production builds before
 the round-2 pin. CI runs `e2e/waiting.spec.ts` on that build.
 
+`ELEICOES_FIXTURE_SWING=1` draws the swing map over the synthetic round 2, whose swing is
+zero everywhere. CI sets it on the main fixture build, so `e2e/swing.spec.ts` runs on every
+PR. Both switches apply to the fixtures only, and a published build refuses them.
+
 Round 2's pages live under `/2026/segundo-turno/`, with the same slug in English. Before the
 round-2 pin, they state the runoff's date and show no result. The Brazil page, every state,
 abroad and each state's President race have such a page, and the drill-down views show the
@@ -82,6 +86,23 @@ address and SHA-256. The browser requests the file when the page loads, checks i
 builds a candidate's share map and its list of municipalities from it, so a candidate
 page's list needs JavaScript. A file that fails its check offers a retry that skips the
 browser's cache, and a file that a later deploy renamed offers to reload the page.
+
+One cache in `race-map.tsx` holds the checked, parsed boundary and values files, by address
+and SHA-256. Each file is fetched, checked and parsed once per page, and a later page reuses
+it while it is among the six most recently used. A load that fails leaves no entry.
+
+A round-2 finalist's page also draws a swing map below its round-2 share map: the change
+in the finalist's share of the two finalists' votes, round 2 minus round 1, in seven steps
+of 1, 3 and 6 points around zero. The browser builds it from the two rounds' votes files
+that the page's share maps already read, so it adds no file to the page's weight. Its frame
+states that it compares two official counts, what a change mixes, and that it does not show
+where any voter's vote went.
+
+The page draws the swing map only when round 2 is in the build, neither round is synthetic
+unless `ELEICOES_FIXTURE_SWING=1` allows it, both finalists' votes are valid in both rounds'
+summaries, and both rounds list the same municipalities. `prepare-data.ts` compares the two
+rounds' votes files for each race and area, prints the codes that differ, and writes the
+races that match to `.data/swing.json`.
 
 `npm run build` then runs `scripts/prune-payloads.ts`, which deletes each page's
 `__next._full.txt`, `__next._tree.txt` and segment files. The app's links never prefetch,

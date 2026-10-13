@@ -60,3 +60,38 @@ export async function writeValuesFiles(
   }
   return files
 }
+
+/** The TSE codes that one round's votes file lists and the other's lacks, in order. */
+export function municipalityDifference(first: CandidateVotes, second: CandidateVotes): number[] {
+  const firstCodes = new Set(first.rows.map((row) => row[1]))
+  const secondCodes = new Set(second.rows.map((row) => row[1]))
+  return [...firstCodes.symmetricDifference(secondCodes)].sort((a, b) => a - b)
+}
+
+/**
+ * The races and areas, keyed as `<area>/<race>`, whose votes files list the same
+ * municipalities in both rounds, which a swing map needs. Every other pair goes to `differ`
+ * with the codes that differ, so the build can print them.
+ */
+export async function swingRaces(
+  firstMapsDir: string,
+  secondMapsDir: string,
+  firstFiles: ValuesFiles,
+  secondFiles: ValuesFiles,
+  differ: (race: string, codes: number[]) => void,
+): Promise<string[]> {
+  const read = async (dir: string, key: string) =>
+    JSON.parse(await readFile(path.join(dir, `${key}.json`), 'utf-8')) as CandidateVotes
+  const races: string[] = []
+  for (const key of Object.keys(secondFiles).sort()) {
+    if (!key.endsWith('-votos') || firstFiles[key] === undefined) continue
+    const codes = municipalityDifference(
+      await read(firstMapsDir, key),
+      await read(secondMapsDir, key),
+    )
+    const race = key.slice(0, -'-votos'.length)
+    if (codes.length === 0) races.push(race)
+    else differ(race, codes)
+  }
+  return races
+}

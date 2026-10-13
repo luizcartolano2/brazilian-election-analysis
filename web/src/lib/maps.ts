@@ -108,6 +108,114 @@ export function shareMap(
   }
 }
 
+/**
+ * One municipality on a finalist's swing map: its IBGE and TSE codes, its name, then the
+ * finalist's and the other finalist's votes in round 1, and the same in round 2.
+ */
+export type SwingRow = [
+  ibge: number,
+  municipio: number,
+  nome: string,
+  ownFirst: number,
+  otherFirst: number,
+  ownSecond: number,
+  otherSecond: number,
+]
+
+export interface SwingData {
+  kind: 'swing'
+  /** The finalist whose swing the map shows. */
+  units: [string]
+  rows: SwingRow[]
+}
+
+/** The swing steps' edges in points, on the swing's absolute value. */
+export const SWING_EDGES = [1, 3, 6] as const
+
+/**
+ * The round-2 head-to-head share minus round 1's, in points, rounded to one decimal with a
+ * half away from zero. Null where the finalists had no votes in a round.
+ */
+export function swingOf(row: SwingRow): number | null {
+  const [, , , ownFirst, otherFirst, ownSecond, otherSecond] = row
+  const first = ownFirst + otherFirst
+  const second = ownSecond + otherSecond
+  if (first === 0 || second === 0) return null
+  // A cross product of whole numbers, so the other finalist's swing is its exact negation, and
+  // one division gives the tenths of a point, with no rounding error before the half.
+  const cross = ownSecond * otherFirst - ownFirst * otherSecond
+  const tenths = Math.round((Math.abs(cross) * 1000) / (first * second))
+  return tenths === 0 ? 0 : (Math.sign(cross) * tenths) / 10
+}
+
+/** The round in which the two finalists had no votes, which leaves a municipality no swing. */
+export function roundWithoutVotes(row: SwingRow): 1 | 2 | null {
+  const [, , , ownFirst, otherFirst, ownSecond, otherSecond] = row
+  if (ownFirst + otherFirst === 0) return 1
+  if (ownSecond + otherSecond === 0) return 2
+  return null
+}
+
+/** Orders swing rows from the largest gain to the largest loss, with no swing last. */
+export function compareSwing(a: SwingRow, b: SwingRow): number {
+  const first = swingOf(a)
+  const second = swingOf(b)
+  if (first === null || second === null) return (first === null ? 1 : 0) - (second === null ? 1 : 0)
+  return second - first
+}
+
+/** A swing's step, from -3 to 3, by its absolute value against `SWING_EDGES`. */
+export function swingStep(swing: number): number {
+  const size = Math.abs(swing)
+  const step = SWING_EDGES.filter((edge) => size >= edge).length
+  return swing < 0 && step > 0 ? -step : step
+}
+
+/**
+ * A finalist's swing map from the race's votes in each round, joined on the TSE municipality
+ * code. The build compares the two files' municipalities first, so a difference here throws.
+ */
+export function swingMap(
+  first: CandidateVotes,
+  second: CandidateVotes,
+  numero: number,
+  other: number,
+  label: string,
+): SwingData {
+  const columns = (votes: CandidateVotes, round: number): [number, number] => {
+    for (const wanted of [numero, other]) {
+      if (!votes.numbers.includes(wanted)) {
+        throw new Error(`round ${round} has no column for ${wanted}`)
+      }
+    }
+    return [votes.numbers.indexOf(numero), votes.numbers.indexOf(other)]
+  }
+  const [ownFirst, otherFirst] = columns(first, 1)
+  const [ownSecond, otherSecond] = columns(second, 2)
+  const secondRows = new Map(second.rows.map((row) => [row[1], row]))
+  const firstCodes = new Set(first.rows.map((row) => row[1]))
+  const extra = second.rows.find((row) => !firstCodes.has(row[1]))
+  if (extra !== undefined) throw new Error(`round 1 has no municipality ${extra[1]}`)
+  return {
+    kind: 'swing',
+    units: [label],
+    rows: first.rows.map(([ibge, municipio, nome, , ...counts]) => {
+      const match = secondRows.get(municipio)
+      if (match === undefined) throw new Error(`round 2 has no municipality ${municipio}`)
+      const [, , , , ...countsSecond] = match
+      return [
+        ibge,
+        municipio,
+        nome,
+        counts[ownFirst] ?? 0,
+        counts[otherFirst] ?? 0,
+        countsSecond[ownSecond] ?? 0,
+        countsSecond[otherSecond] ?? 0,
+      ]
+    }),
+  }
+}
+
 /** A share's step, from 0 for under one step up to the last, which has no upper limit. */
 export function stepOf(row: MapRow, step: number): number {
   const [, , , , votes, , , valid] = row
@@ -372,7 +480,14 @@ export function binOf(margin: number): 0 | 1 | 2 {
 export type Fill =
   | { kind: 'leader'; color: 0 | 1; bin: 0 | 1 | 2 | null }
   | { kind: 'share'; step: number }
-  | { kind: 'other' | 'tie' | 'none' }
+  | { kind: 'swing'; step: number }
+  | { kind: 'other' | 'tie' | 'none' | 'noSwing' }
+
+/** A swing's step, or the hatched fill of a municipality with no swing. */
+export function swingFill(row: SwingRow): Fill {
+  const swing = swingOf(row)
+  return swing === null ? { kind: 'noSwing' } : { kind: 'swing', step: swingStep(swing) }
+}
 
 /**
  * How a municipality is drawn: a leader's color and shade, a share's step, gray, the tie
@@ -387,4 +502,43 @@ export function fillOf(row: MapRow, kind: MapKind, step = 10): Fill {
   if (second !== -1 && firstVotes === secondVotes) return { kind: 'tie' }
   if (first !== 0 && first !== 1) return { kind: 'other' }
   return { kind: 'leader', color: first, bin: kind === 'senate' ? null : binOf(marginPoints(row)) }
+}
+
+/** What decides whether a finalist's page shows a swing map. */
+export interface SwingCase {
+  numero: number
+  /** Whether the area has more than one municipality, so a map. */
+  mapped: boolean
+  /** Whether either round's data version is synthetic. */
+  synthetic: boolean
+  /** Whether a fixtures build draws the swing over synthetic data anyway. */
+  syntheticAllowed: boolean
+  /** Whether the build found the same municipalities in both rounds' votes files. */
+  comparable: boolean
+  first: SummaryRace
+  second: SummaryRace
+  /** Both rounds' votes files, read only when every other rule holds. */
+  votes: () => [CandidateVotes, CandidateVotes]
+}
+
+/**
+ * The other finalist when a finalist's page shows a swing map, or null. Both finalists' votes
+ * must be valid in both rounds' summaries: a round-2 votes file keeps a column of zeros for a
+ * finalist whose round-2 votes go under appeal, which would read as the other's gain everywhere.
+ */
+export function swingOpponent(entry: SwingCase): number | null {
+  if (!entry.mapped || !entry.comparable) return null
+  if (entry.synthetic && !entry.syntheticAllowed) return null
+  const finalists = entry.second.candidatos.map((candidate) => candidate.numero)
+  if (finalists.length !== 2 || !finalists.includes(entry.numero)) return null
+  const validIn = (race: SummaryRace, numero: number) =>
+    race.candidatos.some((candidate) => candidate.numero === numero && candidate.destino === VALID)
+  if (!finalists.every((numero) => validIn(entry.first, numero) && validIn(entry.second, numero))) {
+    return null
+  }
+  const [firstVotes, secondVotes] = entry.votes()
+  const columns = (numero: number) =>
+    firstVotes.numbers.includes(numero) && secondVotes.numbers.includes(numero)
+  if (!finalists.every(columns)) return null
+  return finalists.find((numero) => numero !== entry.numero) ?? null
 }

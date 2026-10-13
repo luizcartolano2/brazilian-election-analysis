@@ -192,7 +192,9 @@ test('a finalist page leads with round 2, and the switch leads to its round sect
   )) {
     expect(href).toMatch(/^\/2026\/segundo-turno\/(ac|pe|se)\/$/)
   }
-  await expect(runoff.getByTestId('race-map')).toHaveCount(1)
+  await expect(
+    runoff.locator('[data-map]:not([data-map$="-variacao"])').getByTestId('race-map'),
+  ).toHaveCount(1)
 })
 
 test('a candidate eliminated in round 1 shows round 1 only', async ({ page }) => {

@@ -33,3 +33,14 @@ export function formatPoints(locale: Locale, points: number): string {
     maximumFractionDigits: 1,
   }).format(points)
 }
+
+/** Percentage points with one decimal and a sign, such as `+3,9`, `−1,2` or `0,0`. */
+export function formatSignedPoints(locale: Locale, points: number): string {
+  return new Intl.NumberFormat(NUMBER_LOCALES[locale], {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+    signDisplay: 'exceptZero',
+  })
+    .format(points)
+    .replace('-', '−')
+}

@@ -10,7 +10,7 @@ import {
 } from '@/lib/data'
 import { raceName, type RaceInfo, type Round } from '@/lib/elections'
 import { formatInteger, t, type Locale } from '@/lib/i18n'
-import { isMappedArea, SHARE_STEPS } from '@/lib/maps'
+import { isMappedArea, SHARE_STEPS, SWING_EDGES, type SwingData } from '@/lib/maps'
 
 // Fernando de Noronha lies about 350 km off the coast, and would widen Pernambuco's maps.
 const NORONHA = 2605459
@@ -60,9 +60,11 @@ function mapLabels(
     statement: share
       ? t(locale, 'map.shareStatement', { candidate })
       : t(locale, race.proportional ? 'map.statementParty' : 'map.statement'),
+    notes: [],
+    swing: null,
     twoChoices: twoChoices ? t(locale, share ? 'map.shareTwoChoices' : 'map.twoChoices') : null,
     bins,
-    steps: data.step === undefined ? [] : stepLabels(locale, data.step),
+    steps: 'step' in data && data.step !== undefined ? stepLabels(locale, data.step) : [],
     votesCount: t(locale, 'map.votesCount'),
     binsLegend: t(locale, 'map.binsLegend', { close: bins[0], clear: bins[1], wide: bins[2] }),
     other: t(locale, 'map.other'),
@@ -108,6 +110,18 @@ function mapLabels(
   }
 }
 
+/** A map source's identity, so that a new source remounts the map. */
+function sourceKey(mapSource: MapSource, area: string, race: RaceInfo, round: Round): string {
+  switch (mapSource.kind) {
+    case 'file':
+      return `${mapSource.url}#${mapSource.share?.numero ?? ''}`
+    case 'swing':
+      return `${mapSource.files.map((file) => file.url).join(' ')}#${mapSource.swing.numero}`
+    case 'inline':
+      return `${area}-${race.slug}-${round}`
+  }
+}
+
 function MapView({
   locale,
   area,
@@ -118,6 +132,7 @@ function MapView({
   heading,
   table,
   collapsed,
+  name = `${area}-${race.slug}`,
   children,
 }: {
   locale: Locale
@@ -129,6 +144,8 @@ function MapView({
   heading: string
   table: boolean
   collapsed?: string
+  /** The section's `data-map`, which tests find it by. */
+  name?: string
   children?: ReactNode
 }) {
   const source = getSourceInfo()
@@ -136,15 +153,11 @@ function MapView({
   const sha256 = source.geoSha256[file]
   if (sha256 === undefined) throw new Error(`the pinned boundary build has no ${file}`)
   return (
-    <section className="mt-8" data-map={`${area}-${race.slug}`}>
+    <section className="mt-8" data-map={name}>
       <h2 className="text-2xl font-extrabold">{heading}</h2>
       {/* A new source remounts the map, so it never shows the values of the page before. */}
       <RaceMap
-        key={
-          mapSource.kind === 'file'
-            ? `${mapSource.url}#${mapSource.share?.numero ?? ''}`
-            : `${area}-${race.slug}-${round}`
-        }
+        key={sourceKey(mapSource, area, race, round)}
         locale={locale}
         source={mapSource}
         boundary={{ url: `${source.geoBase}/${file}`, sha256 }}
@@ -262,6 +275,101 @@ export function ShareMapSection({
       collapsed={t(locale, 'map.listSummary', {
         count: formatInteger(locale, votes.rows.length),
       })}
+    />
+  )
+}
+
+/** The swing steps' names, from "−6 p.p. ou menos" through "de −1 a +1 p.p." to "+6 p.p. ou mais". */
+function swingStepLabels(locale: Locale): string[] {
+  const signed = (edge: number) => (edge > 0 ? `+${edge}` : edge < 0 ? `−${-edge}` : '0')
+  const edges = [...SWING_EDGES].reverse().map((edge) => -edge)
+  const cuts = [...edges, ...SWING_EDGES]
+  const ranges = cuts
+    .slice(0, -1)
+    .map((from, index) =>
+      t(locale, 'map.swingStepRange', { from: signed(from), to: signed(cuts[index + 1] ?? from) }),
+    )
+  return [
+    t(locale, 'map.swingStepLow', { points: signed(edges[0] ?? 0) }),
+    ...ranges,
+    t(locale, 'map.swingStepHigh', { points: signed(SWING_EDGES[SWING_EDGES.length - 1] ?? 0) }),
+  ]
+}
+
+/**
+ * A finalist's change in its share of the two finalists' votes between the rounds, by
+ * municipality. It reads the two rounds' votes files that the page's share maps already read,
+ * and links each municipality to its round-2 view.
+ */
+export function SwingMapSection({
+  locale,
+  area,
+  areaLabel,
+  race,
+  numero,
+  other,
+  name,
+}: {
+  locale: Locale
+  area: string
+  areaLabel: string
+  race: RaceInfo
+  numero: number
+  other: number
+  name: string
+}) {
+  const frame: Omit<SwingData, 'rows'> = { kind: 'swing', units: [name] }
+  const mapSource: MapSource = {
+    kind: 'swing',
+    files: [
+      getValuesFile(area, `${race.code}-votos`, 1),
+      getValuesFile(area, `${race.code}-votos`, 2),
+    ],
+    frame,
+    swing: { numero, other, label: name },
+  }
+  const base = mapLabels(locale, race, areaLabel, frame, false, false, 2, name)
+  const labels: MapLabels = {
+    ...base,
+    title: t(locale, 'map.swingTitle', {
+      candidate: name,
+      race: raceName(race, locale),
+      area: areaLabel,
+    }),
+    statement: t(locale, 'map.swingStatement', { candidate: name }),
+    notes: [
+      t(locale, 'map.swingNoteCounts'),
+      t(locale, 'map.swingNoteMix'),
+      t(locale, 'map.swingNoteNot'),
+    ],
+    steps: swingStepLabels(locale),
+    swing: {
+      firstShare: t(locale, 'map.swingFirstShare'),
+      secondShare: t(locale, 'map.swingSecondShare'),
+      change: t(locale, 'map.swingChange'),
+      noSwing: [t(locale, 'map.swingNoSwing1'), t(locale, 'map.swingNoSwing2')],
+      noSwingLegend: t(locale, 'map.swingNoSwingLegend'),
+      headFirst: t(locale, 'map.swingHeadFirst'),
+      headSecond: t(locale, 'map.swingHeadSecond'),
+      headChange: t(locale, 'map.swingHeadChange'),
+      sortSwing: t(locale, 'map.swingSort'),
+    },
+    table: { ...base.table, caption: t(locale, 'map.swingCaption', { candidate: name }) },
+  }
+  return (
+    <MapView
+      locale={locale}
+      area={area}
+      race={race}
+      round={2}
+      mapSource={mapSource}
+      labels={labels}
+      heading={t(locale, 'map.swingHeading')}
+      table
+      collapsed={t(locale, 'map.listSummary', {
+        count: formatInteger(locale, getCandidateVotes(area, race.code, 2).rows.length),
+      })}
+      name={`${area}-${race.slug}-variacao`}
     />
   )
 }

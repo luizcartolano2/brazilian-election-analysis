@@ -5,7 +5,14 @@ import { PageShell, type Crumb, type RoundLinks } from '@/components/page-shell'
 import { Outcome } from '@/components/results'
 import { municipalityHref } from '@/lib/address'
 import { placeOf, sharesByState, type StateShare } from '@/lib/candidates'
-import { coveredAreas, getCandidateVotes, getSummary, hasRound } from '@/lib/data'
+import {
+  coveredAreas,
+  getCandidateVotes,
+  getRoundSource,
+  getSummary,
+  getSwingInfo,
+  hasRound,
+} from '@/lib/data'
 import {
   ABROAD,
   areaByCode,
@@ -33,10 +40,10 @@ import {
   type Locale,
 } from '@/lib/i18n'
 import { candidateColor } from '@/lib/map-colors'
-import { candidateRanks, largestMunicipalities } from '@/lib/maps'
+import { candidateRanks, largestMunicipalities, swingOpponent } from '@/lib/maps'
 import { roundPath } from '@/lib/paths'
 import { raceResults, VALID, type SummaryCandidate, type SummaryRace } from '@/lib/results'
-import { hasMap, ShareMapSection } from '@/views/map-section'
+import { hasMap, ShareMapSection, SwingMapSection } from '@/views/map-section'
 import { pageRoundLinks } from '@/views/params'
 
 interface Candidacy {
@@ -246,11 +253,14 @@ function RoundResults({
   candidacy,
   heading: Heading,
   headlineTestId,
+  swing,
 }: {
   locale: Locale
   candidacy: Candidacy
   heading: 'h2' | 'h3'
   headlineTestId: string
+  /** The swing map, which follows the round-2 share map. */
+  swing?: ReactNode
 }) {
   const { race, summary, candidate, round } = candidacy
   const valid = candidate.destino === VALID
@@ -317,6 +327,7 @@ function RoundResults({
           round={round}
         />
       )}
+      {swing}
       {mapped && race.code === PRESIDENT && (
         <p className="text-muted mt-4 text-sm" data-testid="abroad-note">
           {t(locale, 'candidate.abroadNote')}{' '}
@@ -345,10 +356,12 @@ function RoundSection({
   locale,
   candidacy,
   headlineTestId,
+  swing,
 }: {
   locale: Locale
   candidacy: Candidacy
   headlineTestId: string
+  swing?: ReactNode
 }) {
   const round = candidacy.round
   return (
@@ -368,8 +381,37 @@ function RoundSection({
         candidacy={candidacy}
         heading="h3"
         headlineTestId={headlineTestId}
+        swing={swing}
       />
     </section>
+  )
+}
+
+/** A finalist's swing map, under the rules of `swingOpponent`, or nothing. */
+function swingSection(locale: Locale, first: Candidacy, second: Candidacy): ReactNode {
+  const { area, race, candidate } = second
+  const swingInfo = getSwingInfo()
+  const other = swingOpponent({
+    numero: candidate.numero,
+    mapped: area === 'br' || hasMap(area),
+    synthetic: getRoundSource(1).synthetic || getRoundSource(2).synthetic,
+    syntheticAllowed: swingInfo.syntheticAllowed,
+    comparable: swingInfo.races.includes(`${area}/${race.code}`),
+    first: first.summary,
+    second: second.summary,
+    votes: () => [getCandidateVotes(area, race.code, 1), getCandidateVotes(area, race.code, 2)],
+  })
+  if (other === null) return null
+  return (
+    <SwingMapSection
+      locale={locale}
+      area={area}
+      areaLabel={areaLabel(locale, area)}
+      race={race}
+      numero={candidate.numero}
+      other={other}
+      name={candidate.nome}
+    />
   )
 }
 
@@ -439,7 +481,12 @@ export function CandidateView({
         />
       ) : (
         <>
-          <RoundSection locale={locale} candidacy={runoff} headlineTestId="headline" />
+          <RoundSection
+            locale={locale}
+            candidacy={runoff}
+            headlineTestId="headline"
+            swing={swingSection(locale, candidacy, runoff)}
+          />
           <RoundSection locale={locale} candidacy={candidacy} headlineTestId="headline-1" />
         </>
       )}
