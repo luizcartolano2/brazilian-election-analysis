@@ -74,7 +74,8 @@ This change touches these invariants in `CLAUDE.md`, and it keeps each one as fo
 - A visitor's own query can compute any figure, a cross-race count or a station score
   included. Its caption says that a visitor's query produced it, so the site states
   nothing in it. This change adds that reading to D17, which governs what the site
-  states. The two invariants above keep holding for everything that the site authors.
+  states, and to the Invariants in `CLAUDE.md`. The two invariants above keep holding for
+  everything that the site authors.
 - Before 2026-10-25, estimates stay behind their flag. The change adds no estimate, and
   its code merges after the round-2 pin.
 - Official numbers reconcile, or nothing publishes. The playground reads only published
@@ -131,3 +132,4 @@ a visitor's own query outside its rules. D14 gains its timing.
 - `web/README.md`: the playground and its limits.
 - `docs/decisions.md`: D14 records this change's timing, and D17 puts a visitor's own
   query outside its rules.
+- `CLAUDE.md`: the Invariants say the same as D17.
