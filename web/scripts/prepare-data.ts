@@ -3,6 +3,7 @@
  * .data/rounds/<round>/ before `next build`, after checking each one, so a wrong or tampered
  * file fails the build.
  */
+import { readFileSync } from 'node:fs'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { DATA_VERSIONS, versionUrl, WORKER_URL, type PinnedVersion } from '../src/data-version'
@@ -16,6 +17,7 @@ import {
   summaryPaths,
   verifyFile,
   verifyManifest,
+  type CheckedRace,
   type Manifest,
 } from '../src/lib/manifest'
 import {
@@ -84,6 +86,32 @@ export interface PlannedRound {
   source: DataSource
   pin: PinnedVersion | null
   dataBase: string
+  /** The races that a pinned version must have reconciled. A fixture round has none. */
+  races: CheckedRace[]
+}
+
+/** Each round's list in `src/pinned-races.json`, null before the round's first pin. */
+export type PinnedRaces = Partial<Record<string, CheckedRace[] | null>>
+
+export function readPinnedRaces(
+  file = path.join(WEB_ROOT, 'src', 'pinned-races.json'),
+): PinnedRaces {
+  return JSON.parse(readFileSync(file, 'utf-8')) as PinnedRaces
+}
+
+/**
+ * The races that a pinned round's version must have reconciled. The PR that pins a version
+ * copies them from its manifest's `verificacoes.agregado`, so a race joins or leaves the list
+ * only through an edit that its reviewer sees.
+ */
+export function racesOf(lists: PinnedRaces, round: Round): CheckedRace[] {
+  const listed = lists[String(round)]
+  if (listed === undefined || listed === null || listed.length === 0) {
+    throw new Error(
+      `src/pinned-races.json lists no races for round ${round}: copy them from the pinned manifest's verificacoes.agregado`,
+    )
+  }
+  return listed
 }
 
 const FIXTURE_DIRS: Record<Round, string> = { 1: 'fixtures', 2: 'fixtures-t2' }
@@ -99,15 +127,17 @@ export function plannedRounds(
   mode: DataMode,
   versions: { 1: PinnedVersion; 2: PinnedVersion | null } = DATA_VERSIONS,
   fixturesRoot = WEB_ROOT,
+  lists: PinnedRaces = mode === 'published' ? readPinnedRaces() : {},
 ): PlannedRound[] {
   return ROUNDS.flatMap((round): PlannedRound[] => {
     if (mode === 'fixtures') {
       const source = fixtureSource(path.join(fixturesRoot, FIXTURE_DIRS[round]))
-      return [{ round, source, pin: null, dataBase: FIXTURE_DATA[round] }]
+      return [{ round, source, pin: null, dataBase: FIXTURE_DATA[round], races: [] }]
     }
     const pin = versions[round]
     if (pin === null) return []
-    return [{ round, source: publishedSource(versionUrl(pin)), pin, dataBase: versionUrl(pin) }]
+    const source = publishedSource(versionUrl(pin))
+    return [{ round, source, pin, dataBase: versionUrl(pin), races: racesOf(lists, round) }]
   })
 }
 
@@ -116,11 +146,12 @@ export async function readManifest(
   source: DataSource,
   round: Round,
   expectedSha256: string,
+  races: CheckedRace[],
 ): Promise<{ manifest: Manifest; manifestBytes: Uint8Array }> {
   const manifestBytes = await source.read('manifest.json')
   const manifest =
     source.mode === 'published'
-      ? verifyManifest(manifestBytes, expectedSha256, round)
+      ? verifyManifest(manifestBytes, expectedSha256, round, races)
       : parseManifest(manifestBytes ?? new Uint8Array(), round)
   return { manifest, manifestBytes: manifestBytes as Uint8Array }
 }
@@ -142,9 +173,10 @@ export async function readMunicipalities(
 export async function loadVersion(
   source: DataSource,
   round: Round,
-  expectedSha256 = '',
+  expectedSha256: string,
+  races: CheckedRace[],
 ): Promise<LoadedVersion> {
-  const { manifest, manifestBytes } = await readManifest(source, round, expectedSha256)
+  const { manifest, manifestBytes } = await readManifest(source, round, expectedSha256, races)
   const summaries = new Map<string, Uint8Array>()
   for (const summaryPath of summaryPaths(manifest)) {
     const bytes = await source.read(summaryPath)
@@ -288,23 +320,39 @@ export function fixtureSwing(env: Record<string, string | undefined>, mode: Data
   return true
 }
 
-async function main(): Promise<void> {
-  const mode = dataMode(process.env)
-  const included = fixtureRounds(process.env, mode)
-  const syntheticSwing = fixtureSwing(process.env, mode)
+/** Each planned round's checked version, after a check that the two rounds agree. */
+export async function loadRounds(
+  planned: PlannedRound[],
+): Promise<(PlannedRound & LoadedVersion & { parsed: Map<string, Summary> })[]> {
   const rounds: (PlannedRound & LoadedVersion & { parsed: Map<string, Summary> })[] = []
-  for (const planned of plannedRounds(mode).filter((entry) => included.includes(entry.round))) {
-    const loaded = await loadVersion(planned.source, planned.round, planned.pin?.manifestSha256)
-    rounds.push({ ...planned, ...loaded, parsed: parseSummaries(loaded.summaries) })
+  for (const entry of planned) {
+    const loaded = await loadVersion(
+      entry.source,
+      entry.round,
+      entry.pin?.manifestSha256 ?? '',
+      entry.races,
+    )
+    rounds.push({ ...entry, ...loaded, parsed: parseSummaries(loaded.summaries) })
   }
   const [first, second] = rounds
-  if (first?.round !== 1) throw new Error('the build has no data version for round 1')
-  if (second !== undefined) {
+  if (first !== undefined && second !== undefined) {
     const problems = runoffMismatches(first.parsed, second.parsed)
     if (problems.length > 0) {
       throw new Error(`the two rounds' versions disagree:\n${problems.join('\n')}`)
     }
   }
+  return rounds
+}
+
+async function main(): Promise<void> {
+  const mode = dataMode(process.env)
+  const included = fixtureRounds(process.env, mode)
+  const syntheticSwing = fixtureSwing(process.env, mode)
+  const rounds = await loadRounds(
+    plannedRounds(mode).filter((entry) => included.includes(entry.round)),
+  )
+  const [first, second] = rounds
+  if (first?.round !== 1) throw new Error('the build has no data version for round 1')
 
   const duckdbVersion = duckdbPackageVersion()
   const assetBase =

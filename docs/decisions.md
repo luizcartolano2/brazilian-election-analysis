@@ -134,6 +134,11 @@ each round, because a recount of round 1, such as Rio's, must republish round 1 
 touching round 2. Each version still holds one round, and the build fails unless the two
 pins agree on who reached round 2.
 
+The races that each pinned version reconciled are pin data, like its manifest's SHA-256, so
+`web/src/pinned-races.json` commits them. A build fails when a pinned version's races differ
+from that list, so a race that TSE drops or adds changes the site only through a reviewed
+edit.
+
 ## Scope and timing
 
 ### D14. Ship something before the runoff, with no hard date

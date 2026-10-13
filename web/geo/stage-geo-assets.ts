@@ -29,7 +29,9 @@ import {
   cachePublishedExtension,
   fixtureSource,
   publishedSource,
+  racesOf,
   readManifest,
+  readPinnedRaces,
   readMunicipalities,
   type DataSource,
 } from '../scripts/prepare-data'
@@ -426,7 +428,8 @@ export async function stageToFolder(
  * holds the same municipalities.
  */
 export async function municipalitiesByCode(source: DataSource): Promise<Map<number, string>> {
-  const { manifest } = await readManifest(source, 1, DATA_VERSIONS[1].manifestSha256)
+  const races = source.mode === 'published' ? racesOf(readPinnedRaces(), 1) : []
+  const { manifest } = await readManifest(source, 1, DATA_VERSIONS[1].manifestSha256, races)
   const municipalities = await readMunicipalities(source, manifest)
   if (source.mode === 'published') {
     await cachePublishedExtension(`${WORKER_URL}/assets/duckdb-wasm/${duckdbPackageVersion()}`)

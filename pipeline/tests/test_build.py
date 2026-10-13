@@ -11,7 +11,7 @@ from eleicoes.build import BuildError
 from eleicoes.download import SourceUnavailable
 from eleicoes.load import CANDIDATE_ALLOWLIST, quoted
 from eleicoes.reconcile import ReconciliationFailed, summary_mismatches
-from eleicoes.sources import Bases, bulk_sources, round_config
+from eleicoes.sources import Bases, bulk_sources, round_config, state_votes_source
 
 DATA = "2026/t1"
 
@@ -242,6 +242,29 @@ def test_a_president_candidate_that_brazils_aggregate_omits_stops_the_build(buil
     assert [str(mismatch) for mismatch in caught.value.mismatches] == [
         f"[summary] BR race 1: candidate votes on named lines is {nominal - 2}, TSE says {nominal}"
     ]
+
+
+def test_a_configured_election_with_no_vote_rows_stops_the_build(tse, tmp_path):
+    """TSE once dropped Fernando de Noronha's council from Pernambuco's files. Here its vote and
+    turnout rows both move to another round, so no other check sees the race go."""
+    config = round_config(1)
+
+    def move_to_round_2(row):
+        if row["CD_ELEICAO"] != "6261":
+            return False
+        row["NR_TURNO"] = "2"
+        return True
+
+    for source in (
+        state_votes_source(config, Bases(), "PE"),
+        bulk_sources(config, Bases())["turnout"],
+    ):
+        assert tse.edit_csv(tse.csv_path(source), move_to_round_2) > 0
+    with pytest.raises(
+        BuildError, match="PE: election 6261 has no vote rows in municipality 30015"
+    ):
+        run_build(tse, tmp_path)
+    assert not (tmp_path / "out").exists()
 
 
 def test_candidate_columns_are_the_allowlist_plus_tses_destination_and_outcome(built):

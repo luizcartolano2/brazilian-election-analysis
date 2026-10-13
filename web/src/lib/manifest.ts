@@ -29,6 +29,29 @@ export interface Manifest {
   arquivos: ManifestFile[]
   /** Set only on test fixtures that the pipeline made up rather than cut from TSE's files. */
   sintetico?: boolean
+  /** The checks the build ran, among them each race it reconciled with TSE's aggregate. */
+  verificacoes?: { agregado?: CheckedRace[] }
+}
+
+/** A race that the pipeline reconciled with TSE's aggregate: its area, election and race. */
+export type CheckedRace = [area: string, election: number, race: number]
+
+/** The listed races that a version did not reconcile, and the races it reconciled unlisted. */
+export function compareRaces(
+  listed: CheckedRace[],
+  checked: CheckedRace[],
+): { missing: CheckedRace[]; extra: CheckedRace[] } {
+  const keys = (races: CheckedRace[]) => new Set(races.map((race) => race.join('/')))
+  const listedKeys = keys(listed)
+  const checkedKeys = keys(checked)
+  return {
+    missing: listed.filter((race) => !checkedKeys.has(race.join('/'))),
+    extra: checked.filter((race) => !listedKeys.has(race.join('/'))),
+  }
+}
+
+function raceNames(races: CheckedRace[]): string {
+  return races.map((race) => race.join('/')).join(', ')
 }
 
 export class DataVersionError extends Error {}
@@ -51,11 +74,16 @@ export function parseManifest(bytes: Uint8Array, round: Round): Manifest {
   return manifest
 }
 
-/** Checks a pinned version's manifest. `bytes` is null when the version has no manifest. */
+/**
+ * Checks a pinned version's manifest. `bytes` is null when the version has no manifest.
+ * `races` are the races that the version must have reconciled, no more and no fewer, so a race
+ * that TSE removes from its files, or adds, changes the site only through an edit of the list.
+ */
 export function verifyManifest(
   bytes: Uint8Array | null,
   expectedSha256: string,
   round: Round,
+  races: CheckedRace[],
 ): Manifest {
   if (bytes === null) {
     throw new DataVersionError(
@@ -71,6 +99,25 @@ export function verifyManifest(
   const manifest = parseManifest(bytes, round)
   if (manifest.parcial !== false || manifest.fontes_tse !== true) {
     throw new DataVersionError('the pinned version is partial or was built from files outside TSE')
+  }
+  const checked = manifest.verificacoes?.agregado
+  if (!Array.isArray(checked)) {
+    throw new DataVersionError(`the pinned version for round ${round} records no reconciled races`)
+  }
+  // One error names every difference, so a pin that drops a race and adds another is fixed once.
+  const { missing, extra } = compareRaces(races, checked)
+  const differences = [
+    ...(missing.length > 0
+      ? [`did not reconcile ${raceNames(missing)}, which pinned-races.json lists`]
+      : []),
+    ...(extra.length > 0
+      ? [`reconciled ${raceNames(extra)}, which pinned-races.json lacks: add them to its list`]
+      : []),
+  ]
+  if (differences.length > 0) {
+    throw new DataVersionError(
+      `the pinned version for round ${round} ${differences.join(', and it ')}`,
+    )
   }
   return manifest
 }
