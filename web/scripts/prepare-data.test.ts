@@ -93,6 +93,16 @@ describe('loadVersion', () => {
     )
   })
 
+  it('names every race in one error when a pin drops one and adds another', async () => {
+    const listed = await racesIn(published())
+    const source = published(
+      withRaces((races) => [...races.filter((race) => race[1] !== 6261), ['xx', 9999, 1]]),
+    )
+    await expect(loadVersion(source, 1, await pinOf(source), listed)).rejects.toThrow(
+      'the pinned version for round 1 did not reconcile pe30015/6261/25, which pinned-races.json lists, and it reconciled xx/9999/1, which pinned-races.json lacks: add them to its list',
+    )
+  })
+
   it('fails when the manifest records no reconciled races', async () => {
     const listed = await racesIn(published())
     const source = published(withRaces(() => undefined))

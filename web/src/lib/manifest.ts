@@ -104,15 +104,19 @@ export function verifyManifest(
   if (!Array.isArray(checked)) {
     throw new DataVersionError(`the pinned version for round ${round} records no reconciled races`)
   }
+  // One error names every difference, so a pin that drops a race and adds another is fixed once.
   const { missing, extra } = compareRaces(races, checked)
-  if (missing.length > 0) {
+  const differences = [
+    ...(missing.length > 0
+      ? [`did not reconcile ${raceNames(missing)}, which pinned-races.json lists`]
+      : []),
+    ...(extra.length > 0
+      ? [`reconciled ${raceNames(extra)}, which pinned-races.json lacks: add them to its list`]
+      : []),
+  ]
+  if (differences.length > 0) {
     throw new DataVersionError(
-      `the pinned version for round ${round} did not reconcile ${raceNames(missing)}, which pinned-races.json lists`,
-    )
-  }
-  if (extra.length > 0) {
-    throw new DataVersionError(
-      `the pinned version for round ${round} reconciled ${raceNames(extra)}, which pinned-races.json lacks: add them to its list`,
+      `the pinned version for round ${round} ${differences.join(', and it ')}`,
     )
   }
   return manifest
